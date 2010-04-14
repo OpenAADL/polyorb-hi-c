@@ -139,7 +139,7 @@ $(BINARY): check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
 	$(make-exe)
 else
 $(BINARY): compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
-	$(CC) -o $(BINARY) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
+	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
 endif
 
 %.o: %.cpp
