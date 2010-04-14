@@ -1,0 +1,92 @@
+--  Property set for ARAO features
+
+property set ARAO is
+
+  simple_type   : type enumeration 
+   (boolean,
+    character,
+    float,
+    fixed,
+    integer,
+    null,
+    string,
+    wide_character,
+    wide_string);
+  --  Supported data types
+
+  data_type     : simple_type applies to (data);
+  --  Available data type
+
+  data_digits   : aadlinteger applies to (data);
+  data_scale    : aadlinteger applies to (data);
+  --  Properties for fixed point types
+
+  max_length    : aadlinteger applies to (data);
+  --  Max length for string data
+
+  symbolic_values : list of aadlstring applies to (data);
+  --  Special values for data defined following AADL standard specs
+  
+  location    : aadlstring applies to (processor);
+  --  Processor network's address
+	  
+  port_number : aadlinteger applies to (process);
+  --  Port number used by a node
+
+  process_id : aadlinteger applies to (process);
+  --  Identifier of the process (used by SpaceWire)
+
+  channel_address : aadlinteger applies to (process);
+  --  SpaceWire channel address
+
+  protocol_type : type enumeration (iiop, diop);
+  --  Available communication protocol implementations
+
+  protocol      : protocol_type applies to (system);
+  --  Protocol implementation used for communications
+  --  currently only support GIOP implementations
+
+  priority      : aadlinteger applies to (data, thread);
+  --  Thread and data component priority
+
+  Allowed_Lock_Implementation : type enumeration 
+   (Synchronous_Lock, 
+    Asynchronous_Lock, 
+    User_Defined_Lock);
+  --  Available variable locking policies
+
+  Actual_Lock_Implementation : allowed_lock_implementation applies to (data);
+  --  Variable locking policy used by the runtime
+
+  Allowed_Execution_Platform : type enumeration
+   (Native,
+    LEON_RTEMS,
+    LEON_ORK,
+    ERC32_ORK,
+    ARM_DSLINUX,
+    ARM_N770);
+  --  Available platform to which distributed applications can be
+  --  generated.
+
+  Execution_Platform : Allowed_Execution_Platform applies to (processor);
+  --  The execution platform of a distributed application
+
+  Allowed_Transport_Layers : type enumeration
+    (Ethernet,
+     SpaceWire,
+     Serial);
+  --  Available transport layers
+
+  Transport_Layer : Allowed_Transport_Layers applies to (bus);
+  --  The transport layer of a bus component
+
+  IP_Address : access aadlstring applies to (bus);
+  --  IPv4 address of a network card
+
+  MAC_Address : access aadlstring applies to (bus);
+  --  MAC id. of a network card
+
+  Memory_Size : Size applies to (memory);
+  --  Memory size 
+
+end ARAO;

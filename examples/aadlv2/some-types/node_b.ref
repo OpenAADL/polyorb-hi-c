@@ -1,0 +1,80 @@
+Initialize global queue for task-id 0 ... port 0 (used_size=0,first=0)  ... done
+Initialize global queue for task-id 1 ... port 0 (used_size=0,first=0)  ... done
+Initialize global queue for task-id 2 ... port 0 (used_size=0,first=0)  ... done
+Receiver initialization finished
+Receive message
+Receive message from node 0
+Using raw protocol stack
+Message deliveredReceived in event data port message for task 0, port 0
+Receive message
+Receive message from node 0
+Using raw protocol stack
+Message deliveredReceived in event data port message for task 1, port 0
+Receive message
+Receive message from node 0
+Using raw protocol stack
+Message deliveredReceived in event data port message for task 2, port 0
+Task 0 get a value on port 0
+Task 1 get a value on port 0
+Task 2 get a value on port 0
+Receiving boolean : 1
+*** PING *** (0, 0)
+Receiving integer : 1
+Receive message
+Receive message from node 0
+Using raw protocol stack
+Message deliveredReceived in event data port message for task 0, port 0
+Receive message
+Receive message from node 0
+Using raw protocol stack
+Message deliveredReceived in event data port message for task 1, port 0
+Receive message
+Receive message from node 0
+Using raw protocol stack
+Message deliveredReceived in event data port message for task 2, port 0
+Task 0 get a value on port 0
+Task 1 get a value on port 0
+Task 2 get a value on port 0
+Receiving boolean : 0
+Receiving integer : 0
+*** PING *** (0, 0)
+Receive message
+Receive message from node 0
+Using raw protocol stack
+Message deliveredReceived in event data port message for task 0, port 0
+Receive message
+Receive message from node 0
+Using raw protocol stack
+Message deliveredReceived in event data port message for task 1, port 0
+Receive message
+Receive message from node 0
+Using raw protocol stack
+Message deliveredReceived in event data port message for task 2, port 0
+Task 0 get a value on port 0
+Task 1 get a value on port 0
+Task 2 get a value on port 0
+Receiving boolean : 0
+Receiving integer : 0
+*** PING *** (0, 0)
+Receive message
+Receive message from node 0
+Using raw protocol stack
+Message deliveredReceived in event data port message for task 0, port 0
+Receive message
+Receive message from node 0
+Using raw protocol stack
+Message deliveredReceived in event data port message for task 1, port 0
+Receive message
+Receive message from node 0
+Using raw protocol stack
+Message deliveredReceived in event data port message for task 2, port 0
+Task 0 get a value on port 0
+Task 1 get a value on port 0
+Task 2 get a value on port 0
+Receiving boolean : 0
+Receiving integer : 0
+*** PING *** (0, 0)
+Receive message
+Receive message from node 0
+Using raw protocol stack
+ERROR, 0 16

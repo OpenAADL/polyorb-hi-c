@@ -1,0 +1,29 @@
+CC=/usr/bin/gcc
+CFLAGS=-Wall -ansi
+EXAMPLES=examples/
+BIN=bin/
+SRC=src/
+
+all:
+
+test-malloc: build-test-malloc
+	$(SRC)/check-symbols.pl -f $(SRC)/functions-lwaep $(BIN)/malloc
+
+test-strings: build-test-strings
+	$(SRC)/check-symbols.pl -f $(SRC)/functions-lwaep $(BIN)/strings
+
+build-test-malloc:
+	$(CC) $(CFLAGS)  -o $(BIN)/malloc $(EXAMPLES)/malloc/test.c 
+
+build-test-strings:
+	$(CC) $(CFLAGS)  -o $(BIN)/strings $(EXAMPLES)/strings/test.c
+
+build-tests: build-test-malloc build-test-strings
+
+tests: build-tests test-malloc test-strings
+
+clean:
+	find . -name '*~' | xargs rm -f
+	find . -name 'a.out' | xargs rm -f
+	rm $(BIN)/*
+	

@@ -1,0 +1,352 @@
+data timedata
+end timedata;
+
+thread step1
+features
+  ined: in event data port timedata { Queue_Size => 0; };
+  outed: out event data port timedata;
+flows
+  flow1: flow path ined -> outed { latency => 45 ms;};
+properties
+  period => 50 ms;
+  deadline => 45 ms;
+  Compute_Execution_Time => 6 ms .. 10 ms;
+end step1;
+
+thread implementation step1.periodic
+flows
+  flow1: flow path ined -> outed;
+properties
+  Dispatch_Protocol => Periodic;
+end step1.periodic;
+
+thread implementation step1.aperiodic
+flows
+  flow1: flow path ined -> outed;
+properties
+  Dispatch_Protocol => Aperiodic;
+end step1.aperiodic;
+
+
+thread step2
+features
+  ined: in event data port timedata { Queue_Size => 0; };
+  outed: out event data port timedata;
+flows
+  flow1: flow path ined -> outed { latency => 70 ms;};
+properties
+  period => 100 ms;
+  deadline => 70 ms;
+  Compute_Execution_Time => 15 ms .. 23 ms;
+End step2;
+
+thread implementation step2.periodic
+flows
+  flow1: flow path ined -> outed;
+properties
+  Dispatch_Protocol => Periodic;
+end step2.periodic;
+
+thread implementation step2.aperiodic
+flows
+  flow1: flow path ined -> outed;
+properties
+  Dispatch_Protocol => Aperiodic;
+end step2.aperiodic;
+
+
+thread step3
+features
+  ined: in event data port timedata { Queue_Size => 0; };
+  outed: out event data port timedata;
+flows
+  flow1: flow path ined -> outed { latency => 45 ms;};
+properties
+  period => 50 ms;
+  deadline => 45 ms;
+  Compute_Execution_Time => 6 ms .. 10 ms;
+End step3;
+
+thread implementation step3.periodic
+flows
+  flow1: flow path ined -> outed;
+properties
+  Dispatch_Protocol => Periodic;
+end step3.periodic;
+
+thread implementation step3.aperiodic
+flows
+  flow1: flow path ined -> outed;
+properties
+  Dispatch_Protocol => Aperiodic;
+end step3.aperiodic;
+
+device sensor
+features
+  outed: out event data port timedata;
+  devbus: requires bus access devicebus;
+flows
+  flow1: flow source outed { latency => 2 ms;};
+properties
+  period => 50 ms;
+  deadline => 2 ms;
+  Compute_Execution_Time => 1 ms .. 2 ms;
+end sensor;
+
+device implementation sensor.periodic
+flows
+  flow1: flow source outed;
+properties
+  Device_Dispatch_Protocol => Periodic;
+end sensor.periodic;
+
+device implementation sensor.aperiodic
+flows
+  flow1: flow source outed;
+properties
+  Device_Dispatch_Protocol => Aperiodic;
+end sensor.aperiodic;
+
+device actuator
+features
+  ined: in event data port timedata { Queue_Size => 0; };
+  devbus: requires bus access devicebus;
+flows
+  flow1: flow sink ined { latency => 3 ms;};
+properties
+  period => 50 ms;
+  deadline => 3 ms;
+  Compute_Execution_Time => 1 ms .. 3 ms;
+end actuator;
+
+device implementation actuator.periodic
+flows
+  flow1: flow sink ined;
+properties
+  Device_Dispatch_Protocol => Periodic;
+end actuator.periodic;
+
+device implementation actuator.aperiodic
+flows
+  flow1: flow sink ined;
+properties
+  Device_Dispatch_Protocol => Aperiodic;
+end actuator.aperiodic;
+
+process Pstep1
+features
+  ined: in event data port timedata;
+  outed: out event data port timedata;
+flows
+  flow1: flow path ined -> outed;
+end Pstep1;
+
+process implementation Pstep1.periodic
+subcomponents
+  Tstep1: thread Step1.periodic;
+connections
+  cin: event data port ined -> Tstep1.ined;
+  cout: event data port Tstep1.outed -> outed;
+flows
+  flow1: flow path ined -> cin -> Tstep1.flow1 -> cout -> outed;
+end Pstep1.periodic;
+
+process implementation Pstep1.aperiodic
+subcomponents
+  Tstep1: thread Step1.aperiodic;
+connections
+  cin: event data port ined -> Tstep1.ined;
+  cout: event data port Tstep1.outed -> outed;
+flows
+  flow1: flow path ined -> cin -> Tstep1.flow1 -> cout -> outed;
+end Pstep1.aperiodic;
+
+
+process Pstep2
+features
+  ined: in event data port timedata;
+  outed: out event data port timedata;
+flows
+  flow1: flow path ined -> outed;
+end Pstep2;
+
+process implementation Pstep2.periodic
+subcomponents
+  Tstep2: thread Step2.periodic;
+connections
+  cin: event data port ined -> Tstep2.ined;
+  cout: event data port Tstep2.outed -> outed;
+flows
+  flow1: flow path ined -> cin -> Tstep2.flow1 -> cout -> outed;
+end Pstep2.periodic;
+
+process implementation Pstep2.aperiodic
+subcomponents
+  Tstep2: thread Step2.aperiodic;
+connections
+  cin: event data port ined -> Tstep2.ined;
+  cout: event data port Tstep2.outed -> outed;
+flows
+  flow1: flow path ined -> cin -> Tstep2.flow1 -> cout -> outed;
+end Pstep2.aperiodic;
+
+
+process Pstep3
+features
+  ined: in event data port timedata;
+  outed: out event data port timedata;
+flows
+  flow1: flow path ined -> outed;
+end Pstep3;
+
+process implementation Pstep3.periodic
+subcomponents
+  Tstep3: thread Step3.periodic;
+connections
+  cin: event data port ined -> Tstep3.ined;
+  cout: event data port Tstep3.outed -> outed;
+flows
+  flow1: flow path ined -> cin -> Tstep3.flow1 -> cout -> outed;
+end Pstep3.periodic;
+
+process implementation Pstep3.aperiodic
+subcomponents
+  Tstep3: thread Step3.aperiodic;
+connections
+  cin: event data port ined -> Tstep3.ined;
+  cout: event data port Tstep3.outed -> outed;
+flows
+  flow1: flow path ined -> cin -> Tstep3.flow1 -> cout -> outed;
+end Pstep3.aperiodic;
+
+
+system application
+features
+  db: requires bus access devicebus;
+end application;
+
+
+system implementation application.allperiodicsampled
+subcomponents
+  sense: device sensor.periodic;
+  actuate: device actuator.periodic;
+  compute1: process Pstep1.periodic;
+  compute2: process Pstep2.periodic;
+  compute3: process Pstep3.periodic;
+connections
+  senseconn: event data port sense.outed -> compute1.ined;
+  compute12: event data port compute1.outed -> compute2.ined;
+  compute23: event data port compute2.outed -> compute3.ined;
+  actuateconn: event data port compute3.outed -> actuate.ined;
+  bus access db -> sense.devbus;
+  bus access db -> actuate.devbus;
+flows
+  etelatency: end to end flow sense.flow1 -> senseconn -> compute1.flow1
+            -> compute12 -> compute2.flow1 -> compute23 -> compute3.flow1
+            -> actuateconn -> actuate.flow1 { latency => 303 ms;};
+end application.allperiodicsampled;
+
+
+
+system implementation application.alldatadriven
+subcomponents
+  sense: device sensor.periodic;
+  actuate: device actuator.aperiodic;
+  compute1: process Pstep1.aperiodic;
+  compute2: process Pstep2.aperiodic;
+  compute3: process Pstep3.aperiodic;
+connections
+  senseconn: event data port sense.outed -> compute1.ined;
+  compute12: event data port compute1.outed -> compute2.ined;
+  compute23: event data port compute2.outed -> compute3.ined;
+  actuateconn: event data port compute3.outed -> actuate.ined;
+  bus access db -> sense.devbus;
+  bus access db -> actuate.devbus;
+flows
+  etelatency: end to end flow sense.flow1 -> senseconn -> compute1.flow1
+            -> compute12 -> compute2.flow1 -> compute23 -> compute3.flow1
+            -> actuateconn -> actuate.flow1 { latency => 165 ms;};
+end application.alldatadriven;
+
+processor singleCPU
+features
+  db: requires bus access devicebus;
+  pb: requires bus access cpubus;
+end singleCPU;
+
+processor implementation singleCPU.basic
+end singleCPU.basic;
+
+bus cpubus
+end cpubus;
+
+bus implementation cpubus.basic
+end cpubus.basic;
+
+bus devicebus
+end devicebus;
+
+bus implementation devicebus.basic
+end devicebus.basic;
+
+system hardwareplatform
+features
+  db: provides bus access devicebus.basic;
+end hardwareplatform;
+
+system implementation hardwareplatform.single
+subcomponents
+  cpu1: processor singleCPU.basic;
+  db1: bus devicebus.basic;
+connections
+  bus access db1 -> cpu1.db;
+  bus access db1 -> db;
+end hardwareplatform.single;
+
+system implementation hardwareplatform.dual
+subcomponents
+  cpu1: processor singleCPU.basic;
+  cpu2: processor singleCPU.basic;
+  db1: bus devicebus.basic;
+  cpubus1: bus cpubus.basic;
+connections
+  bus access db1 -> cpu1.db;
+  bus access db1 -> cpu2.db;
+  bus access db1 -> db;
+end hardwareplatform.dual;
+
+
+system topsystem
+end topsystem;
+
+system implementation topsystem.allperiodicsampled
+subcomponents
+  app: system application.allperiodicsampled;
+  hw: system hardwareplatform.single;
+connections
+  dveconn: bus access hw.db -> app.db;
+properties
+  Actual_Processor_Binding => reference hw.cpu1 applies to app;
+end topsystem.allperiodicsampled;
+
+system implementation topsystem.alldatadriven
+subcomponents
+  app: system application.alldatadriven;
+  hw: system hardwareplatform.single;
+connections
+  dveconn: bus access hw.db -> app.db;
+properties
+  Actual_Processor_Binding => reference hw.cpu1 applies to app;
+end topsystem.alldatadriven;
+
+system implementation topsystem.distributedalldatadriven
+subcomponents
+  app: system application.alldatadriven;
+  hw: system hardwareplatform.dual;
+connections
+  dveconn: bus access hw.db -> app.db;
+properties
+  Actual_Processor_Binding => reference hw.cpu1 applies to app.compute1;
+  Actual_Processor_Binding => reference hw.cpu2 applies to app.compute2;
+  Actual_Processor_Binding => reference hw.cpu1 applies to app.compute3;
+end topsystem.distributedalldatadriven;

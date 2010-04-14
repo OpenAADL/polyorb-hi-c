@@ -1,0 +1,51 @@
+@c -------------------------------------------------------------------
+@node Conventions
+@unnumberedsec Conventions
+@cindex Conventions
+@cindex Typographical conventions
+@c -------------------------------------------------------------------
+
+@noindent
+Following are examples of the typographical and graphic conventions used
+in this guide:
+
+@itemize @bullet
+@item
+@code{Functions}, @code{utility program names}, @code{standard names},
+and @code{classes}.
+
+@item
+@samp{Option flags}
+
+@item
+@file{File Names}, @file{button names}, and @file{field names}.
+
+@item
+@var{Variables}.
+
+@item
+@emph{Emphasis}.
+
+@item
+[optional information or parameters]
+
+@item
+Examples are described by text
+@smallexample
+and then shown this way.
+@end smallexample
+@end itemize
+
+@noindent
+Commands that are entered by the user are preceded in this manual by
+the characters @w{``@code{$ }''} (dollar sign followed by space). If
+your system uses this sequence as a prompt, then the commands will
+appear exactly as you see them in the manual. If your system uses some
+other prompt, then the command will appear with the @code{$} replaced
+by whatever prompt character you are using.
+
+Full file names are shown with the ``@code{/}'' character as the
+directory separator; e.g., @file{parent-dir/subdir/myfile.c}.  If
+you are working on a Windows platform, please note that the
+``@code{\}'' character should be used instead.
+

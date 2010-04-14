@@ -1,0 +1,96 @@
+Initialize global queue for task-id 1 ... Initialize global queue for task-id 0 ... port 0 (used_size=0,first=0)  ... done
+port 0 (used_size=0,first=0)  ... done
+Receiver initialization finished
+Send value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+Receive message
+Receive message from node 1
+Using raw protocol stack
+Message deliveredSend value, emitter task 0, emitter port 0, emitter entity 0, destination ports :2 (entity=2)  ... success ... 
+
+

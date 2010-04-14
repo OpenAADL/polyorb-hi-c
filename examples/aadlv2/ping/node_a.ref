@@ -1,0 +1,5 @@
+Initialize global queue for task-id 0 ... port 0 (used_size=0,first=0)  ... done
+*** SENDING PING *** 0
+Send value, emitter task 0, emitter port 0, emitter entity 0, destination ports :1 (entity=1)  ... success ... 
+
+

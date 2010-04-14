@@ -1,0 +1,218 @@
+--  This model defines the hardware layers of the SPIFv2 board
+--  from GET-ENST (http://perso.enst.fr/~spif/)
+-- 
+--  This board supports
+--  - 1 MPC 860 processor, 
+--  - 1 ethernet, 
+--  - 2 serial lines,
+--  - 64 MB of RAM,
+--  - 8 MB of ROM
+
+-- Hardware components
+
+memory RAM
+properties
+  ARAO::Memory_Size => 64 MB;
+  Memory_Protocol => read_write;
+end RAM;
+
+memory ROM
+properties
+  ARAO::Memory_Size => 8 MB;
+  Memory_Protocol => read_only;
+end ROM;
+
+bus Ethernet_Bus
+properties
+   ARAO::Transport_Layer => ethernet;
+end Ethernet_Bus;
+
+bus Serial_Bus
+properties
+   ARAO::Transport_Layer => Serial;
+end Serial_Bus;
+
+--  Definition of the board
+
+processor powerpc
+features
+  eth0 : requires bus access Ethernet_Bus;
+  S0 : requires bus access Serial_Bus;
+  S1 : requires bus access Serial_Bus;
+end powerpc;
+
+processor implementation powerpc.i0
+refines type
+   eth0 : refined to requires bus access Ethernet_Bus 
+                  {ARAO::MAC_Address => constant access "00:80:7F:22:61:80"; };
+subcomponents
+  mem_ram : memory RAM;
+  mem_rom : memory ROM;
+end powerpc.i0;
+
+processor implementation powerpc.i1
+refines type
+   eth0 : refined to requires bus access Ethernet_Bus
+                  {ARAO::MAC_Address => constant access "00:80:7F:22:61:81"; };
+subcomponents
+  mem_ram : memory RAM;
+  mem_rom : memory ROM;
+end powerpc.i1;
+
+processor implementation powerpc.i2
+refines type
+   eth0 : refined to requires bus access Ethernet_Bus
+                  {ARAO::MAC_Address => constant access "00:80:7F:22:61:82"; };
+subcomponents
+  mem_ram : memory RAM;
+  mem_rom : memory ROM;
+end powerpc.i2;
+
+processor implementation powerpc.i3
+refines type
+   eth0 : refined to requires bus access Ethernet_Bus
+                  {ARAO::MAC_Address => constant access "00:80:7F:22:61:83"; };
+subcomponents
+  mem_ram : memory RAM;
+  mem_rom : memory ROM;
+end powerpc.i3;
+
+processor implementation powerpc.i4
+refines type
+   eth0 : refined to requires bus access Ethernet_Bus
+                  {ARAO::MAC_Address => constant access "00:80:7F:22:61:84"; };
+subcomponents
+  mem_ram : memory RAM;
+  mem_rom : memory ROM;
+end powerpc.i4;
+
+processor implementation powerpc.i5
+refines type
+   eth0 : refined to requires bus access Ethernet_Bus
+                  {ARAO::MAC_Address => constant access "00:80:7F:22:61:85"; };
+subcomponents
+  mem_ram : memory RAM;
+  mem_rom : memory ROM;
+end powerpc.i5;
+
+processor implementation powerpc.i6
+refines type
+   eth0 : refined to requires bus access Ethernet_Bus
+                  {ARAO::MAC_Address => constant access "00:80:7F:22:61:86"; };
+subcomponents
+  mem_ram : memory RAM;
+  mem_rom : memory ROM;
+end powerpc.i6;
+
+-- Definition of the actual running platform
+
+system spif2
+features
+  eth0 : requires bus access Ethernet_Bus;
+  S0 : requires bus access Serial_Bus;
+  S1 : requires bus access Serial_Bus;
+end spif2;
+
+system implementation spif2.i0
+refines type
+   eth0 : refined to requires bus access Ethernet_bus
+                  {ARAO::ip_address => constant access "137.168.160.111"; };
+subcomponents
+   proc : processor powerpc.i0;
+connections
+   bus access eth0 -> proc.eth0;
+end spif2.i0;
+
+system implementation spif2.i1
+refines type
+   eth0 : refined to requires bus access Ethernet_bus
+                  {ARAO::ip_address => constant access "137.168.160.89"; };
+subcomponents
+   proc : processor powerpc.i1;
+connections
+   bus access eth0 -> proc.eth0;
+end spif2.i1;
+
+system implementation spif2.i2
+refines type
+   eth0 : refined to requires bus access Ethernet_bus
+                  {ARAO::ip_address => constant access "137.168.160.92"; };
+subcomponents
+   proc : processor powerpc.i2;
+connections
+   bus access eth0 -> proc.eth0;
+end spif2.i2;
+
+system implementation spif2.i3
+refines type
+   eth0 : refined to requires bus access Ethernet_bus
+                  {ARAO::ip_address => constant access "137.168.160.95"; };
+subcomponents
+   proc : processor powerpc.i3;
+connections
+   bus access eth0 -> proc.eth0;
+end spif2.i3;
+
+system implementation spif2.i4
+refines type
+   eth0 : refined to requires bus access Ethernet_bus
+                  {ARAO::ip_address => constant access "137.168.160.94"; };
+subcomponents
+   proc : processor powerpc.i4;
+connections
+   bus access eth0 -> proc.eth0;
+end spif2.i4;
+
+system implementation spif2.i5
+refines type
+   eth0 : refined to requires bus access Ethernet_bus
+                  {ARAO::ip_address => constant access "137.168.160.97"; };
+subcomponents
+   proc : processor powerpc.i5;
+connections
+   bus access eth0 -> proc.eth0;
+end spif2.i5;
+
+system implementation spif2.i6
+refines type
+   eth0 : refined to requires bus access Ethernet_bus
+                  {ARAO::ip_address => constant access "137.168.160.103"; };
+subcomponents
+   proc : processor powerpc.i6;
+connections
+   bus access eth0 -> proc.eth0;
+end spif2.i6;
+
+-- All the boards are in a rack, connected to the local network
+
+system spif_boards_rack
+features
+   eth0 : requires bus access Ethernet_Bus;
+   eth1 : requires bus access Ethernet_Bus;
+   eth2 : requires bus access Ethernet_Bus;
+   eth3 : requires bus access Ethernet_Bus;
+   eth4 : requires bus access Ethernet_Bus;
+   eth5 : requires bus access Ethernet_Bus;
+   eth6 : requires bus access Ethernet_Bus;
+end spif_boards_rack;
+
+system implementation spif_boards_rack.impl
+subcomponents
+   spifboard0 : system spif2.i0;
+   spifboard1 : system spif2.i1;
+   spifboard2 : system spif2.i2;
+   spifboard3 : system spif2.i3;
+   spifboard4 : system spif2.i4;
+   spifboard5 : system spif2.i5;
+   spifboard6 : system spif2.i6;
+connections
+   bus access eth0 -> spifboard0.eth0;
+   bus access eth1 -> spifboard1.eth0;
+   bus access eth2 -> spifboard2.eth0;
+   bus access eth3 -> spifboard3.eth0;
+   bus access eth4 -> spifboard4.eth0;
+   bus access eth5 -> spifboard5.eth0;
+   bus access eth6 -> spifboard6.eth0;
+end spif_boards_rack.impl;
+
+

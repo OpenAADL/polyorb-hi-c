@@ -1,0 +1,12 @@
+Cmd0: ocarina_sh -s scenario_dist.aadl
+Success0: yes
+Output0: scenario_dist.aadl.out
+DiffSource0: sunseekercontrolsystem_type_dist
+
+Cmd1: ocarina_sh -s scenario_local.aadl
+Success1: yes
+Output1: scenario_local.aadl.out
+DiffSource1: sunseekercontrolsystem_type_local
+
+Keywords: po-hi-c code generation
+Description: Sunseeker example from PolyORB-HI-C

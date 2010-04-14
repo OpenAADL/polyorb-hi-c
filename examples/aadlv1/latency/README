@@ -1,0 +1,26 @@
+Latency example
+===============
+The latency example defines five processes organized like this:
+
+Process1 ---> Process2 ---> Process 3 ---> Process 4 ---> Process 5
+
+So, each process receives data from its neighbor and send it to the next
+thread. This example comes from the Software Engineer Institute.
+
+There is two versions of our example. In the data port version, threads
+and processes only use data port. In the event data port version, threads
+and processes use event data port.
+
+Currently, only the data port is correctly handled.
+
+There is a list of files for each version
+
+data port version
+-----------------
+* latency.aadl            : adapted example for Ocarina
+* latency-original.aadl   : original version of the model
+
+event data port version
+-----------------------
+* latency-event.aadl            : adapted example for Ocarina
+* latency-event-original.aadl   : original version of the model

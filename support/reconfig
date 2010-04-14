@@ -1,0 +1,41 @@
+#! /bin/sh
+
+find_binary ()
+{
+	prefix=$1
+	which $prefix
+	if [ $? -eq 0 ]; then
+		return
+	fi
+	shift
+
+	for v in $@; do
+		bin="$prefix$v"
+		which $bin
+		if [ $? -eq 0 ]; then
+			return
+		fi
+		shift
+	done
+}
+
+
+rm -f aclocal.m4 support/libtool.m4 configure
+
+aclocal=`find_binary "aclocal" 19 15 14`
+echo "Running $aclocal"
+$aclocal -I support
+
+autoconf=`find_binary "autoconf" 259 253 213`
+echo "Running $autoconf"
+$autoconf
+
+autoheader=`find_binary "autoheader" 259 253 213`
+echo "Running $autoheader"
+$autoheader
+
+automake=`find_binary "automake" 19 15 14`
+echo "Running $automake"
+$automake --add-missing --copy
+
+exit 0

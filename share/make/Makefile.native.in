@@ -1,0 +1,8 @@
+TARGET_CFLAGS   = @NATIVE_CFLAGS@
+TARGET_LDFLAGS  = @NATIVE_LDFLAGS@
+SIMULINK_LDFLAGS  = @SIMULINK_LDFLAGS@
+CC              = gcc
+LD              = ld
+
+target-clean:
+

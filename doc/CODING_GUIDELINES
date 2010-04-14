@@ -1,0 +1,18 @@
+                      CODING GUIDELINES for PolyORB-HI
+                      ********************************
+
+ 1. Don't use TAB characters, use space character instead
+ 2. Don't put any space at the end of a line
+ 3. Always indent the code
+ 4. Don't have two blank lines
+ 5. Don't put a space before ')' ar ofter a '('
+ 6. Put a space before '(' and after ','
+ 7. Don't end a line with a single '('
+ 8. Don't have a single '(' on a line
+ 9. Use brace as soon as possible
+10. Try to comment the code as much as possible
+11. Comment the functions in the header file
+12. Use '__po_hi_' prefix for functions and global variables
+13. Use '__PO_HI' prefix for macros and constants
+14. The filename must have the prefix 'po_hi'
+15. The comments should be written under the functions or structures

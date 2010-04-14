@@ -1,0 +1,92 @@
+----------
+-- Data --
+----------
+
+data Ravenscar
+end Ravenscar;
+
+data implementation Ravenscar.Integer
+properties
+  Data_Model::Data_Representation => Integer;
+end Ravenscar.Integer;
+
+-------------
+-- Threads --
+-------------
+
+thread Sensor_Sim_T
+features
+  AoA            : out       data port Ravenscar.Integer;
+  Climb_Rate     : out       data port Ravenscar.Integer;
+  Engine_Failure : out event      port;
+end Sensor_Sim_T;
+
+thread Stall_Monitor_T
+features
+  AoA        : in        data port Ravenscar.Integer;
+  Climb_Rate : in        data port Ravenscar.Integer;
+  Stall_Warn : out event data port Ravenscar.Integer;
+end Stall_Monitor_T;
+
+thread Landing_Gear_T
+features
+  Req       : in  event port {Compute_Entrypoint => "On_Req";};
+  Ack       : out event port;
+  Dummy_Out : out event port;
+  Dummy_In  : in  event port {Compute_Entrypoint => "On_Dummy_In";};
+end Landing_Gear_T;
+
+thread HCI_T
+features
+  Stall_Warning  : in  event data port Ravenscar.Integer 
+    {Compute_Entrypoint => "On_Stall_Warning";};
+  Engine_Failure : in  event      port 
+    {Compute_Entrypoint => "On_Engine_Failure";};
+  Gear_Cmd       : in  event      port 
+    {Compute_Entrypoint => "On_Gear_Cmd";};
+  Gear_Req       : out event      port;
+  Gear_Ack       : in  event      port 
+    {Compute_Entrypoint => "On_Gear_Ack";};
+end HCI_T;
+
+thread Operator_T
+features
+  Gear_Cmd: out event port;
+end Operator_T;
+
+thread implementation Sensor_Sim_T.RS
+properties
+  Period             => 20 Ms;
+  Compute_Entrypoint => "On_Sensor_Sim";
+  Dispatch_Protocol  => Periodic;
+  Deadline           => 15 Ms;
+  source_text        => ("flight-mgmt.c");
+end Sensor_Sim_T.RS;
+
+thread implementation Stall_Monitor_T.RS
+properties
+  Compute_Entrypoint => "On_Stall_Monitor";
+  Dispatch_Protocol  => Periodic;
+  Period             => 20 Ms;
+  source_text        => ("flight-mgmt.c");
+end Stall_Monitor_T.RS;
+
+thread implementation HCI_T.RS
+properties
+  Dispatch_Protocol => Sporadic;
+  Period            => 10 Ms;
+end HCI_T.RS;
+
+thread implementation Landing_Gear_T.RS
+properties
+  Dispatch_Protocol => Sporadic;
+  Period            => 3000 Ms;
+end Landing_Gear_T.RS;
+
+thread implementation Operator_T.RS
+properties
+  Dispatch_Protocol  => Periodic;
+  Period             => 10 Sec;
+  Compute_Entrypoint => "On_Operator";
+  source_text        => ("flight-mgmt.c");
+end Operator_T.RS;

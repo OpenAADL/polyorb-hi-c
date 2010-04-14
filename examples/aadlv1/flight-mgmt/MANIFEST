@@ -1,0 +1,7 @@
+Cmd0: ocarina_sh -s scenario_local.aadl
+Success0: yes
+Output0: scenario_local.aadl.out
+DiffSource0: flight_mgmt_rs
+
+Keywords: po-hi-c code generation
+Description: Flight Management example from PolyORB-HI-C

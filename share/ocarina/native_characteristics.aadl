@@ -1,0 +1,7 @@
+property set Criticality_Levels is
+   Level_A : constant aadlinteger => 88;
+   Level_B : constant aadlinteger => 68;
+   Level_C : constant aadlinteger => 48; --  Default
+   Level_D : constant aadlinteger => 28;
+   Level_E : constant aadlinteger => 8;
+end Criticality_Levels;

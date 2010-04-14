@@ -1,0 +1,96 @@
+############################################################################
+# Common makefile for PolyORB HI
+#
+# $Id: Makefile.common 6233 2009-03-03 12:53:03Z hugues $
+
+############################################################################
+# Default rule
+#
+
+all-local:
+	@echo "TO BUILD THE EXAMPLE, YOU SHOULD ISSUE '$(MAKE) build-all'"
+
+build-all:
+	if test ! "$(SCENARIO_FILES)" = "";  then \
+	   $(MAKE) scenarios; \
+	elif test ! "$(SCENARIO_FILE)" = ""; then \
+	   $(MAKE) scenario; \
+	else \
+	   echo "No scenario files, nothing to be done"; \
+	fi 
+
+check-all:
+	if test ! "$(SCENARIO_FILES)" = "";  then \
+           $(MAKE) scenarios-check; \
+        elif test ! "$(SCENARIO_FILE)" = ""; then \
+           $(MAKE) scenario-check; \
+        else \
+           echo "No scenario files, nothing to be done"; \
+        fi 
+
+
+############################################################################
+# Code generation from AADL
+#
+
+scenarios:
+	@echo "********* SCENARIO_FILES = $(SCENARIO_FILES) *********";
+	for sc in $(SCENARIO_FILES); do \
+	  $(MAKE) SCENARIO_FILE=$${sc} SCENARIO_FILES="" build-all || exit 1; \
+	done;
+
+scenario:
+	@echo "*********  SCENARIO_FILE = $(SCENARIO_FILE)  *********";
+	ocarina -b -x '${shell $(CYGPATH_W) $(SCENARIO_FILE)}';
+
+############################################################################
+# Code generation and execution from AADL
+#
+
+scenarios-check:
+	@echo "********* SCENARIO_FILES = $(SCENARIO_FILES) *********";
+	for sc in $(SCENARIO_FILES); do \
+          $(MAKE) SCENARIO_FILE=$${sc} SCENARIO_FILES="" check-all || exit 1; \
+        done;
+
+scenario-check:
+	@echo "*********  SCENARIO_FILE = $(SCENARIO_FILE)  *********";
+	ocarina -b -e -x '${shell $(CYGPATH_W) $(SCENARIO_FILE)}';
+
+
+############################################################################
+# Installation rule
+#
+
+SAMPLE_NAME = $(subst examples/,,$(subdir))
+SAMPLE_DIR  = ${shell $(CYGPATH_U) '$(OCARINA_PREFIX)/examples/ocarina/polyorb-hi-c/$(SAMPLE_NAME)'}
+
+install-data-local:
+	$(INSTALL) -d $(DESTDIR)$(SAMPLE_DIR)
+	if [ -r $(srcdir)/README ]; then \
+	  $(INSTALL_DATA) $(srcdir)/README $(DESTDIR)$(SAMPLE_DIR); \
+	fi
+	for f in $(EXTRA_DIST); do \
+	  $(INSTALL_DATA) $$f $(DESTDIR)$(SAMPLE_DIR); \
+	done
+
+############################################################################
+# clean rule
+#
+
+clean-local:
+	@-rm -f *~ *.o *.al temp.* *.metrix gnatcheck.out log_ocarina
+	if test ! "$(CLEANDIRS)" = "";  then \
+	   rm -rf $(CLEANDIRS); \
+	fi
+
+############################################################################
+# Debug stuff
+#
+
+debug-makefile:
+	@echo "SAMPLE_NAME    = $(SAMPLE_NAME)"
+	@echo "SAMPLE_DIR     = $(SAMPLE_DIR)"
+	@echo "SCENARIO_FILES = $(SCENARIO_FILES)"
+	@echo "SCENARIO_FILE  = $(SCENARIO_FILE)"
+

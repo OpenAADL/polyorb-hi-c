@@ -1,0 +1,180 @@
+--  This AADL model is inspired from the original SunSeeker model
+--  published by SEI for the SAE AADL standard.
+
+--  $Id: toy_example.aadl 234 2007-02-21 15:14:01Z hugues $
+
+----------
+-- Data --
+----------
+
+package Beacon_Standard
+public
+  with Data_Model;
+
+  data Single_Float
+  properties
+    Source_Data_Size => 4 Bytes;
+
+    Data_Model::Data_Representation => Float;
+
+  end Single_Float;
+end Beacon_Standard;
+
+-----------------
+-- Subprograms --
+-----------------
+
+package Sunseeker
+public
+  with Beacon_Standard;
+
+subprogram Sunseekerplant_Subprogram
+features
+  Controllerinput : in  parameter Beacon_Standard::Single_Float;
+  Outputfeedback  : out parameter Beacon_Standard::Single_Float;
+end Sunseekerplant_Subprogram;
+
+subprogram implementation Sunseekerplant_Subprogram.Beacon
+properties
+  Source_Language        => C;
+  Source_Name            => 
+    "user_sunseekerplant";
+  source_text  => ("sunseekerplant.c");
+  Compute_Execution_Time => 1 Us .. 1 Us;
+end Sunseekerplant_Subprogram.Beacon;
+
+-- Add a subprogram that does the job of the controller
+
+subprogram Sunseekercontroller_Subprogram
+features
+  Controllerinput : out parameter Beacon_Standard::Single_Float;
+  Outputfeedback  : in parameter Beacon_Standard::Single_Float;
+end Sunseekercontroller_Subprogram;
+
+subprogram implementation Sunseekercontroller_Subprogram.Impl
+properties
+  Source_Language        => C;
+  Source_Name            => 
+    "user_sunseekercontroller";
+  source_text  => ("sunseekercontroller.c");
+  Compute_Execution_Time => 1 Us .. 1 Us;
+end Sunseekercontroller_Subprogram.Impl;
+
+
+-------------
+-- Threads --
+-------------
+
+thread Plant_Type
+features
+  Controllerinput : in  data port Beacon_Standard::Single_Float;
+  Outputfeedback  : out data port Beacon_Standard::Single_Float;
+end Plant_Type;
+
+thread Controller_Type
+features
+  Controllerinput : out data port Beacon_Standard::Single_Float;
+  Outputfeedback  :  in data port Beacon_Standard::Single_Float;
+end Controller_Type;
+
+thread implementation Plant_Type.Plant
+calls 
+  Main: {
+  plant: subprogram Sunseekerplant_Subprogram.Beacon;
+  };
+connections
+  parameter Controllerinput -> plant.Controllerinput;
+  parameter plant.Outputfeedback -> Outputfeedback;
+properties
+  Dispatch_Protocol  => Periodic;
+
+  Period             => 10 Ms;
+  --  ATTENTION: If you modify this period, make sur to update its
+  --  value in the implementation subprograms also.
+  
+  Compute_Execution_Time => 1 Us .. 1 Us;
+end Plant_Type.Plant;
+
+thread implementation Controller_Type.Controller
+calls 
+  Main: {
+  ctrl: subprogram Sunseekercontroller_Subprogram.Impl;
+  };
+connections
+  parameter Outputfeedback -> ctrl.Outputfeedback;
+  parameter ctrl.Controllerinput -> Controllerinput;
+properties
+  Dispatch_Protocol => Periodic;
+
+  Period            => 10 Ms;
+  --  ATTENTION: If you modify this period, make sur to update its
+  --  value in the implementation subprograms also.
+
+  Compute_Execution_Time => 1 Us .. 1 Us;
+end Controller_Type.Controller;
+
+-------------
+-- Process --
+-------------
+
+process Sunseekerplant_Type
+features
+  Controllerinput : in  data port Beacon_Standard::Single_Float;
+  Outputfeedback  : out data port Beacon_Standard::Single_Float;
+end Sunseekerplant_Type;
+
+process Sunseekercontroller_Type
+features
+  Controllerinput : out data port Beacon_Standard::Single_Float;
+  Outputfeedback  : in  data port Beacon_Standard::Single_Float;
+end Sunseekercontroller_Type;
+
+process implementation Sunseekerplant_Type.Sunseekerplant
+subcomponents
+  Plant : thread Plant_type.Plant;
+connections
+
+  -- The connection specification here is describing where the process
+  -- gets its data from. So, in this case, the data port of the
+  -- process is getting its data from the data port of its thread
+  -- subcomponent.  Earlier in the specification, at the system level,
+  -- we specified the connections between the process ports.
+
+  port Controllerinput -> Plant.Controllerinput;
+  port Plant.Outputfeedback -> Outputfeedback;
+
+end Sunseekerplant_Type.Sunseekerplant;
+
+process implementation Sunseekercontroller_Type.Sunseekercontroller
+subcomponents 
+  Controller : thread Controller_type.Controller;
+
+connections
+
+  -- The connection specification here is describing where the process
+  -- gets its data from. So, in this case, the data port of the
+  -- process is getting its data from the data port of its thread
+  -- subcomponent.  Earlier in the specification, at the system level,
+  -- we specified the connections between the process ports.
+
+  port Controller.Controllerinput -> Controllerinput;
+  port Outputfeedback -> Controller.Outputfeedback;
+end Sunseekercontroller_Type.Sunseekercontroller;
+
+-----------------------------------
+-- Process for the local example --
+-----------------------------------
+
+process sunseeker_local 
+end sunseeker_local;
+
+process implementation sunseeker_local.Impl
+subcomponents
+  Controller : thread Controller_type.Controller;
+  Plant      : thread Plant_type.Plant;
+connections
+  port Controller.Controllerinput -> Plant.Controllerinput;
+  port Plant.Outputfeedback -> Controller.Outputfeedback;
+end sunseeker_local.Impl;
+
+end sunseeker;

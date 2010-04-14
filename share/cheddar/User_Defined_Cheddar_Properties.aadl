@@ -1,0 +1,9 @@
+
+property set User_Defined_Cheddar_Properties is
+
+Dummy_User_Defined_Cheddar_Properties : aadlboolean
+applies to (thread, thread group);
+end User_Defined_Cheddar_Properties;
+
+
+

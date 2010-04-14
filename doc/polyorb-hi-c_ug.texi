@@ -1,0 +1,1568 @@
+\input texinfo @c -*-texinfo-*-
+
+@c %**start of header
+
+@c oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+@c
+@c                                Style Guide
+@c
+@c  1. Always put a @noindent on the line before the first paragraph
+@c     after any of these commands:
+@c
+@c          @chapter
+@c          @section
+@c          @subsection
+@c          @subsubsection
+@c          @subsubsubsection
+@c
+@c          @end smallexample
+@c          @end itemize
+@c          @end enumerate
+@c
+@c  2. DO NOT use @example. Use @smallexample instead.
+@c     a) DO NOT use highlighting commands (@b{}, @i{}) inside an @smallexample
+@c        context.  These can interfere with the readability of the texi
+@c        source file.  Instead, use one of the following annotated
+@c        @smallexample commands, and preprocess the texi file with the
+@c        gentexifile tool (which generates appropriate highlighting):
+@c        @smallexample @c ada
+@c        @smallexample @c adanocomment
+@c        @smallexample @c projectfile
+@c     b) The "@c ada" markup will result in boldface for reserved words
+@c        and italics for comments
+@c     c) The "@c adanocomment" markup will result only in boldface for
+@c        reserved words (comments are left alone)
+@c     d) The "@c projectfile" markup is like "@c ada" except that the set
+@c        of reserved words include the new reserved words for project files
+@c
+@c  3. Each @chapter, @section, @subsection, @subsubsection, etc.
+@c     command must be preceded by two empty lines
+@c
+@c  4. The @item command should be on a line of its own if it is in an
+@c     @itemize or @enumerate command.
+@c
+@c  5. DO NOT put trailing spaces at the end of a line.  Such spaces will
+@c     cause the document build to fail.
+@c
+@c  6. DO NOT use @cartouche for examples that are longer than around 10 lines.
+@c     This command inhibits page breaks, so long examples in a @cartouche can
+@c     lead to large, ugly patches of empty space on a page.
+@c
+@c  7. To add an entry to the bibliography, you must:
+@c     * add it to polyorb-hi_ug.bib
+@c     This will generate the correct polyorb-hi_ug_ref.texi file
+@c     You may then cite the correct reference.
+@c
+@c oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+@c $Id: polyorb-hi_ug.texi 419 2007-07-06 09:36:55Z zalila $
+
+@include version.texi
+
+@setfilename polyorb-hi-c_ug.info
+@settitle PolyORB-HI-C User's Guide
+
+@setchapternewpage odd
+@syncodeindex fn cp
+
+@c %**end of header
+
+@c description and copyright
+@copying
+Copyright @copyright{} 2007-2009, @'Ecole nationale sup@'erieure des
+t@'el@'communications
+
+@noindent
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with the
+Invariant Sections being ``GNU Free Documentation License'', with the
+Front-Cover Texts being ``PolyORB High Integrity C User's Guide'', and
+with no Back-Cover Texts.  A copy of the license is included in the
+section entitled ``GNU Free Documentation License''.
+@end copying
+
+@titlepage
+
+@title PolyORB High Integrity User's Guide
+@subtitle C Edition
+@subtitle Version @value{EDITION}
+@subtitle Date: @value{UPDATED}
+@author Julien Delange, J@'er@^ome Hugues
+@page
+@vskip 0pt plus 1filll
+@end titlepage
+
+@iftex
+@contents
+@end iftex
+
+@c top node
+
+@ifnottex
+@node Top, About This Guide, (dir), (dir)
+@top PolyORB High Integrity User's Guide
+@insertcopying
+@end ifnottex
+
+@menu
+* About This Guide:: 
+* Introduction to PolyORB-HI-C:: 
+* Configuration:: 
+* Building a system:: 
+* Supported features:: 
+* AADL to C transformations:: 
+* PolyORB-HI-C API:: 
+* Porting PolyORB-HI-C to another architecture:: 
+* References:: 
+* GNU Free Documentation License:: 
+* The Index::
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+About This Guide
+
+* What This Guide Contains::    
+* Conventions::                 
+
+Configuration
+
+* Supported Platforms::         
+* Tree structure::              
+* Build requirements::          
+* Configuration instructions::  
+* Build instructions::          
+
+Building a system
+
+* Building examples::           
+* Building a new system::       
+
+Supported features
+
+* C constructions and restrictions::  
+* AADL features::       
+
+AADL to C transformations
+
+* Whole distributed application::  
+* Distributed application nodes::  
+* Hosts::                       
+* Threads::                     
+* Connections::                 
+* Subprograms::                 
+* Data::                        
+
+PolyORB-HI-C API
+
+* Tasking functions::           
+* Time functions::              
+* Marshallers functions::       
+* GIOP functions::              
+* Messages functions::          
+* Protocols functions::         
+* Transport functions::         
+* Protected types functions::   
+* Global queue functions::      
+* Types used in PolyORB-HI-C::  
+* Return types for PolyORB-HI-C functions::  
+
+@end detailmenu
+@end menu
+
+@ifhtml
+@center @code{$LastChangedDate: 2009-07-24 16:59:59 +0200 (Fri, 24 Jul 2009) $}
+@end ifhtml
+
+@c -------------------------------------------------------------------
+
+@contents
+
+@c -------------------------------------------------------------------
+@node About This Guide
+@unnumbered About This Guide
+@c -------------------------------------------------------------------
+
+@noindent
+This document describes PolyORB High-Integrity C (PolyORB-HI-C), a
+reduced version of the PolyORB schizophrenic middleware
+(@url{http://libre.adacore/com/polyorb}) for High-Integrity systems.
+
+There are two versions of PolyORB High Integrity. The first, written
+in Ada is called PolyORB-HI-Ada, and the other, written in C, is
+called PolyORB-HI-C.  The following manual focuses on PolyORB-HI-C.
+
+@menu
+* What This Guide Contains::    
+* Conventions::                 
+@end menu
+
+@c -------------------------------------------------------------------
+@node What This Guide Contains
+@unnumberedsec What This Guide Contains
+@c -------------------------------------------------------------------
+
+@noindent
+This guide contains the following chapters:
+@itemize @bullet
+
+@item @ref{Introduction to PolyORB-HI-C} provides a brief description of
+middleware and PolyORB-HI-C's architecture.
+
+@item @ref{Configuration} details how to configure PolyORB-HI-C.
+
+@item @ref{Building a system} details how to build a distributed
+system from its AADL description.
+
+@item @ref{Supported features} details the features that are available
+in PolyORB-HI-C,as well as the restrictions on the language it follows.
+
+@item @ref{AADL to C transformations} details the mapping rules to
+map an AADL model onto a High-Integrity Distributed System.
+
+@item @ref{PolyORB-HI-C API} provides an overview of PolyORB-HI-C API.
+
+@item @ref{References} provides a list of useful references to
+complete this documentation.
+
+@item
+@ref{GNU Free Documentation License} contains the text of the license
+under which this document is being distributed.
+@end itemize
+
+@c -------------------------------------------------------------------
+@c generic typographical conventions
+@include conventions.texi
+@c -------------------------------------------------------------------
+
+@c -------------------------------------------------------------------
+@node Introduction to PolyORB-HI-C
+@chapter Introduction to PolyORB-HI-C
+@cindex PolyORB-HI-C
+@c -------------------------------------------------------------------
+
+@noindent
+PolyORB-HI-C is a middleware for High-Integrity Systems, it inherits
+most concepts of the schizophrenic middleware @i{PolyORB} while being
+based on a complete new source code base, compatible with the
+Ravenscar profile and the restrictions for High-Integrity systems.
+
+In order to ease the construction of Distributed High-Integrity
+Systems, PolyORB-HI-C relies on the AADL language and the Ocarina
+toolsuite (@cite{[VZH06]}) to allocate all required ressources and
+generate stubs, skeletons, marshallers and concurrent structures.
+
+Ocarina/PolyORB-HI-C supports both AADLv1 and AADLv2 as input models.
+
+This manual describes the different elements parts of PolyORB-HI-C.
+
+@c -------------------------------------------------------------------
+@node Configuration
+@chapter Configuration
+@c -------------------------------------------------------------------
+
+@menu
+* Supported Platforms::         
+* Tree structure::              
+* Build requirements::          
+* Configuration instructions::  
+* Build instructions::          
+@end menu
+
+@c -------------------------------------------------------------------
+@node Supported Platforms
+@section Supported Platforms
+@c -------------------------------------------------------------------
+
+@noindent
+PolyORB-HI-C has been compiled and sucessfully tested on 
+
+@itemize @bullet
+@item native platforms
+
+@itemize @bullet
+@item Linux
+@item Mac OS X
+@item Solaris
+@item FreeBSD
+@item Windows
+@end itemize
+
+@item embedded platforms
+@itemize @bullet
+@item RTLinx, using Elinos
+@item Nintendo DS (tm) (Linux) - see http://www.dslinux.org
+@item Nokia 770 (Linux) - see http://www.maemo.org
+@item LEON (SPARC-like CPU) (RTEMS)
+@item Spif (PowerPC CPU) (RTEMS) - see http://www.enst.fr/~spif/
+@end itemize
+@end itemize
+
+@noindent
+@emph{Note: PolyORB-HI-C should compile and run on every
+POSIX-compliant system.  Its network stack uses the socket API, and is
+compatible with many operating systems.}
+
+@c -------------------------------------------------------------------
+@node Tree structure
+@section Tree structure
+@c -------------------------------------------------------------------
+
+@noindent
+PolyORB-HI-C has the following tree structure:
+
+@itemize @bullet
+@item @file{doc/}: documentation,
+@item @file{examples/}: set of examples to test PolyORB-HI-C
+@item @file{share/}: common files (aadl files used by Ocarina, makefiles, ...)
+@item @file{src/}: core of PolyORB-HI
+@item @file{tools/}: some script to handle the packaging and a verification
+tool to check if the binaries are compliant with the POSIX restrictions.
+@item @file{ChangeLog}: release information,
+@item @file{COPYING}: GPLv2 licence document,
+@item @file{README}: short description of the distribution.
+@end itemize
+
+When installed with Ocarina, in @file{$OCARINA_PATH} directory
+
+@itemize @bullet
+@item docutmentation is in @file{$OCARINA_PATH/share/doc/ocarina};
+@item examples are in @file{$OCARINA_PATH/examples/ocarina/polyorb-hi-c/}: 
+set of examples to test PolyORB-HI-C
+@item runtime files are in 
+@file{$OCARINA_PATH/include/ocarina/runtime/polyorb-hi-c/}.
+@end itemize
+
+@c -------------------------------------------------------------------
+@node Build requirements
+@section Build requirements
+@c -------------------------------------------------------------------
+
+@noindent
+To be compiled, PolyORB-HI-C requires the following tools:
+
+@itemize @bullet
+@item a C compiler that produces binaries for the target architecture. 
+
+@item a  standard C-library, for common functions like @code{socket()} or
+@code{pthread_createt()}.
+@end itemize
+
+@i{Note: For each tested bare board, the toolchains provides Makefiles
+to configure additional environment variables}
+
+PolyORB-HI-C also relies on AADL-to-C code generation provided by
+Ocarina. Therefore, it is important to select a version of Ocarina
+that is compatible with this version of PolyORB-HI-C. Whenever
+possible, pick a unified archive that contains both tools.
+
+@c -------------------------------------------------------------------
+@node Configuration instructions
+@section Configuration instructions
+@c -------------------------------------------------------------------
+
+@noindent
+To install PolyORB-HI-X, please observe the following steps:
+
+@itemize
+@item 
+Install your C compiler and Ocarina as specified by their respective
+documentations and make sure their 'bin/' installation directories are
+located at the top of your PATH environment variable.
+
+@item 
+Issue @code{./configure}. The @code{configure} script can take several
+options: issue @code{./configure --help} to have a quick overview of
+them. For examples. @code{./configure --enable-debug} will configure
+the middleware to be built with all debug options.  At the end of the
+configuration process, a file with all parameters is created
+(@file{include/po_hi_config.h}. If this file is not created, the
+compilation is not possible.
+
+@item Issue @code{make && make install}
+@end itemize
+
+@subsection Examples of configuration
+
+@subsubsection Configure the framework for the LEON platform (case of cross-compilation)
+
+In this example, we want configure the framework for the LEON platform
+and the RTEMS operating system. The LEON architecture is similar to
+the SPARC. In other words, we have to use a compiler that is different
+from the one used to compile native binaries. In our case, the
+compiler is called @code{sparc-rtems-gcc}. Consequently, the host name
+will be @code{sparc-rtems}. This name will be used in the
+configuration step, with the @code{--host} option.
+
+If we want to configure the target with the GIOP protocol, we just have to
+invoke the following command :
+
+@code{./configure --enable-giop --host=sparc-rtems}
+
+The @code{configure} script will detect that you are cross-compiling
+and will detect the endianness of the processor and the size of each
+types. If no error was detected, the framework is ready to be
+used. The following example reproduce the output when we use this type
+of configuration. Note that the @code{build} switch is optionnal. If
+you don't provide it, the script will automatically detect your system
+type.
+
+@smallexample
+$ ./configure --host=sparc-rtems --build=i386-linux --enable-giop
+@end smallexample
+
+@noindent
+@emph{Note: If you use RTEMS, you have to define the
+@code{RTEMS_MAKEFILE_PATH} as RTEMS documentation describe
+it. Generally, you have to follow all instructions that are described
+with the system you will use.}
+
+@subsubsection Configure the framework for the native platform
+
+Compile for the native platform means that you will use the same
+machine to compile the code and run the binaries. Most of the time,
+the compiler will be @code{gcc}. In the present case, we will
+configure the framework for the RAW protocol. We just invoke the
+following command :
+
+@code{./configure}
+
+If no error was detected, the framework is ready to use. If you encounter
+errors, please check that you have a compiler that works fine.
+
+@c -------------------------------------------------------------------
+@node Build instructions
+@section Build instructions
+@c -------------------------------------------------------------------
+
+@noindent
+PolyORB-HI-C must be installed correctly in order to be able to build
+examples.
+
+To compile all examples, simply issue @code{make examples} from the
+main source directory. To clean the examples, issue @code{make
+clean-examples} from the main source directory.
+
+The examples may be built with the debug information. This is the
+default behavior of the @code{make examples} command. If the user
+wants to make the examples without any debug information and any GNAT
+check, he should use the @code{make examples 'BUILD=Release'} command
+instead. The footprint of the generated executable will be reduced
+considerably.
+
+Each example uses a makefile.
+
+For each example, a makefile is provided with the following rules:
+
+@itemize @bullet
+@item 
+@code{build-all}: generate code from the example and compile it;
+
+@item 
+@code{clean}: clean all generated files;
+
+@end itemize
+
+@c -------------------------------------------------------------------
+@node Building a system
+@chapter Building a system
+@c -------------------------------------------------------------------
+
+@noindent
+In this chapter, we discuss the construction of an application, using
+PolyORB-HI-C and an AADL model of the application.
+
+@menu
+* Building examples::           
+* Building a new system::       
+@end menu
+
+@c -------------------------------------------------------------------
+@node Building examples
+@section Building examples
+@c -------------------------------------------------------------------
+
+Each example provide a makefile that does the following steps:
+
+@enumerate
+@item parse the AADL model;
+@item generate C code from the AADL model;
+@item compile each node
+@end enumerate
+
+PolyORB-HI-C comes with different examples and configurations, please
+refer to @file{examples/README} and subsequent documentation files for
+more details.
+
+@c -------------------------------------------------------------------
+@node Building a new system
+@section Building a new system
+@c -------------------------------------------------------------------
+
+To build your own system, you have two choices: using a scenario file
+or the command line.
+
+@itemize @bullet
+@item To use a scenario file, please follow these instructions
+
+@enumerate
+@item build a scenario file, a scenario file is an AADL file containing a
+system describing your applications (AADL files, code generator that
+has to be used, needed Ocarina non-standard property sets:
+@include scenario_sample.texi
+
+@item issue the command @code{ocarina -b -x <scenario-file>}
+
+@end enumerate
+
+@item To use command line, please follow these instructions
+@enumerate
+@item issue the command @code{ocarina -g polyorb_hi_c <list-of-aadl-files>}
+@end enumerate
+
+@end itemize
+
+@noindent
+For a list of supported flags, please refere to the @i{Ocarina User's
+Guide}.
+
+@c -------------------------------------------------------------------
+@node Supported features
+@appendix Supported features
+@c -------------------------------------------------------------------
+
+@menu
+* C constructions and restrictions::  
+* AADL features::       
+@end menu
+
+@c -------------------------------------------------------------------
+@node C constructions and restrictions
+@section C constructions and restrictions
+@c -------------------------------------------------------------------
+
+@noindent
+PolyORB-HI-C introduces Ravenscar-like restrictions on C concurrent
+features.  
+
+Moreover, the code is compliant with the Application Environment
+Profile (AEP) defined by the OMG. If these constructions are warrant
+on the underlying middleware, it does not apply on the user code. In
+other words, the code provided by the user and used by the generated
+code must be written carefully.
+
+If you want to check that your application if compliant with the AEP
+profile, use the @code{check-symbols} tool, available in the
+@file{tools} directory.
+
+@c -------------------------------------------------------------------
+@node AADL features
+@section AADL features
+@c -------------------------------------------------------------------
+
+@noindent
+POlyORB-HI acts as an AADLv1 or AADLv2 runtime. AADL is a complete
+description language. Some features cannot be implemented or supported
+by restricted HI runtimes.
+
+This section lists AADL features supported by PolyORB-HI-C:
+
+@itemize @bullet
+@item asynchronous, oneway calls;
+@item data component types of statically bounded size;
+@item all compile-time and run-time restrictions enforced as part of
+  the compilation process;
+@item PolyORB-HI-Ada can use different transport infrastructures:
+
+@itemize @bullet
+@item on native platform, distribution can be tested using the native
+socket library.
+
+@item user-provided transport layer can be used, provided they follow 
+guidelines discussed in section @b{XXX}.
+@end itemize
+@end itemize
+
+@c -------------------------------------------------------------------
+@node AADL to C transformations
+@appendix AADL to C transformations
+@c -------------------------------------------------------------------
+
+@menu
+* Whole distributed application::  
+* Distributed application nodes::  
+* Hosts::                       
+* Threads::                     
+* Connections::                 
+* Subprograms::                 
+* Data::                        
+@end menu
+
+In the following, and for each component of the distributed
+application, we give the AADL entities that are used to model this
+component, and then the transformation rules used by the code
+generator to generate C code from these entities.
+
+The mapping rules will be illustrated using the following simple
+example of a distributed application:
+
+@image{fig/ping, 12cm}
+
+The figure above shows the architecture of the @emph{Ping}
+example: a client, which is a process containing one single
+@i{periodic} thread, sends a message to the server which is a process
+containing one @i{aperiodic cyclic} thread that handles incoming ping
+messages from the client. Each node of the @emph{Ping} application
+runs on a different machine.
+
+@c -------------------------------------------------------------------
+@node Whole distributed application
+@section Whole distributed application
+@c -------------------------------------------------------------------
+
+A distributed application is an application which is composed by
+interacting nodes. In this section, we give the AADL entities used to
+model a distributed application. Then, we give the rules applied to
+map AADL entities onto instances VM-level container, expressed as C
+code.
+
+In the following, we detail only the rules that are directly related
+to the distributed application as a whole system. The rules that are
+specific to the components of the distributed application are
+explained in the sections that deals with these respective components.
+
+@subsection AADL entities
+
+To model a distributed application in AADL we use the @code{system}
+component. The system implementation shown on the following example
+models such system.
+
+@include ping.texi
+
+For each node (process) of the distributed application, we
+instantiate a subcomponent in the system implementation.
+
+We use the @code{properties} section of the AADL @code{system}
+(see @ref{Hosts} for more details) to map the
+different nodes on the different platforms of the distributed
+application. The @code{connections} section of the system
+implementation models the connections between the different nodes of
+the application.
+
+@subsection C mapping rules
+
+A distributed application is mapped into a hierarchy of directories:
+@itemize @bullet
+  @item the root directory of the distributed application which has
+  the same name as the system implementation that model the application,
+  in lower case, all dot being converted into underscores. This
+  directory is the root of the directory hierarchy of the generated C
+  distributed application.
+
+  @item for each node of the distributed application, a child
+  directory having the same name as the corresponding process
+  subcomponent (in lower case) is created inside the root
+  directory. This child directory will contain all the code generated
+  for the particular node it was created for (see
+  @ref{Distributed application nodes} for more details).
+
+@end itemize
+
+@c -------------------------------------------------------------------
+@node Distributed application nodes
+@section Distributed application nodes (processes)
+@c -------------------------------------------------------------------
+
+In this section, we give the AADL entities used to model a node of
+distributed application. Then, we give the rules applied to map C
+code from these AADL entities. Only rules that are related directly to
+a node as a whole subsystem are listed here. The rules that are
+specific to the sub-components of a node are explained in the sections
+that deal with these respective sub-components.
+
+@subsection AADL entities
+
+To model a distributed application node in AADL we use the
+@code{process} component. The process implementation shown in the
+listing below shows such system. For each node of the
+distributed application, we add a process instantiation as
+subcomponent in the system implementation that models the distributed
+application.
+
+@include node_a_model.texi
+
+For each thread that belongs to a node of the distributed application,
+we instantiate a subcomponent in the process implementation. For each
+connection between a node and another, a @code{port} feature has to be
+added to both nodes with the direction @code{out} for the source and
+@code{in} for the destination (see @ref{Connections} for more details
+on connections mapping).
+
+@subsection C mapping rules
+
+All the C entities mapped from a distributed application node, are
+created in a child directory of the directory mapped from the
+distributed application. This directory has the same name as the
+process @emph{subcomponent} instance relative to the handled node in
+the system implementation that model the distributed application, in
+lower case.
+
+For example, all the entities relative to the process @code{A} of the
+@code{Ping} example are generated in the directory
+@code{ping_impl/node_a}.
+
+The following paragraphs list the C compilation units that are
+created for each node of the distributed application.
+
+@subsubsection Marshallers functions
+
+The marshallers functions are used to put all request and types values in a
+message in order to send them through a network connections. All marshalling
+functions are declared in the file @code{marshallers.c}
+
+@subsubsection Node activity
+
+We denote ``activity'' the set of the actions performed by one
+particular node which are not triggered by other nodes. All the
+periodic threads of a node are part of the node activity.
+
+The code related to the node activity is generated in an C file
+with the name @file{activity.c}. An example is shown below :
+
+@include activity.c.texi
+
+All the naming rules explained in @ref{Whole distributed application}
+are also applied to map the package name. This file
+contains all the routines mapped from the periodic threads
+that belong to the handled node (see @ref{Threads} for more details on
+thread mapping). This package contains also the instances of shared
+objects used in this node (see @ref{Data} for more details). If the
+node does not contain any @i{periodic} thread nor shared objects,
+there is no @file{activity.c} file generated for this node. Thus,
+the node @code{B} in the @code{Ping} example does not have a
+@file{activity.c} package.
+
+@subsubsection Data types
+
+All the data types mapped from AADL data components and used by a
+particular node of a distributed application are gathered in a
+separate C file called @file{types.h}. 
+
+For more detail on the mapping of data components, see @ref{Data}.
+
+@subsubsection Subprograms
+
+The mapping of all AADL subprogram components used by a particular
+node is generated in a separate file called @file{subprograms.c}. 
+The content of the file is shown in the following example:
+
+For more detail on the mapping of subprogram components, see
+@ref{Subprograms}.
+
+
+@subsubsection Deployment information
+
+The deployment information is the information each node has on the
+other nodes in the distributed applications. This information is used,
+in conjunction with the naming table (see the next paragraph) to allow
+a node to send a request to another node or to receive a request from
+another node. The deployment information is generated for each node in
+two C files : @file{deployment.h} and @file{deployment.c}.
+
+The file @file{deployment.h} contains the following types
+@itemize @bullet
+@item a first type called @code{__po_hi_node_t}. For each node in the
+  application we create an enum whose name is mapped
+  from the node ``instance'' declared in the system implementation to
+  which we concatenate the string ``_k''. All the naming rules listed
+  in @ref{Whole distributed application} have to be respected.
+
+@item a second type called @code{__po_hi_entity_t}. For each thread in the
+  the application, we declare an enum.
+
+@item a third type called @code{__po_hi_task_id}. For each thread that
+  run on the current node.
+
+@item a fourth type called @code{__po_hi_entity_server_t}. For each node
+      that may communicate with the current node, we add a value in this
+      enum. It will be used by the transport layer. Please note that at least
+      one server is declared : the value @code{invalid_server}.
+@item a fifth type called @code{__po_hi_port_t} that contains all global port
+      identifier.
+@end itemize
+
+More, this file contains the following maccros :
+@itemize @bullet
+         @item @code{__PO_HI_NB_ENTITIES} is the number of entities in 
+         the whole distributed system.
+         @item @code{__PO_HI_NB_TASKS} is the number of the tasks that will
+         be started on the current node
+         @item @code{__PO_HI_NB_NODES} is the number of nodes in the
+         distributed system.
+         @item @code{__PO_HI_PROTECTED} is the number of protected objects
+         use on the current node.
+         @item @code{__PO_HI_NB_PORTS} that represent the total number of ports
+         in the whole distributed system.
+@end itemize
+
+The file @file{deployment.c} contains three variables :
+@itemize @bullet
+         @item @code{mynode} variable which has the value of the 
+         handled node.
+         
+         @item @code{__po_hi_entity_table} variable is used to know on 
+         which node an entity runs.
+
+         @item @code{__po_hi_port_global_to_local} variable is used
+         to convert a global port identifier to a local port identifier
+
+         @item @code{__po_hi_port_global_to_entity} variable is used
+         to know on which entity a given port is. This table is used
+         convert a global port identifier to an entity identifier.
+@end itemize
+
+The following example shows the @code{Deployment} package relative to
+the node @code{A} of the @code{Ping} example:
+
+@include deployment.h.texi
+
+@subsubsection Naming information
+
+The naming information for a particular node @code{A} allow this node
+to send requests to another node in the distributed application and to
+receive a request from another node. It contains for each node, the
+information necessary to establish a connection with a remote
+node. These information are deduced statically from the AADL model.
+
+The naming information is generated in a file called @file{naming.c}.
+
+@include naming.c.texi
+
+As shown in the example above, for the node @code{A} of the
+@code{Ping} example, the @file{naming.c} file contains:
+@itemize @bullet
+  @item An array called @code{node_port} indexed by the values
+        of @code{__po_hi_node_t}. It tells the port to connect
+        on for each node in the distributed system.
+  @item An array called @code{node_addr} indexes by the values
+        of @code{__po_hi_node_t}. It tells the address to connect
+        on for each node.
+@end itemize
+
+@subsubsection Main function
+
+The main function is a function that does all the necessary
+initialization before the effective run of the node. This function
+is stored in a file called @file{main.c}. This function initializes
+the components of the node (protected types, network layer, ...), 
+creates the tasks and wait that all components are initialized.
+The following example shows the main subprogram generated for
+the node @code{A} of the @code{Ping} example.
+
+@include main.c.texi
+
+@c -------------------------------------------------------------------
+@node Hosts
+@section Hosts
+@c -------------------------------------------------------------------
+
+A host is the set formed by a processor and an operating system (or
+real-time kernel).
+
+In this section we present the AADL entities used to model a host.
+Then, we give the mapping rules used to generate C code expressing
+that a node runs on a particular host.
+
+@subsection AADL entities
+
+To model both the processor and the OS, we use the @code{processor}
+AADL component. The characteristics of the processor are defined using
+the AADL properties. For example, if our distributed application uses
+an IP based network to make its node communicate, then each host must
+have an IP address. Each host must also precise its platform (native,
+LEON...). The listing following example shows how to express this
+using a custom property set.
+
+@include hardware.texi
+
+To map an application node (processor) to a particular host, we use
+the @code{Actual_Processor_Binding} property. The following example
+shows how the node @code{Node_A} is mapped to the processor
+@code{Proc_A} in the @code{Ping} example.
+
+@include processor_binding.texi
+
+@subsection C mapping rules
+
+The C generated code concerning the code generation to model host
+mapping is located in the @file{naming.c} file. More precisely,
+the @code{node_addr} and @code{node_port} contains, for each node, 
+the information related to its host. These information are dependant on the
+transport mechanism used in the distributed application.
+
+@c -------------------------------------------------------------------
+@node Threads
+@section Threads
+@c -------------------------------------------------------------------
+
+The threads are the active part of the distributed application. A node
+must contain at least one thread and may contain more than one
+thread. In this section, we give the AADL entities used to model
+threads. Then, we give the mapping rule to generate C code
+corresponding to the periodic and aperiodic threads.
+
+The rules are listed relatively to the packages generated for the
+nodes and for the distributed application (see @ref{Distributed
+application nodes} and @ref{Whole distributed application}). Only
+rules that are related directly to a thread as a whole subsystem are
+listed here.
+
+@subsection AADL entities
+
+The @code{thread} AADL components are used to model threads in the
+distributed application. The @code{features} section of the thread
+component declaration describe the thread interface (the ports that
+may be connected to the ports of other threads). The @code{properties}
+section of the thread implementation lists the properties of the
+thread such as its priority, its nature (periodic,
+sporadic) and many other properties ares expressed using AADL
+properties. The @code{calls} section of the thread implementation
+contains the sequences of subprograms the thread may call during its
+job (see @ref{Subprograms} for more details on the subprogram
+mapping). If the thread job consist of calling more than one
+subprogram, it is @b{mandatory} to encapsulate these calls inside a
+single subprogram which will consist the thread job. The
+@code{connections} section of a thread implementation connects the
+parameters of the subprograms called by the thread to the ports of the
+threads or to the parameters of other called subprograms in the same
+thread.
+
+@include thread_a.texi
+
+The listing above shows the thread @code{P} which belongs to the
+process @code{A} in the @code{Ping} example. We can see that @code{P}
+is a periodic thread with a period of $1000ms$, that this thread has a
+unique @code{out event data port} and that at each period, the thread
+performs a call to the @code{Do_Ping_Spg} subprogram whose @code{out
+parameter} is connected to the thread port.
+
+@subsection C mapping rules for periodic threads
+
+Periodic threads are cyclic threads that are triggered by and only by
+a periodic time event. between two time events the periodic threads do
+a non blocking job and then they sleep waiting for the next time
+event.
+
+@subsubsection Node activity
+
+The majority of the code generated for the periodic threads is put
+in the @file{activity.c} file generated for the application
+node containing the handled thread. Each periodic thread is created in the 
+main function (@file{main.c} file) with the @code{__po_hi_create_periodic_task}
+function-call. 
+
+The generated code in the @file{activity.c} file is a parameterless function 
+that represents the thread job. The defining identifier of the function 
+is mapped from the thread instance name in the process that models the node, 
+to which we append the string ``@code{_job}''. All the naming rules listed 
+in @ref{Whole distributed application} have to be respected. The body of this
+subprogram calls the subprograms mapped from the subprogram calls the
+thread performs. Then, it sends the request to the remote threads it
+may be connected to. Finally, at the end of the function, we make a call
+to the @code{__po_hi_wait_next_period()} with the task identifier as parameter.
+This call ensure that we wait the next period before we start the function
+again.
+
+The generated code in @file{main.c} file is a function-call that creates
+a periodic task. The task is created with the function 
+@code{__po_hi_create_periodic_task}. This creates a periodic task with 
+the wanted properties at the elaboration time of the node. The package
+instantiation name is mapped from the thread instance name in the process 
+that model the node, to which we append the string ``@code{_k}''. All the 
+naming rules listed in @ref{Whole distributed application} have to be 
+respected. The function-call takes the following parameters:
+  @itemize @bullet
+    @item the enumerator corresponding to the thread
+    @item the task period,
+    @item the task priority. If the user did not specify a priority, then
+    @code{__PO_HI_DEFAULT_PRIORITY} is used,
+    @item the task job which corresponds to the subprogram
+    @code{<Thread_Name>_job}.
+  @end itemize
+
+The following example shows the generated code for the periodic thread
+@code{Pinger} from the node @code{Node_A} of the @code{Ping} example:
+
+@include activity.c.texi
+
+@subsection C mapping rules for sporadic threads
+
+Sporadic threads are @emph{cyclic} threads that are triggered by an
+sporadic event. The minimum inter-arrival time between two sporadic
+event is called the period of the sporadic thread.
+
+@subsubsection Node activity
+The majority of the code generated for the sporadic threads is put
+in the @file{activity.c} file generated for the application
+node containing the handled thread. Each periodic thread is created in the 
+main function (@file{main.c} file) with the @code{__po_hi_create_sporadic_task}
+function-call. 
+
+The generated code in the @file{activity.c} file is a parameterless function 
+that represents the thread job. The defining identifier of the function 
+is mapped from the thread instance name in the process that models the node, 
+to which we append the string ``@code{_job}''. All the naming rules listed 
+in @ref{Whole distributed application} have to be respected. In the body
+of the function, the thread will wait for an event (most of the time : a
+message from another entity).
+
+The generated code in @file{main.c} file is a function-call that creates
+the sporadic task. The task is created with the function 
+@code{__po_hi_create_sporadic_task}. This creates a sporadic task with 
+the wanted properties at the elaboration time of the node. The package
+instantiation name is mapped from the thread instance name in the process 
+that model the node, to which we append the string ``@code{_k}''. All the 
+naming rules listed in @ref{Whole distributed application} have to be 
+respected. The function-call takes the following parameters:
+  @itemize @bullet
+    @item the enumerator corresponding to the thread
+    @item the task priority. If the user did not specify a priority, then
+    @code{__PO_HI_DEFAULT_PRIORITY} is used,
+    @item the task job which corresponds to the subprogram
+    @code{<Thread_Name>_job}.
+  @end itemize
+
+The following example shows the generated code for the sporadic thread
+@code{Ping_Me} from the node @code{Node_B} of the @code{Ping} example.
+
+@include node_b_activity.c.texi
+
+@subsection Deployment information
+
+As said in @ref{Distributed application nodes}, the files @file{deployment.h}
+and @file{deployment.c} are generated for each node in the distributed 
+application. For each thread port in the whole distributed application, we declare an
+enumerator in this type. The defining identifier of the enumerator is
+mapped from the process subcomponent name and the thread subcomponent
+name as follows: @code{<Node_Name>_<Thread_Name>_K}. 
+For each that that may communicate, we generate the following elements
+@itemize @bullet
+   @item A variable called @code{__po_hi_<thread_name>_local_to_global} 
+   (in @code{deployment.c}) that is used to convert a local port 
+   identifier of the thread to a global one.
+   
+   @item A type @code{__po_hi_<thread_name>_t} that will contain
+   on local port identifier.
+
+   @item A macro @code{__po_hi_<thread_name>_nb_ports} that will contain
+   the number of ports for the thread.
+@end itemize
+
+For these elements, all the naming
+rules listed in @ref{Whole distributed application} must be respected.
+
+@include deployment.h.texi
+@include deployment_c.c.texi
+
+The listing above shows the generated @code{__po_hi_entity_server_t} and
+@code{entity_table} for the nodes @code{B} from the
+@code{Ping} example.
+
+@subsection Port mapping
+Threads can contain one or several ports. To handle them, we declared several
+arrays in the @code{activity.c}
+@itemize @bullet
+   @item @code{__po_hi_<port_name>_destinations} : array for each port of the 
+   thread which contains all destinations of the port.
+   @item @code{__po_hi_<thread_name>_woffsets} : array (size = number of ports in the
+   thread) used by \pohic for the global queue of the thread.
+   @item @code{__po_hi_<thread_name>_offsets} : array (size = number of ports in the
+      thread) used by \pohic for the global queue of the thread.
+   @item @code{__po_hi_<thread_name>_used_size} : array (size = number of ports in the
+      thread) used by \pohic for the global queue of the thread.
+   @item @code{__po_hi_<thread_name>_empties} : array (size = number of ports in the
+      thread) used by \pohic for the global queue of the thread.
+   @item @code{__po_hi_<thread_name>_first} : array (size = number of ports in the
+      thread) used by \pohic for the global queue of the thread.
+   @item @code{__po_hi_<thread_name>_recent} : array (size = number of ports in the
+      thread) used by \pohic for the global queue of the thread.
+   @item @code{__po_hi_<thread_name>_queue} : array (size = size of the global queue 
+   for the thread) used by \pohic to handle the global queue.
+   @item @code{__po_hi_<thread_name>_total_fifo_size} : variable that contains
+   the size of the global queue. It is the sum of all port size for the thread.
+   @item @code{__po_hi_<thread_name>_history} : array (size = number of ports in the
+      thread) used by \pohic for the global queue of the thread.
+   @item @code{__po_hi_<thread_name>_n_dest} : array (size = number of ports in the
+      thread) used by \pohic for the global queue of the thread. It contains
+      the number of destinations for each port of the thread.
+   @item @code{__po_hi_<thread_name>_fifo_size} : array (size = number of ports in the
+      thread) used by \pohic for the global queue of the thread.
+   @item @code{__po_hi_<thread_name>_destinations} : array (size = number of ports
+   in the thread) that contains all destinations for each port.
+@end itemize
+
+@c -------------------------------------------------------------------
+@node Connections
+@section Connections
+@c -------------------------------------------------------------------
+
+The connections are entities that support communication between the
+application nodes. In this section, we present the AADL entities used
+to model connection between nodes. There is no implicit mapping rules
+for AADL connections, they just help to know the data flow (in case of
+data connections) and some aspects of the control flow (event
+connections) in the distributed application. In this section, we will talk about
+how data are sended (marshall functions) and which functions are used to send
+and receive data.
+
+@subsection AADL entities
+
+As said in @ref{Distributed application nodes} and @ref{Whole
+distributed application} a connection between two nodes of the
+distributed application is modeled by:
+@itemize @bullet
+  @item The @code{ports} features that exist on each one of the
+  nodes. Ports can be declared inside processes or threads. The
+  direction of the port (@code{in}, @code{out} or @code{in
+  out}) indicates the direction of the information flow.
+
+  @item The @code{connections} section in the system implementation
+  relative to the distributed application and in the process and
+  thread implementations.
+@end itemize
+
+@include port_cnx.texi
+
+The listing above shows the connection between the node @code{A} and
+@code{B} in the system implementation.
+
+The nature of the @code{port} (@i{event port}, @i{data
+port} or @i{event data port}) depends on the nature of the
+connection between the two nodes:
+@itemize @bullet
+ @item if the message sent from one node to another node is only a
+ triggering event and contains no data, we create an @i{event}
+ port.
+
+ @item if the message sent from one node to another node is a data
+ message but it does not trigger the receiver thread, we create a
+ @i{data} port.
+
+ @item if the message sent from one node to another node is a data
+ message that triggers the receiver thread, we create an @i{event
+ data} port.
+@end itemize
+
+@subsection Marshallers
+
+In a distributed system, when we send any data to a node, we need to put them in
+a stream. We call that the marshall operation. On the other hand, find
+data in a stream is called the unmarshall operation. In each distributed
+application, we generate marshallers for each types and request. These functions
+will marshall/unmarshall data in/from a message.
+
+All marshallers functions are generated in a file called @file{marshallers.c}.
+The marshall (or unmarshall) functions for request are prefixed by the string
+@code{__po_hi_marshall_request_} (or @code{__po_hi_unmarshall_request_}). Marshall
+(or unmarshall) functions for types are prefixed by the string
+@code{__po_hi_marshall_type_} (or @code{__po_hi_unmarshall_type_}). Each function
+has the name of the type or the request it marshalls.
+
+Finally, a function @code{__po_hi_marshall_request} and
+@code{__po_hi_unmarshall_request} is generated to handle all requests. Then, is
+called the appropriate function to call to marshall or unmarshall the data.
+
+@include marshallers.c.texi
+
+@c -------------------------------------------------------------------
+@node Subprograms
+@section Subprograms
+@c -------------------------------------------------------------------
+
+Subprograms are used to encapsulate behavioural aspects of the
+distributed application. In this section, we give the AADL entities
+used to model subprograms. Then we present the C mapping rules to
+generate code for the modeled subprograms.
+
+@subsection AADL entities
+
+To @emph{declare} a subprogram, we use the @code{subprogram} AADL
+component. The parameters of the subprogram are specified in the
+@code{features} section of the component declaration. If the
+subprogram does only the job of calling other declared subprograms,
+then the @code{calls} section of the subprogram implementation has to
+contain such calls. To point to the @emph{real} implementation of the
+subprogram, we use the AADL properties. The following example shows
+the AADL model for the @code{Do_Ping_Spg} from the @code{Ping}
+example. It precises that the C implementation of the subprogram is
+located in the function @code{user_ping}. The file which contains this
+function must be stored with the aadl model.
+
+Subprograms are generally called by threads or by other subprograms.
+To express this, we use the @code{calls} section of a component
+implementation. Then we perform all the connections between the
+called subprograms @emph{parameters} and the caller components
+@emph{ports} (or @emph{parameters} if the caller is a subprogram).
+
+The following listing shows the calls and connections sections of the
+periodic thread @code{P} in the @code{Ping} example.
+
+@include do_ping_spg.texi
+
+@subsection C mapping rules for subprogram components
+
+@subsubsection The subprograms package
+Each subprogram instance modelize a hand-written function. In the
+@file{subprograms.c} file, we declare the definition of this function
+and we generate a new one that will call the one provided by the user.
+
+The following listing shows the calls and connections sections of the
+subprogram @code{ping_spg} in the @code{Ping} example.
+
+@include subprograms.c.texi
+
+
+
+@subsection C mapping rules for subprogram calls
+
+For each subprogram call in a thread, we generate an C subprogram
+call to the subprogram implementing the thread and given by mean of
+the AADL properties.
+
+On the client side, A thread @code{sth_Job} begin by calling the
+subprogram in its call sequence. then it calls the stubs of all the
+subprogram it is connected to.
+
+On the server side, and in the function of the @code{process_request}, 
+the subprogram implementation corresponding to the operation 
+(coded in the message) is called.
+
+@c -------------------------------------------------------------------
+@node Data
+@section Data
+@c -------------------------------------------------------------------
+
+The data are the messages exchanged amongst the nodes of the
+distributed application. In this section, we present the AADL
+constructs used to model data. Then we give the C mapping rules to
+generate code from these constructs.
+
+@subsection AADL entities
+
+AADL @code{data} components are used to model data exchanged in the
+distributed application. Properties are used to precise the nature of
+the data.
+
+To model a data structure (which contains fields of others data types)
+we use data component implementation and we add a subcomponent for
+each field of the structure.
+
+The simple data types that can be modeled using AADL are (See example
+below):
+@itemize @bullet
+  @item Booleans
+  @item Integers
+  @item Fixed point types
+  @item Characters
+  @item Wide characters
+@end itemize
+
+@include simple_types.texi
+
+The complex data types that can be modeled using AADL are (See example
+below):
+@itemize @bullet
+  @item Bounded strings
+  @item Bounded wide strings
+  @item Bounded arrays of a type that can be modeled
+  @item Structure where the fields types are types that can be
+  modeled
+@end itemize
+
+@include complex_types.texi
+
+Data components may also contain subprogram features. Depending on
+the AADL properties given by the user. These component may denote a
+protected object or a non protected object. In either case, they are
+used to model a data structure that can be handled only by the
+subprograms it exports (which are the feature of the data structure).
+
+@include protected_object_types.texi
+
+The example above shows an example of
+a protected data component (@code{Protected_Object.Impl}).
+The object has a single field (subcomponent) which is a simple data
+component. Note that the description of the feature subprograms of
+these data component is a little bit different from the description of
+classic subprograms: each feature subprogram must have a full access
+to the internal structure of the object type. To achieve this, we use
+the @code{require data access} facility of AADL. To model a non
+protected data component, user should simply change the
+@code{ARAO::Object_Kind => Protected;} into
+@code{ARAO::Object_Kind => Non_Protected;} in the implementation
+of data component.
+
+@subsection C mapping rules
+
+Data component declaration are mapped into C type declaration in the
+file @code{types.h}. 
+In the following we give the C type corresponding to each data component
+type that could be modeled.
+
+@subsubsection Simple types
+
+Simple data components are mapped into an C type definition whose
+defining identifier is mapped from the component declaration
+identifier (with respect to the naming rules listed
+in @ref{Whole distributed application}) and whose parent subtypes is:
+@itemize @bullet
+  @item @code{int} for boolean data types
+  @item @code{int} for integer data types
+  @item @code{float} for fixed point types
+  @item @code{chat} for character data types
+@end itemize
+
+@subsubsection Bounded strings and wide strings
+
+Bounded strings and wide strings are not supported in the C generator at this
+time.
+
+
+@subsubsection Bounded arrays
+
+Bounded arrays and wide strings are not supported in the C generator at this
+time.
+
+
+@subsubsection Data structures
+
+Data structures are mapped into a C structure defined in the file @file{types.h}. 
+The identifier of the record type is mapped from the data component name
+with respect to the naming rules given in @ref{Whole distributed
+application}. Each field defining identifier is mapped from the
+subcomponent name given in the data component implementation with the
+same naming rules. The type of the field is the C type mapped from
+the data corresponding component. The following example shows the C
+mapping of the data structure defined given earlier in this part.
+
+@include data_struct.h.texi
+
+@subsubsection Object types
+
+Protected object types are mapped into an a C structure. We add automatically a
+member in the structure with the type @code{__po_hi_protected_id} and the name
+@code{protected_id}. This member 
+will identify the protected type in the distributed system. All other members of
+the object are declared as in Data Structures (see previous subsection). The
+features subprograms of the object types are declared in the @file{types.h}
+file, whereas the body of these functions are defined in the @file{types.c}
+file. Moreover, the value of the @code{protected_id} must be initialized. This
+is done in the main function (@file{main.c}), before the initialization.
+All the naming conventions given in @ref{Whole distributed application} have to 
+be respected. The following example shows the specification of the protected type 
+mapped from the @code{Protected_Object.Impl} shown earlier in this part. We show
+the files @file{types.h}, @file{types.c} and @file{main.c} (that initialize the
+@code{protected_id} member of the structure.
+
+@include toy_types.h.texi
+@include toy_types.c.texi
+@include toy_main.c.texi
+
+Non protected object types are mapped similarly to protected object
+types. The only difference, is that instead of creating a protected
+type, we create a generic parameterless nested package.
+
+@c -------------------------------------------------------------------
+@node PolyORB-HI-C API
+@appendix PolyORB-HI-C API
+@c -------------------------------------------------------------------
+
+This section lists the API of PolyORB-HI-C, used to support the basics
+of distribution features and concurrent interactions.
+ 
+@menu
+* Tasking functions::           
+* Time functions::              
+* Marshallers functions::       
+* GIOP functions::              
+* Messages functions::          
+* Protocols functions::         
+* Transport functions::         
+* Protected types functions::   
+* Global queue functions::      
+* Types used in PolyORB-HI-C::  
+* Return types for PolyORB-HI-C functions::  
+@end menu
+
+@c -------------------------------------------------------------------
+@node Tasking functions
+@section @code{po_hi_task.h}
+@c -------------------------------------------------------------------
+
+@include po_hi_task.h.texi
+
+@c -------------------------------------------------------------------
+@node Time functions
+@section @code{po_hi_time.h}
+@c -------------------------------------------------------------------
+
+@include po_hi_time.h.texi
+
+@c -------------------------------------------------------------------
+@node Marshallers functions
+@section @code{po_hi_marshallers.h}
+@c -------------------------------------------------------------------
+
+@include po_hi_marshallers.h.texi
+
+@c -------------------------------------------------------------------
+@node GIOP functions
+@section @code{po_hi_giop.h}
+@c -------------------------------------------------------------------
+
+@include po_hi_giop.h.texi
+
+@c -------------------------------------------------------------------
+@node Messages functions
+@section @code{po_hi_messages.h}
+@c -------------------------------------------------------------------
+
+@include po_hi_messages.h.texi
+
+@c -------------------------------------------------------------------
+@node Protocols functions
+@section @code{po_hi_protocols.h}
+@c -------------------------------------------------------------------
+
+@include po_hi_protocols.h.texi
+
+@c -------------------------------------------------------------------
+@node Transport functions
+@section @code{po_hi_transport.h}
+@c -------------------------------------------------------------------
+
+@include po_hi_transport.h.texi
+
+@c -------------------------------------------------------------------
+@node Protected types functions
+@section @code{po_hi_protected.h}
+@c -------------------------------------------------------------------
+
+@include po_hi_protected.h.texi
+
+@c -------------------------------------------------------------------
+@node Global queue functions
+@section @code{po_hi_gqueue.h}
+@c -------------------------------------------------------------------
+
+@include po_hi_gqueue.h.texi
+
+@c -------------------------------------------------------------------
+@node Types used in PolyORB-HI-C
+@section @code{po_hi_types.h}
+@c -------------------------------------------------------------------
+
+@include po_hi_types.h.texi
+
+@c -------------------------------------------------------------------
+@node Return types for PolyORB-HI-C functions
+@section @code{po_hi_returns.h}
+@c -------------------------------------------------------------------
+
+@include po_hi_returns.h.texi
+
+@c -------------------------------------------------------------------
+@node Porting PolyORB-HI-C to another architecture
+@appendix Porting PolyORB-HI-C to another architecture
+@c -------------------------------------------------------------------
+
+This section gives some hints to help the developer to port
+PolyORB-HI-C. We will give the name of the files you need to change
+and what part of them should be modified to support new architectures
+and operating systems.
+
+@section POSIX compliance
+
+PolyORB-HI-C is POSIX compliant. It means that all the functions used
+in the framework should be available if your operating system is POSIX
+compliant. Even this compliance, you will probably need to make some
+changes and for each new architecture or operating system, you have to
+create a specific Makefile, as described in the thrid section.
+
+@section Architecture-dependent files
+
+If you need to port the framework on another architecture, some files
+don't need to be changed. Porting efforts will be focused on the
+following files :
+
+@itemize @bullet
+@item @code{po_hi_task.c} : Create tasks and handle their properties
+(period, priority, ...). At this time, this file contains only POSIX
+calls to create and manage thread.
+  
+@item @code{po_hi_time.c} : Handle time and provide some functions to wait
+until an absolute time. The functions defined in this file make calls
+to POSIX functions like @code{clock_gettime()}.
+  
+@item @code{po_hi_transport_sockets.c} : All the functions defined in this
+file are used to send or receive data through sockets. It creates a
+task to receive data and put them on a stack. All the functions made
+calls to POSIX-compliant functions like @code{socket()}, @code{listen}
+or @code{bind}.
+@end itemize
+
+
+@section Declare a new supported system
+
+In all files that contain architecture-dependent, we need to split
+code for each system. We make it with MACCRO and include the code for
+the used architecture when we compile it. At this time, two systems
+are supported : @code{POSIX} and @code{RTEMS_POSIX}. Even if RTEMS use
+the POSIX implementation, there are some differences between that
+needs to declare another system.
+
+If you want to support a new architecture, you need to declare a new
+maccro which will be used to differenciate the code for your
+architecture from other parts of the code. Then, this maccro will be
+included in the @code{CFLAGS} variable in the Makefile created for
+your architecture.
+
+@section Define the compilation process
+
+Each architecture has its own Makefile. It is used to define the
+compiler name, the linker name and some maccros to compile the code
+with a specific architecture.
+
+All Makefiles are stored in the @code{share/make} directory. Each
+Makefile follow the following naming rule :
+@code{Makefile.arch.ostype}. For example, the Makefile created for the
+LEON architecture with the RTEMS OS has the name
+@code{Makefile.leon.rtems}. You need to create a Makefile with name
+that follow the naming rule and fill it with the rights @code{CFLAGS}
+and @code{CC} for the sytem you port.
+
+@c -------------------------------------------------------------------
+@node References
+@appendix References
+@c -------------------------------------------------------------------
+
+@enumerate
+
+@include polyorb-hi_ug_ref.texi
+
+@end enumerate
+
+@c -------------------------------------------------------------------
+@c GNU's FDL
+
+@include gfdl.texi
+
+@c -------------------------------------------------------------------
+@node The Index
+@unnumbered The Index
+@c -------------------------------------------------------------------
+
+@printindex cp
+
+@bye

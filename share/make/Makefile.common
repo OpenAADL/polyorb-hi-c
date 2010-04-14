@@ -1,0 +1,155 @@
+# It detect if networking functions have to be compiled
+# With the generated code.
+
+include $(RUNTIME_PATH)/make/Makefile.$(TARGET)
+-include ../../userdefined.mk
+
+################################################################################
+# Configuration
+#
+# In userdefined.mk, we defined the following variables
+# - USER_CFLAGS   : Additional flags to compile .c files
+# - USER_CPPFLAGS : Additional flags to compile .cpp files
+# - USER_CC       : User overrides CC compiler
+# - USER_CPP      : User ovverides CPP compiler
+
+ifneq ($(USER_CC),)
+CC=$(USER_CC)
+endif
+
+ifneq ($(USER_CPP),)
+CPP=$(USER_CPP)
+endif
+
+ifneq ($(USER_LD),)
+LD=$(USER_LD)
+endif
+
+GCC=$(CC)
+CFLAGS=-Wall $(USER_CFLAGS) $(TARGET_CFLAGS) -Werror
+CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
+LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS)
+
+ifdef TARGET_INCLUDE
+INCLUDE=-I. -I$(USER_SOURCES_DIRS) -I$(RUNTIME_PATH)/include/ $(TARGET_INCLUDE)
+else
+INCLUDE=-I. -I$(RUNTIME_PATH)/include/
+endif
+
+INCLUDE+=$(USER_INCLUDE)
+
+################################################################################
+# Files to be compiled
+
+ifeq ($(NEED_TRANSPORT), yes)
+   PO_HI_OBJS = \
+	po_hi_task.o \
+	po_hi_time.o \
+	po_hi_protected.o \
+	po_hi_main.o \
+	po_hi_messages.o \
+	po_hi_marshallers.o \
+	po_hi_protocols.o \
+	po_hi_giop.o \
+	po_hi_utils.o \
+	po_hi_types.o \
+	po_hi_gqueue.o \
+	$(ACTUAL_TRANSPORT) \
+	po_hi_transport.o $(TARGET_TRANSPORT_SOURCES)
+
+   GENERATED_OBJS = \
+	activity.o \
+	subprograms.o \
+	types.o \
+	request.o \
+	deployment.o \
+	marshallers.o \
+	naming.o \
+	main.o
+else
+   PO_HI_OBJS = \
+	po_hi_task.o \
+	po_hi_time.o \
+	po_hi_utils.o \
+	po_hi_protected.o \
+	po_hi_main.o
+
+   GENERATED_OBJS = \
+	activity.o \
+	subprograms.o \
+	types.o \
+	main.o
+endif
+
+################################################################################
+# Simulink
+
+ifdef SIMULINK_NODE
+   PO_HI_OBJS += po_hi_simulink.o
+endif
+
+ifdef SIMULINK_DIR
+   INCLUDE += -I$(SIMULINK_DIR) \
+              -I$(SIMULINK_DIRECTORY)/simulink/include \
+              -I$(SIMULINK_DIRECTORY)/extern/include \
+              -I$(SIMULINK_DIRECTORY)/rtw/c/src \
+              -I$(SIMULINK_DIRECTORY)/rtw/c/src/ext_mode/common \
+              -I$(SIMULINK_DIRECTORY)/rtw/c/libsrc 
+   CFLAGS += -DRT -DUSE_RTMODEL -DMODEL=$(SIMULINK_NODE) -DRT -DNUMST=2 -DTID01EQ=1 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO
+   LDFLAGS += $(SIMULINK_LDFLAGS)
+endif
+
+################################################################################
+# SCADE
+
+ifdef SCADE_DIR
+   INCLUDE += -I$(SCADE_DIR)
+	USER_OBJS += $(SCADE_DIR)/*.o
+endif
+
+################################################################################
+# General RTEMS STUFF
+
+check-rtems:
+	if [ ! -d $$RTEMS_MAKEFILE_PATH/make ]; then \
+		echo "Please define the RTEMS_MAKEFILE_PATH variable" && exit 2 ; \
+	fi
+
+################################################################################
+# General compilation rules
+
+compile-po-hi:
+ifdef SIMULINK_DIR
+	(cd $(SIMULINK_DIR) && $(MAKE) -f $(SIMULINK_NODE).mk  && rm -f grt_main.o)
+endif
+ifdef SCADE_DIR
+	(cd $(SCADE_DIR) && for v in `ls *.c`; do $(CC) -c $$v; done)
+endif
+	for f in $(PO_HI_OBJS); do \
+	   c_file="`basename $$f .o`.c"; \
+	   $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file \
+	     || exit 1 ; \
+	done
+
+compile-node: $(BINARY)
+
+ifeq ($(TARGET), leon.rtems)
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
+$(BINARY): check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
+	$(make-exe)
+else
+$(BINARY): compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
+	$(CC) -o $(BINARY) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
+endif
+
+%.o: %.cpp
+	$(CPP) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
+
+%.o: %.c
+	$(CC) $(INCLUDE) $(CFLAGS) -c -o $@ $<
+
+clean: target-clean
+	@-rm -f *~ *.o *.al temp.* *.metrix $(BINARY) $(BINARY).bin $(BINARY).bt $(BINARY).num $(BINARY).nxe
+	if test ! "$(CLEANDIRS)" = "";  then \
+	  rm -rf $(CLEANDIRS); \
+	fi

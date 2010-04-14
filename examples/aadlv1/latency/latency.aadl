@@ -1,0 +1,326 @@
+data timedata
+properties
+  Data_Model::Data_Representation => integer;
+end timedata;
+
+subprogram sensorspg
+features
+	outed : out parameter timedata;
+properties
+	source_language => C;
+	source_name     => "sensor_emulator";
+   source_text     => "functions.o";
+end sensorspg;
+
+subprogram actuatorspg
+features
+	ined : in parameter timedata;
+properties
+	source_language => C;
+	source_name     => "actuator_emulator";
+   source_text     => "functions.o";
+end actuatorspg;
+
+subprogram step1spg
+features
+	ined : in parameter timedata;
+	outed : out parameter timedata;
+properties
+	source_language => C;
+	source_name     => "spg1";
+   source_text     => "functions.o";
+end step1spg;
+
+subprogram step2spg
+features
+	ined : in parameter timedata;
+	outed : out parameter timedata;
+properties
+	source_language => C;
+	source_name     => "spg2";
+   source_text     => "functions.o";
+end step2spg;
+
+subprogram step3spg
+features
+	ined : in parameter timedata;
+	outed : out parameter timedata;
+properties
+	source_language => C;
+	source_name     => "spg3";
+   source_text     => "functions.o";
+end step3spg;
+
+
+thread step1
+features
+  ined: in data port timedata;
+  outed: out data port timedata;
+properties
+  Dispatch_Protocol => Periodic;
+  period => 50 ms;
+  deadline => 45 ms;
+  Compute_Execution_Time => 6 ms .. 10 ms;
+end step1;
+
+thread implementation step1.periodic
+calls
+{
+	myspg : subprogram step1spg;
+};
+connections
+	parameter ined -> myspg.ined;
+	parameter myspg.outed -> outed;
+end step1.periodic;
+
+
+thread step2
+features
+  ined: in data port timedata;
+  outed: out data port timedata;
+properties
+  Dispatch_Protocol => Periodic;
+  period => 100 ms;
+  deadline => 70 ms;
+  Compute_Execution_Time => 15 ms .. 23 ms;
+End step2;
+
+thread implementation step2.periodic
+calls
+{
+	myspg : subprogram step2spg;
+};
+connections
+	parameter ined -> myspg.ined;
+	parameter myspg.outed -> outed;
+end step2.periodic;
+
+
+thread step3
+features
+  ined: in data port timedata;
+  outed: out data port timedata;
+properties
+  Dispatch_Protocol => Periodic;
+  period => 50 ms;
+  deadline => 45 ms;
+  Compute_Execution_Time => 6 ms .. 10 ms;
+End step3;
+
+thread implementation step3.periodic
+calls
+{
+	myspg : subprogram step3spg;
+};
+connections
+	parameter ined -> myspg.ined;
+	parameter myspg.outed -> outed;
+end step3.periodic;
+
+thread sensor_thread
+features
+  outed: out data port timedata;
+properties
+	Dispatch_Protocol => Periodic;
+	period => 50 ms;
+	deadline => 2 ms;
+	compute_execution_time => 1 ms .. 2 ms;
+end sensor_thread;
+
+thread implementation sensor_thread.periodic
+calls
+{
+	myspg : subprogram sensorspg;
+};
+connections
+	cn1 : parameter myspg.outed -> outed;
+end sensor_thread.periodic;
+
+thread implementation sensor_thread.aperiodic
+calls
+{
+	myspg : subprogram sensorspg;
+};
+connections
+	parameter myspg.outed -> outed;
+properties
+  Dispatch_Protocol => Sporadic;
+end sensor_thread.aperiodic;
+
+process sensor
+features
+  outed: out data port timedata;
+end sensor;
+
+process implementation sensor.periodic
+subcomponents
+	th : thread sensor_thread.periodic;
+connections
+	out1: data port th.outed -> outed;
+end sensor.periodic;
+
+process implementation sensor.aperiodic
+subcomponents
+	th : thread sensor_thread.aperiodic;
+end sensor.aperiodic;
+
+process actuator
+features
+  ined: in data port timedata;
+end actuator;
+
+process implementation actuator.periodic
+subcomponents
+	th : thread actuator_thread.periodic;
+connections
+	in1 : data port ined -> th.ined;
+end actuator.periodic;
+
+process implementation actuator.aperiodic
+subcomponents
+	th : thread actuator_thread.aperiodic;
+end actuator.aperiodic;
+
+thread actuator_thread
+features
+  ined: in data port timedata;
+properties
+  period => 50 ms;
+  deadline => 3 ms;
+  compute_execution_time => 1 ms .. 3 ms;
+end actuator_thread;
+
+thread implementation actuator_thread.periodic
+calls
+{
+	myspg : subprogram actuatorspg;
+};
+connections
+	parameter ined -> myspg.ined;
+properties
+  Dispatch_Protocol => Periodic;
+end actuator_thread.periodic;
+
+thread implementation actuator_thread.aperiodic
+properties
+  Dispatch_Protocol => Sporadic;
+end actuator_thread.aperiodic;
+
+process Pstep1
+features
+  ined: in data port timedata;
+  outed: out data port timedata;
+end Pstep1;
+
+process implementation Pstep1.periodic
+subcomponents
+  Tstep1: thread Step1.periodic;
+connections
+  cin: data port ined -> Tstep1.ined;
+  cout: data port Tstep1.outed -> outed;
+end Pstep1.periodic;
+
+process Pstep2
+features
+  ined: in data port timedata;
+  outed: out data port timedata;
+end Pstep2;
+
+process implementation Pstep2.periodic
+subcomponents
+  Tstep2: thread Step2.periodic;
+connections
+  cin: data port ined -> Tstep2.ined;
+  cout: data port Tstep2.outed -> outed;
+end Pstep2.periodic;
+
+
+process Pstep3
+features
+  ined: in data port timedata;
+  outed: out data port timedata;
+end Pstep3;
+
+process implementation Pstep3.periodic
+subcomponents
+  Tstep3: thread Step3.periodic;
+connections
+  cin: data port ined -> Tstep3.ined;
+  cout: data port Tstep3.outed -> outed;
+end Pstep3.periodic;
+
+
+system application
+features
+  db: requires bus access devicebus;
+end application;
+
+system implementation application.allperiodicdelayed
+subcomponents
+  sense: process sensor.periodic;
+  actuate: process actuator.periodic;
+  compute1: process Pstep1.periodic;
+  compute2: process Pstep2.periodic;
+  compute3: process Pstep3.periodic;
+connections
+  senseconn: data port sense.outed ->> compute1.ined;
+  compute12: data port compute1.outed ->> compute2.ined;
+  compute23: data port compute2.outed ->> compute3.ined;
+  actuateconn: data port compute3.outed ->> actuate.ined;
+end application.allperiodicdelayed;
+
+-- hardware platforms: single processor, dual processor
+processor singleCPU
+features
+  db: requires bus access devicebus.basic;
+  pb: requires bus access cpubus.basic;
+properties
+  Deployment::location           => "127.0.0.1";
+  Deployment::Execution_Platform => Native;
+end singleCPU;
+
+processor implementation singleCPU.basic
+end singleCPU.basic;
+
+bus cpubus
+end cpubus;
+
+bus implementation cpubus.basic
+end cpubus.basic;
+
+bus devicebus
+properties
+  Deployment::Transport_API => BSD_Sockets;
+end devicebus;
+
+bus implementation devicebus.basic
+end devicebus.basic;
+
+system topsystem
+end topsystem;
+
+
+system implementation topsystem.distributedallperiodicdelayed
+subcomponents
+  cpu: processor singleCPU.basic;
+  db: bus devicebus.basic;
+  pb: bus cpubus.basic;
+  sense: process sensor.periodic 		{Deployment::port_number => 32002;};
+  compute1: process Pstep1.periodic 	{Deployment::port_number => 32003;};
+  compute2: process Pstep2.periodic 	{Deployment::port_number => 32004;};
+  compute3: process Pstep3.periodic 	{Deployment::port_number => 32005;};
+  actuate: process actuator.periodic 	{Deployment::port_number => 32006;};
+connections
+  senseconn: data port sense.outed ->> compute1.ined 		{Actual_Connection_Binding => (reference db);};
+  compute12: data port compute1.outed ->> compute2.ined 	{Actual_Connection_Binding => (reference db);};
+  compute23: data port compute2.outed ->> compute3.ined 	{Actual_Connection_Binding => (reference db);};
+  actuateconn: data port compute3.outed ->> actuate.ined {Actual_Connection_Binding => (reference db);};
+  bus access db -> cpu.db;
+  bus access pb -> cpu.pb;
+properties
+  Actual_Processor_Binding => reference cpu applies to sense;
+  Actual_Processor_Binding => reference cpu applies to actuate;
+  Actual_Processor_Binding => reference cpu applies to compute1;
+  Actual_Processor_Binding => reference cpu applies to compute2;
+  Actual_Processor_Binding => reference cpu applies to compute3;
+end topsystem.distributedallperiodicdelayed;
