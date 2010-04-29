@@ -19,7 +19,7 @@
 #include <po_hi_task.h>
 #include <po_hi_protected.h>
 
-#if __PO_HI_NB_NODES > 1
+#if __PO_HI_NB_PORTS > 1
 #include <po_hi_transport.h>
 #include <po_hi_transport_sockets.h>
 #endif
@@ -45,7 +45,7 @@ int __po_hi_initialize ()
    */
   nb_tasks_to_init = __PO_HI_NB_TASKS + 1;
 
-#if __PO_HI_NB_NODES > 1
+#if __PO_HI_NB_PORTS > 1
   if (__PO_HI_TRANSPORT_SOCKET_NEED_RECEIVER_TASK ())
   {
      nb_tasks_to_init++;

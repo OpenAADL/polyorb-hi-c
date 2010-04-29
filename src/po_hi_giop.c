@@ -170,7 +170,7 @@ int __po_hi_giop_send (__po_hi_entity_t from,
   __po_hi_giop_print_msg(&smsg);
 #endif
 
-  return __po_hi_transport_low_level_send (from, to, &smsg);
+  return __po_hi_sockets_send (from, to, &smsg);
 }
 
 

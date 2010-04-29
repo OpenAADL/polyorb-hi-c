@@ -73,8 +73,6 @@ int __po_hi_queue_put (__po_hi_queue_id queue_id,
 		       __po_hi_msg_t*   msg);
 
 
-void* __po_hi_receiver_task (void);
-
 typedef struct
 {
    int socket;
@@ -91,7 +89,7 @@ typedef struct
 __po_hi_inetnode_t nodes[__PO_HI_NB_NODES];
 __po_hi_inetnode_t rnodes[__PO_HI_NB_NODES];
 
-void __po_hi_initialize_transport_low_level ()
+void __po_hi_sockets_initialize (void)
 {
    int                i;
    int                ret;
@@ -154,7 +152,7 @@ void __po_hi_initialize_transport_low_level ()
        */
 
       __po_hi_create_generic_task 
-	(-1, 0,__PO_HI_MAX_PRIORITY, 0, __po_hi_receiver_task);
+	(-1, 0,__PO_HI_MAX_PRIORITY, 0, __po_hi_sockets_receiver_task);
 
    }
 
@@ -244,7 +242,7 @@ void __po_hi_initialize_transport_low_level ()
      }
 }
 
-int __po_hi_transport_low_level_send (__po_hi_entity_t from, 
+int __po_hi_sockets_send (__po_hi_entity_t from, 
 				      __po_hi_entity_t to, 
 				      __po_hi_msg_t* msg)
 {
@@ -321,7 +319,7 @@ int __po_hi_transport_low_level_send (__po_hi_entity_t from,
 }
 
 
-void* __po_hi_receiver_task (void)
+void* __po_hi_sockets_receiver_task (void)
 {
   socklen_t          socklen = sizeof (struct sockaddr);
   /* See ACCEPT (2) for details on initial value of socklen */
