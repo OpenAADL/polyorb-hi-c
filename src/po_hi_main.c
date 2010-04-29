@@ -9,19 +9,22 @@
  */
 
 #include <pthread.h>
+/* POSIX files */
 
-/* system-dependent included files */
+#include <deployment.h>
+/* included files from the generated code */
 
 #include <po_hi_config.h>
 #include <po_hi_returns.h>
 #include <po_hi_task.h>
 #include <po_hi_protected.h>
+
+#if __PO_HI_NB_NODES > 1
+#include <po_hi_transport.h>
+#include <po_hi_transport_sockets.h>
+#endif
+
 /* included files from PolyORB-HI-C */
-
-#include <deployment.h>
-/* included files from the generated code */
-
-int __po_hi_transport_need_receiver_task();
 void __po_hi_initialize_transport ();
 
 pthread_cond_t cond_init;
@@ -43,7 +46,7 @@ int __po_hi_initialize ()
   nb_tasks_to_init = __PO_HI_NB_TASKS + 1;
 
 #if __PO_HI_NB_NODES > 1
-  if (__po_hi_transport_need_receiver_task())
+  if (__PO_HI_TRANSPORT_SOCKET_NEED_RECEIVER_TASK ())
   {
      nb_tasks_to_init++;
   }

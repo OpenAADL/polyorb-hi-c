@@ -14,6 +14,7 @@ EXTRA_DIST = $(srcdir)/po_hi_common.h \
 	$(srcdir)/po_hi_types.h \
 	$(srcdir)/po_hi_main.h \
 	$(srcdir)/po_hi_simulink.h \
+	$(srcdir)/po_hi_transport_sockets.h \
 	$(srcdir)/po_hi_transport.h
 
 CLEANFILES = *~

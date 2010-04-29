@@ -17,11 +17,11 @@
 #include <deployment.h>
 #include <request.h>
 
-#define __PO_HI_NOPORT 1
-#define __PO_HI_NOADDR ""
-
 typedef __po_hi_uint16_t __po_hi_inetport_t;
 typedef char*            __po_hi_inetaddr_t;
+
+#define __PO_HI_NOPORT 1
+#define __PO_HI_NOADDR ""
 
 int __po_hi_protocols_send (__po_hi_entity_t from,
 			    __po_hi_entity_t to,

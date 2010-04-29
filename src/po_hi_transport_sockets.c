@@ -11,6 +11,7 @@
 #include <po_hi_config.h>
 #include <po_hi_task.h>
 #include <po_hi_transport.h>
+#include <po_hi_transport_sockets.h>
 #include <po_hi_protocols.h>
 #include <po_hi_debug.h>
 #include <po_hi_types.h>
@@ -60,9 +61,6 @@
  * See the files deployment.h and deployment.c.
  */
 
-extern __po_hi_inetport_t node_port[__PO_HI_NB_NODES];
-extern __po_hi_inetaddr_t node_addr[__PO_HI_NB_NODES];
-extern __po_hi_node_t mynode;
 extern __po_hi_node_t entity_table[__PO_HI_NB_ENTITIES];
 
 /*
@@ -473,12 +471,3 @@ void* __po_hi_receiver_task (void)
   return NULL;
 }
 
-int __po_hi_transport_need_receiver_task ()
-{
-   if ((__PO_HI_NB_NODES > 1) && (node_port[mynode] != __PO_HI_NOPORT))
-   {
-      return 1;
-   }
-
-   return 0;
-}

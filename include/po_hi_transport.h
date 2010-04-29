@@ -12,6 +12,7 @@
 #define __PO_HI_TRANSPORT__
 
 #include <po_hi_messages.h>
+#include <po_hi_protocols.h>
 #include <deployment.h>
 #include <request.h>
 
@@ -64,5 +65,6 @@ int __po_hi_transport_low_level_send (__po_hi_entity_t from,
  * the node which will receive the data. Argument msg is the message
  * which is sent.
  */
+
 
 #endif /* __PO_HI_TRANSPORT__ */

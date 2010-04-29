@@ -31,12 +31,22 @@ CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
 LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS)
 
 ifdef TARGET_INCLUDE
-INCLUDE=-I. -I$(USER_SOURCES_DIRS) -I$(RUNTIME_PATH)/include/ $(TARGET_INCLUDE)
+INCLUDE=-I. -I$(RUNTIME_PATH)/include/ $(TARGET_INCLUDE)
 else
 INCLUDE=-I. -I$(RUNTIME_PATH)/include/
 endif
 
+ifdef USER_SOURCES_DIRS
+INCLUDE+=-I$(USER_SOURCES_DIRS) 
+endif
+
 INCLUDE+=$(USER_INCLUDE)
+
+ifndef $(TARGET_NAME)
+TARGET_NAME=$(TARGET)
+endif
+
+INCLUDE+=-DTARGET=$(TARGET_NAME)
 
 ################################################################################
 # Files to be compiled
