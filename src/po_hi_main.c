@@ -45,11 +45,13 @@ int __po_hi_initialize ()
    */
   nb_tasks_to_init = __PO_HI_NB_TASKS + 1;
 
+#ifdef __PO_HI_NEED_DRIVER_SOCKETS
 #if __PO_HI_NB_PORTS > 1
   if (__PO_HI_TRANSPORT_SOCKET_NEED_RECEIVER_TASK ())
   {
      nb_tasks_to_init++;
   }
+#endif
 #endif
 
   initialized_tasks = 0;

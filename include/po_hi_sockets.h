@@ -18,11 +18,8 @@ extern __po_hi_node_t mynode;
 extern __po_hi_inetport_t node_port[__PO_HI_NB_NODES];
 extern __po_hi_inetaddr_t node_addr[__PO_HI_NB_NODES];
 
-#define __PO_HI_DRIVER_SOCKET 1
-/* To be removed in a near future */
-
 #define __PO_HI_TRANSPORT_SOCKET_NEED_RECEIVER_TASK()  \
-   ((__PO_HI_DRIVER_SOCKET == 1) && (__PO_HI_NB_NODES > 1) && (node_port[mynode] != __PO_HI_NOPORT))
+   (node_port[mynode] != __PO_HI_NOPORT)
 /*
  * Maccro that declare if we need to activate another thread
  * that receives data from a socket (receiver task)
