@@ -10,7 +10,7 @@ C_FILES =   $(srcdir)/po_hi_task.c \
             $(srcdir)/po_hi_protocols.c		\
 	         $(srcdir)/po_hi_transport.c \
             $(srcdir)/po_hi_transport_dummy.c	\
-	         $(srcdir)/po_hi_transport_sockets.c \
+	         $(srcdir)/po_hi_sockets.c \
             $(srcdir)/po_hi_types.c	\
 	         $(srcdir)/po_hi_utils.c \
             $(srcdir)/po_hi_simulink.c		\

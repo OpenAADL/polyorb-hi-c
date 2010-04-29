@@ -11,7 +11,7 @@
 #include <po_hi_config.h>
 #include <po_hi_task.h>
 #include <po_hi_transport.h>
-#include <po_hi_transport_sockets.h>
+#include <po_hi_sockets.h>
 #include <po_hi_protocols.h>
 #include <po_hi_debug.h>
 #include <po_hi_types.h>
@@ -39,7 +39,7 @@
 #include <sys/time.h>
 
 /*
- * This file (po_hi_transport_sockets.c) provides function to handle
+ * This file (po_hi_sockets.c) provides function to handle
  * communication between nodes in PolyORB-HI-C.  We don't use a
  * protocol to send data. For each data sent, we send before the
  * entity number provided by the generated file deployment.h, then, we
