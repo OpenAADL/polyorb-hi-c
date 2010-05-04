@@ -1,21 +1,22 @@
 AUTOMAKE_OPTIONS = no-dependencies
+SUBDIRS=drivers
 EXTRA_DIST = $(srcdir)/po_hi_common.h \
-	$(srcdir)/po_hi_debug.h \
-	$(srcdir)/po_hi_marshallers.h \
-	$(srcdir)/po_hi_messages.h \
-	$(srcdir)/po_hi_protected.h \
-	$(srcdir)/po_hi_protocols.h \
-	$(srcdir)/po_hi_returns.h \
-	$(srcdir)/po_hi_gqueue.h \
-	$(srcdir)/po_hi_giop.h \
-	$(srcdir)/po_hi_utils.h \
-	$(srcdir)/po_hi_task.h \
-	$(srcdir)/po_hi_time.h \
-	$(srcdir)/po_hi_types.h \
-	$(srcdir)/po_hi_main.h \
-	$(srcdir)/po_hi_simulink.h \
-	$(srcdir)/po_hi_sockets.h \
-	$(srcdir)/po_hi_transport.h
+             $(srcdir)/po_hi_debug.h \
+             $(srcdir)/po_hi_marshallers.h \
+             $(srcdir)/po_hi_messages.h \
+             $(srcdir)/po_hi_protected.h \
+             $(srcdir)/po_hi_protocols.h \
+             $(srcdir)/po_hi_returns.h \
+             $(srcdir)/po_hi_gqueue.h \
+             $(srcdir)/po_hi_giop.h \
+             $(srcdir)/po_hi_utils.h \
+             $(srcdir)/po_hi_task.h \
+             $(srcdir)/po_hi_time.h \
+             $(srcdir)/po_hi_types.h \
+             $(srcdir)/po_hi_main.h \
+             $(srcdir)/po_hi_simulink.h \
+             $(srcdir)/po_hi_sockets.h \
+             $(srcdir)/po_hi_transport.h
 
 CLEANFILES = *~
 

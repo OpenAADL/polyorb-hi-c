@@ -5,6 +5,7 @@
  *
  * For more informations, please visit http://ocarina.enst.fr
  *
+ * Copyright (C) 2010, European Space Agency
  * Copyright (C) 2007-2009, GET-Telecom Paris.
  */
 
@@ -23,9 +24,12 @@ typedef char*            __po_hi_inetaddr_t;
 #define __PO_HI_NOPORT 1
 #define __PO_HI_NOADDR ""
 
+int __po_hi_protocols_send_default (__po_hi_task_id id,
+                                    __po_hi_port_t port);
+
 int __po_hi_protocols_send (__po_hi_entity_t from,
-			    __po_hi_entity_t to,
-			    __po_hi_msg_t* msg);
+                            __po_hi_entity_t to,
+                            __po_hi_msg_t* msg);
 /*
  * Send a message to a specified entity.  The "from" argument is the
  * node which send the message. The argument "to" is used to designate
@@ -34,7 +38,7 @@ int __po_hi_protocols_send (__po_hi_entity_t from,
  */
 
 int __po_hi_protocols_receive (__po_hi_entity_t from,
-			       __po_hi_msg_t* msg);
+                               __po_hi_msg_t* msg);
 /*
  * Receive a message from a specified entity The entity which sent the
  * message is specified by the first argument.  The second argument
@@ -42,7 +46,7 @@ int __po_hi_protocols_receive (__po_hi_entity_t from,
  */
 
 int __po_hi_protocols_nonblocking_receive (__po_hi_entity_t from,
-					   __po_hi_msg_t* msg);
+                                           __po_hi_msg_t* msg);
 /*
  * Receive a message from a specified entity The entity which sent the
  * message is specified by the first argument.  The second argument

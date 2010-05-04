@@ -113,7 +113,9 @@ AC_OUTPUT([
 	Makefile 
 	doc/Makefile 
 	src/Makefile 
+	src/drivers/Makefile 
 	include/Makefile 
+	include/drivers/Makefile 
 	examples/Makefile
 	examples/aadlv1/Makefile
 	examples/aadlv1/d3.1.3-1/Makefile

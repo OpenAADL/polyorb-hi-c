@@ -5,6 +5,7 @@
  *
  * For more informations, please visit http://ocarina.enst.fr
  *
+ * Copyright (C) 2010, European Space Agency
  * Copyright (C) 2007-2008, GET-Telecom Paris.
  */
 
