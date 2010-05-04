@@ -6,7 +6,17 @@
  * Copyright (C) 2010, European Space Agency
  */
 
+#include <drivers/po_hi_driver_rasta_serial.h>
+
+#ifdef __PO_HI_NEED_SERIAL_RASTA
+
 void __po_hi_c_driver_serial_rasta_poller (void)
 {
 }
+
+void __po_hi_c_driver_serial_rasta_init (void)
+{
+}
+
+#endif
 

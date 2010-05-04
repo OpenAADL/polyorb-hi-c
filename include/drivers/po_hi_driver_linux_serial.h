@@ -6,10 +6,18 @@
  * Copyright (C) 2010, European Space Agency
  */
 
+#include <deployment.h>
+
 #ifndef __PO_HI_DRIVER_LINUX_SERIAL_H__
 #define __PO_HI_DRIVER_LINUX_SERIAL_H__
 
+#ifdef __PO_HI_NEED_SERIAL_LINUX
+
 void __po_hi_c_driver_serial_linux_poller (void);
+
+void __po_hi_c_driver_serial_linux_init (void);
+
+#endif
 
 #endif
 
