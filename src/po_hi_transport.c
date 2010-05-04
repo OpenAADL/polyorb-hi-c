@@ -32,9 +32,6 @@ entity_table[__PO_HI_NB_ENTITIES];
 
 void __po_hi_initialize_transport ()
 {
-#if defined (__PO_HI_NEED_DRIVER_SOCKETS) && (__PO_HI_NB_NODES > 1)
-  __po_hi_sockets_initialize ();
-#endif
 }
 
 int __po_hi_transport_send (__po_hi_entity_t from,

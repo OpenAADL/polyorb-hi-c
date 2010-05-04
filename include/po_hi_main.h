@@ -19,6 +19,10 @@ int __po_hi_initialize ();
  * __PO_HI_ERROR_PTHREAD_BARRIER.
  */
 
+void __po_hi_initialize_add_task ();
+/*
+ * Declare that another task has to be initialized
+ */
 
 int __po_hi_wait_initialization ();
 /*

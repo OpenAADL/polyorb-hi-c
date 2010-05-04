@@ -19,11 +19,6 @@
 #include <po_hi_task.h>
 #include <po_hi_protected.h>
 
-#if __PO_HI_NB_PORTS > 1
-#include <po_hi_transport.h>
-#include <drivers/po_hi_driver_sockets.h>
-#endif
-
 /* included files from PolyORB-HI-C */
 void __po_hi_initialize_transport ();
 
@@ -32,6 +27,11 @@ pthread_mutex_t mutex_init;
 
 int initialized_tasks;
 int nb_tasks_to_init;
+
+void __po_hi_initialize_add_task ()
+{
+      nb_tasks_to_init++;
+}
 
 int __po_hi_initialize ()
 {
@@ -44,15 +44,6 @@ int __po_hi_initialize ()
    * members, because the main function must pass the barrier
    */
   nb_tasks_to_init = __PO_HI_NB_TASKS + 1;
-
-#ifdef __PO_HI_NEED_DRIVER_SOCKETS
-#if __PO_HI_NB_PORTS > 1
-  if (__PO_HI_TRANSPORT_SOCKET_NEED_RECEIVER_TASK ())
-  {
-     nb_tasks_to_init++;
-  }
-#endif
-#endif
 
   initialized_tasks = 0;
 

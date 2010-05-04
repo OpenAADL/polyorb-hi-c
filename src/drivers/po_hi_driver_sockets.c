@@ -93,7 +93,7 @@ typedef struct
 __po_hi_inetnode_t nodes[__PO_HI_NB_NODES];
 __po_hi_inetnode_t rnodes[__PO_HI_NB_NODES];
 
-void __po_hi_sockets_initialize (void)
+void __po_hi_driver_sockets_init (void)
 {
    int                i;
    int                ret;
@@ -110,6 +110,7 @@ void __po_hi_sockets_initialize (void)
    {
       nodes[node].socket = -1;
    }
+
 
    /*
     * If the current node port has a port number, then it has to
@@ -155,8 +156,9 @@ void __po_hi_sockets_initialize (void)
        * __po_hi_receiver_task
        */
 
+      __po_hi_initialize_add_task ();
       __po_hi_create_generic_task 
-	(-1, 0,__PO_HI_MAX_PRIORITY, 0, __po_hi_sockets_receiver_task);
+         (-1, 0,__PO_HI_MAX_PRIORITY, 0, __po_hi_sockets_receiver_task);
 
    }
 
