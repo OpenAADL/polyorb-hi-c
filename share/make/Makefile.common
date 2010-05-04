@@ -64,6 +64,8 @@ ifeq ($(NEED_TRANSPORT), yes)
 	po_hi_utils.o \
 	po_hi_types.o \
 	po_hi_gqueue.o \
+   drivers/po_hi_driver_linux_serial.o \
+   drivers/po_hi_driver_rasta_serial.o \
 	$(ACTUAL_TRANSPORT) \
 	po_hi_transport.o $(TARGET_TRANSPORT_SOURCES)
 
@@ -137,8 +139,13 @@ ifdef SCADE_DIR
 endif
 	for f in $(PO_HI_OBJS); do \
 	   c_file="`basename $$f .o`.c"; \
-	   $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file \
-	     || exit 1 ; \
+	   c_file_dirname="`dirname $$f`"; \
+      if [ -n "$$c_file_dirname" ]; then \
+         if [ ! -d $$c_file_dirname ]; then mkdir -p $$c_file_dirname ; fi ; \
+	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
+      else \
+	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file || exit 1 ; \
+      fi ; \
 	done
 
 compile-node: $(BINARY)
