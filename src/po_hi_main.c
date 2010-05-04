@@ -18,9 +18,7 @@
 #include <po_hi_returns.h>
 #include <po_hi_task.h>
 #include <po_hi_protected.h>
-
 /* included files from PolyORB-HI-C */
-void __po_hi_initialize_transport ();
 
 pthread_cond_t cond_init;
 pthread_mutex_t mutex_init;
@@ -58,12 +56,6 @@ int __po_hi_initialize ()
   /* Initialize protected objects */
 #if __PO_HI_NB_PROTECTED > 0
   __po_hi_protected_init();
-#endif
-
-#if __PO_HI_NB_NODES > 1
-  /* We initialize the transport only if
-   * the node have servers*/
-  __po_hi_initialize_transport ();
 #endif
 
   return (__PO_HI_SUCCESS);

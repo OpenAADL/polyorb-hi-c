@@ -59,7 +59,6 @@ ifeq ($(NEED_TRANSPORT), yes)
 	po_hi_main.o \
 	po_hi_messages.o \
 	po_hi_marshallers.o \
-	po_hi_protocols.o \
 	po_hi_giop.o \
 	po_hi_utils.o \
 	po_hi_types.o \

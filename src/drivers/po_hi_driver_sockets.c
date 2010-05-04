@@ -17,7 +17,6 @@
 #include <po_hi_task.h>
 #include <po_hi_transport.h>
 #include <drivers/po_hi_driver_sockets.h>
-#include <po_hi_protocols.h>
 #include <po_hi_debug.h>
 #include <po_hi_types.h>
 #include <po_hi_messages.h>
@@ -248,9 +247,9 @@ void __po_hi_driver_sockets_init (void)
      }
 }
 
-int __po_hi_sockets_send (__po_hi_entity_t from, 
-				      __po_hi_entity_t to, 
-				      __po_hi_msg_t* msg)
+int __po_hi_driver_sockets_send (__po_hi_entity_t from, 
+                                 __po_hi_entity_t to, 
+                                 __po_hi_msg_t* msg)
 {
   __po_hi_node_t  node;
   int             len;

@@ -8,9 +8,7 @@ C_FILES =   $(srcdir)/po_hi_task.c \
 	         $(srcdir)/po_hi_gqueue.c      \
             $(srcdir)/po_hi_giop.c			\
 	         $(srcdir)/po_hi_protected.c \
-            $(srcdir)/po_hi_protocols.c		\
 	         $(srcdir)/po_hi_transport.c \
-            $(srcdir)/po_hi_transport_dummy.c	\
             $(srcdir)/po_hi_types.c	\
 	         $(srcdir)/po_hi_utils.c \
             $(srcdir)/po_hi_simulink.c		\

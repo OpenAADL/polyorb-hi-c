@@ -17,8 +17,11 @@
 #include <po_hi_giop.h>
 #include <po_hi_messages.h>
 #include <po_hi_returns.h>
+#include <po_hi_gqueue.h>
 
 #include <deployment.h>
+#include <marshallers.h>
+#include <types.h>
 #include <activity.h>
 #include <request.h>
 
@@ -27,34 +30,73 @@
  * deployment.h.
  */
 
-extern __po_hi_node_t 
-entity_table[__PO_HI_NB_ENTITIES];
+extern __po_hi_node_t  entity_table[__PO_HI_NB_ENTITIES];
 
-void __po_hi_initialize_transport ()
-{
-}
+extern __po_hi_entity_t       __po_hi_port_global_to_entity[__PO_HI_NB_PORTS];
+extern __po_hi_local_port_t   __po_hi_port_global_to_local[__PO_HI_NB_PORTS];
+extern __po_hi_request_t*     __po_hi_gqueues_most_recent_values[__PO_HI_NB_TASKS];
+extern __po_hi_uint8_t*       __po_hi_gqueues_n_destinations[__PO_HI_NB_TASKS];
+extern __po_hi_port_t**       __po_hi_gqueues_destinations[__PO_HI_NB_TASKS];
 
-int __po_hi_transport_send (__po_hi_entity_t from,
-			    __po_hi_entity_t to,
-			    __po_hi_msg_t* msg)
+int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
 {
-  if (entity_table[from] == entity_table[to])
+  __po_hi_msg_t         msg;
+  __po_hi_request_t*    request;
+  __po_hi_port_t*       destinations;
+  __po_hi_uint8_t       ndest;
+  __po_hi_uint8_t       i;
+  __po_hi_local_port_t  local_port;
+  int error;
+
+  local_port = __po_hi_port_global_to_local[(int)port];
+  request = &(__po_hi_gqueues_most_recent_values[id][local_port]);
+
+  if (request->port == -1)
     {
 #ifdef __PO_HI_DEBUG
-      __DEBUGMSG (" ... deliver locally ... \n");
+      __DEBUGMSG ("Send output task %d, port %d : no value to send\n", 
+		  id, port);
 #endif
-      __po_hi_main_deliver(msg);
       return __PO_HI_SUCCESS;
     }
-#if __PO_HI_NB_NODES > 1
-  else
-    {      
-#ifdef __PO_HI_USE_GIOP
-      return __po_hi_giop_send (from, to, msg); 
-#elif defined (__PO_HI_NEED_DRIVER_SOCKETS)
-      return __po_hi_sockets_send (from, to, msg); 
+
+  destinations = __po_hi_gqueues_destinations[id][local_port];
+  ndest = __po_hi_gqueues_n_destinations[id][local_port];
+
+#ifdef __PO_HI_DEBUG
+  __DEBUGMSG ("Send value, emitter task %d, emitter port %d, emitter entity %d, destination ports :\n", id,  port, __po_hi_port_global_to_entity[port]);
 #endif
+  for (i=0;i<ndest;i++)
+    {
+#ifdef __PO_HI_DEBUG
+      __DEBUGMSG ("\t%d (entity=%d)\n", 
+		  destinations[i], 
+		  __po_hi_port_global_to_entity[destinations[i]]);
+#endif
+      __po_hi_msg_reallocate (&msg);
+      request->port = (__po_hi_port_t) destinations[i];
+      __po_hi_marshall_request (request, &msg);
+      error =__po_hi_driver_sockets_send
+	(__po_hi_port_global_to_entity[port],
+	 __po_hi_port_global_to_entity[destinations[i]],
+	 &msg);
+      if (error != __PO_HI_SUCCESS) 
+	{
+	  return error;
+	}
     }
+  request->port = __PO_HI_GQUEUE_INVALID_PORT;
+
+#ifdef __PO_HI_DEBUG
+  __DEBUGMSG ("\n");
 #endif
-  return __PO_HI_UNAVAILABLE;
+
+  return __PO_HI_SUCCESS;
+}
+
+
+
+__po_hi_node_t __po_hi_transport_get_node_from_entity (__po_hi_entity_t entity)
+{
+   return entity_table[entity];
 }

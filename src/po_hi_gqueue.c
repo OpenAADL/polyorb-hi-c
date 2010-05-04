@@ -13,7 +13,6 @@
 #include <po_hi_messages.h>
 #include <po_hi_returns.h>
 #include <po_hi_transport.h>
-#include <po_hi_protocols.h>
 #include <po_hi_debug.h>
 #include <po_hi_gqueue.h>
 /* Headers from PolyORB-HI-C */
@@ -207,6 +206,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
   return __PO_HI_SUCCESS;
 }
 
+/*
 int __po_hi_gqueue_send_output (__po_hi_task_id id, __po_hi_port_t port)
 {
   __po_hi_msg_t msg;
@@ -262,6 +262,7 @@ int __po_hi_gqueue_send_output (__po_hi_task_id id, __po_hi_port_t port)
 
   return __PO_HI_SUCCESS;
 }
+*/
 
 void __po_hi_gqueue_wait_for_incoming_event( __po_hi_task_id id, 
 					     __po_hi_local_port_t* port)
