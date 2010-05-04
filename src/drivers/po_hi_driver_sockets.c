@@ -60,13 +60,6 @@
 #endif
 
 /*
- * The following extern variables are declared in the generated code
- * See the files deployment.h and deployment.c.
- */
-
-extern __po_hi_node_t entity_table[__PO_HI_NB_ENTITIES];
-
-/*
  * Add the definition of __po_hi_queue_put, defined in
  * po_hi_transport.c This function is not defined in the header file,
  * because we don't want to publish it to the developer
@@ -257,7 +250,7 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
   int             optval = 0;
   socklen_t       optlen = 0;
   
-  node = entity_table[to];
+  node = __po_hi_transport_get_node_from_entity (to);
   
   if (nodes[node].socket == -1 )
     {
