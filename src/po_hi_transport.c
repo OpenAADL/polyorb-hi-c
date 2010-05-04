@@ -12,6 +12,7 @@
 #include <po_hi_types.h>
 #include <po_hi_debug.h>
 #include <po_hi_transport.h>
+#include <po_hi_sockets.h>
 #include <po_hi_giop.h>
 #include <po_hi_messages.h>
 #include <po_hi_returns.h>
@@ -30,7 +31,7 @@ entity_table[__PO_HI_NB_ENTITIES];
 
 void __po_hi_initialize_transport ()
 {
-#if defined (__PO_HI_NEEDS_SOCKETS) && (__PO_HI_NB_NODES > 1)
+#if defined (__PO_HI_NEED_DRIVER_SOCKETS) && (__PO_HI_NB_NODES > 1)
   __po_hi_sockets_initialize ();
 #endif
 }
@@ -52,7 +53,7 @@ int __po_hi_transport_send (__po_hi_entity_t from,
     {      
 #ifdef __PO_HI_USE_GIOP
       return __po_hi_giop_send (from, to, msg); 
-#elif defined (__PO_HI_NEED_SOCKETS)
+#elif defined (__PO_HI_NEED_DRIVER_SOCKETS)
       return __po_hi_sockets_send (from, to, msg); 
 #endif
     }
