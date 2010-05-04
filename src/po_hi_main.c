@@ -21,7 +21,7 @@
 
 #if __PO_HI_NB_PORTS > 1
 #include <po_hi_transport.h>
-#include <po_hi_sockets.h>
+#include <drivers/po_hi_driver_sockets.h>
 #endif
 
 /* included files from PolyORB-HI-C */

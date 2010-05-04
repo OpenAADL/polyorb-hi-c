@@ -6,13 +6,14 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2007-2008, GET-Telecom Paris.
+ * Copyright (C) 2010, European Space Agency.
  */
 
 #include <po_hi_config.h>
 #include <po_hi_types.h>
 #include <po_hi_debug.h>
 #include <po_hi_transport.h>
-#include <po_hi_sockets.h>
+#include <drivers/po_hi_driver_sockets.h>
 #include <po_hi_giop.h>
 #include <po_hi_messages.h>
 #include <po_hi_returns.h>

@@ -65,6 +65,7 @@ ifeq ($(NEED_TRANSPORT), yes)
 	po_hi_types.o \
 	po_hi_gqueue.o \
    drivers/po_hi_driver_linux_serial.o \
+   drivers/po_hi_driver_sockets.o \
    drivers/po_hi_driver_rasta_serial.o \
 	$(ACTUAL_TRANSPORT) \
 	po_hi_transport.o $(TARGET_TRANSPORT_SOURCES)

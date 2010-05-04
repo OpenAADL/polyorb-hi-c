@@ -1,6 +1,7 @@
 AUTOMAKE_OPTIONS = no-dependencies
 
 C_FILES =   $(srcdir)/po_hi_driver_linux_serial.c \
+            $(srcdir)/po_hi_driver_sockets.c \
             $(srcdir)/po_hi_driver_rasta_serial.c
 
 csrc = ${shell $(CYGPATH_U) '$(OCARINA_RUNTIME)/polyorb-hi-c/src/drivers'}

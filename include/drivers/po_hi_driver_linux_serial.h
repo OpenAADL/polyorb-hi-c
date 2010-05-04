@@ -11,7 +11,7 @@
 #ifndef __PO_HI_DRIVER_LINUX_SERIAL_H__
 #define __PO_HI_DRIVER_LINUX_SERIAL_H__
 
-#ifdef __PO_HI_NEED_SERIAL_LINUX
+#ifdef __PO_HI_NEED_DRIVER_SERIAL_LINUX
 
 void __po_hi_c_driver_serial_linux_poller (void);
 

@@ -9,10 +9,14 @@
  * Copyright (C) 2007-2008, GET-Telecom Paris.
  */
 
+#include <deployment.h>
+
+#ifdef __PO_HI_NEED_DRIVER_SOCKETS
+
 #include <po_hi_config.h>
 #include <po_hi_task.h>
 #include <po_hi_transport.h>
-#include <po_hi_sockets.h>
+#include <drivers/po_hi_driver_sockets.h>
 #include <po_hi_protocols.h>
 #include <po_hi_debug.h>
 #include <po_hi_types.h>
@@ -25,7 +29,6 @@
 #include <po_hi_giop.h>
 #endif
 
-#include <deployment.h>
 #include <activity.h>
 
 #include <signal.h>
@@ -469,4 +472,6 @@ void* __po_hi_sockets_receiver_task (void)
    }  
   return NULL;
 }
+
+#endif
 
