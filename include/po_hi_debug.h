@@ -10,6 +10,8 @@
 
 #ifndef __PO_HI_DEBUG_H__
 
+#include <po_hi_config.h>
+
 #ifdef __PO_HI_DEBUG
 #include <stdio.h>
 #define __DEBUGMSG(s, args...) fprintf(stderr, s, ##args)

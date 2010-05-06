@@ -17,6 +17,7 @@
 #include <po_hi_config.h>
 #include <po_hi_returns.h>
 #include <po_hi_task.h>
+#include <po_hi_debug.h>
 #include <po_hi_protected.h>
 /* included files from PolyORB-HI-C */
 
@@ -28,6 +29,7 @@ int nb_tasks_to_init;
 
 void __po_hi_initialize_add_task ()
 {
+      __DEBUGMSG ("[MAIN] Add a task to initialize\n");
       nb_tasks_to_init++;
 }
 
@@ -43,13 +45,14 @@ int __po_hi_initialize ()
    */
   nb_tasks_to_init = __PO_HI_NB_TASKS + 1;
 
+  __DEBUGMSG ("[MAIN] Have %d tasks to init\n", nb_tasks_to_init);
+
   initialized_tasks = 0;
 
-  if (pthread_cond_init (&cond_init, 
-			 NULL) != 0)
-    {
-      return (__PO_HI_ERROR_PTHREAD_COND);
-    }
+  if (pthread_cond_init (&cond_init, NULL) != 0)
+  {
+     return (__PO_HI_ERROR_PTHREAD_COND);
+  }
 
   __po_hi_initialize_tasking ();
 
@@ -64,9 +67,14 @@ int __po_hi_initialize ()
 int __po_hi_wait_initialization ()
 {
   if (pthread_mutex_lock (&mutex_init) != 0)
+  {
     return (__PO_HI_ERROR_PTHREAD_MUTEX);
+  }
 
   initialized_tasks++;
+
+  __DEBUGMSG ("[MAIN] %d task(s) initialized\n", initialized_tasks);
+ 
   while (initialized_tasks < nb_tasks_to_init)
     {
       pthread_cond_wait (&cond_init, &mutex_init);

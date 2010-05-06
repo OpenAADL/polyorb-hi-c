@@ -28,14 +28,16 @@ int po_hi_c_driver_serial_fd;
 
 void __po_hi_c_driver_serial_linux_poller (void)
 {
-      __DEBUGMSG ("Hello, i'm the serial linux poller !\n");
+   __DEBUGMSG ("Hello, i'm the serial linux poller !\n");
 }
 
 
 void __po_hi_c_driver_serial_linux_init (void)
 {
-    __DEBUGMSG ("[LINUX SERIAL] Init\n");
-             struct termios oldtio,newtio;
+   struct termios oldtio,newtio;
+
+   __DEBUGMSG ("[LINUX SERIAL] Init\n");
+
    po_hi_c_driver_serial_fd = open(__PO_HI_DRIVER_SERIAL_LINUX_DEVICE, O_RDWR | O_NOCTTY | O_NONBLOCK);
 
    if (po_hi_c_driver_serial_fd < 0)
