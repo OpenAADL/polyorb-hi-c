@@ -167,6 +167,7 @@ endif
 
 clean: target-clean
 	@-rm -f *~ *.o *.al temp.* *.metrix $(BINARY) $(BINARY).bin $(BINARY).bt $(BINARY).num $(BINARY).nxe
+	@-rm -rf drivers
 	if test ! "$(CLEANDIRS)" = "";  then \
 	  rm -rf $(CLEANDIRS); \
 	fi

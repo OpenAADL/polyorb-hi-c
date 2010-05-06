@@ -8,7 +8,7 @@
 
 #include <drivers/po_hi_driver_linux_serial.h>
 
-#ifdef __PO_HI_NEED_SERIAL_LINUX
+#ifdef __PO_HI_NEED_DRIVER_SERIAL_LINUX
 
 #include <stdio.h>
 
@@ -20,7 +20,12 @@ void __po_hi_c_driver_serial_linux_poller (void)
 
 void __po_hi_c_driver_serial_linux_init (void)
 {
-      printf ("Hello, i'm the serial driver, i'm initializing the whole thing\n");
+   printf ("Hello, i'm the serial driver, i'm initializing the whole thing\n");
+}
+
+int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task, __po_hi_port_t port)
+{
+   return 1;
 }
 
 #endif

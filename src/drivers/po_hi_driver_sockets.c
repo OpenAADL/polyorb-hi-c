@@ -256,7 +256,7 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
    if (nodes[node].socket == -1 )
    {
 #ifdef __PO_HI_DEBUG
-      __DEBUGMSG ("... failure ...\n");
+      __DEBUGMSG (" [... failure ...]\n");
 #endif
       return __PO_HI_ERROR_TRANSPORT_SEND;		
    }
@@ -274,7 +274,7 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
 
    if (getsockopt (nodes[node].socket, SOL_SOCKET, SO_ERROR, &optval, &optlen) == -1)
    {
-      __DEBUGMSG ("Error %s, %d\n", __FILE__, __LINE__);
+      __DEBUGMSG (" [error getsockopt() in file %s, line%d ]\n", __FILE__, __LINE__);
       close (nodes[node].socket);
       nodes[node].socket = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;		
@@ -282,7 +282,7 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
 
    if (optval != 0)
    {
-      __DEBUGMSG ("Error %s, %d", __FILE__, __LINE__);
+      __DEBUGMSG (" [error getsockopt() return code in file %s, line%d ]\n", __FILE__, __LINE__);
       close (nodes[node].socket);
       nodes[node].socket = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;		
@@ -292,7 +292,7 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
 
    if (signal (SIGPIPE, SIG_IGN) == SIG_ERR)
    {
-      __DEBUGMSG ("Error %s, %d", __FILE__, __LINE__);
+      __DEBUGMSG (" [error signal() return code in file %s, line%d ]\n", __FILE__, __LINE__);
       close (nodes[node].socket);
       nodes[node].socket = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;		
@@ -306,13 +306,13 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
 
    if (len != size_to_write)
    {
-      __DEBUGMSG ("Error %s, %d", __FILE__, __LINE__);
+      __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
       close (nodes[node].socket);
       nodes[node].socket = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;		
    }
 
-   __DEBUGMSG (" ... success ... \n");
+   __DEBUGMSG (" [SUCCESS]\n");
 
    return __PO_HI_SUCCESS;
 }

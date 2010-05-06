@@ -20,7 +20,6 @@
 #include <deployment.h>
 #include <activity.h>
 #include <request.h>
-#include <marshallers.h>
 /* Headers from the generated code */
 
 #include <string.h>

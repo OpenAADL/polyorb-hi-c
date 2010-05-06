@@ -17,6 +17,8 @@ void __po_hi_c_driver_serial_linux_poller (void);
 
 void __po_hi_c_driver_serial_linux_init (void);
 
+int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task, __po_hi_port_t port);
+
 #endif
 
 #endif

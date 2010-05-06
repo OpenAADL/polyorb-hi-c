@@ -8,7 +8,7 @@
 
 #include <drivers/po_hi_driver_rasta_serial.h>
 
-#ifdef __PO_HI_NEED_SERIAL_RASTA
+#ifdef __PO_HI_NEED_DRIVER_SERIAL_RASTA
 
 void __po_hi_c_driver_serial_rasta_poller (void)
 {
@@ -16,6 +16,11 @@ void __po_hi_c_driver_serial_rasta_poller (void)
 
 void __po_hi_c_driver_serial_rasta_init (void)
 {
+}
+
+int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const __po_hi_port_t port)
+{
+   return 1;
 }
 
 #endif
