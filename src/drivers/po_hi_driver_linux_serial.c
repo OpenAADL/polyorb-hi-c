@@ -11,7 +11,7 @@
 #ifdef __PO_HI_NEED_DRIVER_SERIAL_LINUX
 
 #define __PO_HI_DRIVER_SERIAL_LINUX_DEVICE "/dev/ttyS0"
-#define __PO_HI_DRIVER_SERIAL_LINUX_BAUDRATE B38400
+#define __PO_HI_DRIVER_SERIAL_LINUX_BAUDRATE B19200
 
 
 #include <po_hi_debug.h>
@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <strings.h>
 /* Linux-specific files */
 
@@ -112,6 +113,7 @@ void __po_hi_c_driver_serial_linux_init (void)
 
 int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task, __po_hi_port_t port)
 {
+   write (po_hi_c_driver_serial_fd, "LINUX\n", 6);
    return 1;
 }
 
