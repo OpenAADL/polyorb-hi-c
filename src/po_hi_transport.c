@@ -80,15 +80,25 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
 
       request->port = (__po_hi_port_t) destinations[i];
 
-      __po_hi_marshall_request (request, &msg);
-
-#if __PO_HI_NB_NODES > 1
-      error =__po_hi_driver_sockets_send (__po_hi_port_global_to_entity[port],
-                                          __po_hi_port_global_to_entity[destinations[i]],
-                                          &msg);
-      if (error != __PO_HI_SUCCESS) 
+      if (__po_hi_transport_get_node_from_entity (__po_hi_get_entity_from_global_port (port)) ==
+          __po_hi_transport_get_node_from_entity (__po_hi_get_entity_from_global_port (destinations[i])))
       {
-         return error;
+            __DEBUGMSG ("[deliver locally]");
+            __po_hi_main_deliver (request);
+      }
+#if defined (__PO_HI_NEED_DRIVER_SOCKETS) && (__PO_HI_NB_NODES > 1)
+      else
+      {
+         __DEBUGMSG ("[deliver using network sockets]");
+         __po_hi_marshall_request (request, &msg);
+
+         error =__po_hi_driver_sockets_send (__po_hi_port_global_to_entity[port],
+                                             __po_hi_port_global_to_entity[destinations[i]],
+                                             &msg);
+         if (error != __PO_HI_SUCCESS) 
+         {
+            return error;
+         }
       }
 #endif
    }
