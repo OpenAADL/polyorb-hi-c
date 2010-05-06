@@ -48,13 +48,15 @@
 #if defined(RTEMS_POSIX)
    #include <rtems.h>
    #include <inttypes.h>
-   #include <bsp.h>
    #define CONFIGURE_INIT
+   #include <bsp.h>
    #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
+   #define CONFIGURE_APPLICATION_NEEDS_NULL_DRIVER
 
    int POSIX_Init ();
-   #define CONFIGURE_MAXIMUM_POSIX_THREADS              __PO_HI_NB_TASKS + 2
+   #define CONFIGURE_MAXIMUM_POSIX_THREADS              __PO_HI_NB_TASKS + 4
+   #define CONFIGURE_MAXIMUM_TASKS             16
    #define CONFIGURE_MAXIMUM_POSIX_CONDITION_VARIABLES  __PO_HI_NB_TASKS + 1
    #define CONFIGURE_MAXIMUM_POSIX_MUTEXES              __PO_HI_NB_TASKS + 1
    #define CONFIGURE_POSIX_INIT_THREAD_TABLE

@@ -6,7 +6,14 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2008-2009, GET-Telecom Paris.
+ * Copyright (C) 2010, European Space Agency.
  */
 
-#define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 20
-#define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
+#include <deployment.h>
+
+#define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 32
+
+
+#ifdef __PO_HI_NEED_DRIVER_SERIAL_RASTA
+#define CONFIGURE_MAXIMUM_DRIVERS 16
+#endif

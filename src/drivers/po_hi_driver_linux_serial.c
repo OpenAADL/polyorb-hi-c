@@ -13,7 +13,6 @@
 #define __PO_HI_DRIVER_SERIAL_LINUX_DEVICE "/dev/ttyS0"
 #define __PO_HI_DRIVER_SERIAL_LINUX_BAUDRATE B19200
 
-
 #include <po_hi_debug.h>
 /* po-hi-c related files */
 
@@ -29,7 +28,17 @@ int po_hi_c_driver_serial_fd;
 
 void __po_hi_c_driver_serial_linux_poller (void)
 {
+
+   char buf[1024];
+   int n;
    __DEBUGMSG ("Hello, i'm the serial linux poller !\n");
+   n = read (po_hi_c_driver_serial_fd, &buf, 6); 
+   __DEBUGMSG ("[LINUX SERIAL] read() returns %d\n", n);
+   if (n > 0)
+   {
+      buf[n] = '\0';
+      printf ("[LINUX SERIAL] Received: %s\n", buf);
+   }
 }
 
 
