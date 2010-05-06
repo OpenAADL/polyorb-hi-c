@@ -10,6 +10,7 @@
  */
 
 #include <deployment.h>
+#include <marshallers.h>
 
 #ifdef __PO_HI_NEED_DRIVER_SOCKETS
 
@@ -66,7 +67,7 @@
  */
 
 int __po_hi_queue_put (__po_hi_queue_id queue_id,
-		       __po_hi_msg_t*   msg);
+      __po_hi_msg_t*   msg);
 
 
 typedef struct
@@ -114,12 +115,12 @@ void __po_hi_driver_sockets_init (void)
       nodes[mynode].socket = socket (AF_INET, SOCK_STREAM, 0);
 
       if (nodes[mynode].socket == -1 )
-	{
+      {
 #ifdef __PO_HI_DEBUG
-	  __DEBUGMSG ("Cannot create socket for node %d\n", mynode);
+         __DEBUGMSG ("Cannot create socket for node %d\n", mynode);
 #endif
-	  return;
-	}
+         return;
+      }
 
       reuse = 1;
       setsockopt (nodes[mynode].socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof (reuse));
@@ -131,14 +132,14 @@ void __po_hi_driver_sockets_init (void)
       if( bind( nodes[mynode].socket , ( struct sockaddr * ) &sa , sizeof( struct sockaddr_in ) ) < 0 )
       {
 #ifdef __PO_HI_DEBUG
-	__DEBUGMSG ("Unable to bind socket and port on socket %d\n", nodes[mynode].socket);
+         __DEBUGMSG ("Unable to bind socket and port on socket %d\n", nodes[mynode].socket);
 #endif
       }
 
       if( listen( nodes[mynode].socket , __PO_HI_NB_ENTITIES ) < 0 )
       {
 #ifdef __PO_HI_DEBUG
-	__DEBUGMSG ("Cannot listen on socket %d\n", nodes[mynode].socket);
+         __DEBUGMSG ("Cannot listen on socket %d\n", nodes[mynode].socket);
 #endif
       }
 
@@ -159,101 +160,101 @@ void __po_hi_driver_sockets_init (void)
     * node we create a socket. This socket will be used to send data.
     */
    for (node = 0 ; node < __PO_HI_NB_NODES ; node++ )
-     {
-       if ( (node != mynode) && (node_port[node] != __PO_HI_NOPORT) && (nodes[node].socket == -1) )
-	 {
-	   while (1)
-	     {
-	       nodes[node].socket = socket (AF_INET, SOCK_STREAM, 0);
-	       
-	       if (nodes[node].socket == -1 )
-		 {
-#ifdef __PO_HI_DEBUG
-		   __DEBUGMSG ("Socket for node %d is not created", node);
-#endif
-		   return;
-		 }
-	       
-	       hostinfo = gethostbyname ((char*)node_addr[node]);
-	       
-	       if (hostinfo == NULL )
-		 {
-#ifdef __PO_HI_DEBUG
-		   __DEBUGMSG ("Error while getting host informations for node %d\n", node);
-#endif
-		 }
-	       
-	       sa.sin_port = htons( node_port[node] );
-	       sa.sin_family = AF_INET;
-	       
-	       /* The following lines are used to copy the
-		* hostinfo->h_length to the sa.sin_addr member. Most
-		* of program use the memcpy to do that, but the
-		* RT-POSIX profile we use forbid the use of this
-		* function.  We use a loop instead to perform the
-		* copy.  So, these lines replace the code :
-		*
-		* memcpy( (char*) &( sa.sin_addr ) , (char*)hostinfo->h_addr , hostinfo->h_length );
-		*/
+   {
+      if ( (node != mynode) && (node_port[node] != __PO_HI_NOPORT) && (nodes[node].socket == -1) )
+      {
+         while (1)
+         {
+            nodes[node].socket = socket (AF_INET, SOCK_STREAM, 0);
 
-	       tmp = (char*) &(sa.sin_addr);
-	       for (i=0 ; i<hostinfo->h_length ; i++)
-		 {
-		   tmp[i] = hostinfo->h_addr[i];
-		 }
-
-	       /*
-		* We try to connect on the remote host. We try every
-		* second to connect on.
-		*/
-
-	       ret = connect 
-		 (nodes[node].socket, ( struct sockaddr* ) &sa , sizeof( struct sockaddr_in ));
-	       
-	       if (ret == 0)
-		 {
-		   if (write (nodes[node].socket, &mynode, sizeof (__po_hi_node_t)) != sizeof (__po_hi_node_t))
-		     {
+            if (nodes[node].socket == -1 )
+            {
 #ifdef __PO_HI_DEBUG
-		       __DEBUGMSG ("Node %d cannot send his node-id\n", node);
+               __DEBUGMSG ("Socket for node %d is not created", node);
 #endif
-		     }
-		   break;
-		 }
-	       
-	       if (close (nodes[node].socket))
-		 {
+               return;
+            }
+
+            hostinfo = gethostbyname ((char*)node_addr[node]);
+
+            if (hostinfo == NULL )
+            {
 #ifdef __PO_HI_DEBUG
-		   __DEBUGMSG ("Cannot close socket %d\n", nodes[node].socket);
+               __DEBUGMSG ("Error while getting host informations for node %d\n", node);
 #endif
-		 }
-	       
-	       /*
-		* We wait 500ms each time we try to connect on the
-		* remote host
-		*/
-	       
-	       __po_hi_get_time (&mytime);
-	       __po_hi_delay_until (__po_hi_add_times (mytime, __po_hi_milliseconds (500)));
+            }
+
+            sa.sin_port = htons( node_port[node] );
+            sa.sin_family = AF_INET;
+
+            /* The following lines are used to copy the
+             * hostinfo->h_length to the sa.sin_addr member. Most
+             * of program use the memcpy to do that, but the
+             * RT-POSIX profile we use forbid the use of this
+             * function.  We use a loop instead to perform the
+             * copy.  So, these lines replace the code :
+             *
+             * memcpy( (char*) &( sa.sin_addr ) , (char*)hostinfo->h_addr , hostinfo->h_length );
+             */
+
+            tmp = (char*) &(sa.sin_addr);
+            for (i=0 ; i<hostinfo->h_length ; i++)
+            {
+               tmp[i] = hostinfo->h_addr[i];
+            }
+
+            /*
+             * We try to connect on the remote host. We try every
+             * second to connect on.
+             */
+
+            ret = connect 
+               (nodes[node].socket, ( struct sockaddr* ) &sa , sizeof( struct sockaddr_in ));
+
+            if (ret == 0)
+            {
+               if (write (nodes[node].socket, &mynode, sizeof (__po_hi_node_t)) != sizeof (__po_hi_node_t))
+               {
+#ifdef __PO_HI_DEBUG
+                  __DEBUGMSG ("Node %d cannot send his node-id\n", node);
+#endif
+               }
+               break;
+            }
+
+            if (close (nodes[node].socket))
+            {
+#ifdef __PO_HI_DEBUG
+               __DEBUGMSG ("Cannot close socket %d\n", nodes[node].socket);
+#endif
+            }
+
+            /*
+             * We wait 500ms each time we try to connect on the
+             * remote host
+             */
+
+            __po_hi_get_time (&mytime);
+            __po_hi_delay_until (__po_hi_add_times (mytime, __po_hi_milliseconds (500)));
          }
-	 }
-     }
+      }
+   }
 }
 
 int __po_hi_driver_sockets_send (__po_hi_entity_t from, 
-                                 __po_hi_entity_t to, 
-                                 __po_hi_msg_t* msg)
+      __po_hi_entity_t to, 
+      __po_hi_msg_t* msg)
 {
-  __po_hi_node_t  node;
-  int             len;
-  int             size_to_write;
-  int             optval = 0;
-  socklen_t       optlen = 0;
-  
-  node = __po_hi_transport_get_node_from_entity (to);
-  
-  if (nodes[node].socket == -1 )
-    {
+   __po_hi_node_t  node;
+   int             len;
+   int             size_to_write;
+   int             optval = 0;
+   socklen_t       optlen = 0;
+
+   node = __po_hi_transport_get_node_from_entity (to);
+
+   if (nodes[node].socket == -1 )
+   {
 #ifdef __PO_HI_DEBUG
       __DEBUGMSG ("... failure ...\n");
 #endif
@@ -264,207 +265,212 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
     * After sending the entity identifier, we send the message which
     * contains the request.
     */
-  
+
 #ifdef __PO_HI_USE_GIOP
-  size_to_write = msg->length;
+   size_to_write = msg->length;
 #else
-  size_to_write = __PO_HI_MESSAGES_MAX_SIZE;
+   size_to_write = __PO_HI_MESSAGES_MAX_SIZE;
 #endif
-  
-  if (getsockopt (nodes[node].socket, SOL_SOCKET, SO_ERROR, &optval, &optlen) == -1)
-    {
+
+   if (getsockopt (nodes[node].socket, SOL_SOCKET, SO_ERROR, &optval, &optlen) == -1)
+   {
       __DEBUGMSG ("Error %s, %d\n", __FILE__, __LINE__);
       close (nodes[node].socket);
       nodes[node].socket = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;		
    }
 
-  if (optval != 0)
-    {
+   if (optval != 0)
+   {
       __DEBUGMSG ("Error %s, %d", __FILE__, __LINE__);
       close (nodes[node].socket);
       nodes[node].socket = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;		
-    }
-  
-  /* Ignore SIGPIPE to be able to recover from errors instead of crashing the node */
+   }
 
-  if (signal (SIGPIPE, SIG_IGN) == SIG_ERR)
-    {
+   /* Ignore SIGPIPE to be able to recover from errors instead of crashing the node */
+
+   if (signal (SIGPIPE, SIG_IGN) == SIG_ERR)
+   {
       __DEBUGMSG ("Error %s, %d", __FILE__, __LINE__);
       close (nodes[node].socket);
       nodes[node].socket = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;		
-    }
-  
+   }
+
 #ifdef __PO_HI_DEBUG
-  __po_hi_messages_debug (msg);
+   __po_hi_messages_debug (msg);
 #endif
 
-  len = write (nodes[node].socket, &(msg->content), size_to_write);
-  
-  if (len != size_to_write)
-    {
+   len = write (nodes[node].socket, &(msg->content), size_to_write);
+
+   if (len != size_to_write)
+   {
       __DEBUGMSG ("Error %s, %d", __FILE__, __LINE__);
       close (nodes[node].socket);
       nodes[node].socket = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;		
-    }
+   }
 
-  __DEBUGMSG (" ... success ... \n");
-  
-  return __PO_HI_SUCCESS;
+   __DEBUGMSG (" ... success ... \n");
+
+   return __PO_HI_SUCCESS;
 }
 
 
 void* __po_hi_sockets_receiver_task (void)
 {
-  socklen_t          socklen = sizeof (struct sockaddr);
-  /* See ACCEPT (2) for details on initial value of socklen */
+   socklen_t          socklen = sizeof (struct sockaddr);
+   /* See ACCEPT (2) for details on initial value of socklen */
 
-  __po_hi_uint32_t   len;
-  int                sock;
-  int                max_socket;
-  fd_set             selector;
-  __po_hi_msg_t      msg;
+   __po_hi_uint32_t   len;
+   int                sock;
+   int                max_socket;
+   fd_set             selector;
+   __po_hi_msg_t      msg;
 #ifdef __PO_HI_USE_GIOP
-  __po_hi_msg_t      decoded_msg;
-  __po_hi_uint32_t   has_more;
+   __po_hi_msg_t      decoded_msg;
+   __po_hi_uint32_t   has_more;
 #endif
-  __po_hi_node_t     node;
-  __po_hi_node_t     node_init;
-  struct sockaddr_in sa;
-  
-  max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
-  
-  /*
-   * We initialize each node socket with -1 value.  This value means
-   * that the socket is not active.
-   */
-  for (node = 0 ; node < __PO_HI_NB_NODES ; node++)
-    {
-      rnodes[node].socket = -1;
-    }
-  
-  /*
-   * Create a socket for each node that will communicate with us.
-   */
-  for (node = 0; node < __PO_HI_NB_NODES ; node++)
-    {
-      if (node != mynode )
-	{
-	  sock = accept (nodes[mynode].socket, (struct sockaddr*) &sa, &socklen);
-	  
-	  if (read (sock, &node_init, sizeof (__po_hi_node_t)) != sizeof (__po_hi_node_t))
-	    {
-#ifdef __PO_HI_DEBUG
-	      __DEBUGMSG ("Cannot read node-id for socket %d\n", sock);
-#endif
-	      continue;
-	    }
-	  rnodes[node].socket = sock;
-	  if (sock > max_socket )
-	    {
-	      max_socket = sock;
-	    }	  
-	}
-    }
-#ifdef __PO_HI_DEBUG
-  __DEBUGMSG ("Receiver initialization finished\n");
-#endif
-  __po_hi_wait_initialization ();
-  
-  /*
-   * Then, listen and receive data on the socket, identify the node
-   * which send the data and put it in its message queue
-   */
-  while (1)
+   __po_hi_node_t     node;
+   __po_hi_node_t     node_init;
+   __po_hi_request_t  received_request;
+   struct sockaddr_in sa;
+
+   max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
+
+   /*
+    * We initialize each node socket with -1 value.  This value means
+    * that the socket is not active.
+    */
+   for (node = 0 ; node < __PO_HI_NB_NODES ; node++)
    {
-     FD_ZERO( &selector );
-     for (node = 0; node < __PO_HI_NB_NODES ; node++)
-       {
+      rnodes[node].socket = -1;
+   }
+
+   /*
+    * Create a socket for each node that will communicate with us.
+    */
+   for (node = 0; node < __PO_HI_NB_NODES ; node++)
+   {
+      if (node != mynode )
+      {
+         sock = accept (nodes[mynode].socket, (struct sockaddr*) &sa, &socklen);
+
+         if (read (sock, &node_init, sizeof (__po_hi_node_t)) != sizeof (__po_hi_node_t))
+         {
+#ifdef __PO_HI_DEBUG
+            __DEBUGMSG ("Cannot read node-id for socket %d\n", sock);
+#endif
+            continue;
+         }
+         rnodes[node].socket = sock;
+         if (sock > max_socket )
+         {
+            max_socket = sock;
+         }	  
+      }
+   }
+#ifdef __PO_HI_DEBUG
+   __DEBUGMSG ("Receiver initialization finished\n");
+#endif
+   __po_hi_wait_initialization ();
+
+   /*
+    * Then, listen and receive data on the socket, identify the node
+    * which send the data and put it in its message queue
+    */
+   while (1)
+   {
+      FD_ZERO( &selector );
+      for (node = 0; node < __PO_HI_NB_NODES ; node++)
+      {
          if ( (node != mynode ) && ( rnodes[node].socket != -1 ) )
-	   {
-	     FD_SET( rnodes[node].socket , &selector );
-	   }
-       }
-     
-     if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
-       {
+         {
+            FD_SET( rnodes[node].socket , &selector );
+         }
+      }
+
+      if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
+      {
 #ifdef __PO_HI_DEBUG
          __DEBUGMSG ("Error on select for node %d\n", mynode);
 #endif 
-       }
+      }
 #ifdef __PO_HI_DEBUG
-     __DEBUGMSG ("Receive message\n");
+      __DEBUGMSG ("Receive message\n");
 #endif
-     
-     for (node = 0; node < __PO_HI_NB_NODES ; node++)
-       {
-         if ( (rnodes[node].socket != -1 ) && FD_ISSET(rnodes[node].socket, &selector))
-	   {
-#ifdef __PO_HI_DEBUG
-	     __DEBUGMSG ("Receive message from node %d\n", node);
-#endif
-	     
-#ifdef __PO_HI_USE_GIOP
-	     /* Decoding GIOP request is implemented as a two-step automata
-	      * 
-	      * First step is to decode the header,
-	      * Second step is to decode the payload
-	      */
 
-	     __DEBUGMSG ("Using GIOP as protocol stack\n");
-	     __DEBUGMSG (" -> Step 1 decode header\n");
-	     len = read (rnodes[node].socket, &(msg.content), sizeof (__po_hi_giop_msg_hdr_t));
-	     msg.length = len;
-	     
-	     has_more = 0; 
-	     
-	     if (__po_hi_giop_decode_msg (&msg, &decoded_msg, &has_more) == __PO_HI_SUCCESS )
-	       {
+      for (node = 0; node < __PO_HI_NB_NODES ; node++)
+      {
+         if ( (rnodes[node].socket != -1 ) && FD_ISSET(rnodes[node].socket, &selector))
+         {
 #ifdef __PO_HI_DEBUG
-		 __DEBUGMSG ("Message was decoded, has_more=%d\n", has_more);
+            __DEBUGMSG ("Receive message from node %d\n", node);
 #endif
-		 __DEBUGMSG (" -> Step 2 decode message\n");
-		 len = recv (rnodes[node].socket, &(msg.content), has_more, MSG_WAITALL);
-		 /* Here, we wait for the _full_ message to come */
-		 msg.length = len;
-		 
-		 if (__po_hi_giop_decode_msg (&msg, &decoded_msg, &has_more) == __PO_HI_SUCCESS )
-		   {
-		     /* Put the data in the message queue */      
-		     __po_hi_main_deliver (&decoded_msg);
-		   }
-		 else
-		   {
-		     break;
-		   }
-	       }
-	     else
-	       {
-		 break;
-	       }
+
+#ifdef __PO_HI_USE_GIOP
+            /* Decoding GIOP request is implemented as a two-step automata
+             * 
+             * First step is to decode the header,
+             * Second step is to decode the payload
+             */
+
+            __DEBUGMSG ("Using GIOP as protocol stack\n");
+            __DEBUGMSG (" -> Step 1 decode header\n");
+            len = read (rnodes[node].socket, &(msg.content), sizeof (__po_hi_giop_msg_hdr_t));
+            msg.length = len;
+
+            has_more = 0; 
+
+            if (__po_hi_giop_decode_msg (&msg, &decoded_msg, &has_more) == __PO_HI_SUCCESS )
+            {
+#ifdef __PO_HI_DEBUG
+               __DEBUGMSG ("Message was decoded, has_more=%d\n", has_more);
+#endif
+               __DEBUGMSG (" -> Step 2 decode message\n");
+               len = recv (rnodes[node].socket, &(msg.content), has_more, MSG_WAITALL);
+               /* Here, we wait for the _full_ message to come */
+               msg.length = len;
+
+               if (__po_hi_giop_decode_msg (&msg, &decoded_msg, &has_more) == __PO_HI_SUCCESS )
+               {
+                  /* Put the data in the message queue */      
+                  __po_hi_unmarshall_request (&received_request, &decoded_msg);
+                  __po_hi_main_deliver (&received_request);
+               }
+               else
+               {
+                  break;
+               }
+            }
+            else
+            {
+               break;
+            }
 
 #else
-	     __DEBUGMSG ("Using raw protocol stack\n");
-	     len = recv (rnodes[node].socket, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
-	     msg.length = len;
-	     if (len != __PO_HI_MESSAGES_MAX_SIZE )
-	       {
-		 __DEBUGMSG ("ERROR, %u %d", (unsigned int) len, __PO_HI_MESSAGES_MAX_SIZE);
-		 close (rnodes[node].socket);
-		 rnodes[node].socket = -1;
-		 continue;
-	       }
-	     __DEBUGMSG ("Message delivered");
-	     __po_hi_main_deliver (&msg);
+            __DEBUGMSG ("Using raw protocol stack\n");
+            len = recv (rnodes[node].socket, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+            msg.length = len;
+            if (len != __PO_HI_MESSAGES_MAX_SIZE )
+            {
+               __DEBUGMSG ("ERROR, %u %d", (unsigned int) len, __PO_HI_MESSAGES_MAX_SIZE);
+               close (rnodes[node].socket);
+               rnodes[node].socket = -1;
+               continue;
+            }
+            __DEBUGMSG ("Message delivered");
+
+            __po_hi_unmarshall_request (&received_request, &msg);
+
+            __po_hi_main_deliver (&received_request);
 #endif
-	     __po_hi_msg_reallocate(&msg);        /* re-initialize the message */
-	   }
-       }
+            __po_hi_msg_reallocate(&msg);        /* re-initialize the message */
+         }
+      }
    }  
-  return NULL;
+   return NULL;
 }
 
 #endif
