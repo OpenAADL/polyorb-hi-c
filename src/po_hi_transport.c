@@ -103,7 +103,12 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
 
 
 
-__po_hi_node_t __po_hi_transport_get_node_from_entity (__po_hi_entity_t entity)
+__po_hi_node_t __po_hi_transport_get_node_from_entity (const __po_hi_entity_t entity)
 {
    return entity_table[entity];
+}
+
+__po_hi_entity_t __po_hi_get_entity_from_global_port (const __po_hi_port_t port)
+{
+    return __po_hi_port_global_to_entity[port];
 }
