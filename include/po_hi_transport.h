@@ -22,7 +22,8 @@ typedef char*            __po_hi_inetaddr_t;
 #define __PO_HI_NOPORT 1
 #define __PO_HI_NOADDR ""
 
-
+#define __PO_HI_BIGENDIAN     0
+#define __PO_HI_LITTLEENDIAN  1
 
 typedef uint8_t __po_hi_queue_id;
 
@@ -46,5 +47,8 @@ char* __po_hi_get_port_model_name (const __po_hi_port_t port);
 char* __po_hi_get_port_name (const __po_hi_port_t port);
 
 __po_hi_local_port_t __po_hi_get_local_port_from_global_port (const __po_hi_port_t global_port);
+
+__po_hi_uint8_t  __po_hi_get_endianness (const __po_hi_node_t node);
+
 
 #endif /* __PO_HI_TRANSPORT__ */

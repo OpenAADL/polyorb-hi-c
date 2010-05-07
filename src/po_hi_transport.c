@@ -37,6 +37,7 @@ extern __po_hi_local_port_t   __po_hi_port_global_to_local[__PO_HI_NB_PORTS];
 extern __po_hi_request_t*     __po_hi_gqueues_most_recent_values[__PO_HI_NB_TASKS];
 extern char*                  __po_hi_port_global_model_names[__PO_HI_NB_PORTS];
 extern char*                  __po_hi_port_global_names[__PO_HI_NB_PORTS];
+extern __po_hi_uint8_t        __po_hi_deployment_endiannesses[__PO_HI_NB_NODES];
 
 int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
 {
@@ -133,9 +134,12 @@ char* __po_hi_get_port_model_name (const __po_hi_port_t port)
       return (__po_hi_port_global_model_names[port]);
 }
 
-
-
 __po_hi_local_port_t __po_hi_get_local_port_from_global_port (const __po_hi_port_t global_port)
 {
    return (__po_hi_port_global_to_local[global_port]);
+}
+
+__po_hi_uint8_t __po_hi_get_endianness (const __po_hi_node_t node)
+{
+   return __po_hi_deployment_endiannesses[node];
 }
