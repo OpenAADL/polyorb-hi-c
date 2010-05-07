@@ -40,7 +40,7 @@ void __po_hi_c_driver_serial_rasta_poller (void)
 {
    char buf[1024];
    int n;
-   __DEBUGMSG ("Hello, i'm the serial RASTA poller !\n");
+   __DEBUGMSG ("[RASTA SERIAL] Hello, i'm the poller !\n");
    n = read (po_hi_c_driver_rasta_serial_fd, &buf, 6); 
    __DEBUGMSG ("[RASTA SERIAL] read() returns %d\n", n);
    if (n > 0)

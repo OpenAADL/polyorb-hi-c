@@ -118,7 +118,7 @@ void __po_hi_c_driver_serial_linux_init (void)
    /*
     * Raw output.
     */
-   newtio.c_oflag = 0;
+   newtio.c_oflag = 1;
          
    /*
     * ICANON  : enable canonical input
