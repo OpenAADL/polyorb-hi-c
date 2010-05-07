@@ -14,6 +14,7 @@
 #define __PO_HI_DRIVER_SERIAL_LINUX_BAUDRATE B19200
 
 #include <po_hi_debug.h>
+#include <po_hi_utils.h>
 #include <po_hi_messages.h>
 #include <po_hi_transport.h>
 /* po-hi-c related files */
@@ -34,53 +35,38 @@
 int po_hi_c_driver_serial_fd;
 
 
-unsigned long ByteSwap (unsigned long nLongNumber)
-{
-   union u {unsigned long vi; unsigned char c[sizeof(unsigned long)];}; 
-   union v {unsigned long ni; unsigned char d[sizeof(unsigned long)];};
-   union u un; 
-   union v vn; 
-   un.vi = nLongNumber; 
-   vn.d[0]=un.c[3]; 
-   vn.d[1]=un.c[2]; 
-   vn.d[2]=un.c[1]; 
-   vn.d[3]=un.c[0]; 
-   return (vn.ni); 
-}
-
-
 
 void __po_hi_c_driver_serial_linux_poller (void)
 {
-   unsigned long* toto;
-   unsigned long titi;
+   unsigned long* swap_pointer;
+   unsigned long swap_value;
    __po_hi_msg_t msg;
    __po_hi_request_t request;
    int n;
+   int tmp;
    __DEBUGMSG ("Hello, i'm the serial linux poller !\n");
-   n = read (po_hi_c_driver_serial_fd, &msg, __PO_HI_MESSAGES_MAX_SIZE); 
-   __DEBUGMSG ("[LINUX SERIAL] read() returns %d\n", n);
-   msg.length = n;
+   n = read (po_hi_c_driver_serial_fd, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE); 
+   
+   if (n == -1)
+   {
+      __DEBUGMSG("[LINUX SERIAL] Cannot read on socket !\n");
+   }
 
+
+   __DEBUGMSG ("[LINUX SERIAL] read() returns %d\n", n);
+
+   msg.length = n;
 
    if (n > 0)
    {
+      for (tmp = 0 ; tmp < n ; tmp += 4)
+      {
+         swap_pointer  = (unsigned long*) &msg.content[tmp];
+         swap_value    = *swap_pointer;
+         *swap_pointer = __po_hi_swap_byte (swap_value);
+      }
+
       printf ("[LINUX SERIAL] Received: %s\n", msg.content);
-      toto = (unsigned long*)&msg.content[0];
-      titi = *toto;
-      *toto = ByteSwap (titi);
-
-      toto = (unsigned long*)&msg.content[4];
-      titi = *toto;
-      *toto = ByteSwap (titi);
-
-
-      toto = (unsigned long*)&msg.content[8];
-      titi = *toto;
-      *toto = ByteSwap (titi);
-
-      __po_hi_unmarshall_request (&request, &msg);
-
 
       __po_hi_unmarshall_request (&request, &msg);
 
@@ -101,6 +87,10 @@ void __po_hi_c_driver_serial_linux_init (void)
    if (po_hi_c_driver_serial_fd < 0)
    {
       __DEBUGMSG ("[LINUX SERIAL] Error while opening device %s\n", __PO_HI_DRIVER_SERIAL_LINUX_DEVICE);
+   }
+   else
+   {
+      __DEBUGMSG ("[LINUX SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_serial_fd);
    }
 
    tcgetattr (po_hi_c_driver_serial_fd, &oldtio);  /* save current serial port settings */
@@ -162,8 +152,15 @@ void __po_hi_c_driver_serial_linux_init (void)
    /* 
     * clean the serial line and activate the settings for the port
     */
-   tcflush (po_hi_c_driver_serial_fd, TCIFLUSH);
-   tcsetattr (po_hi_c_driver_serial_fd, TCSANOW, &newtio);
+   if (tcflush (po_hi_c_driver_serial_fd, TCIOFLUSH) == -1)
+   {
+      __DEBUGMSG ("[LINUX SERIAL] Error in tcflush()\n");
+   }
+
+   if (tcsetattr (po_hi_c_driver_serial_fd, TCSANOW, &newtio) == -1)
+   {
+      __DEBUGMSG ("[LINUX SERIAL] Error in tcsetattr()\n");
+   }
 
     __DEBUGMSG ("[LINUX SERIAL] End of init\n");
 }

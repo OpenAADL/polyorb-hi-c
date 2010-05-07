@@ -6,10 +6,40 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2007-2008, GET-Telecom Paris.
+ * Copyright (C) 2010, European Space Agency.
  */
 
 #ifndef __PO_HI_TASK_H__
 #define __PO_HI_TASK_H__
+
+/*
+ * Define some values that are dependant of the 
+ * underlying executive.
+ */
+#if defined(POSIX)
+   #include <stdlib.h>
+   #include <stdio.h>
+   #define __PO_HI_MAIN_NAME main
+   #define __PO_HI_MAIN_TYPE int
+   #define __PO_HI_MAIN_ARGS int argc , char *argv[] , char **arge
+   #define __PO_HI_MAIN_RETURN EXIT_SUCCESS
+   #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
+#elif defined(RTEMS_PURE)
+   #define __PO_HI_MAIN_NAME Init
+   #define __PO_HI_MAIN_TYPE rtems_task
+   #define __PO_HI_MAIN_ARGS rtems_task_argument argument
+   rtems_task Init (rtems_task_argument);
+   #define __PO_HI_MAIN_RETURN 0
+   #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
+#elif defined(RTEMS_POSIX)
+   #define __PO_HI_MAIN_NAME POSIX_Init
+   #define __PO_HI_MAIN_TYPE int
+   #define __PO_HI_MAIN_ARGS 
+   #define __PO_HI_MAIN_RETURN 0
+   #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
+#endif
+
+
 
 #if defined(POSIX) || defined (RTEMS_POSIX)
 #include <semaphore.h>

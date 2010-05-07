@@ -15,6 +15,7 @@
 /* included files from the generated code */
 
 #include <po_hi_config.h>
+#include <po_hi_common.h>
 #include <po_hi_returns.h>
 #include <po_hi_task.h>
 #include <po_hi_debug.h>
@@ -35,6 +36,33 @@ void __po_hi_initialize_add_task ()
 
 int __po_hi_initialize ()
 {
+   /*
+#include <sys/time.h>
+struct timeval tv;
+struct timezone tz;
+tz.tz_dsttime = DST_USA;
+tz.tz_minuteswest = 0;
+tv.tv_sec = 10;
+tv.tv_usec = 0;
+settimeofday (&tv, &tz);
+*/
+#ifdef RTEMS_POSIX
+#include <rtems/rtems/clock.h>
+   rtems_status_code status;
+     rtems_time_of_day time;
+
+     time.year   = 1988;
+  time.month  = 12;
+  time.day    = 31;
+  time.hour   = 9;
+  time.minute = 0;
+  time.second = 0;
+  time.ticks  = 0;
+
+  status = rtems_clock_set( &time );
+  
+#endif
+
   if (pthread_mutex_init (&mutex_init, NULL) != 0 )
     {
       return (__PO_HI_ERROR_PTHREAD_MUTEX);

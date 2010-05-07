@@ -6,6 +6,7 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2007-2009, GET-Telecom Paris.
+ * Copyright (C) 2010, European Space Agency.
  */
 
 #ifndef __PO_HI_UTILS_H__
@@ -24,4 +25,7 @@ int __po_hi_simulate_wcet (__po_hi_time_t time1, __po_hi_time_t time2);
  * Take a rate as argument, returns the probability that we meet this rate.
  */
 int __po_hi_compute_miss (__po_hi_uint8_t rate);
+
+
+unsigned long __po_hi_swap_byte (unsigned long value);
 #endif /* __PO_HI_UTILS_H__ */ 

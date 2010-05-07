@@ -49,3 +49,20 @@ int __po_hi_compute_miss (__po_hi_uint8_t rate)
    
    return 1;
 }
+
+
+unsigned long __po_hi_swap_byte (unsigned long value)
+{
+   union u {unsigned long vi; unsigned char c[sizeof(unsigned long)];}; 
+   union v {unsigned long ni; unsigned char d[sizeof(unsigned long)];};
+   union u un; 
+   union v vn; 
+   un.vi = value;
+   vn.d[0]=un.c[3]; 
+   vn.d[1]=un.c[2]; 
+   vn.d[2]=un.c[1]; 
+   vn.d[3]=un.c[0]; 
+   return (vn.ni); 
+}
+
+
