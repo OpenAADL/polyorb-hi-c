@@ -11,7 +11,12 @@
 
 #ifdef __PO_HI_NEED_DRIVER_SERIAL_RASTA
 
+#include <marshallers.h>
+
 #include <po_hi_debug.h>
+#include <po_hi_transport.h>
+#include <po_hi_gqueue.h>
+#include <po_hi_messages.h>
 #include <drivers/rtems_utils.h>
 #include <drivers/po_hi_driver_rasta_serial.h>
 
@@ -24,7 +29,6 @@
 #include <pci.h>
 #include <rasta.h>
 #include <apbuart_rasta.h>
-
 /* Rasta includes from GAISLER drivers */
 
 #define __PO_HI_DRIVER_SERIAL_RASTA_DEVICE "/dev/apburasta0"
@@ -77,10 +81,24 @@ int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const _
 {
    int n;
    __po_hi_local_port_t local_port;
+   __po_hi_request_t* request;
+   __po_hi_msg_t msg;
+   __po_hi_port_t destination_port;
 
-   local_port = __po_hi_port_global_to_local[(int)port];
-   request = &(__po_hi_gqueues_most_recent_values[id][local_port]);
-   n = write (po_hi_c_driver_rasta_serial_fd, "blabl\n", 6);
+   local_port = __po_hi_get_local_port_from_global_port (port);
+
+   request = __po_hi_gqueue_get_most_recent_value (task_id, local_port);
+
+   destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
+
+   __po_hi_msg_reallocate (&msg);
+
+   request->port = destination_port;
+
+   __po_hi_marshall_request (request, &msg);
+
+   n = write (po_hi_c_driver_rasta_serial_fd, &msg, __PO_HI_MESSAGES_MAX_SIZE);
+
    __DEBUGMSG ("RASTA write returns %d\n", n);
    return 1;
 }

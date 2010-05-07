@@ -310,7 +310,7 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
    return __PO_HI_SUCCESS;
 }
 
-__po_hi_request_t*  __po_hi_get_most_recent_value (const __po_hi_task_id task_id, const __po_hi_local_port_t local_port)
+__po_hi_request_t*  __po_hi_gqueue_get_most_recent_value (const __po_hi_task_id task_id, const __po_hi_local_port_t local_port)
 {
    return (&__po_hi_gqueues_most_recent_values[task_id][local_port]);
 }

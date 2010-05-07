@@ -54,7 +54,7 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
 #endif
 
    local_port  = __po_hi_get_local_port_from_global_port (port);
-   request     = __po_hi_get_most_recent_value (id, local_port);
+   request     = __po_hi_gqueue_get_most_recent_value (id, local_port);
 
    if (request->port == -1)
    {

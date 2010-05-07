@@ -124,7 +124,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
  * request that will be stored in the queue.
  */
 
-__po_hi_request_t*  __po_hi_get_most_recent_value 
+__po_hi_request_t*  __po_hi_gqueue_get_most_recent_value 
          (const __po_hi_task_id task_id,
           const __po_hi_local_port_t local_port);
 

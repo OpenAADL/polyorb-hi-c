@@ -14,7 +14,14 @@
 #define __PO_HI_DRIVER_SERIAL_LINUX_BAUDRATE B19200
 
 #include <po_hi_debug.h>
+#include <po_hi_messages.h>
+#include <po_hi_transport.h>
 /* po-hi-c related files */
+
+#include <activity.h>
+#include <marshallers.h>
+#include <deployment.h>
+/* generated files */
 
 #include <termios.h>
 #include <sys/types.h>
@@ -29,15 +36,19 @@ int po_hi_c_driver_serial_fd;
 void __po_hi_c_driver_serial_linux_poller (void)
 {
 
-   char buf[1024];
+   __po_hi_msg_t msg;
+   __po_hi_request_t request;
    int n;
    __DEBUGMSG ("Hello, i'm the serial linux poller !\n");
-   n = read (po_hi_c_driver_serial_fd, &buf, 6); 
+   n = read (po_hi_c_driver_serial_fd, &msg, __PO_HI_MESSAGES_MAX_SIZE); 
    __DEBUGMSG ("[LINUX SERIAL] read() returns %d\n", n);
+   msg.length = n;
    if (n > 0)
    {
-      buf[n] = '\0';
-      printf ("[LINUX SERIAL] Received: %s\n", buf);
+      printf ("[LINUX SERIAL] Received: %s\n", msg.content);
+
+      __po_hi_unmarshall_request (&request, &msg);
+      __po_hi_main_deliver (&request);
    }
 }
 
