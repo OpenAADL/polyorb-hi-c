@@ -33,9 +33,27 @@
 
 int po_hi_c_driver_serial_fd;
 
+
+unsigned long ByteSwap (unsigned long nLongNumber)
+{
+   union u {unsigned long vi; unsigned char c[sizeof(unsigned long)];}; 
+   union v {unsigned long ni; unsigned char d[sizeof(unsigned long)];};
+   union u un; 
+   union v vn; 
+   un.vi = nLongNumber; 
+   vn.d[0]=un.c[3]; 
+   vn.d[1]=un.c[2]; 
+   vn.d[2]=un.c[1]; 
+   vn.d[3]=un.c[0]; 
+   return (vn.ni); 
+}
+
+
+
 void __po_hi_c_driver_serial_linux_poller (void)
 {
-
+   unsigned long* toto;
+   unsigned long titi;
    __po_hi_msg_t msg;
    __po_hi_request_t request;
    int n;
@@ -43,11 +61,30 @@ void __po_hi_c_driver_serial_linux_poller (void)
    n = read (po_hi_c_driver_serial_fd, &msg, __PO_HI_MESSAGES_MAX_SIZE); 
    __DEBUGMSG ("[LINUX SERIAL] read() returns %d\n", n);
    msg.length = n;
+
+
    if (n > 0)
    {
       printf ("[LINUX SERIAL] Received: %s\n", msg.content);
+      toto = (unsigned long*)&msg.content[0];
+      titi = *toto;
+      *toto = ByteSwap (titi);
+
+      toto = (unsigned long*)&msg.content[4];
+      titi = *toto;
+      *toto = ByteSwap (titi);
+
+
+      toto = (unsigned long*)&msg.content[8];
+      titi = *toto;
+      *toto = ByteSwap (titi);
 
       __po_hi_unmarshall_request (&request, &msg);
+
+
+      __po_hi_unmarshall_request (&request, &msg);
+
+      printf ("[LINUX SERIAL] Destination port: %d\n", request.port);
       __po_hi_main_deliver (&request);
    }
 }
