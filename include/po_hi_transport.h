@@ -41,4 +41,8 @@ int               __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_po
  * Default transport layer
  */
 
+const char* __po_hi_get_port_model_name (const __po_hi_port_t port);
+
+const char* __po_hi_get_port_name (const __po_hi_port_t port);
+
 #endif /* __PO_HI_TRANSPORT__ */

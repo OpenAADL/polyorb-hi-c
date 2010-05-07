@@ -37,6 +37,8 @@ extern __po_hi_local_port_t   __po_hi_port_global_to_local[__PO_HI_NB_PORTS];
 extern __po_hi_request_t*     __po_hi_gqueues_most_recent_values[__PO_HI_NB_TASKS];
 extern __po_hi_uint8_t*       __po_hi_gqueues_n_destinations[__PO_HI_NB_TASKS];
 extern __po_hi_port_t**       __po_hi_gqueues_destinations[__PO_HI_NB_TASKS];
+extern const char*            __po_hi_port_global_model_names[__PO_HI_NB_PORTS];
+extern const char*            __po_hi_port_global_names[__PO_HI_NB_PORTS];
 
 int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
 {
@@ -122,3 +124,15 @@ __po_hi_entity_t __po_hi_get_entity_from_global_port (const __po_hi_port_t port)
 {
     return __po_hi_port_global_to_entity[port];
 }
+
+const char* __po_hi_get_port_name (const __po_hi_port_t port)
+{
+      return (__po_hi_port_global_names[port]);
+}
+
+
+const char* __po_hi_get_port_model_name (const __po_hi_port_t port)
+{
+      return (__po_hi_port_global_model_names[port]);
+}
+

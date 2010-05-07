@@ -1,8 +1,15 @@
 # It detect if networking functions have to be compiled
 # With the generated code.
 
+all: build-node
+
+all-with-tweak: 
+	$(MAKE) all ENABLE_DYNAMIC_CONFIGURATION=1
+
 include $(RUNTIME_PATH)/make/Makefile.$(TARGET)
 -include ../../userdefined.mk
+
+build-node: compile-c-files compile-ada-files compile-node
 
 ################################################################################
 # Configuration
@@ -29,6 +36,13 @@ GCC=$(CC)
 CFLAGS=-Wall $(USER_CFLAGS) $(TARGET_CFLAGS) -Werror
 CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
 LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS)
+
+
+ifeq ($(ENABLE_DYNAMIC_CONFIGURATION),1)
+CFLAGS+=-D__PO_HI_USE_DYNAMIC_CONFIGURATION
+endif
+
+
 
 ifdef TARGET_INCLUDE
 INCLUDE=-I. -I$(RUNTIME_PATH)/include/ $(TARGET_INCLUDE)
