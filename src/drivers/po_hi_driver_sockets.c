@@ -242,8 +242,8 @@ void __po_hi_driver_sockets_init (void)
 }
 
 int __po_hi_driver_sockets_send (__po_hi_entity_t from, 
-      __po_hi_entity_t to, 
-      __po_hi_msg_t* msg)
+                                 __po_hi_entity_t to, 
+                                 __po_hi_msg_t* msg)
 {
    __po_hi_node_t  node;
    int             len;

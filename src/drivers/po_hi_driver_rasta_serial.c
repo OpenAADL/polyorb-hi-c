@@ -34,7 +34,6 @@ int po_hi_c_driver_rasta_serial_fd;
 
 void __po_hi_c_driver_serial_rasta_poller (void)
 {
-/*
    char buf[1024];
    int n;
    __DEBUGMSG ("Hello, i'm the serial RASTA poller !\n");
@@ -45,7 +44,6 @@ void __po_hi_c_driver_serial_rasta_poller (void)
       buf[n] = '\0';
       printf ("[RASTA SERIAL] Received: %s\n", buf);
    }
-   */
 }
 
 void __po_hi_c_driver_serial_rasta_init (void)
@@ -78,6 +76,10 @@ void __po_hi_c_driver_serial_rasta_init (void)
 int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const __po_hi_port_t port)
 {
    int n;
+   __po_hi_local_port_t local_port;
+
+   local_port = __po_hi_port_global_to_local[(int)port];
+   request = &(__po_hi_gqueues_most_recent_values[id][local_port]);
    n = write (po_hi_c_driver_rasta_serial_fd, "blabl\n", 6);
    __DEBUGMSG ("RASTA write returns %d\n", n);
    return 1;

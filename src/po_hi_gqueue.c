@@ -29,9 +29,6 @@
 #define __PO_HI_GQUEUE_OUT_PORT constant_out_identifier 
 /* give a default value to the out port */
 
-extern __po_hi_entity_t       __po_hi_port_global_to_entity[__PO_HI_NB_PORTS];
-extern __po_hi_local_port_t   __po_hi_port_global_to_local[__PO_HI_NB_PORTS];
-
 __po_hi_port_t*        __po_hi_gqueues[__PO_HI_NB_TASKS];
 __po_hi_int8_t         __po_hi_gqueues_nb_ports[__PO_HI_NB_TASKS];
 __po_hi_int8_t*        __po_hi_gqueues_sizes[__PO_HI_NB_TASKS];
@@ -312,3 +309,19 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
    return __PO_HI_SUCCESS;
 }
+
+__po_hi_request_t*  __po_hi_get_most_recent_value (const __po_hi_task_id task_id, const __po_hi_local_port_t local_port)
+{
+   return (&__po_hi_gqueues_most_recent_values[task_id][local_port]);
+}
+
+uint8_t __po_hi_gqueue_get_destinations_number (const __po_hi_task_id task_id, const __po_hi_local_port_t local_port)
+{
+      return (__po_hi_gqueues_n_destinations[task_id][local_port]);
+}
+
+__po_hi_port_t __po_hi_gqueue_get_destination (const __po_hi_task_id task_id, const __po_hi_local_port_t local_port, const uint8_t destination_number)
+{
+      return (__po_hi_gqueues_destinations[task_id][local_port][destination_number]);
+}
+
