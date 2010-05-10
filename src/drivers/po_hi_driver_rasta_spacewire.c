@@ -111,6 +111,7 @@ void __po_hi_c_driver_spacewire_rasta_init (char* name, char* location)
    if (po_hi_c_driver_rasta_spacewire_fd < 0)
    {
       __DEBUGMSG(" ERROR !\n");
+      return;
    }
 
    __DEBUGMSG(" OK !\n");

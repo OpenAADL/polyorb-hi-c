@@ -36,16 +36,6 @@ void __po_hi_initialize_add_task ()
 
 int __po_hi_initialize ()
 {
-   /*
-#include <sys/time.h>
-struct timeval tv;
-struct timezone tz;
-tz.tz_dsttime = DST_USA;
-tz.tz_minuteswest = 0;
-tv.tv_sec = 10;
-tv.tv_usec = 0;
-settimeofday (&tv, &tz);
-*/
 #ifdef RTEMS_POSIX
 #include <rtems/rtems/clock.h>
    rtems_status_code status;
