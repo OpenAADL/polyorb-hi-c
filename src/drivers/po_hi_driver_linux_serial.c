@@ -76,7 +76,7 @@ void __po_hi_c_driver_serial_linux_poller (void)
 }
 
 
-void __po_hi_c_driver_serial_linux_init (void)
+void __po_hi_c_driver_serial_linux_init (char* name, char* location)
 {
    struct termios oldtio,newtio;
 

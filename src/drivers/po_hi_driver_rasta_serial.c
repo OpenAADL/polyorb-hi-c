@@ -17,7 +17,7 @@
 #include <po_hi_transport.h>
 #include <po_hi_gqueue.h>
 #include <po_hi_messages.h>
-#include <drivers/rtems_utils.h>
+#include <drivers/po_hi_rtems_utils.h>
 #include <drivers/po_hi_driver_rasta_serial.h>
 
 #include <sys/ioctl.h>
@@ -50,7 +50,7 @@ void __po_hi_c_driver_serial_rasta_poller (void)
    }
 }
 
-void __po_hi_c_driver_serial_rasta_init (void)
+void __po_hi_c_driver_serial_rasta_init (char* name, char* location)
 {
    __DEBUGMSG ("[RASTA SERIAL] Init\n");
    init_pci();

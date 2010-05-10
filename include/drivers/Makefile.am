@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = no-dependencies
 EXTRA_DIST = $(srcdir)/po_hi_driver_linux_serial.h \
              $(srcdir)/po_hi_driver_rasta_spacewire.h \
              $(srcdir)/po_hi_driver_sockets.h \
-             $(srcdir)/rtems_utils.h \
+             $(srcdir)/po_hi_rtems_utils.h \
              $(srcdir)/po_hi_driver_rasta_serial.h
 
 CLEANFILES = *~
