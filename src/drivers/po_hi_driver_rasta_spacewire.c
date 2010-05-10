@@ -44,7 +44,7 @@ int po_hi_c_driver_rasta_spacewire_fd;
 
 void po_hi_c_driver_rasta_spacewire_init_pkt(__po_hi_c_driver_spacewire_pkt_hdr_t *p, __po_hi_port_t destination_port)
 {
-  p->addr = atoi (__po_hi_get_naming (destination_port));
+  p->addr = atoi (__po_hi_get_device_naming (destination_port));
   p->protid = 50;
   p->dummy = 0x01;
   p->channel = 0x01;
@@ -96,7 +96,7 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
 {
    unsigned int node_addr;
 
-   node_addr = atoi (__po_hi_get_naming (id));
+   node_addr = atoi (__po_hi_get_device_naming (id));
 
    __DEBUGMSG ("[RASTA SPACEWIRE] Init\n");
 

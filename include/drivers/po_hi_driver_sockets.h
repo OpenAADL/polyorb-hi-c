@@ -15,7 +15,7 @@
 
 void __po_hi_driver_sockets_receiver (void);
 
-void __po_hi_driver_sockets_init (void);
+void __po_hi_driver_sockets_init (__po_hi_device_id id);
 
 #include <po_hi_transport.h>
 /* Files from PolyORB-HI-C */
