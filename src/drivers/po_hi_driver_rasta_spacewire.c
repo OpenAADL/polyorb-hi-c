@@ -44,7 +44,7 @@ int po_hi_c_driver_rasta_spacewire_fd;
 
 void po_hi_c_driver_rasta_spacewire_init_pkt(__po_hi_c_driver_spacewire_pkt_hdr_t *p)
 {
-  p->addr = 10;
+  p->addr = 10;  /* FIXME ! Need to retrieve that from the AADL model ! */
   p->protid = 50;
   p->dummy = 0x01;
   p->channel = 0x01;
