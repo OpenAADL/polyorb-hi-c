@@ -86,7 +86,7 @@ typedef struct
 __po_hi_inetnode_t nodes[__PO_HI_NB_NODES];
 __po_hi_inetnode_t rnodes[__PO_HI_NB_NODES];
 
-void __po_hi_driver_sockets_init (char* name, char* location)
+void __po_hi_driver_sockets_init (__po_hi_device_id id)
 {
    int                i;
    int                ret;

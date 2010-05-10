@@ -50,7 +50,7 @@ void __po_hi_c_driver_serial_rasta_poller (void)
    }
 }
 
-void __po_hi_c_driver_serial_rasta_init (char* name, char* location)
+void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 {
    __DEBUGMSG ("[RASTA SERIAL] Init\n");
    init_pci();

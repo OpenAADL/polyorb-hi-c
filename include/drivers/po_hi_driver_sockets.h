@@ -31,7 +31,7 @@ extern __po_hi_inetaddr_t node_addr[__PO_HI_NB_NODES];
  * that receives data from a socket (receiver task)
  */
 
-void __po_hi_sockets_initialize (char*, char*);
+void __po_hi_sockets_initialize (__po_hi_device_id id);
 /*
  * Initialize sockets, create the receiver tasks
  * and sender file descriptors

@@ -15,7 +15,7 @@
 
 void __po_hi_c_driver_serial_linux_poller (void);
 
-void __po_hi_c_driver_serial_linux_init (char*, char*);
+void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id);
 
 int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task, __po_hi_port_t port);
 

@@ -38,6 +38,8 @@ extern __po_hi_request_t*     __po_hi_gqueues_most_recent_values[__PO_HI_NB_TASK
 extern char*                  __po_hi_port_global_model_names[__PO_HI_NB_PORTS];
 extern char*                  __po_hi_port_global_names[__PO_HI_NB_PORTS];
 extern __po_hi_uint8_t        __po_hi_deployment_endiannesses[__PO_HI_NB_NODES];
+extern __po_hi_device_id      __po_hi_port_to_device[__PO_HI_NB_PORTS];
+extern char*                  __po_hi_devices_naming[__PO_HI_NB_DEVICES];
 
 int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
 {
@@ -142,4 +144,14 @@ __po_hi_local_port_t __po_hi_get_local_port_from_global_port (const __po_hi_port
 __po_hi_uint8_t __po_hi_get_endianness (const __po_hi_node_t node)
 {
    return __po_hi_deployment_endiannesses[node];
+}
+
+char* __po_hi_get_naming (const __po_hi_port_t port)
+{
+      return __po_hi_devices_naming[port];
+}
+
+__po_hi_device_id __po_hi_get_device_from_port (const __po_hi_port_t port)
+{
+      return __po_hi_port_to_device[port];
 }

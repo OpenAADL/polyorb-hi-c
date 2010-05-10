@@ -27,7 +27,7 @@ typedef struct {
 
 void __po_hi_c_driver_spacewire_rasta_poller (void);
 
-void __po_hi_c_driver_spacewire_rasta_init (char*, char*);
+void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id);
 
 int __po_hi_c_driver_spacewire_rasta_sender (const __po_hi_task_id task_id, const __po_hi_port_t port);
 
