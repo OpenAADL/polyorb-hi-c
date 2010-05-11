@@ -11,12 +11,14 @@
 
 #ifdef __PO_HI_NEED_DRIVER_SERIAL_RASTA
 
+#include <activity.h>
 #include <marshallers.h>
 
 #include <po_hi_debug.h>
 #include <po_hi_transport.h>
 #include <po_hi_gqueue.h>
 #include <po_hi_messages.h>
+#include <po_hi_utils.h>
 #include <drivers/po_hi_rtems_utils.h>
 #include <drivers/po_hi_driver_rasta_serial.h>
 
@@ -38,16 +40,37 @@ int po_hi_c_driver_rasta_serial_fd;
 
 void __po_hi_c_driver_serial_rasta_poller (void)
 {
-   char buf[1024];
+   __po_hi_msg_t msg;
+   __po_hi_request_t request;
+
    int n;
+   int ts;
+
    __DEBUGMSG ("[RASTA SERIAL] Hello, i'm the poller !\n");
-   n = read (po_hi_c_driver_rasta_serial_fd, &buf, 6); 
-   __DEBUGMSG ("[RASTA SERIAL] read() returns %d\n", n);
-   if (n > 0)
+
+   n = read (po_hi_c_driver_rasta_serial_fd, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE); 
+
+   if (n == -1)
    {
-      buf[n] = '\0';
-      printf ("[RASTA SERIAL] Received: %s\n", buf);
+      __DEBUGMSG("[RASTA SERIAL] Cannot read on socket !\n");
+      return;
    }
+
+   __DEBUGMSG ("[RASTA SERIAL] read() returns %d\n", n);
+
+   __DEBUGMSG ("[RASTA SERIAL] Message received by poller: 0x");
+   for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
+   {
+      __DEBUGMSG ("%x", msg.content[ts]);
+   }
+   __DEBUGMSG ("\n");
+
+   msg.length = n;
+
+   __po_hi_unmarshall_request (&request, &msg);
+
+   printf ("[RASTA SERIAL] Destination port: %d\n", request.port);
+   __po_hi_main_deliver (&request);
 }
 
 void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
@@ -80,6 +103,7 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const __po_hi_port_t port)
 {
    int n;
+   int ts;
    __po_hi_local_port_t local_port;
    __po_hi_request_t* request;
    __po_hi_msg_t msg;
@@ -97,9 +121,16 @@ int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const _
 
    __po_hi_marshall_request (request, &msg);
 
+   __DEBUGMSG  ("[RASTA SERIAL] Message sent: 0x");
+   for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
+   {
+      __DEBUGMSG ("%x", msg.content[ts]);
+   }
+   __DEBUGMSG ("\n");
+
    n = write (po_hi_c_driver_rasta_serial_fd, &msg, __PO_HI_MESSAGES_MAX_SIZE);
 
-   __DEBUGMSG ("RASTA write returns %d\n", n);
+   __DEBUGMSG ("[RASTA SERIAL] write() returns %d\n", n);
    return 1;
 }
 
