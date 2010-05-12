@@ -34,4 +34,12 @@ int __po_hi_wait_initialization ();
  * if there is an error.
  */
 
+#ifdef __PO_HI_USE_GPROF
+void __po_hi_wait_end_of_instrumentation ();
+/*
+ * Wait a certain amount of time to finish the 
+ * execution of the system.
+ */
+#endif
+
 #endif /* __PO_HI_MAIN__ */

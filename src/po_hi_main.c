@@ -101,3 +101,14 @@ int __po_hi_wait_initialization ()
   pthread_mutex_unlock (&mutex_init);
   return (__PO_HI_SUCCESS);
 }
+
+#ifdef __PO_HI_USE_GPROF
+void __po_hi_wait_end_of_instrumentation ()
+{
+   #include <po_hi_time.h> 
+   __po_hi_time_t now;
+   __po_hi_get_time (&now);
+   __po_hi_delay_until (__po_hi_add_times (now, __po_hi_seconds (10)));
+}
+#endif
+

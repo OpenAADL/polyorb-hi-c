@@ -32,6 +32,7 @@ ifneq ($(USER_LD),)
 LD=$(USER_LD)
 endif
 
+
 GCC=$(CC)
 CFLAGS=-Wall $(USER_CFLAGS) $(TARGET_CFLAGS) -Werror
 CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
@@ -42,7 +43,10 @@ ifeq ($(ENABLE_DYNAMIC_CONFIGURATION),1)
 CFLAGS+=-D__PO_HI_USE_DYNAMIC_CONFIGURATION
 endif
 
-
+ifdef USE_GPROF
+CFLAGS+=-pg -D__PO_HI_USE_GPROF
+LDFLAGS+=-pg
+endif
 
 ifdef TARGET_INCLUDE
 INCLUDE=-I. -I$(RUNTIME_PATH)/include/ $(TARGET_INCLUDE)
@@ -186,3 +190,9 @@ clean: target-clean
 	if test ! "$(CLEANDIRS)" = "";  then \
 	  rm -rf $(CLEANDIRS); \
 	fi
+
+ifdef USE_GPROF
+gprof:
+	./$(BINARY)
+	gprof ./$(BINARY) > gprof.out
+endif
