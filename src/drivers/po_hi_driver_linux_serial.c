@@ -208,20 +208,19 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    __po_hi_marshall_request (request, &msg);
 
-      for (tmp = 0 ; tmp < __PO_HI_MESSAGES_MAX_SIZE ; tmp += 4)
-      {
-         swap_pointer  = (unsigned long*) &msg.content[tmp];
-         swap_value    = *swap_pointer;
-         *swap_pointer = __po_hi_swap_byte (swap_value);
-      }
-
-
+   for (tmp = 0 ; tmp < __PO_HI_MESSAGES_MAX_SIZE ; tmp += 4)
+   {
+      swap_pointer  = (unsigned long*) &msg.content[tmp];
+      swap_value    = *swap_pointer;
+      *swap_pointer = __po_hi_swap_byte (swap_value);
+   }
 
    n = write (po_hi_c_driver_serial_fd, &msg, __PO_HI_MESSAGES_MAX_SIZE);
 
    __DEBUGMSG ("[LINUX SERIAL] write() returns %d\n", n);
 
    __DEBUGMSG  ("[LINUX SERIAL] Message sent: 0x");
+
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
       __DEBUGMSG ("%x", msg.content[ts]);
