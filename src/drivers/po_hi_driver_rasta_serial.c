@@ -69,7 +69,7 @@ void __po_hi_c_driver_serial_rasta_poller (void)
 
    __po_hi_unmarshall_request (&request, &msg);
 
-   printf ("[RASTA SERIAL] Destination port: %d\n", request.port);
+   __DEBUGMSG ("[RASTA SERIAL] Destination port: %d\n", request.port);
    __po_hi_main_deliver (&request);
 }
 
