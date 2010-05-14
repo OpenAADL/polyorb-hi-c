@@ -85,6 +85,7 @@ ifeq ($(NEED_TRANSPORT), yes)
    drivers/po_hi_driver_sockets.o \
    drivers/po_hi_driver_rasta_serial.o \
    drivers/po_hi_driver_rasta_1553.o \
+   drivers/po_hi_driver_rasta_1553_brmlib.o \
    drivers/po_hi_driver_rasta_spacewire.o \
 	$(ACTUAL_TRANSPORT) \
 	po_hi_transport.o $(TARGET_TRANSPORT_SOURCES)
