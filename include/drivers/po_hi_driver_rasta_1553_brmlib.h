@@ -71,19 +71,19 @@ int __po_hi_c_driver_1553_rasta_brmlib_set_mode(__po_hi_c_driver_rasta_1553_brm_
  * 2 = bus B
  * 3 = bus A and B 
  */
-int __po_hi_c_driver_1553_rasta_brmlib_set_bus(__po_hi_c_driver_rasta_1553_brm_t chan, unsigned int bus);
+int __po_hi_c_driver_1553_rasta_brmlib_set_bus (__po_hi_c_driver_rasta_1553_brm_t chan, unsigned int bus);
 
-int __po_hi_c_driver_1553_rasta_brmlib_set_txblock(__po_hi_c_driver_rasta_1553_brm_t chan, int txblocking);
-int __po_hi_c_driver_1553_rasta_brmlib_set_rxblock(__po_hi_c_driver_rasta_1553_brm_t chan, int rxblocking);
-int __po_hi_c_driver_1553_rasta_brmlib_set_block(__po_hi_c_driver_rasta_1553_brm_t chan, int txblocking, int rxblocking);
-int __po_hi_c_driver_1553_rasta_brmlib_set_broadcast(__po_hi_c_driver_rasta_1553_brm_t chan, int broadcast);
-int __po_hi_c_driver_1553_rasta_brmlib_set_std(__po_hi_c_driver_rasta_1553_brm_t chan, int std);
-int __po_hi_c_driver_1553_rasta_brmlib_set_rt_addr(__po_hi_c_driver_rasta_1553_brm_t chan, unsigned int address);
-int __po_hi_c_driver_1553_rasta_brmlib_set_msg_timeout(__po_hi_c_driver_rasta_1553_brm_t chan, unsigned int timeout);
+int __po_hi_c_driver_1553_rasta_brmlib_set_txblock (__po_hi_c_driver_rasta_1553_brm_t chan, int txblocking);
+int __po_hi_c_driver_1553_rasta_brmlib_set_rxblock (__po_hi_c_driver_rasta_1553_brm_t chan, int rxblocking);
+int __po_hi_c_driver_1553_rasta_brmlib_set_block (__po_hi_c_driver_rasta_1553_brm_t chan, int txblocking, int rxblocking);
+int __po_hi_c_driver_1553_rasta_brmlib_set_broadcast (__po_hi_c_driver_rasta_1553_brm_t chan, int broadcast);
+int __po_hi_c_driver_1553_rasta_brmlib_set_std (__po_hi_c_driver_rasta_1553_brm_t chan, int std);
+int __po_hi_c_driver_1553_rasta_brmlib_set_rt_addr (__po_hi_c_driver_rasta_1553_brm_t chan, unsigned int address);
+int __po_hi_c_driver_1553_rasta_brmlib_set_msg_timeout (__po_hi_c_driver_rasta_1553_brm_t chan, unsigned int timeout);
 
 /* DEBUG FUNCTIONS */
-void __po_hi_c_driver_rasta_1553_print_rt_msg(int i, struct rt_msg *msg);
-void __po_hi_c_driver_rasta_1553_print_bm_msg(int i, struct bm_msg *msg);
+void __po_hi_c_driver_rasta_1553_print_rt_msg (int i, struct rt_msg *msg);
+void __po_hi_c_driver_rasta_1553_print_bm_msg (int i, struct bm_msg *msg);
 
 #endif
 #endif
