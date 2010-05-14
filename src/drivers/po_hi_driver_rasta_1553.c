@@ -244,15 +244,11 @@ void __po_hi_c_driver_1553_rasta_controller ()
    __DEBUGMSG("[RASTA 1553] -------------  BC: START LIST EXECUTION -------------\n");
 
    __DEBUGMSG("[RASTA 1553] Start CMD list processing.\n"); 
-   if ( __po_hi_c_driver_1553_rasta_proccess_list(po_hi_c_driver_1553_rasta_fd,cmd_list,0) ){
-      sleep(1);
+   if ( __po_hi_c_driver_1553_rasta_proccess_list(po_hi_c_driver_1553_rasta_fd,cmd_list,0) )
+   {
       return;
    }
 
-
-
-   __DEBUGMSG("[RASTA 1553] Sleeping 20s\n");
-   sleep(20);
    __DEBUGMSG("[RASTA 1553] -------------  BC: START LIST EXECUTION -------------\n");
    __DEBUGMSG("[RASTA 1553] Start RESULT list processing.\n"); 
 
@@ -268,7 +264,6 @@ void __po_hi_c_driver_1553_rasta_controller ()
 
    if ( __po_hi_c_driver_1553_rasta_proccess_list(po_hi_c_driver_1553_rasta_fd,result_list,1) )
    {
-      sleep(1);
       return;
    }
 
@@ -294,7 +289,6 @@ void __po_hi_c_driver_1553_rasta_controller ()
    }
 
    __DEBUGMSG("[RASTA 1553] -----------------------------------------------------\n");		
-   sleep(15);
 }
 
 
@@ -303,7 +297,7 @@ void __po_hi_c_driver_1553_rasta_init (__po_hi_device_id id)
 {
    __DEBUGMSG ("[RASTA 1553] Init\n");
    init_pci();
-   __DEBUGMSG ("[RASTA 1553] Initializing RASTA ...\n");
+   __DEBUGMSG ("[RASTA 1553] Initializing RASTA (rasta_register()) ...\n");
    if (rasta_register())
    {
       __DEBUGMSG(" ERROR !\n");
@@ -311,7 +305,6 @@ void __po_hi_c_driver_1553_rasta_init (__po_hi_device_id id)
    }
 
    __DEBUGMSG(" OK !\n");
-
 
    po_hi_c_driver_1553_rasta_fd = __po_hi_c_driver_1553_rasta_brmlib_open (__PO_HI_DRIVER_RASTA_1553_DEVICE);
 
