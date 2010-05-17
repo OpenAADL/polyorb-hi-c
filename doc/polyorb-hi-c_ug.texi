@@ -139,10 +139,18 @@ Building a system
 * Building examples::           
 * Building a new system::       
 
+Porting PolyORB-HI-C to another architecture
+* POSIX compliance::
+* Architecture-dependent files::
+* Declare a new supported system::
+* Define the compilation process::
+* Device Drivers::
+
 Supported features
 
 * C constructions and restrictions::  
 * AADL features::       
+
 
 AADL to C transformations
 
@@ -153,6 +161,7 @@ AADL to C transformations
 * Connections::                 
 * Subprograms::                 
 * Data::                        
+* Devices::
 
 PolyORB-HI-C API
 
@@ -166,7 +175,7 @@ PolyORB-HI-C API
 * Protected types functions::   
 * Global queue functions::      
 * Types used in PolyORB-HI-C::  
-* Return types for PolyORB-HI-C functions::  
+
 
 @end detailmenu
 @end menu
@@ -301,8 +310,7 @@ PolyORB-HI-C has been compiled and sucessfully tested on
 
 @noindent
 @emph{Note: PolyORB-HI-C should compile and run on every
-POSIX-compliant system.  Its network stack uses the socket API, and is
-compatible with many operating systems.}
+POSIX-compliant system.}
 
 @c -------------------------------------------------------------------
 @node Tree structure
@@ -317,6 +325,7 @@ PolyORB-HI-C has the following tree structure:
 @item @file{examples/}: set of examples to test PolyORB-HI-C
 @item @file{share/}: common files (aadl files used by Ocarina, makefiles, ...)
 @item @file{src/}: core of PolyORB-HI
+@item @file{src/drivers}: device drivers supported by PolyORB-HI-C
 @item @file{tools/}: some script to handle the packaging and a verification
 tool to check if the binaries are compliant with the POSIX restrictions.
 @item @file{ChangeLog}: release information,
@@ -324,7 +333,7 @@ tool to check if the binaries are compliant with the POSIX restrictions.
 @item @file{README}: short description of the distribution.
 @end itemize
 
-When installed with Ocarina, in @file{$OCARINA_PATH} directory
+When installed with Ocarina, in @file{$OCARINA_PATH} directory (you can use the @file{ocarina-config --prefix} command to get the installation directory).
 
 @itemize @bullet
 @item docutmentation is in @file{$OCARINA_PATH/share/doc/ocarina};
@@ -343,10 +352,12 @@ set of examples to test PolyORB-HI-C
 To be compiled, PolyORB-HI-C requires the following tools:
 
 @itemize @bullet
-@item a C compiler that produces binaries for the target architecture. 
+@item a C compiler that produces binaries for the target architecture. If you are running applications
+on topof Linux, a regular gcc installation should be sufficient (packages provided by most Linux distributions
+would be sufficient). If you are trying to compile for another architecture, you would need a cross-compiler tool.
 
 @item a  standard C-library, for common functions like @code{socket()} or
-@code{pthread_createt()}.
+@code{pthread_create()}.
 @end itemize
 
 @i{Note: For each tested bare board, the toolchains provides Makefiles
@@ -363,7 +374,7 @@ possible, pick a unified archive that contains both tools.
 @c -------------------------------------------------------------------
 
 @noindent
-To install PolyORB-HI-X, please observe the following steps:
+To install PolyORB-HI-C, please observe the following steps:
 
 @itemize
 @item 
@@ -375,7 +386,7 @@ located at the top of your PATH environment variable.
 Issue @code{./configure}. The @code{configure} script can take several
 options: issue @code{./configure --help} to have a quick overview of
 them. For examples. @code{./configure --enable-debug} will configure
-the middleware to be built with all debug options.  At the end of the
+the software to be built with all debug options (mainly additional output).  At the end of the
 configuration process, a file with all parameters is created
 (@file{include/po_hi_config.h}. If this file is not created, the
 compilation is not possible.
@@ -392,25 +403,7 @@ and the RTEMS operating system. The LEON architecture is similar to
 the SPARC. In other words, we have to use a compiler that is different
 from the one used to compile native binaries. In our case, the
 compiler is called @code{sparc-rtems-gcc}. Consequently, the host name
-will be @code{sparc-rtems}. This name will be used in the
-configuration step, with the @code{--host} option.
-
-If we want to configure the target with the GIOP protocol, we just have to
-invoke the following command :
-
-@code{./configure --enable-giop --host=sparc-rtems}
-
-The @code{configure} script will detect that you are cross-compiling
-and will detect the endianness of the processor and the size of each
-types. If no error was detected, the framework is ready to be
-used. The following example reproduce the output when we use this type
-of configuration. Note that the @code{build} switch is optionnal. If
-you don't provide it, the script will automatically detect your system
-type.
-
-@smallexample
-$ ./configure --host=sparc-rtems --build=i386-linux --enable-giop
-@end smallexample
+will be @code{sparc-rtems}. 
 
 @noindent
 @emph{Note: If you use RTEMS, you have to define the
@@ -418,18 +411,6 @@ $ ./configure --host=sparc-rtems --build=i386-linux --enable-giop
 it. Generally, you have to follow all instructions that are described
 with the system you will use.}
 
-@subsubsection Configure the framework for the native platform
-
-Compile for the native platform means that you will use the same
-machine to compile the code and run the binaries. Most of the time,
-the compiler will be @code{gcc}. In the present case, we will
-configure the framework for the RAW protocol. We just invoke the
-following command :
-
-@code{./configure}
-
-If no error was detected, the framework is ready to use. If you encounter
-errors, please check that you have a compiler that works fine.
 
 @c -------------------------------------------------------------------
 @node Build instructions
@@ -524,8 +505,151 @@ has to be used, needed Ocarina non-standard property sets:
 @end itemize
 
 @noindent
-For a list of supported flags, please refere to the @i{Ocarina User's
-Guide}.
+For a list of ALL supported flags, please refere to the @i{Ocarina User's
+Guide}. There are some PolyORB-HI-C specific flags :
+
+@enumerate
+
+@item @b{-perf} : enable performance traces. Using this flag, PolyORB-HI-C will execute
+your application during a fixed amount of time and then, produce a performance analysis 
+(indicating the Worst-Case Execution Time (WCET) and call traces (which functions was executed and when).
+
+@end enumerate
+
+
+@c -------------------------------------------------------------------
+@node Porting PolyORB-HI-C to another architecture
+@chapter Porting PolyORB-HI-C to another architecture
+@c -------------------------------------------------------------------
+
+@menu
+* POSIX compliance::
+* Architecture-dependent files::
+* Declare a new supported system::
+* Define the compilation process::
+* Device Drivers::
+@end menu
+
+This section gives some hints to help the developer to port
+PolyORB-HI-C. We will give the name of the files you need to change
+and what part of them should be modified to support new architectures
+and operating systems.
+
+@node POSIX compliance
+@section POSIX compliance
+
+PolyORB-HI-C is POSIX compliant. It means that all the functions used
+in the framework should be available if your operating system is POSIX
+compliant. Even this compliance, you will probably need to make some
+changes and for each new architecture or operating system, you have to
+create a specific Makefile, as described in the thrid section.
+
+@node Architecture-dependent files
+@section Architecture-dependent files
+
+If you need to port the framework on another architecture, some files
+don't need to be changed. Porting efforts will be focused on the
+following files :
+
+@itemize @bullet
+@item @code{po_hi_task.c} : Create tasks and handle their properties
+(period, priority, ...). At this time, this file contains only POSIX
+calls to create and manage thread.
+  
+@item @code{po_hi_time.c} : Handle time and provide some functions to wait
+until an absolute time. The functions defined in this file make calls
+to POSIX functions like @code{clock_gettime()}.
+  
+@item @code{po_hi_transport_sockets.c} : All the functions defined in this
+file are used to send or receive data through sockets. It creates a
+task to receive data and put them on a stack. All the functions made
+calls to POSIX-compliant functions like @code{socket()}, @code{listen}
+or @code{bind}.
+@end itemize
+
+
+@node Declare a new supported system
+@section Declare a new supported system
+
+In all files that contain architecture-dependent, we need to split
+code for each system. We make it with MACCRO and include the code for
+the used architecture when we compile it. At this time, two systems
+are supported : @code{POSIX} and @code{RTEMS_POSIX}. Even if RTEMS use
+the POSIX implementation, there are some differences between that
+needs to declare another system.
+
+If you want to support a new architecture, you need to declare a new
+maccro which will be used to differenciate the code for your
+architecture from other parts of the code. Then, this maccro will be
+included in the @code{CFLAGS} variable in the Makefile created for
+your architecture.
+
+@node Define the compilation process
+@section Define the compilation process
+
+Each architecture has its own Makefile. It is used to define the
+compiler name, the linker name and some maccros to compile the code
+with a specific architecture.
+
+All Makefiles are stored in the @code{share/make} directory. Each
+Makefile follow the following naming rule :
+@code{Makefile.arch.ostype}. For example, the Makefile created for the
+LEON architecture with the RTEMS OS has the name
+@code{Makefile.leon.rtems}. You need to create a Makefile with name
+that follow the naming rule and fill it with the rights @code{CFLAGS}
+and @code{CC} for the sytem you port.
+
+
+@node Device Drivers
+
+@section Device Drivers
+
+PolyORB-HI-C supports a set of predefined drivers. It relies on the @t{device} component of AADL models.
+You can see the code of all available drivers in the @file{src/drivers} directory.
+
+@subsection Supported devices drivers
+Actually, PolyORB-HI-C supports the following devices
+@enumerate
+   @item
+      @b{sockets} : a socket interface that uses PolyORB marshallers to send data accross an ethernet network.
+      It relies on the TCP/IP protocol and uses POSIX functions to send and receive data. 
+   @item
+      @b{Linux serial} : provides function to send data accross the serial bus on a Linux host.
+   @item
+      @b{RASTA serial} : is the same than Linux serial but for LEON/Rasta software. It also uses
+      PolyORB-HI-C marshallers. It requires that you use the RTEMS executive.
+   @item
+      @b{RASTA spacewire} : sends data accross a Spacewire bus. It works on top of the RTEMS operating system.
+   @item
+      @b{RASTA 1553} : sends data accross a 1553 bus. It provides functions to use the bus as
+      a controller or a terminal (monitor mode not yet implemented).
+@end enumerate
+
+
+@subsection Adding a new driver
+To add a new driver, you need to add a file in the @file{src/drivers} directory. It would basically contain
+the implementation of your driver. Then, since all files are compiled, you need to add some C macro
+that will indicate that your file will be compiled only under some circumstances (when the device is used in the model).
+To do so, the code generator automatically generates a maccro called @code{__PO_HI_NEED_XXX} where @code{XXX} is the 
+driver name in uppercase. The driver name is specified in AADL models using the @code{Deployment::Driver_Name} property.
+
+If you are implementing your own driver, you can take existing drivers as an example.
+
+
+@subsection Add your files to the list of compiled files
+To get your driver compiled with PolyORB-HI-C services, you need to edit the @file{share/make/Makefile.common} file
+and add your to the list of compiled files (the @code{PO_HI_OBJS} variable). Then, don't forget to install your modified
+version of the file before testing it.
+
+
+@subsection Retrieve driver configuration
+In AADL models, the configuration of the device is specified using the @code{Deployment::Configuration} property.
+It describes configuration concerns (IP address of the device and so on). It is useful to configure and initialize
+your driver. To get this information in your driver code, you can use the @code{__po_hi_get_device_naming()} function
+from the transport layer. This function takes one @b{device-id} that corresponds to the identifier
+of your device in the AADL model. However, this @b{device-id} is automatically passed to the initialization function of your
+driver in the generated code so that you can easily get configuration strings.
+
 
 @c -------------------------------------------------------------------
 @node Supported features
@@ -584,6 +708,8 @@ guidelines discussed in section @b{XXX}.
 @end itemize
 @end itemize
 
+
+
 @c -------------------------------------------------------------------
 @node AADL to C transformations
 @appendix AADL to C transformations
@@ -597,6 +723,7 @@ guidelines discussed in section @b{XXX}.
 * Connections::                 
 * Subprograms::                 
 * Data::                        
+* Devices::                        
 @end menu
 
 In the following, and for each component of the distributed
@@ -1373,6 +1500,17 @@ Non protected object types are mapped similarly to protected object
 types. The only difference, is that instead of creating a protected
 type, we create a generic parameterless nested package.
 
+
+@c -------------------------------------------------------------------
+@node Devices
+@section Devices
+@c -------------------------------------------------------------------
+
+FIXME
+
+
+
+
 @c -------------------------------------------------------------------
 @node PolyORB-HI-C API
 @appendix PolyORB-HI-C API
@@ -1471,76 +1609,6 @@ of distribution features and concurrent interactions.
 @c -------------------------------------------------------------------
 
 @include po_hi_returns.h.texi
-
-@c -------------------------------------------------------------------
-@node Porting PolyORB-HI-C to another architecture
-@appendix Porting PolyORB-HI-C to another architecture
-@c -------------------------------------------------------------------
-
-This section gives some hints to help the developer to port
-PolyORB-HI-C. We will give the name of the files you need to change
-and what part of them should be modified to support new architectures
-and operating systems.
-
-@section POSIX compliance
-
-PolyORB-HI-C is POSIX compliant. It means that all the functions used
-in the framework should be available if your operating system is POSIX
-compliant. Even this compliance, you will probably need to make some
-changes and for each new architecture or operating system, you have to
-create a specific Makefile, as described in the thrid section.
-
-@section Architecture-dependent files
-
-If you need to port the framework on another architecture, some files
-don't need to be changed. Porting efforts will be focused on the
-following files :
-
-@itemize @bullet
-@item @code{po_hi_task.c} : Create tasks and handle their properties
-(period, priority, ...). At this time, this file contains only POSIX
-calls to create and manage thread.
-  
-@item @code{po_hi_time.c} : Handle time and provide some functions to wait
-until an absolute time. The functions defined in this file make calls
-to POSIX functions like @code{clock_gettime()}.
-  
-@item @code{po_hi_transport_sockets.c} : All the functions defined in this
-file are used to send or receive data through sockets. It creates a
-task to receive data and put them on a stack. All the functions made
-calls to POSIX-compliant functions like @code{socket()}, @code{listen}
-or @code{bind}.
-@end itemize
-
-
-@section Declare a new supported system
-
-In all files that contain architecture-dependent, we need to split
-code for each system. We make it with MACCRO and include the code for
-the used architecture when we compile it. At this time, two systems
-are supported : @code{POSIX} and @code{RTEMS_POSIX}. Even if RTEMS use
-the POSIX implementation, there are some differences between that
-needs to declare another system.
-
-If you want to support a new architecture, you need to declare a new
-maccro which will be used to differenciate the code for your
-architecture from other parts of the code. Then, this maccro will be
-included in the @code{CFLAGS} variable in the Makefile created for
-your architecture.
-
-@section Define the compilation process
-
-Each architecture has its own Makefile. It is used to define the
-compiler name, the linker name and some maccros to compile the code
-with a specific architecture.
-
-All Makefiles are stored in the @code{share/make} directory. Each
-Makefile follow the following naming rule :
-@code{Makefile.arch.ostype}. For example, the Makefile created for the
-LEON architecture with the RTEMS OS has the name
-@code{Makefile.leon.rtems}. You need to create a Makefile with name
-that follow the naming rule and fill it with the rights @code{CFLAGS}
-and @code{CC} for the sytem you port.
 
 @c -------------------------------------------------------------------
 @node References
