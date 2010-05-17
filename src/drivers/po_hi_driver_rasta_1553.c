@@ -53,8 +53,6 @@ void __po_hi_c_driver_1553_rasta_poller (void)
 
    __DEBUGMSG ("[RASTA 1553] Hello, i'm the poller !\n");
 
-   __po_hi_c_driver_1553_rasta_brmlib_set_mode (po_hi_c_driver_1553_rasta_fd,BRM_MODE_RT);
-
    __po_hi_c_driver_1553_rasta_brmlib_set_block(po_hi_c_driver_1553_rasta_fd,1,0);
 
    ret = __po_hi_c_driver_1553_rasta_brmlib_rt_recv (po_hi_c_driver_1553_rasta_fd,msgs);
@@ -117,9 +115,6 @@ int __po_hi_c_driver_1553_rasta_sender (const __po_hi_task_id task_id, const __p
    memcpy (msgs[0].data, &msg, __PO_HI_MESSAGES_MAX_SIZE);
 
    msgs[0].desc = 32;
-
-
-   __po_hi_c_driver_1553_rasta_brmlib_set_mode (po_hi_c_driver_1553_rasta_fd, BRM_MODE_RT);
 
    __po_hi_c_driver_1553_rasta_brmlib_set_block (po_hi_c_driver_1553_rasta_fd, 1, 0);
 
@@ -192,9 +187,6 @@ void __po_hi_c_driver_1553_rasta_controller ()
     *  ¤ BC mode
     */
 
-   /* Set BC mode */
-   __DEBUGMSG("[RASTA 1553] Task1: Setting BC mode\n");
-   __po_hi_c_driver_1553_rasta_brmlib_set_mode (po_hi_c_driver_1553_rasta_fd,BRM_MODE_BC);
 
    /* total blocking mode */
    __DEBUGMSG("[RASTA 1553] Task1: Setting TX/RX blocking mode\n"); 
@@ -233,7 +225,8 @@ void __po_hi_c_driver_1553_rasta_controller ()
       result_list[j-1].wc         = 8;
       result_list[j-1].ctrl       = BC_BUSA | BC_TR; /* RT transmit on bus a */		
       /* clear data */
-      for (k = 0; k < 9; k++){
+      for (k = 0; k < 9; k++)
+      {
          result_list[j-1].data[k] = 0;
       }
    }
@@ -241,9 +234,9 @@ void __po_hi_c_driver_1553_rasta_controller ()
    result_list[__PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT-1].wc++;
    result_list[__PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT].ctrl |= BC_EOL;   /* end of list */
 
-   __DEBUGMSG("[RASTA 1553] -------------  BC: START LIST EXECUTION -------------\n");
+//   __DEBUGMSG("[RASTA 1553] -------------  BC: START LIST EXECUTION -------------\n");
 
-   __DEBUGMSG("[RASTA 1553] Start CMD list processing.\n"); 
+//   __DEBUGMSG("[RASTA 1553] Start CMD list processing.\n"); 
    if ( __po_hi_c_driver_1553_rasta_proccess_list(po_hi_c_driver_1553_rasta_fd,cmd_list,0) )
    {
       return;
@@ -271,9 +264,9 @@ void __po_hi_c_driver_1553_rasta_controller ()
    j=1;
    while( !(result_list[j-1].ctrl & BC_EOL) )
    {
-      __DEBUGMSG("[RASTA 1553] Response to message %d: (len: %d, tsw1: %x, tsw2: %x)\n  ",j,result_list[j-1].wc,result_list[j-1].tsw[0],result_list[j-1].tsw[1]);
+//      __DEBUGMSG("[RASTA 1553] Response to message %d: (len: %d, tsw1: %x, tsw2: %x)\n  ",j,result_list[j-1].wc,result_list[j-1].tsw[0],result_list[j-1].tsw[1]);
       /* print data */			
-      for (k = 0; k < result_list[j-1].wc; k++)
+ /*     for (k = 0; k < result_list[j-1].wc; k++)
       {
          if ( isalnum(result_list[j-1].data[k]) )
          {
@@ -285,15 +278,15 @@ void __po_hi_c_driver_1553_rasta_controller ()
          }
       }
       __DEBUGMSG("\n");
+      */
       j++;
    }
 
-   __DEBUGMSG("[RASTA 1553] -----------------------------------------------------\n");		
 }
 
 
 
-void __po_hi_c_driver_1553_rasta_init (__po_hi_device_id id)
+void __po_hi_c_driver_1553_rasta_init_terminal (__po_hi_device_id id)
 {
    __DEBUGMSG ("[RASTA 1553] Init\n");
    init_pci();
@@ -314,7 +307,36 @@ void __po_hi_c_driver_1553_rasta_init (__po_hi_device_id id)
       return;
    }
 
+   __po_hi_c_driver_1553_rasta_brmlib_set_mode (po_hi_c_driver_1553_rasta_fd,BRM_MODE_RT);
 }
+
+
+void __po_hi_c_driver_1553_rasta_init_controller (__po_hi_device_id id)
+{
+   __DEBUGMSG ("[RASTA 1553] Init\n");
+   init_pci();
+   __DEBUGMSG ("[RASTA 1553] Initializing RASTA (rasta_register()) ...\n");
+   if (rasta_register())
+   {
+      __DEBUGMSG(" ERROR !\n");
+      return;
+   }
+
+   __DEBUGMSG(" OK !\n");
+
+   po_hi_c_driver_1553_rasta_fd = __po_hi_c_driver_1553_rasta_brmlib_open (__PO_HI_DRIVER_RASTA_1553_DEVICE);
+
+   if (po_hi_c_driver_1553_rasta_fd < 0)
+   {
+      __DEBUGMSG ("[RASTA 1553] Unable to open 1553 device\n");
+      return;
+   }
+
+   /* Set BC mode */
+   __DEBUGMSG("[RASTA 1553] Task1: Setting BC mode\n");
+   __po_hi_c_driver_1553_rasta_brmlib_set_mode (po_hi_c_driver_1553_rasta_fd,BRM_MODE_BC);
+}
+
 
 
 #endif

@@ -85,7 +85,9 @@ void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source);
  * the source of the data.
  */
 
-void __po_hi_msg_get_data (void* dest, __po_hi_msg_t* source, __po_hi_uint32_t index, __po_hi_uint32_t size);
+void __po_hi_msg_get_data (void* dest, __po_hi_msg_t* source,
+                           __po_hi_uint32_t index,
+                           __po_hi_uint32_t size);
 /*
  * Get data from a message at index 'index', and copy it to the dest
  * argument It will copy size bytes from the messages.
