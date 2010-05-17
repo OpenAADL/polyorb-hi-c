@@ -22,10 +22,11 @@ DOC_CODE = $(srcdir)/activity.c $(srcdir)/deployment.h			\
 	 $(srcdir)/node_b_activity.c $(srcdir)/marshallers.c		\
 	 $(srcdir)/subprograms.c
 
-AADL_MODELS = $(srcdir)/complex_types.aadl $(srcdir)/do_ping_spg.aadl	\
-	$(srcdir)/hardware.aadl $(srcdir)/node_a_model.aadl		\
-	$(srcdir)/ping.aadl $(srcdir)/port_cnx.aadl			\
-	$(srcdir)/processor_binding.aadl				\
+AADL_MODELS = $(srcdir)/complex_types.aadl $(srcdir)/do_ping_spg.aadl   \
+	$(srcdir)/hardware.aadl $(srcdir)/node_a_model.aadl                  \
+	$(srcdir)/ping.aadl $(srcdir)/port_cnx.aadl                          \
+   $(srcdir)/processor_binding.aadl                                     \
+   $(srcdir)/devices.aadl                                               \
 	$(srcdir)/protected_object_types.aadl				\
 	$(srcdir)/simple_types.aadl $(srcdir)/thread_a.aadl		\
 	$(srcdir)/thread_a_full.aadl $(srcdir)/scenario_sample.aadl
