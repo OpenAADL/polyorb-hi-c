@@ -19,11 +19,13 @@ MANAGERS = all
 CC                           = sparc-rtems-gcc
 CPP                          = sparc-rtems-g++
 
+GPROF                        = sparc-rtems-gprof
+
 TARGET_SOURCES               = 
 #TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
 TARGET_TRANSPORT_SOURCES     = 
 
-TARGET_CFLAGS                = -DRTEMS_POSIX
+TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
 LD                           =

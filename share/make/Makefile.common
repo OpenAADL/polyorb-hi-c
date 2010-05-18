@@ -114,6 +114,10 @@ else
 	main.o
 endif
 
+ifeq ($(TARGET),leon.rtems)
+   PO_HI_OBJS+=po_hi_gprof_rtems_leon.o
+endif
+
 ################################################################################
 # Simulink
 
