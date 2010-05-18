@@ -28,7 +28,7 @@ TARGET_TRANSPORT_SOURCES     =
 TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
-LD                           =
+LD                           = sparc-rtems-ld
 TARGET_LDFLAGS               =  -lrtemsbsp -lc
 			     
 target-clean:
@@ -47,4 +47,9 @@ define bsp-link-cxx
    $(LINK.cc) $(CPU_CFLAGS) $(AM_CFLAGS) $(AM_LDFLAGS) \
       -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS)
 endef
+
+ifdef USE_GPROF
+TARGET_LDFLAGS+=-Wl,--wrap,Clock_isr
+TARGET_CFLAGS+=-D__PO_HI_USE_GPROF
+endif
 
