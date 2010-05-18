@@ -49,7 +49,15 @@ define bsp-link-cxx
 endef
 
 ifdef USE_GPROF
-TARGET_LDFLAGS+=-Wl,--wrap,Clock_isr
-TARGET_CFLAGS+=-D__PO_HI_USE_GPROF
+TARGET_LDFLAGS+=-Wl,--wrap,Clock_isr -pg
+TARGET_CFLAGS+=-D__PO_HI_USE_GPROF -pg
+EXTERNAL_OBJECTS+=po_hi_gprof_rtems_leon.o
+
+target-objects:
+	$(CC) $(INCLUDE) $(TARGET_INCLUDE) -D__PO_HI_USE_GPROF -Wall -c -o po_hi_gprof_rtems_leon.o $(RUNTIME_PATH)/src/po_hi_gprof_rtems_leon.c
+else
+target-objects:
+
 endif
+
 

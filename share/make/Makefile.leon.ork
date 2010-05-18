@@ -10,3 +10,5 @@ LD              =
 TARGET_LDFLAGS  = 
 
 target-clean:
+
+target-objects:

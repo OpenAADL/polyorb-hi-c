@@ -66,6 +66,7 @@ static char sccsid[] = "@(#)gmon.c	1.0 (E.S.A) 10/05/2010";
 #include <bsp.h>
 
 #define CONFIG_OS_PROFILE_OVER_SERIAL 1
+#define SERIAL_VERBOSE_MODE 1
 
 /*
  * Histogram counters are unsigned shorts (according to the kernel).
@@ -611,6 +612,10 @@ int initialize_serial()
   
   tcflush(serialFD , TCIFLUSH);
   tcsetattr(serialFD , TCSANOW , &newtio);
+
+#if(SERIAL_VERBOSE_MODE == 1)
+    printk("Serial init done = %d" , serialFD);
+#endif
   
   return 0;
 }

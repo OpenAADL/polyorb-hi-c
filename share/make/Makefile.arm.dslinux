@@ -12,3 +12,5 @@ LD              =   arm-linux-elf-ld
 TARGET_LDFLAGS  =   -Wl,-elf2flt -D__PIC__ -fpic -msingle-pic-base -mswp-byte-writes -lpthread -lrt
 
 target-clean:
+
+target-objects:

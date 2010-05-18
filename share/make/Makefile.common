@@ -34,7 +34,7 @@ endif
 
 
 GCC=$(CC)
-CFLAGS=-Wall $(USER_CFLAGS) $(TARGET_CFLAGS) -Werror
+CFLAGS=-Wall $(USER_CFLAGS) $(TARGET_CFLAGS)
 CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
 LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS)
 
@@ -109,10 +109,6 @@ else
 	main.o
 endif
 
-ifeq ($(TARGET),leon.rtems)
-   PO_HI_OBJS+=po_hi_gprof_rtems_leon.o
-endif
-
 ################################################################################
 # Simulink
 
@@ -171,11 +167,11 @@ endif
 compile-node: $(BINARY)
 
 ifeq ($(TARGET), leon.rtems)
-OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
-$(BINARY): check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
+$(BINARY): target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
 	$(make-exe)
 else
-$(BINARY): compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
+$(BINARY): target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
 	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
 endif
 

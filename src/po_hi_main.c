@@ -106,6 +106,7 @@ int __po_hi_wait_initialization ()
 void __po_hi_wait_end_of_instrumentation ()
 {
    #include <po_hi_time.h> 
+   #include <unistd.h>
 
    __po_hi_time_t now;
    __po_hi_get_time (&now);
