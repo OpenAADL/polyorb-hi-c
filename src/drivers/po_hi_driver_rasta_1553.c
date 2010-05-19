@@ -41,7 +41,7 @@
 
 __po_hi_c_driver_rasta_1553_brm_t po_hi_c_driver_1553_rasta_fd;
 
-void __po_hi_c_driver_1553_rasta_poller (void)
+void __po_hi_c_driver_1553_rasta_terminal_poller (void)
 {
    int ret;
    int msglen;
@@ -63,6 +63,8 @@ void __po_hi_c_driver_1553_rasta_poller (void)
       return;
    }
 
+   __DEBUGMSG ("[RASTA 1553] Poller received %d messages\n",ret); 
+
    if ( msgs[0].desc >= 32 )
    {
       __DEBUGMSG ("[RASTA 1553] Received message desc >= 32\n");
@@ -81,6 +83,19 @@ void __po_hi_c_driver_1553_rasta_poller (void)
    msglen = (msgs[0].miw >> 11) & 0x1f;
 
    memcpy (&msg, msgs[0].data, __PO_HI_MESSAGES_MAX_SIZE);
+   {
+#include <stdio.h>
+   printf("received (length=%d): 0x", msglen);
+   int i;
+   uint32_t* toto = (uint32_t*) &msg;
+   for (i = 0 ; i < __PO_HI_MESSAGES_MAX_SIZE ; i++)
+   {
+      printf("%x", toto[i]);
+   }
+
+   printf("\n");
+   }
+
 
    __po_hi_unmarshall_request (&request, &msg);
 
@@ -89,9 +104,10 @@ void __po_hi_c_driver_1553_rasta_poller (void)
    __po_hi_main_deliver (&request);
 }
 
-int __po_hi_c_driver_1553_rasta_sender (const __po_hi_task_id task_id, const __po_hi_port_t port)
+int __po_hi_c_driver_1553_rasta_sender_terminal (const __po_hi_task_id task_id, const __po_hi_port_t port)
 {
    int ts;
+   int ret;
    struct rt_msg msgs[__PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT];
 
    __po_hi_local_port_t local_port;
@@ -114,13 +130,17 @@ int __po_hi_c_driver_1553_rasta_sender (const __po_hi_task_id task_id, const __p
 
    memcpy (msgs[0].data, &msg, __PO_HI_MESSAGES_MAX_SIZE);
 
-   msgs[0].desc = 32;
+   msgs[0].miw = 0;
+   msgs[0].miw |= (__PO_HI_MESSAGES_MAX_SIZE / 8) << 11;
+   msgs[0].desc = 2;
 
    __po_hi_c_driver_1553_rasta_brmlib_set_block (po_hi_c_driver_1553_rasta_fd, 1, 0);
 
-   if ( __po_hi_c_driver_1553_rasta_brmlib_rt_send (po_hi_c_driver_1553_rasta_fd, msgs) != 1 )
+   ret = __po_hi_c_driver_1553_rasta_brmlib_rt_send (po_hi_c_driver_1553_rasta_fd, msgs);
+   if (ret != 1)
    {
-      printf("[RASTA 1553] Error when sending data\n");
+      printf("[RASTA 1553] Error when sending data, return code=%d\n", ret);
+      return;
    }
 
    __DEBUGMSG  ("[RASTA 1553] Message sent: 0x");
@@ -133,6 +153,67 @@ int __po_hi_c_driver_1553_rasta_sender (const __po_hi_task_id task_id, const __p
 
    return 1;
 }
+
+
+int __po_hi_c_driver_1553_rasta_sender_controller (const __po_hi_task_id task_id, const __po_hi_port_t port)
+{
+   struct bc_msg msgs[2];
+
+   msgs[0].rtaddr[0] = 2;
+   msgs[0].subaddr[0] = 1;
+   msgs[0].wc = __PO_HI_MESSAGES_MAX_SIZE / 8;
+   msgs[0].ctrl = 0;
+//   msgs[0].ctrl |= BC_TR;
+   msgs[0].ctrl |= BC_BUSA;
+
+   msgs[1].ctrl |= BC_EOL;   /* end of list */
+
+   __po_hi_local_port_t local_port;
+   __po_hi_request_t* request;
+   __po_hi_msg_t msg;
+   __po_hi_port_t destination_port;
+
+
+   local_port = __po_hi_get_local_port_from_global_port (port);
+
+   request = __po_hi_gqueue_get_most_recent_value (task_id, local_port);
+
+   destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
+
+   __po_hi_msg_reallocate (&msg);
+
+   request->port = destination_port;
+
+   __po_hi_marshall_request (request, &msg);
+
+   memcpy (msgs[0].data, &msg, __PO_HI_MESSAGES_MAX_SIZE);
+
+   /*
+   {
+#include <stdio.h>
+   printf("sent : 0x");
+   int i;
+   uint32_t* toto = (uint32_t*) &msg;
+   for (i = 0 ; i < __PO_HI_MESSAGES_MAX_SIZE ; i++)
+   {
+      printf("%x", toto[i]);
+   }
+
+   printf("\n");
+   }
+   */
+   
+   __po_hi_c_driver_1553_rasta_brmlib_set_block (po_hi_c_driver_1553_rasta_fd, 1, 0);
+
+   if ( __po_hi_c_driver_1553_rasta_proccess_list(po_hi_c_driver_1553_rasta_fd,msgs,0) )
+   {
+      __DEBUGMSG("[RASTA 1553] CANNOT PROCESS LIST\n");
+      return 0;
+   }
+
+   return 1;
+}
+
 
 
 int __po_hi_c_driver_1553_rasta_proccess_list (__po_hi_c_driver_rasta_1553_brm_t chan, struct bc_msg *list, int test)
@@ -261,12 +342,12 @@ void __po_hi_c_driver_1553_rasta_controller ()
    }
 
    /* print the data that was received */
+   /*
    j=1;
    while( !(result_list[j-1].ctrl & BC_EOL) )
    {
-//      __DEBUGMSG("[RASTA 1553] Response to message %d: (len: %d, tsw1: %x, tsw2: %x)\n  ",j,result_list[j-1].wc,result_list[j-1].tsw[0],result_list[j-1].tsw[1]);
-      /* print data */			
- /*     for (k = 0; k < result_list[j-1].wc; k++)
+      __DEBUGMSG("[RASTA 1553] Response to message %d: (len: %d, tsw1: %x, tsw2: %x)\n  ",j,result_list[j-1].wc,result_list[j-1].tsw[0],result_list[j-1].tsw[1]);
+     for (k = 0; k < result_list[j-1].wc; k++)
       {
          if ( isalnum(result_list[j-1].data[k]) )
          {
@@ -278,9 +359,10 @@ void __po_hi_c_driver_1553_rasta_controller ()
          }
       }
       __DEBUGMSG("\n");
-      */
+      
       j++;
    }
+   */
 
 }
 
@@ -288,6 +370,8 @@ void __po_hi_c_driver_1553_rasta_controller ()
 
 void __po_hi_c_driver_1553_rasta_init_terminal (__po_hi_device_id id)
 {
+   int ret;
+
    __DEBUGMSG ("[RASTA 1553] Init\n");
    init_pci();
    __DEBUGMSG ("[RASTA 1553] Initializing RASTA (rasta_register()) ...\n");
@@ -307,12 +391,29 @@ void __po_hi_c_driver_1553_rasta_init_terminal (__po_hi_device_id id)
       return;
    }
 
-   __po_hi_c_driver_1553_rasta_brmlib_set_mode (po_hi_c_driver_1553_rasta_fd,BRM_MODE_RT);
+   ret = __po_hi_c_driver_1553_rasta_brmlib_set_mode (po_hi_c_driver_1553_rasta_fd,BRM_MODE_RT);
+
+   if (ret != 0)
+   {
+      __DEBUGMSG ("Error setting address, return=%d\n", ret);
+      return;
+   }
+
+   ret = __po_hi_c_driver_1553_rasta_brmlib_set_rt_addr (po_hi_c_driver_1553_rasta_fd, 2);
+
+   if (ret != 0)
+   {
+      __DEBUGMSG ("Error setting address, return=%d\n", ret);
+      return;
+   }
+   return;
 }
 
 
 void __po_hi_c_driver_1553_rasta_init_controller (__po_hi_device_id id)
 {
+   int ret;
+
    __DEBUGMSG ("[RASTA 1553] Init\n");
    init_pci();
    __DEBUGMSG ("[RASTA 1553] Initializing RASTA (rasta_register()) ...\n");
@@ -333,8 +434,15 @@ void __po_hi_c_driver_1553_rasta_init_controller (__po_hi_device_id id)
    }
 
    /* Set BC mode */
-   __DEBUGMSG("[RASTA 1553] Task1: Setting BC mode\n");
-   __po_hi_c_driver_1553_rasta_brmlib_set_mode (po_hi_c_driver_1553_rasta_fd,BRM_MODE_BC);
+   __DEBUGMSG("[RASTA 1553] Setting BC mode\n");
+
+   ret = __po_hi_c_driver_1553_rasta_brmlib_set_mode (po_hi_c_driver_1553_rasta_fd,BRM_MODE_BC);
+
+   if (ret != 0)
+   {
+      __DEBUGMSG ("Error setting BC mode, return=%d\n", ret);
+   }
+
 }
 
 

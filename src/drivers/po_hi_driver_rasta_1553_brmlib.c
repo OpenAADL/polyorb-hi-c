@@ -151,6 +151,7 @@ int __po_hi_c_driver_1553_rasta_brmlib_recv_multiple(__po_hi_c_driver_rasta_1553
 	
 	if ( msglen == 0 )
    {
+		__DEBUGMSG("[RASTA 1553 BRMLIB] zero length, errno: %d, returned: %d\n",errno,ret);
 		return 0;
    }
 	

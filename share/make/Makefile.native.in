@@ -6,3 +6,4 @@ LD              = ld
 
 target-clean:
 
+target-objects:
