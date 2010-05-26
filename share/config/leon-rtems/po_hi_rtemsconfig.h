@@ -15,6 +15,7 @@
 
 #if (defined (__PO_HI_NEED_DRIVER_SPACEWIRE_RASTA)) ||  \
     (defined (__PO_HI_NEED_DRIVER_SERIAL_RASTA)) || \
+    (defined (__PO_HI_USE_GPROF)) || \
     (defined (__PO_HI_NEED_DRIVER_1553_RASTA))
 #define CONFIGURE_MAXIMUM_DRIVERS 16
 #endif

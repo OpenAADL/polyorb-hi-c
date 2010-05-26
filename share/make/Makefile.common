@@ -112,6 +112,17 @@ else
 	main.o
 endif
 
+ifdef USE_ASN1_DEPLOYMENT
+generate-asn1-deployment:
+	asn1scc.exe ../asn1_deployment.asn1
+
+GENERATED_OBJS += real.o  asn1_deployment.o asn1crt.o
+LDFLAGS += -lm
+else
+generate-asn1-deployment:
+
+endif
+
 ################################################################################
 # Simulink
 
@@ -153,6 +164,7 @@ compile-po-hi:
 ifdef SIMULINK_DIR
 	(cd $(SIMULINK_DIR) && $(MAKE) -f $(SIMULINK_NODE).mk  && rm -f grt_main.o)
 endif
+
 ifdef SCADE_DIR
 	(cd $(SCADE_DIR) && for v in `ls *.c`; do $(CC) -c $$v; done)
 endif
@@ -171,10 +183,10 @@ compile-node: $(BINARY)
 
 ifeq ($(TARGET), leon.rtems)
 OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
-$(BINARY): target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
+$(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
 	$(make-exe)
 else
-$(BINARY): target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
+$(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
 	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
 endif
 

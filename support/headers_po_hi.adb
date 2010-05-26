@@ -95,7 +95,7 @@ procedure Headers_PO_HI is
          Last := Range_Image'First + 3;
       end if;
       return "Copyright (C) " & Range_Image (Range_Image'First .. Last)
-        & ", GET-Telecom Paris.";
+        & ", European Space Agency (ESA).";
    end Copyright_Line;
 
    -----------------

@@ -1,5 +1,14 @@
 #ifdef __PO_HI_USE_GPROF
 
+#include <po_hi_debug.h>
+#include <drivers/po_hi_rtems_utils.h>
+
+#include <pci.h>
+#include <rasta.h>
+#include <apbuart_rasta.h>
+
+
+
 #define CONFIG_OS_PROFILE_OVER_SERIAL 1
 #define SERIAL_VERBOSE_MODE 1
 
@@ -307,7 +316,7 @@ static void _mcleanup()
 #endif
     }
 
-    fprintf( stderr , "[mcleanup] sbuf 0x%x ssiz %d\n" , (unsigned int)sbuf , (unsigned int)ssiz );
+//    fprintf( stderr , "[mcleanup] sbuf 0x%x ssiz %d\n" , (unsigned int)sbuf , (unsigned int)ssiz );
     endfrom = s_textsize / (HASHFRACTION * sizeof(*froms));
     for ( fromindex = 0 ; fromindex < endfrom ; fromindex++ ) {
         if ( froms[fromindex] == 0 ) {
@@ -316,11 +325,13 @@ static void _mcleanup()
         frompc = s_lowpc + (fromindex * HASHFRACTION * sizeof(*froms));
         for (toindex=froms[fromindex]; toindex!=0; toindex=tos[toindex].link) 
         {
+           /*
             fprintf( stderr ,
                     "[mcleanup] frompc 0x%x selfpc 0x%x count %d\n" ,
                     (unsigned int)frompc , 
                     (unsigned int)tos[toindex].selfpc , 
                     (unsigned int)tos[toindex].count );
+                    */
             rawarc.raw_frompc = (unsigned long) frompc;
             rawarc.raw_selfpc = (unsigned long) tos[toindex].selfpc;
             rawarc.raw_count = tos[toindex].count;
@@ -587,11 +598,22 @@ static int serialFD = -1;
 int initialize_serial()
 {
   struct termios oldtio, newtio;
-  serialFD = open( "/dev/apbuart" , O_RDWR | O_NOCTTY);
+   __DEBUGMSG ("[RASTA SERIAL] Init\n");
+   init_pci();
+   __DEBUGMSG ("[RASTA SERIAL] Initializing RASTA ...\n");
+  if  ( rasta_register() ){
+    __DEBUGMSG(" ERROR !\n");
+    return;
+  }
+    __DEBUGMSG(" OK !\n");
+
+
+
+  serialFD = open( "/dev/apburasta0" , O_RDWR | O_NOCTTY);
   if( serialFD < 0 )
   {
 #if(SERIAL_VERBOSE_MODE == 1)
-    printk("can't open new device! error = %d" , serialFD);
+    printk("can't open new device! error = %d\n" , serialFD);
 #endif
     return -1;
   }
@@ -611,6 +633,14 @@ int initialize_serial()
   
   tcflush(serialFD , TCIFLUSH);
   tcsetattr(serialFD , TCSANOW , &newtio);
+  
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_BAUDRATE, 57600); /* stream mode */
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_BLOCKING, APBUART_BLK_RX | APBUART_BLK_TX | APBUART_BLK_FLUSH);
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_TXFIFO_LEN, 64);  /* Transmitt buffer 64 chars */
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_RXFIFO_LEN, 256); /* Receive buffer 256 chars */
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_ASCII_MODE, 0); /* Make \n go \n\r or \r\n */
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_CLR_STATS, 0);
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_START, 1);
 
 #if(SERIAL_VERBOSE_MODE == 1)
     printk("Serial init done = %d" , serialFD);
