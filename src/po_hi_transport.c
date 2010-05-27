@@ -150,9 +150,9 @@ __po_hi_uint8_t __po_hi_get_endianness (const __po_hi_node_t node)
 }
 
 #if __PO_HI_NB_DEVICES > 0
-char* __po_hi_get_device_naming (const __po_hi_port_t port)
+char* __po_hi_get_device_naming (const __po_hi_device_id dev)
 {
-      return __po_hi_devices_naming[port];
+      return __po_hi_devices_naming[dev];
 }
 
 __po_hi_device_id __po_hi_get_device_from_port (const __po_hi_port_t port)
