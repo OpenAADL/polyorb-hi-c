@@ -13,18 +13,21 @@
 
 #ifdef __PO_HI_NEED_DRIVER_SOCKETS_ASN1
 
+#include <po_hi_common.h>
 #include <po_hi_config.h>
 #include <po_hi_task.h>
 #include <po_hi_transport.h>
-#include <drivers/po_hi_driver_sockets.h>
 #include <po_hi_debug.h>
 #include <po_hi_types.h>
 #include <po_hi_messages.h>
 #include <po_hi_returns.h>
 #include <po_hi_main.h>
 #include <po_hi_task.h>
+#include <drivers/po_hi_driver_sockets_common.h>
+/* PolyORB-HI-C headers */
 
 #include <activity.h>
+/* Generated code headers */
 
 #include <signal.h>
 #include <string.h>
@@ -36,6 +39,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/time.h>
+/* POSIX headers */
 
 /*
  * This file contains an implementation of a socket driver
@@ -50,11 +54,6 @@
 #ifndef __PO_HI_NB_NODES
 #define __PO_HI_NB_NODES 1
 #endif
-
-typedef struct
-{
-   int socket;
-} __po_hi_inetnode_t;
 
 /*
  * We have two arrays of sockets. The first array (nodes) is used to

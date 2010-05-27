@@ -28,6 +28,7 @@
 
 #include <po_hi_debug.h>
 #include <po_hi_common.h>
+#include <po_hi_main.h>
 #include <po_hi_time.h>
 #include <po_hi_task.h>
 #include <drivers/po_hi_driver_sockets_asn1.h>

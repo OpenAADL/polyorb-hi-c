@@ -16,6 +16,8 @@
 
 #ifdef __PO_HI_NEED_DRIVER_SOCKETS_ASN1
 
+#include <po_hi_messages.h>
+
 int __po_hi_driver_sockets_asn1_send (__po_hi_entity_t from, 
                                       __po_hi_entity_t to, 
                                       __po_hi_msg_t* msg);
