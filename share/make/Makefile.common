@@ -81,6 +81,8 @@ ifeq ($(NEED_TRANSPORT), yes)
 	po_hi_gqueue.o \
    drivers/po_hi_driver_linux_serial.o \
    drivers/po_hi_driver_sockets.o \
+   drivers/po_hi_driver_sockets_common.o \
+   drivers/po_hi_driver_sockets_asn1.o \
    drivers/po_hi_driver_rasta_serial.o \
    drivers/po_hi_driver_rasta_1553.o \
    drivers/po_hi_driver_rasta_1553_brmlib.o \

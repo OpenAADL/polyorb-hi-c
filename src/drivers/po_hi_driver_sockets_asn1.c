@@ -6,28 +6,23 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2010, European Space Agency
- * Copyright (C) 2007-2008, GET-Telecom Paris.
  */
 
 #include <deployment.h>
 #include <marshallers.h>
 
-#ifdef __PO_HI_NEED_DRIVER_SOCKETS
+#ifdef __PO_HI_NEED_DRIVER_SOCKETS_ASN1
 
 #include <po_hi_config.h>
 #include <po_hi_task.h>
 #include <po_hi_transport.h>
+#include <drivers/po_hi_driver_sockets.h>
 #include <po_hi_debug.h>
 #include <po_hi_types.h>
 #include <po_hi_messages.h>
 #include <po_hi_returns.h>
 #include <po_hi_main.h>
 #include <po_hi_task.h>
-#include <drivers/po_hi_driver_sockets.h>
-
-#ifdef __PO_HI_USE_GIOP
-#include <po_hi_giop.h>
-#endif
 
 #include <activity.h>
 
@@ -43,13 +38,9 @@
 #include <sys/time.h>
 
 /*
- * This file (po_hi_sockets.c) provides function to handle
- * communication between nodes in PolyORB-HI-C.  We don't use a
- * protocol to send data. For each data sent, we send before the
- * entity number provided by the generated file deployment.h, then, we
- * send the message.  Each entity has a fixed size
- * (sizeof(__po_hi_entity_t)), and each message has a max fixed size
- * (see the __PO_HI_MESSAGES_MAX_SIZE macro).
+ * This file contains an implementation of a socket driver
+ * that send and receive data through POSIX sockets but encode
+ * data with the ASN1 protocol.
  */
 
 /* The following declarations avoid conflicts
@@ -59,6 +50,11 @@
 #ifndef __PO_HI_NB_NODES
 #define __PO_HI_NB_NODES 1
 #endif
+
+typedef struct
+{
+   int socket;
+} __po_hi_inetnode_t;
 
 /*
  * We have two arrays of sockets. The first array (nodes) is used to
@@ -71,9 +67,9 @@
 __po_hi_inetnode_t nodes[__PO_HI_NB_NODES];
 __po_hi_inetnode_t rnodes[__PO_HI_NB_NODES];
 
-int __po_hi_driver_sockets_send (__po_hi_entity_t from, 
-                                 __po_hi_entity_t to, 
-                                 __po_hi_msg_t* msg)
+int __po_hi_driver_sockets_asn1_send (__po_hi_entity_t from, 
+                                      __po_hi_entity_t to, 
+                                      __po_hi_msg_t* msg)
 {
    __po_hi_node_t  node;
    int             len;
@@ -96,11 +92,7 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
     * contains the request.
     */
 
-#ifdef __PO_HI_USE_GIOP
-   size_to_write = msg->length;
-#else
    size_to_write = __PO_HI_MESSAGES_MAX_SIZE;
-#endif
 
    if (getsockopt (nodes[node].socket, SOL_SOCKET, SO_ERROR, &optval, &optlen) == -1)
    {
@@ -148,7 +140,7 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
 }
 
 
-void* __po_hi_sockets_receiver_task (void)
+void* __po_hi_sockets_asn1_poller (void)
 {
    socklen_t          socklen = sizeof (struct sockaddr);
    /* See ACCEPT (2) for details on initial value of socklen */
@@ -158,10 +150,6 @@ void* __po_hi_sockets_receiver_task (void)
    int                max_socket;
    fd_set             selector;
    __po_hi_msg_t      msg;
-#ifdef __PO_HI_USE_GIOP
-   __po_hi_msg_t      decoded_msg;
-   __po_hi_uint32_t   has_more;
-#endif
    __po_hi_node_t     node;
    __po_hi_node_t     node_init;
    __po_hi_request_t  received_request;
@@ -239,47 +227,6 @@ void* __po_hi_sockets_receiver_task (void)
             __DEBUGMSG ("Receive message from node %d\n", node);
 #endif
 
-#ifdef __PO_HI_USE_GIOP
-            /* Decoding GIOP request is implemented as a two-step automata
-             * 
-             * First step is to decode the header,
-             * Second step is to decode the payload
-             */
-
-            __DEBUGMSG ("Using GIOP as protocol stack\n");
-            __DEBUGMSG (" -> Step 1 decode header\n");
-            len = read (rnodes[node].socket, &(msg.content), sizeof (__po_hi_giop_msg_hdr_t));
-            msg.length = len;
-
-            has_more = 0; 
-
-            if (__po_hi_giop_decode_msg (&msg, &decoded_msg, &has_more) == __PO_HI_SUCCESS )
-            {
-#ifdef __PO_HI_DEBUG
-               __DEBUGMSG ("Message was decoded, has_more=%d\n", has_more);
-#endif
-               __DEBUGMSG (" -> Step 2 decode message\n");
-               len = recv (rnodes[node].socket, &(msg.content), has_more, MSG_WAITALL);
-               /* Here, we wait for the _full_ message to come */
-               msg.length = len;
-
-               if (__po_hi_giop_decode_msg (&msg, &decoded_msg, &has_more) == __PO_HI_SUCCESS )
-               {
-                  /* Put the data in the message queue */      
-                  __po_hi_unmarshall_request (&received_request, &decoded_msg);
-                  __po_hi_main_deliver (&received_request);
-               }
-               else
-               {
-                  break;
-               }
-            }
-            else
-            {
-               break;
-            }
-
-#else
             __DEBUGMSG ("Using raw protocol stack\n");
             len = recv (rnodes[node].socket, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
             msg.length = len;
@@ -295,7 +242,6 @@ void* __po_hi_sockets_receiver_task (void)
             __po_hi_unmarshall_request (&received_request, &msg);
 
             __po_hi_main_deliver (&received_request);
-#endif
             __po_hi_msg_reallocate(&msg);        /* re-initialize the message */
          }
       }
@@ -303,5 +249,5 @@ void* __po_hi_sockets_receiver_task (void)
    return NULL;
 }
 
-#endif
+#endif /* __PO_HI_NEED_DRIVER_SOCKETS_ASN1 */
 

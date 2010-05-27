@@ -2,6 +2,8 @@ AUTOMAKE_OPTIONS = no-dependencies
 
 C_FILES =   $(srcdir)/po_hi_driver_linux_serial.c        \
             $(srcdir)/po_hi_driver_sockets.c             \
+            $(srcdir)/po_hi_driver_sockets_common.c      \
+            $(srcdir)/po_hi_driver_sockets_asn1.c        \
             $(srcdir)/po_hi_driver_rasta_spacewire.c     \
             $(srcdir)/po_hi_driver_rasta_1553.c          \
             $(srcdir)/po_hi_driver_rasta_1553_brmlib.c   \

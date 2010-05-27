@@ -13,14 +13,9 @@
 #define __PO_HI_TRANSPORT__
 
 #include <po_hi_messages.h>
+#include <drivers/po_hi_driver_sockets_common.h>
 #include <deployment.h>
 #include <request.h>
-
-typedef __po_hi_uint16_t __po_hi_inetport_t;
-typedef char*            __po_hi_inetaddr_t;
-
-#define __PO_HI_NOPORT 1
-#define __PO_HI_NOADDR ""
 
 #define __PO_HI_BIGENDIAN     0
 #define __PO_HI_LITTLEENDIAN  1
