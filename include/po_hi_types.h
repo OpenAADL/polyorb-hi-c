@@ -80,6 +80,8 @@ typedef double __po_hi_float64_t;
   #endif
 #endif
 
+typedef unsigned char            __po_hi_byte_t;
+
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size);
 
 #endif /* __PO_HI_TYPES_H_ */

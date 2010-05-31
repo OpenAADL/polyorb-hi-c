@@ -6,6 +6,7 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2007-2009, GET-Telecom Paris.
+ * Copyright (C) 2010, European Space Agency (ESA).
  */
 
 #ifndef __PO_HI_MARSHALLERS_H_
@@ -67,4 +68,12 @@ void __po_hi_unmarshall_uint32 (__po_hi_uint32_t* value, __po_hi_msg_t* msg,__po
 
 void __po_hi_marshall_uint64 (__po_hi_uint64_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset);
 void __po_hi_unmarshall_uint64 (__po_hi_uint64_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset);
+
+#ifdef PO_HI_USE_ASN1
+#include <asn1_deployment.h>
+#define __PO_HI_ASN1_PKT_SIZE Pkt_REQUIRED_BYTES_FOR_ENCODING
+#define __po_hi_asn1_buffer_t __po_hi_byte_t*
+#define __po_hi_asn1_pkt_t    Pkt
+#endif
+
 #endif /* __PO_HI_MARSHALLERS_H_ */

@@ -116,10 +116,11 @@ endif
 
 ifdef USE_ASN1_DEPLOYMENT
 generate-asn1-deployment:
-	asn1scc.exe ../asn1_deployment.asn1
+	asn1.exe -c -uPER ../asn1_deployment.asn1
 
 GENERATED_OBJS += real.o  asn1_deployment.o asn1crt.o
 LDFLAGS += -lm
+CFLAGS+=-DPO_HI_USE_ASN1
 else
 generate-asn1-deployment:
 

@@ -23,8 +23,10 @@
 #include <po_hi_messages.h>
 #include <po_hi_returns.h>
 #include <po_hi_main.h>
+#include <po_hi_marshallers.h>
 #include <po_hi_task.h>
 #include <drivers/po_hi_driver_sockets_common.h>
+#include <asn1_deployment.h>
 /* PolyORB-HI-C headers */
 
 #include <activity.h>
@@ -41,6 +43,9 @@
 #include <arpa/inet.h>
 #include <sys/time.h>
 /* POSIX headers */
+
+#include <asn1crt.h>
+/* ASN1SCC headers */
 
 /*
  * This file contains an implementation of a socket driver
@@ -79,8 +84,11 @@ int __po_hi_driver_sockets_asn1_send (__po_hi_task_id task_id,
    __po_hi_device_id       associated_device;
    __po_hi_local_port_t    local_port;
    __po_hi_request_t*      request;
-   __po_hi_msg_t           msg;
+   __po_hi_asn1_pkt_t      asn1_pkt;
    __po_hi_port_t          destination_port;
+   BitStream               asn1_bitstream;
+   int                     asn1_error_code;
+   __po_hi_byte_t          asn1_buffer[Pkt_REQUIRED_BYTES_FOR_ENCODING];
 
    local_port = __po_hi_get_local_port_from_global_port (port);
 
@@ -128,21 +136,22 @@ int __po_hi_driver_sockets_asn1_send (__po_hi_task_id task_id,
       __DEBUGMSG (" [error signal() return code in file %s, line%d ]\n", __FILE__, __LINE__);
       close (nodes[associated_device].socket);
       nodes[associated_device].socket = -1;
-      return __PO_HI_ERROR_TRANSPORT_SEND;		
+      return __PO_HI_ERROR_TRANSPORT_SEND;
    }
-
-   __po_hi_msg_reallocate (&msg);
 
    request->port = destination_port;
 
-   __po_hi_marshall_request (request, &msg);
+   __po_hi_marshall_asn1_request (request, &asn1_pkt);
+   BitStream_Init (&asn1_bitstream, asn1_buffer, Pkt_REQUIRED_BYTES_FOR_ENCODING);
+   if ( ! Pkt_Encode (&asn1_pkt, &asn1_bitstream, &asn1_error_code, TRUE))
+   {
+      __DEBUGMSG ("[SOCKETS ASN1] Unable to encode data, error_code=%d\n", asn1_error_code);
+      return __PO_HI_ERROR_TRANSPORT_SEND;
+   }
 
+   size_to_write = BitStream_GetLength (&asn1_bitstream);
 
-#ifdef __PO_HI_DEBUG
-   __po_hi_messages_debug (&msg);
-#endif
-
-   len = write (nodes[associated_device].socket, &(msg.content), size_to_write);
+   len = write (nodes[associated_device].socket, &asn1_bitstream, size_to_write);
 
    if (len != size_to_write)
    {
@@ -167,10 +176,13 @@ void* __po_hi_sockets_asn1_poller (void)
    int                sock;
    int                max_socket;
    fd_set             selector;
-   __po_hi_msg_t      msg;
+   __po_hi_byte_t     asn1_buffer[__PO_HI_ASN1_PKT_SIZE];
    __po_hi_node_t     dev;
    __po_hi_node_t     dev_init;
    __po_hi_request_t  received_request;
+   int                asn1_error_code;
+   __po_hi_asn1_pkt_t asn1_pkt;
+   BitStream          asn1_bitstream;
    struct sockaddr_in sa;
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
@@ -239,21 +251,18 @@ void* __po_hi_sockets_asn1_poller (void)
          if ( (rnodes[dev].socket != -1 ) && FD_ISSET(rnodes[dev].socket, &selector))
          {
             __DEBUGMSG ("[DRIVER SOCKETS] Receive message from dev %d\n", dev);
-            len = recv (rnodes[dev].socket, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
-            msg.length = len;
-            if (len != __PO_HI_MESSAGES_MAX_SIZE )
-            {
-               __DEBUGMSG ("[DRIVER SOCKETS] ERROR, %u %d", (unsigned int) len, __PO_HI_MESSAGES_MAX_SIZE);
-               close (rnodes[dev].socket);
-               rnodes[dev].socket = -1;
-               continue;
-            }
-            __DEBUGMSG ("[DRIVER SOCKETS] Message delivered");
+            len = recv (rnodes[dev].socket, asn1_buffer, Pkt_REQUIRED_BYTES_FOR_ENCODING, MSG_WAITALL);
+            __DEBUGMSG ("[DRIVER SOCKETS] Message received");
 
-            __po_hi_unmarshall_request (&received_request, &msg);
+            BitStream_AttachBuffer (&asn1_bitstream, asn1_buffer, len);
+            if (! Pkt_Decode (&asn1_pkt, &asn1_bitstream, &asn1_error_code))
+            {
+               __DEBUGMSG ("[SOCKETS ASN1] Unable to decode, error_code=%d\n", asn1_error_code);
+            }
+
+            __po_hi_unmarshall_asn1_request (&received_request, &asn1_pkt);
 
             __po_hi_main_deliver (&received_request);
-            __po_hi_msg_reallocate(&msg);        /* re-initialize the message */
          }
       }
    }  
