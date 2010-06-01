@@ -1,1 +1,1 @@
-SUBDIRS = leon-rtems spif-rtems
+SUBDIRS = leon-rtems spif-rtems nds-rtems

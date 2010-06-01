@@ -188,7 +188,15 @@ ifeq ($(TARGET), leon.rtems)
 OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
 $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
 	$(make-exe)
-else
+endif
+
+ifeq ($(TARGET), nds.rtems)
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
+$(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
+	$(make-exe)
+endif
+
+ifeq ($(TARGET), native)
 $(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
 	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
 endif

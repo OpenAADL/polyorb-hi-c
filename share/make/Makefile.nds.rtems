@@ -1,35 +1,30 @@
 ## This file is a part of PolyORB-HI-C software.
 ## It sets some variables useful to compile generated
-## code to the LEON platform with the RTEMS operating system.
+## code to the NDS platform with the RTEMS operating system.
 
 ## To use and compile RTEMS, visit http://www.rtems.com
 
-## This file has been built for RTEMS 4.8.0
-
-
-
-define bsp-post-link
-   $(NM) -g -n $@ > $(basename $@).num
-   $(SIZE) $@
-endef
+## This file has been built for RTEMS 4.9.0
+## So, you have to build the cross compiler for RTEMS4.9
+## Basically, it will called arm-rtems4.9
 
 
 MANAGERS = all
 
-CC                           = sparc-rtems-gcc
-CPP                          = sparc-rtems-g++
+CC                           = arm-rtems4.9-gcc
+CPP                          = arm-rtems4.9-g++
 
-GPROF                        = sparc-rtems-gprof
+GPROF                        = arm-rtems4.9-gprof
 
 TARGET_SOURCES               = 
 #TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
 TARGET_TRANSPORT_SOURCES     = 
 
-TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS
+TARGET_CFLAGS                = -DRTEMS_POSIX -DNDS_RTEMS
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
-LD                           = sparc-rtems-ld
-TARGET_LDFLAGS               = -lrtemsbsp -lc
+LD                           = arm-rtems4.9-ld
+TARGET_LDFLAGS               =  -lrtemsbsp -lc
 			     
 target-clean:
 
@@ -48,15 +43,17 @@ define bsp-link-cxx
       -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS)
 endef
 
-ifdef USE_GPROF
-TARGET_LDFLAGS+=-Wl,--wrap,Clock_isr -pg
-EXTERNAL_OBJECTS+=po_hi_gprof_rtems_leon.o
-
-target-objects:
-	$(CC) $(INCLUDE) $(TARGET_INCLUDE) -D__PO_HI_USE_GPROF -Wall -c -o po_hi_gprof_rtems_leon.o $(RUNTIME_PATH)/src/po_hi_gprof_rtems_leon.c
-else
 target-objects:
 
-endif
+
+
+define bsp-post-link
+	$(NM) -g -n $@ > $(basename $@).num
+	$(SIZE) $@
+	$(OBJCOPY) -O binary $(basename $@) $(basename $@).bin
+	$(NDSTOOL) -c $(basename $@).nds -9 $(basename $@).bin \
+		-7 $(COPROC_ELF_PATH)/coproc.bin
+	rm -f $(basename $@).bin
+endef
 
 
