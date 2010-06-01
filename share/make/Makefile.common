@@ -34,7 +34,7 @@ endif
 
 
 GCC=$(CC)
-CFLAGS=-Wall $(USER_CFLAGS) $(TARGET_CFLAGS)
+CFLAGS=-Wall $(USER_CFLAGS) $(TARGET_CFLAGS) -g
 CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
 LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS)
 
@@ -120,7 +120,7 @@ generate-asn1-deployment:
 
 GENERATED_OBJS += real.o  asn1_deployment.o asn1crt.o
 LDFLAGS += -lm
-CFLAGS+=-DPO_HI_USE_ASN1
+CFLAGS+=-DPO_HI_USE_ASN1 -I../../
 else
 generate-asn1-deployment:
 

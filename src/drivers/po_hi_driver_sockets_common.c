@@ -144,6 +144,8 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
          continue;
       }
 
+      __DEBUGMSG ("[DRIVER SOCKETS] Will initialize connection with device %d\n", dev);
+
       memset (dev_addr, '\0', 16);
       dev_port = 0;
 
@@ -159,6 +161,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
 
       if (dev_port == 0)
       {
+         __DEBUGMSG ("[DRIVER SOCKETS] Invalid remote port\n");
          continue;
       }
 
@@ -168,9 +171,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
 
          if (nodes[dev].socket == -1 )
          {
-#ifdef __PO_HI_DEBUG
             __DEBUGMSG ("[DRIVER SOCKETS] Socket for node %d is not created", node);
-#endif
             return;
          }
 

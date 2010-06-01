@@ -6,6 +6,7 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2007-2009, GET-Telecom Paris.
+ * Copyright (C) 2010, European Space Agency (ESA)
  */
 
 #include <pthread.h>
@@ -25,8 +26,11 @@
 pthread_cond_t cond_init;
 pthread_mutex_t mutex_init;
 
-int initialized_tasks;
-int nb_tasks_to_init;
+int initialized_tasks = 0;
+/* The barrier is initialized with __PO_HI_NB_TASKS +1
+ * members, because the main function must pass the barrier
+ */
+int nb_tasks_to_init = __PO_HI_NB_TASKS + 1;
 
 void __po_hi_initialize_add_task ()
 {
@@ -38,10 +42,10 @@ int __po_hi_initialize ()
 {
 #ifdef RTEMS_POSIX
 #include <rtems/rtems/clock.h>
-   rtems_status_code status;
-     rtems_time_of_day time;
+  rtems_status_code status;
+  rtems_time_of_day time;
 
-     time.year   = 1988;
+  time.year   = 1988;
   time.month  = 12;
   time.day    = 31;
   time.hour   = 9;
@@ -58,14 +62,7 @@ int __po_hi_initialize ()
       return (__PO_HI_ERROR_PTHREAD_MUTEX);
     }
 
-  /* The barrier is initialized with __PO_HI_NB_TASKS +1
-   * members, because the main function must pass the barrier
-   */
-  nb_tasks_to_init = __PO_HI_NB_TASKS + 1;
-
   __DEBUGMSG ("[MAIN] Have %d tasks to init\n", nb_tasks_to_init);
-
-  initialized_tasks = 0;
 
   if (pthread_cond_init (&cond_init, NULL) != 0)
   {
@@ -91,7 +88,7 @@ int __po_hi_wait_initialization ()
 
   initialized_tasks++;
 
-  __DEBUGMSG ("[MAIN] %d task(s) initialized\n", initialized_tasks);
+  __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", initialized_tasks, nb_tasks_to_init);
  
   while (initialized_tasks < nb_tasks_to_init)
     {

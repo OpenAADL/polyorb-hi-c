@@ -142,6 +142,10 @@ int __po_hi_driver_sockets_asn1_send (__po_hi_task_id task_id,
    request->port = destination_port;
 
    __po_hi_marshall_asn1_request (request, &asn1_pkt);
+   asn1_pkt.sender_port = 0;
+   asn1_pkt.sender_thread = 0;
+   asn1_pkt.receiver_thread = 0;
+   asn1_pkt.receiver_port = 0;
    __DEBUGMSG("[SOCKETS ASN1] Marshall ASN1 Packet, kind=%d\n", asn1_pkt.msg.kind);
    BitStream_Init (&asn1_bitstream, asn1_buffer, Pkt_REQUIRED_BYTES_FOR_ENCODING);
    if ( ! Pkt_Encode (&asn1_pkt, &asn1_bitstream, &asn1_error_code, TRUE))
@@ -150,9 +154,10 @@ int __po_hi_driver_sockets_asn1_send (__po_hi_task_id task_id,
       return __PO_HI_ERROR_TRANSPORT_SEND;
    }
 
-   size_to_write = BitStream_GetLength (&asn1_bitstream);
+//   size_to_write = BitStream_GetLength (&asn1_bitstream);
+   size_to_write = Pkt_REQUIRED_BYTES_FOR_ENCODING;
 
-   len = write (nodes[associated_device].socket, &asn1_bitstream, size_to_write);
+   len = write (nodes[associated_device].socket, asn1_buffer, Pkt_REQUIRED_BYTES_FOR_ENCODING);
 
    if (len != size_to_write)
    {
@@ -163,6 +168,16 @@ int __po_hi_driver_sockets_asn1_send (__po_hi_task_id task_id,
    }
 
    __DEBUGMSG (" [SUCCESS len=%d]\n", len);
+
+   __DEBUGMSG ("[DRIVER_SOCKETS] Sent message content: |0x");
+   {
+      int n;
+      for (n=0 ; n < len ; n++)
+      {
+         __DEBUGMSG ("%x", asn1_buffer[n]);
+      }
+   }
+   __DEBUGMSG ("|\n");
 
    return __PO_HI_SUCCESS;
 }
@@ -177,14 +192,15 @@ void* __po_hi_sockets_asn1_poller (void)
    int                sock;
    int                max_socket;
    fd_set             selector;
-   __po_hi_byte_t     asn1_buffer[__PO_HI_ASN1_PKT_SIZE];
+   struct sockaddr_in sa;
    __po_hi_node_t     dev;
    __po_hi_node_t     dev_init;
    __po_hi_request_t  received_request;
-   int                asn1_error_code;
+
+   __po_hi_byte_t     asn1_buffer[Pkt_REQUIRED_BYTES_FOR_ENCODING];
    __po_hi_asn1_pkt_t asn1_pkt;
+   int                asn1_error_code;
    BitStream          asn1_bitstream;
-   struct sockaddr_in sa;
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
 
@@ -252,20 +268,39 @@ void* __po_hi_sockets_asn1_poller (void)
          if ( (rnodes[dev].socket != -1 ) && FD_ISSET(rnodes[dev].socket, &selector))
          {
             __DEBUGMSG ("[DRIVER SOCKETS] Receive message from dev %d\n", dev);
-            BitStream_AttachBuffer (&asn1_bitstream, asn1_buffer, Pkt_REQUIRED_BYTES_FOR_ENCODING);
-            len = recv (rnodes[dev].socket, asn1_buffer, Pkt_REQUIRED_BYTES_FOR_ENCODING, 0);
+            memset (asn1_buffer, '\0', Pkt_REQUIRED_BYTES_FOR_ENCODING);
+            len = recv (rnodes[dev].socket, asn1_buffer, Pkt_REQUIRED_BYTES_FOR_ENCODING, MSG_WAITALL);
             __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",len);
+
+            __DEBUGMSG ("[DRIVER_SOCKETS] Received message content: |0x");
+            {
+               int n;
+               for (n=0 ; n < len  ; n++)
+               {
+                  __DEBUGMSG ("%x", asn1_buffer[n]);
+               }
+            }
+            __DEBUGMSG ("|\n");
+
+            BitStream_AttachBuffer (&asn1_bitstream, asn1_buffer, Pkt_REQUIRED_BYTES_FOR_ENCODING);
+
+            if (len == 0)
+            {
+               rnodes[dev].socket = -1;
+               continue;
+            }
 
             if (! Pkt_Decode (&asn1_pkt, &asn1_bitstream, &asn1_error_code))
             {
                __DEBUGMSG ("[SOCKETS ASN1] Unable to decode, error_code=%d\n", asn1_error_code);
+               continue;
             }
 
              __DEBUGMSG("[SOCKETS ASN1] Unmarshall ASN1 Packet of kind=%d\n", asn1_pkt.msg.kind);
 
             __po_hi_unmarshall_asn1_request (&received_request, &asn1_pkt);
 
-            __DEBUGMSG ("[SOCKETS ASN1 deliver for port : %d\n", (int)received_request.port);
+            __DEBUGMSG ("[SOCKETS ASN1] deliver for port : %d\n", (int)received_request.port);
             __po_hi_main_deliver (&received_request);
          }
       }
