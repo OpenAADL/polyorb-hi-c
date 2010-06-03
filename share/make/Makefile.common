@@ -117,10 +117,15 @@ endif
 ifdef USE_ASN1_DEPLOYMENT
 generate-asn1-deployment:
 	asn1.exe -c -uPER ../asn1_deployment.asn1
+	for f in real.o asn1_deployment.o asn1crt.o; do \
+	   c_file="`basename $$f .o`.c"; \
+	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f $$c_file || exit 1 ; \
+	done
 
 GENERATED_OBJS += real.o  asn1_deployment.o asn1crt.o
 LDFLAGS += -lm
 CFLAGS+=-DPO_HI_USE_ASN1 -I../../
+
 else
 generate-asn1-deployment:
 
