@@ -148,6 +148,7 @@ AC_OUTPUT([
 	share/ocarina/Makefile
 	share/tsim/Makefile
 	share/make/Makefile
+	share/utils/Makefile
 	share/make/Makefile.native
 	share/config/Makefile
 	share/config/spif-rtems/Makefile
