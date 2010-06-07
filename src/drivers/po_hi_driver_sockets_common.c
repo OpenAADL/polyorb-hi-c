@@ -10,7 +10,11 @@
 
 #include <deployment.h>
 
-#if (defined (__PO_HI_NEED_DRIVER_SOCKETS) || defined (__PO_HI_NEED_DRIVER_SOCKETS_ASN1))
+#if (defined (__PO_HI_NEED_DRIVER_SOCKETS)  \
+               || defined (__PO_HI_NEED_DRIVER_SOCKETS_ASN1) \
+               || defined (__PO_HI_NEED_DRIVER_QEMU_NE2000_SOCKETS))
+
+
 
 #include <activity.h>
 
@@ -28,7 +32,6 @@
 
 #include <po_hi_debug.h>
 #include <po_hi_transport.h>
-#include <po_hi_common.h>
 #include <po_hi_main.h>
 #include <po_hi_time.h>
 #include <po_hi_task.h>
@@ -76,7 +79,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
    dev_conf = __po_hi_get_device_naming (id);
    dev_port = 0;
 
-   if (sscanf (dev_conf, "eth %s %d", dev_addr, &dev_port) == 0)
+   if (sscanf (dev_conf, "ip %s %d", dev_addr, &dev_port) == 0)
    {
       __DEBUGMSG ("[DRIVER SOCKETS] Unable to parse device configuration (id=%d)\n", id);
    }
@@ -151,7 +154,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
 
       dev_conf = __po_hi_get_device_naming (dev);
 
-      if (sscanf (dev_conf, "eth %s %d", dev_addr, &dev_port) == 0)
+      if (sscanf (dev_conf, "ip %s %d", dev_addr, &dev_port) == 0)
       {
          __DEBUGMSG ("[DRIVER SOCKETS] Unable to parse device configuration (id=%d)\n", id);
          continue;
@@ -237,7 +240,9 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
       }
    }
 }
-#else
+#endif
+
+#ifdef __PO_HI_NEED_DRIVER_SOCKETS
 void __po_hi_driver_sockets_init (__po_hi_device_id id)
 {
    int                i;
@@ -397,6 +402,224 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
    }
 }
 #endif
+
+
+#ifdef __PO_HI_NEED_DRIVER_QEMU_NE2000_SOCKETS
+#include <bsp.h>
+#include <rtems/rtems_bsdnet.h>
+
+extern struct rtems_bsdnet_ifconfig netdriver_config;
+char ethernet_address[6] = { 0x00, 0x80, 0x7F, 0x22, 0x61, 0x77}; 
+
+
+void __po_hi_driver_sockets_init (__po_hi_device_id id)
+{
+   int                i;
+   int                ret;
+   int                reuse;
+   char               *tmp;
+   __po_hi_uint16_t   dev;
+   __po_hi_time_t     mytime;
+   struct sockaddr_in sa;
+   struct hostent*    hostinfo;
+
+   char* dev_conf;
+   char dev_addr[16];
+   int  dev_port;
+   int node;
+
+   my_id = id;
+
+   memset (dev_addr, '\0', 16);
+
+   for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)
+   {
+      nodes[node].socket = -1;
+   }
+
+
+   dev_conf = __po_hi_get_device_naming (id);
+   dev_port = 0;
+
+   if (sscanf (dev_conf, "ip %s %d", dev_addr, &dev_port) == 0)
+   {
+      __DEBUGMSG ("[DRIVER SOCKETS] Unable to parse device configuration (id=%d)\n", id);
+   }
+
+   __DEBUGMSG ("My configuration, addr=%s, port=%d\n", dev_addr, dev_port);
+
+   memset (netdriver_config.ip_address, '\0', 15);
+   memcpy (netdriver_config.ip_address, dev_addr, strlen (dev_addr));
+   __DEBUGMSG ("Set configuration addr for RTEMS=%s\n", netdriver_config.ip_address);
+
+      ethernet_address[5] = (dev_port + 23) % 254;
+   netdriver_config.hardware_address = ethernet_address;
+
+   __DEBUGMSG ("Init RTEMS\n");
+
+   if (rtems_bsdnet_initialize_network () != RTEMS_SUCCESSFUL)
+   {
+      __DEBUGMSG ("Error when initializing RTEMS network\n");
+      return;
+   }
+   __DEBUGMSG ("RTEMS network init done\n");
+
+   /*
+    * If the current node port has a port number, then it has to
+    * listen to other nodes. So, we create a socket, bind it and
+    * listen to other nodes.
+    */
+   if (dev_port != 0)
+   {
+      nodes[id].socket = socket (AF_INET, SOCK_STREAM, 0);
+
+      if (nodes[id].socket == -1 )
+      {
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("Cannot create socket for device %d\n", id);
+#endif
+         return;
+      }
+
+      reuse = 1;
+      setsockopt (nodes[id].socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof (reuse));
+
+      sa.sin_addr.s_addr = htonl (INADDR_ANY);   /* We listen on all adresses */
+      sa.sin_family = AF_INET;                   
+      sa.sin_port = htons (dev_port);   /* Port provided by the generated code */
+
+      if( bind( nodes[id].socket , ( struct sockaddr * ) &sa , sizeof( struct sockaddr_in ) ) < 0 )
+      {
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("Unable to bind socket and port on socket %d\n", nodes[id].socket);
+#endif
+         return;
+      }
+      __DEBUGMSG ("Bind socket, success\n");
+
+      if( listen( nodes[id].socket , __PO_HI_NB_ENTITIES ) < 0 )
+      {
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("Cannot listen on socket %d\n", nodes[mynode].socket);
+#endif
+         return;
+      }
+      __DEBUGMSG ("Listen on socket, success\n");
+
+      __po_hi_initialize_add_task ();
+
+      __po_hi_create_generic_task 
+         (-1, 0,__PO_HI_MAX_PRIORITY, 0, __po_hi_sockets_poller);
+   }
+
+   /*
+    * For each node in the sytem that may communicate with the current
+    * node we create a socket. This socket will be used to send data.
+    */
+   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++ )
+   {
+      if (dev == id)
+      {
+         continue;
+      }
+
+      __DEBUGMSG ("[DRIVER SOCKETS] Will initialize connection with device %d\n", dev);
+
+      memset (dev_addr, '\0', 16);
+      dev_port = 0;
+
+      dev_conf = __po_hi_get_device_naming (dev);
+
+      if (sscanf (dev_conf, "ip %s %d", dev_addr, &dev_port) == 0)
+      {
+         __DEBUGMSG ("[DRIVER SOCKETS] Unable to parse device configuration (id=%d)\n", id);
+         continue;
+      }
+
+      __DEBUGMSG ("[DRIVER SOCKETS] Configuration for device %d, addr=%s, port=%d\n", dev, dev_addr, dev_port);
+
+      if (dev_port == 0)
+      {
+         __DEBUGMSG ("[DRIVER SOCKETS] Invalid remote port\n");
+         continue;
+      }
+
+      while (1)
+      {
+         nodes[dev].socket = socket (AF_INET, SOCK_STREAM, 0);
+
+         if (nodes[dev].socket == -1 )
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Socket for node %d is not created", node);
+            return;
+         }
+
+         hostinfo = gethostbyname ((char*)dev_addr);
+
+         if (hostinfo == NULL )
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Error while getting host informations for device %d\n", dev);
+         }
+
+         sa.sin_port = htons (dev_port);
+         sa.sin_family = AF_INET;
+
+         /* The following lines are used to copy the
+          * hostinfo->h_length to the sa.sin_addr member. Most
+          * of program use the memcpy to do that, but the
+          * RT-POSIX profile we use forbid the use of this
+          * function.  We use a loop instead to perform the
+          * copy.  So, these lines replace the code :
+          *
+          * memcpy( (char*) &( sa.sin_addr ) , (char*)hostinfo->h_addr , hostinfo->h_length );
+          */
+
+         tmp = (char*) &(sa.sin_addr);
+         for (i=0 ; i<hostinfo->h_length ; i++)
+         {
+            tmp[i] = hostinfo->h_addr[i];
+         }
+
+         /*
+          * We try to connect on the remote host. We try every
+          * second to connect on.
+          */
+
+         ret = connect (nodes[dev].socket, 
+                        (struct sockaddr*) &sa ,
+                        sizeof (struct sockaddr_in));
+
+         if (ret == 0)
+         {
+
+            __DEBUGMSG ("[DRIVER SOCKETS] Send my id (%d)\n", id);
+            if (write (nodes[dev].socket, &id, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
+            {
+               __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id\n", id);
+            }
+            break;
+         }
+
+         if (close (nodes[dev].socket))
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Cannot close socket %d\n", nodes[dev].socket);
+         }
+
+         /*
+          * We wait 500ms each time we try to connect on the
+          * remote host
+          */
+
+         __po_hi_get_time (&mytime);
+         __DEBUGMSG ("[DRIVER SOCKETS] Cannot connect on device %d, wait 2s\n", dev);
+         __po_hi_delay_until (__po_hi_add_times (mytime, __po_hi_milliseconds (2000)));
+      }
+   }
+}
+
+#endif
+
+
 
 #endif /* __PO_HI_NEED_DRIVER_SOCKETS || __PO_HI_NEED_DRIVER_SOCKETS_ASN1 */
 

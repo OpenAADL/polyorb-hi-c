@@ -12,7 +12,7 @@
 #include <deployment.h>
 #include <marshallers.h>
 
-#ifdef __PO_HI_NEED_DRIVER_SOCKETS
+#if (defined (__PO_HI_NEED_DRIVER_SOCKETS) || defined (__PO_HI_NEED_DRIVER_QEMU_NE2000_SOCKETS))
 
 #include <po_hi_config.h>
 #include <po_hi_task.h>
@@ -147,7 +147,6 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
    return __PO_HI_SUCCESS;
 }
 
-
 void* __po_hi_sockets_receiver_task (void)
 {
    socklen_t          socklen = sizeof (struct sockaddr);
@@ -166,6 +165,7 @@ void* __po_hi_sockets_receiver_task (void)
    __po_hi_node_t     node_init;
    __po_hi_request_t  received_request;
    struct sockaddr_in sa;
+
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
 
@@ -186,14 +186,17 @@ void* __po_hi_sockets_receiver_task (void)
       if (node != mynode )
       {
          sock = accept (nodes[mynode].socket, (struct sockaddr*) &sa, &socklen);
+         if (sock == -1)
+         {
+            __DEBUGMSG ("accept() failed, return=%d\n", sock);
+         }
 
          if (read (sock, &node_init, sizeof (__po_hi_node_t)) != sizeof (__po_hi_node_t))
          {
-#ifdef __PO_HI_DEBUG
             __DEBUGMSG ("Cannot read node-id for socket %d\n", sock);
-#endif
             continue;
          }
+
          rnodes[node].socket = sock;
          if (sock > max_socket )
          {
@@ -302,6 +305,111 @@ void* __po_hi_sockets_receiver_task (void)
    }  
    return NULL;
 }
+
+
+extern __po_hi_device_id my_id;
+void* __po_hi_sockets_poller (void)
+{
+   __DEBUGMSG ("Poller launched\n");
+   socklen_t          socklen = sizeof (struct sockaddr);
+   /* See ACCEPT (2) for details on initial value of socklen */
+
+   __po_hi_uint32_t   len;
+   int                sock;
+   int                max_socket;
+   fd_set             selector;
+   struct sockaddr_in sa;
+   __po_hi_node_t     dev;
+   __po_hi_node_t     dev_init;
+   __po_hi_request_t  received_request;
+   __po_hi_msg_t      msg;
+
+   max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
+
+   /*
+    * We initialize each node socket with -1 value.  This value means
+    * that the socket is not active.
+    */
+   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++)
+   {
+      rnodes[dev].socket = -1;
+   }
+
+   /*
+    * Create a socket for each node that will communicate with us.
+    */
+   for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+   {
+      if (dev != my_id)
+      {
+         sock = accept (nodes[my_id].socket, (struct sockaddr*) &sa, &socklen);
+
+         if (read (sock, &dev_init, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d\n", dev, sock);
+            continue;
+         }
+         __DEBUGMSG ("[DRIVER SOCKETS] read device-id %d from socket=%d\n", dev_init, sock);
+         rnodes[dev].socket = sock;
+         if (sock > max_socket )
+         {
+            max_socket = sock;
+         }	  
+      }
+   }
+   __DEBUGMSG ("[DRIVER SOCKETS] Poller initialization finished\n");
+   __po_hi_wait_initialization ();
+
+   /*
+    * Then, listen and receive data on the socket, identify the node
+    * which send the data and put it in its message queue
+    */
+   while (1)
+   {
+      FD_ZERO( &selector );
+      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+      {
+         if ( (dev != my_id ) && ( rnodes[dev].socket != -1 ) )
+         {
+            FD_SET( rnodes[dev].socket , &selector );
+         }
+      }
+
+      if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
+      {
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("[DRIVER SOCKETS] Error on select for node %d\n", mynode);
+#endif 
+      }
+#ifdef __PO_HI_DEBUG
+      __DEBUGMSG ("[DRIVER SOCKETS] Receive message\n");
+#endif
+
+      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+      {
+         if ( (rnodes[dev].socket != -1 ) && FD_ISSET(rnodes[dev].socket, &selector))
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Receive message from dev %d\n", dev);
+            memset (msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
+            len = recv (rnodes[dev].socket, msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+            __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",len);
+
+            if (len == 0)
+            {
+               rnodes[dev].socket = -1;
+               continue;
+            }
+
+            __po_hi_unmarshall_request (&received_request, &msg);
+
+            __po_hi_main_deliver (&received_request);
+         }
+      }
+   }  
+   return NULL;
+}
+
+
 
 #endif
 

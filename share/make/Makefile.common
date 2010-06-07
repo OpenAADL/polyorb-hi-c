@@ -201,9 +201,20 @@ $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(U
 	$(make-exe)
 	cp $(BINARY) binary
 
+ifeq ($(NEED_TRANSPORT), yes)
+run: $(BINARY)
+	pidof qemu >/dev/null 2>&1 ; if [ $$?  -eq 0 ]; then \
+		( sleep 5 ; qemu -net nic,model=ne2k_pci -net socket,connect=127.0.0.1:12345 -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a ; )& \
+		echo "Launching QEMU in connect mode" ; \
+	else \
+		qemu -net nic,model=ne2k_pci -net socket,listen=127.0.0.1:12345 -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a ; \
+		echo "Launching QEMU in listen mode" ; \
+	fi
+else
 run: $(BINARY)
 	qemu -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a
-endif
+endif #NEED_TRANSPORT
+endif #TARGET=x86qemu
 
 ifeq ($(TARGET), nds.rtems)
 OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 

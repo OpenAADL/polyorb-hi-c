@@ -11,7 +11,9 @@
 #ifndef __PO_HI_DRIVER_SOCKETS_H__
 #define __PO_HI_DRIVER_SOCKETS_H__
 
-#ifdef __PO_HI_NEED_DRIVER_SOCKETS
+
+#if (defined (__PO_HI_NEED_DRIVER_SOCKETS)  \
+               || defined (__PO_HI_NEED_DRIVER_QEMU_NE2000_SOCKETS))
 
 #include <po_hi_transport.h>
 
@@ -31,6 +33,8 @@ void* __po_hi_sockets_receiver_task (void);
  * Task that polls for incoming data 
  * and dispatch it in po-hi-c queues
  */
+
+void* __po_hi_sockets_poller (void);
 
 #endif
 

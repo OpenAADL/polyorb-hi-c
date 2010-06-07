@@ -40,6 +40,8 @@ void __po_hi_initialize_add_task ()
 
 int __po_hi_initialize ()
 {
+   pthread_mutexattr_t mutex_attr;
+
 #ifdef RTEMS_POSIX
 #include <rtems/rtems/clock.h>
   rtems_status_code status;
@@ -57,8 +59,19 @@ int __po_hi_initialize ()
   
 #endif
 
-  if (pthread_mutex_init (&mutex_init, NULL) != 0 )
+   if (pthread_mutexattr_init (&mutex_attr) != 0)
+   {
+      __DEBUGMSG ("[MAIN] Unable to init mutex attributes\n");
+   }
+
+   if (pthread_mutexattr_setprioceiling (&mutex_attr, 50) != 0)
+   {
+      __DEBUGMSG ("[MAIN] Unable to set priority ceiling on mutex\n");
+   }
+
+   if (pthread_mutex_init (&mutex_init, &mutex_attr) != 0 )
     {
+      __DEBUGMSG ("[MAIN] Unable to init pthread_mutex\n");
       return (__PO_HI_ERROR_PTHREAD_MUTEX);
     }
 
