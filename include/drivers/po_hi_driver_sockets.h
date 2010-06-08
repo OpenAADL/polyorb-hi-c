@@ -13,7 +13,7 @@
 
 
 #if (defined (__PO_HI_NEED_DRIVER_SOCKETS)  \
-               || defined (__PO_HI_NEED_DRIVER_QEMU_NE2000_SOCKETS))
+               || defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
 
 #include <po_hi_transport.h>
 
@@ -35,7 +35,11 @@ void* __po_hi_sockets_receiver_task (void);
  */
 
 void* __po_hi_sockets_poller (void);
+/*
+ * Generic poller for PO-HI-C protocol.
+ */
 
+void __po_hi_driver_sockets_init (__po_hi_device_id id);
 #endif
 
 #endif

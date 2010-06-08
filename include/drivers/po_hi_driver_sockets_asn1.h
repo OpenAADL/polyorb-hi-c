@@ -18,9 +18,8 @@
 
 #include <po_hi_messages.h>
 
-int __po_hi_driver_sockets_asn1_send (__po_hi_entity_t from, 
-                                      __po_hi_entity_t to, 
-                                      __po_hi_msg_t* msg);
+int __po_hi_driver_sockets_asn1_send (__po_hi_task_id task_id, 
+                                      __po_hi_port_t  port);
 
 
 void* __po_hi_sockets_asn1_poller (void);

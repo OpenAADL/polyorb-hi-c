@@ -48,70 +48,31 @@
 #endif
    #define CONFIGURE_POSIX_INIT_THREAD_TABLE
    #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
-//   #include <po_hi_rtemsconfig.h>
    #include <rtems/confdefs.h>
 #endif  /* RTEMS_POSIX */
 
 
 #if defined (X86_RTEMS)
 #include <rtems/rtems_bsdnet.h>
-
 #include <bsp.h>
-/*
- * Loopback interface
- */
 int rtems_bsdnet_loopattach(struct rtems_bsdnet_ifconfig*, int);
 
-static struct rtems_bsdnet_ifconfig loopback_config = {
-	"lo0",				/* name */
-	rtems_bsdnet_loopattach,	/* attach function */
-
-	NULL,				/* link to next interface */
-
-	"127.0.0.1",			/* IP address */
-	"255.0.0.0",			/* IP net mask */
-};
-
-/*
- * Default network interface
- */
+static struct rtems_bsdnet_ifconfig loopback_config =
+   {"lo0", rtems_bsdnet_loopattach,	NULL, "127.0.0.1", "255.0.0.0", };
+#undef RTEMS_BSP_NETWORK_DRIVER_NAME 
+#undef RTEMS_BSP_NETWORK_DRIVER_ATTACH
 #define RTEMS_BSP_NETWORK_DRIVER_NAME    "ne1"
 #define RTEMS_BSP_NETWORK_DRIVER_ATTACH  rtems_ne_driver_attach
 
+struct rtems_bsdnet_ifconfig netdriver_config = 
+   {RTEMS_BSP_NETWORK_DRIVER_NAME,RTEMS_BSP_NETWORK_DRIVER_ATTACH,
+	&loopback_config,"192.168.0.1","255.255.255.0",
+   (char[]){ 0x00, 0x1F, 0xC6, 0xBF, 0x74, 0x06},
+	0,0,0,0,0,9};
 
-struct rtems_bsdnet_ifconfig netdriver_config = {
-	RTEMS_BSP_NETWORK_DRIVER_NAME,		/* name */
-	RTEMS_BSP_NETWORK_DRIVER_ATTACH,	/* attach function */
+struct rtems_bsdnet_config rtems_bsdnet_config = 
+   {&netdriver_config,NULL,0,256 * 1024,256 * 1024,};
 
-	&loopback_config,		/* link to next interface */
-
-	"10.0.2.5",			/* IP address */
-	"255.255.255.0",		/* IP net mask */
-
-	NULL,                           /* Driver supplies hardware address */
-	0,				/* Use default driver parameters */
-	0, /* mtu */
-	0, /* rbuf_count */
-	0, /* xbuf_count */
-	0, /* port */
-	9 /* irq */
-};
-
-/*
- * Network configuration
- */
-struct rtems_bsdnet_config rtems_bsdnet_config = {
-	&netdriver_config,
-
-	NULL,
-
-	0,			/* Default network task priority */
-	256 * 1024,			/* Default mbuf capacity */
-	256 * 1024,			/* Default mbuf cluster capacity */
-};
-
-#endif /*(defined (X86_RTEMS) &&  defined (NEED_TRANSPORT)) */
-
-
+#endif /*(defined (X86_RTEMS) */
 
 #endif /* __COMMON_H__ */

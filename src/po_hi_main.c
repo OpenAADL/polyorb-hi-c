@@ -64,10 +64,12 @@ int __po_hi_initialize ()
       __DEBUGMSG ("[MAIN] Unable to init mutex attributes\n");
    }
 
+#ifdef RTEMS_POSIX
    if (pthread_mutexattr_setprioceiling (&mutex_attr, 50) != 0)
    {
       __DEBUGMSG ("[MAIN] Unable to set priority ceiling on mutex\n");
    }
+#endif
 
    if (pthread_mutex_init (&mutex_init, &mutex_attr) != 0 )
     {

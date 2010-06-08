@@ -18,8 +18,8 @@ typedef char*            __po_hi_inetaddr_t;
 
 
 #if (defined (__PO_HI_NEED_DRIVER_SOCKETS)  \
-               || defined (__PO_HI_NEED_DRIVER_SOCKETS_ASN1) \
-               || defined (__PO_HI_NEED_DRIVER_QEMU_NE2000_SOCKETS))
+      || defined (__PO_HI_NEED_DRIVER_SOCKETS_ASN1) \
+      || defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
 
 #define __PO_HI_NOPORT 1
 #define __PO_HI_NOADDR ""
@@ -42,11 +42,7 @@ extern __po_hi_node_t mynode;
  * that receives data from a socket (receiver task)
  */
 
-void __po_hi_sockets_init (__po_hi_device_id id);
-/*
- * Initialize sockets, create the receiver tasks
- * and sender file descriptors
- */
+void __po_hi_driver_sockets_common_generic_init (__po_hi_device_id id, void* (*poller) (void));
 
 
 #endif /* __PO_HI_DRIVER_SOCKETS_COMMON_H__ */

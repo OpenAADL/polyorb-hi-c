@@ -26,6 +26,7 @@
 #include <po_hi_marshallers.h>
 #include <po_hi_task.h>
 #include <drivers/po_hi_driver_sockets_common.h>
+#include <drivers/po_hi_driver_sockets_asn1.h>
 #include <asn1_deployment.h>
 /* PolyORB-HI-C headers */
 
@@ -72,7 +73,12 @@
 __po_hi_inetnode_t nodes[__PO_HI_NB_DEVICES];
 __po_hi_inetnode_t rnodes[__PO_HI_NB_DEVICES];
 
-extern __po_hi_device_id my_id;
+extern __po_hi_device_id socket_device_id;
+
+void __po_hi_driver_sockets_asn1_init (__po_hi_device_id id)
+{
+   __po_hi_driver_sockets_common_generic_init (id, __po_hi_sockets_asn1_poller);
+}
 
 int __po_hi_driver_sockets_asn1_send (__po_hi_task_id task_id,
                                       __po_hi_port_t port)
@@ -218,9 +224,9 @@ void* __po_hi_sockets_asn1_poller (void)
     */
    for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
    {
-      if (dev != my_id)
+      if (dev != socket_device_id)
       {
-         sock = accept (nodes[my_id].socket, (struct sockaddr*) &sa, &socklen);
+         sock = accept (nodes[socket_device_id].socket, (struct sockaddr*) &sa, &socklen);
 
          if (read (sock, &dev_init, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
          {
@@ -247,7 +253,7 @@ void* __po_hi_sockets_asn1_poller (void)
       FD_ZERO( &selector );
       for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
       {
-         if ( (dev != my_id ) && ( rnodes[dev].socket != -1 ) )
+         if ( (dev != socket_device_id ) && ( rnodes[dev].socket != -1 ) )
          {
             FD_SET( rnodes[dev].socket , &selector );
          }

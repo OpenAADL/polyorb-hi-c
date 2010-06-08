@@ -12,7 +12,8 @@
 #include <deployment.h>
 #include <marshallers.h>
 
-#if (defined (__PO_HI_NEED_DRIVER_SOCKETS) || defined (__PO_HI_NEED_DRIVER_QEMU_NE2000_SOCKETS))
+#if (defined (__PO_HI_NEED_DRIVER_SOCKETS) || \
+     defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
 
 #include <po_hi_config.h>
 #include <po_hi_task.h>
@@ -24,10 +25,6 @@
 #include <po_hi_main.h>
 #include <po_hi_task.h>
 #include <drivers/po_hi_driver_sockets.h>
-
-#ifdef __PO_HI_USE_GIOP
-#include <po_hi_giop.h>
-#endif
 
 #include <activity.h>
 
@@ -68,8 +65,14 @@
  * listen socket. This array is used only by the receiver_task
  */
 
+#ifdef __PO_HI_NEED_DRIVER_SOCKETS
 __po_hi_inetnode_t nodes[__PO_HI_NB_NODES];
 __po_hi_inetnode_t rnodes[__PO_HI_NB_NODES];
+#else
+__po_hi_inetnode_t nodes[__PO_HI_NB_DEVICES];
+__po_hi_inetnode_t rnodes[__PO_HI_NB_DEVICES];
+#endif
+
 
 int __po_hi_driver_sockets_send (__po_hi_entity_t from, 
                                  __po_hi_entity_t to, 
@@ -96,11 +99,7 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
     * contains the request.
     */
 
-#ifdef __PO_HI_USE_GIOP
-   size_to_write = msg->length;
-#else
    size_to_write = __PO_HI_MESSAGES_MAX_SIZE;
-#endif
 
    if (getsockopt (nodes[node].socket, SOL_SOCKET, SO_ERROR, &optval, &optlen) == -1)
    {
@@ -147,6 +146,115 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
    return __PO_HI_SUCCESS;
 }
 
+
+extern __po_hi_device_id socket_device_id;
+
+void* __po_hi_sockets_poller (void)
+{
+   __DEBUGMSG ("Poller launched\n");
+   socklen_t          socklen = sizeof (struct sockaddr);
+   /* See ACCEPT (2) for details on initial value of socklen */
+
+   __po_hi_uint32_t   len;
+   int                sock;
+   int                max_socket;
+   fd_set             selector;
+   struct sockaddr_in sa;
+   __po_hi_node_t     dev;
+   __po_hi_node_t     dev_init;
+   __po_hi_request_t  received_request;
+   __po_hi_msg_t      msg;
+
+   max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
+
+   /*
+    * We initialize each node socket with -1 value.  This value means
+    * that the socket is not active.
+    */
+   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++)
+   {
+      rnodes[dev].socket = -1;
+   }
+
+   /*
+    * Create a socket for each node that will communicate with us.
+    */
+   for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+   {
+      if (dev != socket_device_id)
+      {
+         sock = accept (nodes[socket_device_id].socket, (struct sockaddr*) &sa, &socklen);
+
+         if (read (sock, &dev_init, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d\n", dev, sock);
+            continue;
+         }
+         __DEBUGMSG ("[DRIVER SOCKETS] read device-id %d from socket=%d\n", dev_init, sock);
+         rnodes[dev].socket = sock;
+         if (sock > max_socket )
+         {
+            max_socket = sock;
+         }	  
+      }
+   }
+   __DEBUGMSG ("[DRIVER SOCKETS] Poller initialization finished\n");
+   __po_hi_wait_initialization ();
+
+   /*
+    * Then, listen and receive data on the socket, identify the node
+    * which send the data and put it in its message queue
+    */
+   while (1)
+   {
+      FD_ZERO( &selector );
+      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+      {
+         if ( (dev != socket_device_id ) && ( rnodes[dev].socket != -1 ) )
+         {
+            FD_SET( rnodes[dev].socket , &selector );
+         }
+      }
+
+      if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
+      {
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("[DRIVER SOCKETS] Error on select for node %d\n", mynode);
+#endif 
+      }
+#ifdef __PO_HI_DEBUG
+      __DEBUGMSG ("[DRIVER SOCKETS] Receive message\n");
+#endif
+
+      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+      {
+         if ( (rnodes[dev].socket != -1 ) && FD_ISSET(rnodes[dev].socket, &selector))
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Receive message from dev %d\n", dev);
+            memset (msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
+            len = recv (rnodes[dev].socket, msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+            __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",(int)len);
+
+            if (len == 0)
+            {
+               rnodes[dev].socket = -1;
+               continue;
+            }
+
+            __po_hi_unmarshall_request (&received_request, &msg);
+
+            __po_hi_main_deliver (&received_request);
+         }
+      }
+   }  
+   return NULL;
+}
+
+
+/*
+ * Old receiver code that is based on PolyORB-HI-C for AADLv1
+ * Would be considered as deprecated.
+ */
 void* __po_hi_sockets_receiver_task (void)
 {
    socklen_t          socklen = sizeof (struct sockaddr);
@@ -157,10 +265,6 @@ void* __po_hi_sockets_receiver_task (void)
    int                max_socket;
    fd_set             selector;
    __po_hi_msg_t      msg;
-#ifdef __PO_HI_USE_GIOP
-   __po_hi_msg_t      decoded_msg;
-   __po_hi_uint32_t   has_more;
-#endif
    __po_hi_node_t     node;
    __po_hi_node_t     node_init;
    __po_hi_request_t  received_request;
@@ -242,47 +346,6 @@ void* __po_hi_sockets_receiver_task (void)
             __DEBUGMSG ("Receive message from node %d\n", node);
 #endif
 
-#ifdef __PO_HI_USE_GIOP
-            /* Decoding GIOP request is implemented as a two-step automata
-             * 
-             * First step is to decode the header,
-             * Second step is to decode the payload
-             */
-
-            __DEBUGMSG ("Using GIOP as protocol stack\n");
-            __DEBUGMSG (" -> Step 1 decode header\n");
-            len = read (rnodes[node].socket, &(msg.content), sizeof (__po_hi_giop_msg_hdr_t));
-            msg.length = len;
-
-            has_more = 0; 
-
-            if (__po_hi_giop_decode_msg (&msg, &decoded_msg, &has_more) == __PO_HI_SUCCESS )
-            {
-#ifdef __PO_HI_DEBUG
-               __DEBUGMSG ("Message was decoded, has_more=%d\n", has_more);
-#endif
-               __DEBUGMSG (" -> Step 2 decode message\n");
-               len = recv (rnodes[node].socket, &(msg.content), has_more, MSG_WAITALL);
-               /* Here, we wait for the _full_ message to come */
-               msg.length = len;
-
-               if (__po_hi_giop_decode_msg (&msg, &decoded_msg, &has_more) == __PO_HI_SUCCESS )
-               {
-                  /* Put the data in the message queue */      
-                  __po_hi_unmarshall_request (&received_request, &decoded_msg);
-                  __po_hi_main_deliver (&received_request);
-               }
-               else
-               {
-                  break;
-               }
-            }
-            else
-            {
-               break;
-            }
-
-#else
             __DEBUGMSG ("Using raw protocol stack\n");
             len = recv (rnodes[node].socket, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
             msg.length = len;
@@ -298,7 +361,7 @@ void* __po_hi_sockets_receiver_task (void)
             __po_hi_unmarshall_request (&received_request, &msg);
 
             __po_hi_main_deliver (&received_request);
-#endif
+
             __po_hi_msg_reallocate(&msg);        /* re-initialize the message */
          }
       }
@@ -307,107 +370,170 @@ void* __po_hi_sockets_receiver_task (void)
 }
 
 
-extern __po_hi_device_id my_id;
-void* __po_hi_sockets_poller (void)
+/*
+ * The following code implements the old socket layer
+ * for PolyORB-HI-C and AADLv1.
+ * Would be considered as deprecated.
+ */
+#ifdef __PO_HI_NEED_DRIVER_SOCKETS
+void __po_hi_driver_sockets_init (__po_hi_device_id id)
 {
-   __DEBUGMSG ("Poller launched\n");
-   socklen_t          socklen = sizeof (struct sockaddr);
-   /* See ACCEPT (2) for details on initial value of socklen */
-
-   __po_hi_uint32_t   len;
-   int                sock;
-   int                max_socket;
-   fd_set             selector;
+   int                i;
+   int                ret;
+   int                reuse;
+   char               *tmp;
+   __po_hi_time_t     mytime;
    struct sockaddr_in sa;
-   __po_hi_node_t     dev;
-   __po_hi_node_t     dev_init;
-   __po_hi_request_t  received_request;
-   __po_hi_msg_t      msg;
+   struct hostent*    hostinfo;
 
-   max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
+   char dev_addr[16];
+   int node;
 
-   /*
-    * We initialize each node socket with -1 value.  This value means
-    * that the socket is not active.
-    */
-   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++)
+   memset (dev_addr, '\0', 16);
+
+
+   for (node = 0 ; node < __PO_HI_NB_NODES ; node++)
    {
-      rnodes[dev].socket = -1;
+      nodes[node].socket = -1;
    }
 
    /*
-    * Create a socket for each node that will communicate with us.
+    * If the current node port has a port number, then it has to
+    * listen to other nodes. So, we create a socket, bind it and
+    * listen to other nodes.
     */
-   for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+   if ( node_port[mynode] != __PO_HI_NOPORT )
    {
-      if (dev != my_id)
-      {
-         sock = accept (nodes[my_id].socket, (struct sockaddr*) &sa, &socklen);
+      nodes[mynode].socket = socket (AF_INET, SOCK_STREAM, 0);
 
-         if (read (sock, &dev_init, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
-         {
-            __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d\n", dev, sock);
-            continue;
-         }
-         __DEBUGMSG ("[DRIVER SOCKETS] read device-id %d from socket=%d\n", dev_init, sock);
-         rnodes[dev].socket = sock;
-         if (sock > max_socket )
-         {
-            max_socket = sock;
-         }	  
-      }
-   }
-   __DEBUGMSG ("[DRIVER SOCKETS] Poller initialization finished\n");
-   __po_hi_wait_initialization ();
-
-   /*
-    * Then, listen and receive data on the socket, identify the node
-    * which send the data and put it in its message queue
-    */
-   while (1)
-   {
-      FD_ZERO( &selector );
-      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
-      {
-         if ( (dev != my_id ) && ( rnodes[dev].socket != -1 ) )
-         {
-            FD_SET( rnodes[dev].socket , &selector );
-         }
-      }
-
-      if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
+      if (nodes[mynode].socket == -1 )
       {
 #ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("[DRIVER SOCKETS] Error on select for node %d\n", mynode);
-#endif 
-      }
-#ifdef __PO_HI_DEBUG
-      __DEBUGMSG ("[DRIVER SOCKETS] Receive message\n");
+         __DEBUGMSG ("Cannot create socket for node %d\n", mynode);
 #endif
+         return;
+      }
 
-      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+      reuse = 1;
+      setsockopt (nodes[mynode].socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof (reuse));
+
+      sa.sin_addr.s_addr = htonl (INADDR_ANY);   /* We listen on all adresses */
+      sa.sin_family = AF_INET;                   
+      sa.sin_port = htons (node_port[mynode]);   /* Port provided by the generated code */
+
+      if( bind( nodes[mynode].socket , ( struct sockaddr * ) &sa , sizeof( struct sockaddr_in ) ) < 0 )
       {
-         if ( (rnodes[dev].socket != -1 ) && FD_ISSET(rnodes[dev].socket, &selector))
-         {
-            __DEBUGMSG ("[DRIVER SOCKETS] Receive message from dev %d\n", dev);
-            memset (msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
-            len = recv (rnodes[dev].socket, msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
-            __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",len);
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("Unable to bind socket and port on socket %d\n", nodes[mynode].socket);
+#endif
+      }
 
-            if (len == 0)
+      if( listen( nodes[mynode].socket , __PO_HI_NB_ENTITIES ) < 0 )
+      {
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("Cannot listen on socket %d\n", nodes[mynode].socket);
+#endif
+      }
+
+      /* 
+       * Create the thread which receive all data from other
+       * nodes. This thread will execute the function
+       * __po_hi_receiver_task
+       */
+
+      __po_hi_initialize_add_task ();
+
+      __po_hi_create_generic_task 
+         (-1, 0,__PO_HI_MAX_PRIORITY, 0, __po_hi_sockets_receiver_task);
+   }
+
+   /*
+    * For each node in the sytem that may communicate with the current
+    * node we create a socket. This socket will be used to send data.
+    */
+   for (node = 0 ; node < __PO_HI_NB_NODES ; node++ )
+   {
+      if ( (node != mynode) && (node_port[node] != __PO_HI_NOPORT) && (nodes[node].socket == -1) )
+      {
+         while (1)
+         {
+            nodes[node].socket = socket (AF_INET, SOCK_STREAM, 0);
+
+            if (nodes[node].socket == -1 )
             {
-               rnodes[dev].socket = -1;
-               continue;
+#ifdef __PO_HI_DEBUG
+               __DEBUGMSG ("Socket for node %d is not created", node);
+#endif
+               return;
             }
 
-            __po_hi_unmarshall_request (&received_request, &msg);
+            hostinfo = gethostbyname ((char*)node_addr[node]);
 
-            __po_hi_main_deliver (&received_request);
+            if (hostinfo == NULL )
+            {
+#ifdef __PO_HI_DEBUG
+               __DEBUGMSG ("Error while getting host informations for node %d\n", node);
+#endif
+            }
+
+            sa.sin_port = htons( node_port[node] );
+            sa.sin_family = AF_INET;
+
+            /* The following lines are used to copy the
+             * hostinfo->h_length to the sa.sin_addr member. Most
+             * of program use the memcpy to do that, but the
+             * RT-POSIX profile we use forbid the use of this
+             * function.  We use a loop instead to perform the
+             * copy.  So, these lines replace the code :
+             *
+             * memcpy( (char*) &( sa.sin_addr ) , (char*)hostinfo->h_addr , hostinfo->h_length );
+             */
+
+            tmp = (char*) &(sa.sin_addr);
+            for (i=0 ; i<hostinfo->h_length ; i++)
+            {
+               tmp[i] = hostinfo->h_addr[i];
+            }
+
+            /*
+             * We try to connect on the remote host. We try every
+             * second to connect on.
+             */
+
+            ret = connect 
+               (nodes[node].socket, ( struct sockaddr* ) &sa , sizeof( struct sockaddr_in ));
+
+            if (ret == 0)
+            {
+               if (write (nodes[node].socket, &mynode, sizeof (__po_hi_node_t)) != sizeof (__po_hi_node_t))
+               {
+#ifdef __PO_HI_DEBUG
+                  __DEBUGMSG ("Node %d cannot send his node-id\n", node);
+#endif
+               }
+               break;
+            }
+
+            if (close (nodes[node].socket))
+            {
+#ifdef __PO_HI_DEBUG
+               __DEBUGMSG ("Cannot close socket %d\n", nodes[node].socket);
+#endif
+            }
+
+            /*
+             * We wait 500ms each time we try to connect on the
+             * remote host
+             */
+
+            __po_hi_get_time (&mytime);
+            __po_hi_delay_until (__po_hi_add_times (mytime, __po_hi_milliseconds (500)));
          }
       }
-   }  
-   return NULL;
+   }
 }
+#endif
+
 
 
 

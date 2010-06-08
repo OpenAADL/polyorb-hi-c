@@ -146,7 +146,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_CREATE);
     }
 
-  policy = SCHED_FIFO;
+  policy = SCHED_RR;
   param.sched_priority = priority;
 
 #ifdef __PO_HI_DEBUG
