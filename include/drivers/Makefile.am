@@ -1,5 +1,6 @@
 AUTOMAKE_OPTIONS = no-dependencies
 EXTRA_DIST = $(srcdir)/po_hi_driver_linux_serial.h       \
+             $(srcdir)/po_hi_driver_exarm.h              \
              $(srcdir)/po_hi_driver_rasta_spacewire.h    \
              $(srcdir)/po_hi_driver_rasta_1553.h         \
              $(srcdir)/po_hi_driver_rasta_1553_brmlib.h  \
