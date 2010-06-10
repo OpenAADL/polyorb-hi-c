@@ -23,6 +23,7 @@
 #include <po_hi_returns.h>
 #include <po_hi_main.h>
 #include <po_hi_task.h>
+#include <po_hi_gqueue.h>
 #include <drivers/po_hi_driver_sockets.h>
 
 #include <activity.h>
@@ -60,15 +61,15 @@ void __po_hi_driver_exarm_init (__po_hi_device_id id)
       return;
    }
 
-   __DEBUGMSG ("[DRIVER EXARM] Send to addr %s, port %d\n", __po_hi_driver_exarm_addr_to_send, __po_hi_driver_exarm_port_to_send);
+   __DEBUGMSG ("[DRIVER EXARM] Send to addr [%s], port [%d]\n", __po_hi_driver_exarm_addr_to_send, __po_hi_driver_exarm_port_to_send);
 
-   if ((__po_hi_driver_exarm_socket =socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
+   if ((__po_hi_driver_exarm_socket =socket(AF_INET, SOCK_DGRAM, 0))==-1)
    {
       __DEBUGMSG ("[DRIVER EXARM] Cannot create UDP socket (device-id=%d)\n", id);
       return;
    }
 
-   memset((char *) &__po_hi_driver_exarm_sin, 0, __po_hi_driver_exarm_slen);
+   memset (&__po_hi_driver_exarm_sin, 0, __po_hi_driver_exarm_slen);
    __po_hi_driver_exarm_sin.sin_family = AF_INET;
    __po_hi_driver_exarm_sin.sin_port = htons (__po_hi_driver_exarm_port_to_send);
    if (inet_aton (__po_hi_driver_exarm_addr_to_send, &__po_hi_driver_exarm_sin.sin_addr) == 0) 
@@ -76,18 +77,32 @@ void __po_hi_driver_exarm_init (__po_hi_device_id id)
       __DEBUGMSG ("[DRIVER EXARM] inet_aton() failed (device-id=%d)\n", id);
       return;
    }
+   __DEBUGMSG ("[DRIVER EXARM] Init done\n");
 }
 
-int  __po_hi_driver_exarm_send (__po_hi_entity_t from, __po_hi_entity_t to, __po_hi_msg_t* msg)
+int __po_hi_driver_exarm_send (__po_hi_task_id task, __po_hi_port_t port)
 {
-   int size_to_write;
+   int                     size_to_write;
+   __po_hi_local_port_t    local_port;
+   __po_hi_request_t*      request;
 
-   size_to_write = __PO_HI_MESSAGES_MAX_SIZE;
+   local_port = __po_hi_get_local_port_from_global_port (port);
 
-   if (sendto(__po_hi_driver_exarm_socket, &(msg->content), size_to_write, 0, (const struct sockaddr*)&__po_hi_driver_exarm_sin, __po_hi_driver_exarm_slen)==-1)
+   request = __po_hi_gqueue_get_most_recent_value (task, local_port);
+
+   size_to_write = sizeof (request->vars);
+
+   int ret = sendto(__po_hi_driver_exarm_socket, &(request->vars), size_to_write, 0, (struct sockaddr*)&__po_hi_driver_exarm_sin, __po_hi_driver_exarm_slen);
+
+   if(ret == -1)
    {
       __DEBUGMSG ("[DRIVER EXARM] sendto() failed\n");
-      perror ("error");
+      return -1;
+   }
+
+   if (ret != size_to_write)
+   {
+      __DEBUGMSG ("[DRIVER EXARM] sendto() inconsistend return, try to write %d, ret=%d\n", size_to_write, ret);
       return -1;
    }
 

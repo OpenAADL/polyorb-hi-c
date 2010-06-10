@@ -16,7 +16,7 @@
 #include <drivers/po_hi_driver_sockets_common.h>
 /* Files from PolyORB-HI-C */
 
-int  __po_hi_driver_exarm_send (__po_hi_entity_t from, __po_hi_entity_t to, __po_hi_msg_t* msg);
+int __po_hi_driver_exarm_send (__po_hi_task_id task, __po_hi_port_t port);
 /*
  * Send data through the sending socket
  */
