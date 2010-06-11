@@ -24,6 +24,8 @@
 #include <po_hi_main.h>
 #include <po_hi_task.h>
 #include <po_hi_gqueue.h>
+#include <po_hi_utils.h>
+
 #include <drivers/po_hi_driver_sockets.h>
 
 #include <activity.h>
@@ -91,6 +93,20 @@ int __po_hi_driver_exarm_send (__po_hi_task_id task, __po_hi_port_t port)
    request = __po_hi_gqueue_get_most_recent_value (task, local_port);
 
    size_to_write = sizeof (request->vars);
+
+#if 0
+   {
+
+      int                     i;
+      uint32_t*               swap;
+      swap = (uint32_t*) &(request->vars);
+      for (i = 0 ; i < size_to_write / 4 ; i++)
+      {
+         __po_hi_swap_byte (*swap);
+         swap++;
+      }
+   }
+#endif
 
    int ret = sendto(__po_hi_driver_exarm_socket, &(request->vars), size_to_write, 0, (struct sockaddr*)&__po_hi_driver_exarm_sin, __po_hi_driver_exarm_slen);
 
