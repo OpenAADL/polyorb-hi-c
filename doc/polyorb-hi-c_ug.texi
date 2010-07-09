@@ -623,6 +623,14 @@ Actually, PolyORB-HI-C supports the following devices
    @item
       @b{RASTA 1553} : sends data accross a 1553 bus. It provides functions to use the bus as
       a controller or a terminal (monitor mode not yet implemented).
+   @item
+      @b{Exarm} : a driver that implements a network protocol dedicated to the
+      EXARM project. You can find more information about this project on
+      @url{http://www.esa.int/TEC/Robotics/SEMA9EVHESE_0.html}.
+   @item
+      @b{NI 6071E} : driver for the National Instrument 6071E card. See
+      @url{http://sine.ni.com/nips/cds/view/p/lang/en/nid/1042}. The driver was
+      designed for the EXARM project.
 @end enumerate
 
 
@@ -846,7 +854,27 @@ created for each node of the distributed application.
 
 The marshallers functions are used to put all request and types values in a
 message in order to send them through a network connections. All marshalling
-functions are declared in the file @code{marshallers.c}
+functions are declared in the file @code{marshallers.c}.
+
+However, PolyORB-HI-C can also use third-party marshallers. It can rely on the
+marshallers generated for ASN1 encoding. Details about ASN1 marshallers
+are provided in the next section.
+
+
+@subsubsection Using ASN1 marshallers
+
+With the ASN1 tools from
+Semantix (see. @url{http://www.semantix.gr/assert/}), you can convert ASN1
+declarations into AADL models. Then, these models can be used with AADL
+components and PolyORB-HI-C relies on Semantix tools to automatically generates
+C code that implements the ASN1 types.
+
+For that purpose, you need to install the program @code{asn2aadlPlus} and
+@code{asn1cc}. These programs are freely available on
+@url{http://www.semantix.gr/assert/}. Then, when you use ASN1 types with your
+AADL model (with the AADL files generated with @code{asn2aadlPlus}),
+PolyORB-HI-C uses the generated code from ASN1 descriptions and integrate it to
+marshall data.
 
 @subsubsection Node activity
 
