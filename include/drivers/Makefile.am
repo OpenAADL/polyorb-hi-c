@@ -1,12 +1,13 @@
 AUTOMAKE_OPTIONS = no-dependencies
 EXTRA_DIST = $(srcdir)/po_hi_driver_linux_serial.h       \
              $(srcdir)/po_hi_driver_exarm.h              \
+             $(srcdir)/po_hi_driver_exarm_ni_6071e_analog.h              \
+             $(srcdir)/po_hi_driver_exarm_ni_6071e_digital.h              \
              $(srcdir)/po_hi_driver_rasta_spacewire.h    \
              $(srcdir)/po_hi_driver_rasta_1553.h         \
              $(srcdir)/po_hi_driver_rasta_1553_brmlib.h  \
              $(srcdir)/po_hi_driver_rasta_serial.h       \
              $(srcdir)/po_hi_driver_sockets.h            \
-             $(srcdir)/po_hi_driver_ni_6071e.h           \
              $(srcdir)/po_hi_driver_sockets_common.h     \
              $(srcdir)/po_hi_driver_sockets_asn1.h       \
              $(srcdir)/po_hi_rtems_utils.h
