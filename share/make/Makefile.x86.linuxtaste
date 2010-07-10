@@ -1,0 +1,23 @@
+## This file is a part of PolyORB-HI-C software.
+## It sets some variables useful to compile generated
+## code with the Linux-specific distribution provided
+## with the TASTE tolchain.
+
+
+CC                           = 
+CPP                          =
+
+GPROF                        =
+
+TARGET_SOURCES               = 
+TARGET_TRANSPORT_SOURCES     = 
+
+TARGET_CFLAGS                = 
+TARGET_INCLUDE               =
+
+LD                           =
+TARGET_LDFLAGS               =
+			     
+target-clean:
+
+
