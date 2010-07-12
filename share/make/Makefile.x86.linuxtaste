@@ -4,19 +4,19 @@
 ## with the TASTE tolchain.
 
 
-CC                           = 
-CPP                          =
+CC                           = i386-linux-cc
+CPP                          = i386-linux-cpp
 
 GPROF                        =
 
 TARGET_SOURCES               = 
 TARGET_TRANSPORT_SOURCES     = 
 
-TARGET_CFLAGS                = 
+TARGET_CFLAGS                = -I$(LINUXTASTE_PATH)/output/target/usr/local/include
 TARGET_INCLUDE               =
 
 LD                           =
-TARGET_LDFLAGS               =
+TARGET_LDFLAGS               = -L$(LINUXTASTE_PATH)/output/target/usr/local/lib
 			     
 target-clean:
 
