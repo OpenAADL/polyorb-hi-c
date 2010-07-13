@@ -68,53 +68,54 @@ INCLUDE+=-DTARGET=$(TARGET_NAME)
 # Files to be compiled
 
 ifeq ($(NEED_TRANSPORT), yes)
-   PO_HI_OBJS = \
-	po_hi_task.o \
-	po_hi_time.o \
-	po_hi_protected.o \
-	po_hi_main.o \
-	po_hi_messages.o \
-	po_hi_marshallers.o \
-	po_hi_giop.o \
-	po_hi_utils.o \
-	po_hi_types.o \
-	po_hi_gqueue.o \
-   drivers/po_hi_driver_exarm.o \
+   PO_HI_OBJS =                              \
+	po_hi_task.o                              \
+	po_hi_time.o                              \
+	po_hi_protected.o                         \
+	po_hi_main.o                              \
+	po_hi_messages.o                          \
+	po_hi_marshallers.o                       \
+	po_hi_giop.o                              \
+	po_hi_utils.o                             \
+	po_hi_types.o                             \
+	po_hi_gqueue.o                            \
+   drivers/po_hi_driver_exarm.o              \
    drivers/po_hi_driver_exarm_ni_6071e_analog.o \
    drivers/po_hi_driver_exarm_ni_6071e_digital.o \
-   drivers/po_hi_driver_linux_serial.o \
-   drivers/po_hi_driver_sockets.o \
-   drivers/po_hi_driver_sockets_common.o \
-   drivers/po_hi_driver_sockets_asn1.o \
-   drivers/po_hi_driver_rtems_ne2000.o \
-   drivers/po_hi_driver_rasta_serial.o \
-   drivers/po_hi_driver_rasta_1553.o \
-   drivers/po_hi_driver_rasta_1553_brmlib.o \
-   drivers/po_hi_driver_rasta_spacewire.o \
+   drivers/po_hi_driver_linux_serial.o       \
+   drivers/po_hi_driver_sockets.o            \
+   drivers/po_hi_driver_sockets_common.o     \
+   drivers/po_hi_driver_sockets_asn1.o       \
+   drivers/po_hi_driver_rtems_ne2000.o       \
+   drivers/po_hi_driver_ni_6071e.o           \
+   drivers/po_hi_driver_rasta_serial.o       \
+   drivers/po_hi_driver_rasta_1553.o         \
+   drivers/po_hi_driver_rasta_1553_brmlib.o  \
+   drivers/po_hi_driver_rasta_spacewire.o    \
 	$(ACTUAL_TRANSPORT) \
 	po_hi_transport.o $(TARGET_TRANSPORT_SOURCES)
 
-   GENERATED_OBJS = \
-	activity.o \
-	subprograms.o \
-	types.o \
-	request.o \
-	deployment.o \
-	marshallers.o \
-	naming.o \
+   GENERATED_OBJS =                 \
+	activity.o                       \
+	subprograms.o                    \
+	types.o                          \
+	request.o                        \
+	deployment.o                     \
+	marshallers.o                    \
+	naming.o                         \
 	main.o
 else
-   PO_HI_OBJS = \
-	po_hi_task.o \
-	po_hi_time.o \
-	po_hi_utils.o \
-	po_hi_protected.o \
-	po_hi_main.o
+   PO_HI_OBJS =                     \
+	po_hi_task.o                     \
+	po_hi_time.o                     \
+	po_hi_utils.o                    \
+	po_hi_protected.o                \
+	po_hi_main.o                     
 
-   GENERATED_OBJS = \
-	activity.o \
-	subprograms.o \
-	types.o \
+   GENERATED_OBJS =                 \
+	activity.o                       \
+	subprograms.o                    \
+	types.o                          \
 	main.o
 endif
 
@@ -162,12 +163,24 @@ ifdef SCADE_DIR
 endif
 
 ################################################################################
-# General RTEMS STUFF
+# General RTEMS stuff
 
 check-rtems:
 	if [ ! -d $$RTEMS_MAKEFILE_PATH/make ]; then \
 		echo "Please define the RTEMS_MAKEFILE_PATH variable" && exit 2 ; \
 	fi
+
+
+################################################################################
+# General LINUXTASTE stuff
+check-linuxtaste:
+	if [ ! -d $$LINUXTASTE_PATH/output/staging ]; then \
+		echo "Please define the LINUXTASTE_PATH variable" ; \
+      echo "It should point to the directory where the distro was built" && exit 2 ; \
+	fi
+
+
+
 
 ################################################################################
 # General compilation rules
@@ -208,10 +221,10 @@ $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(U
 ifeq ($(NEED_TRANSPORT), yes)
 run: $(BINARY)
 	pidof qemu >/dev/null 2>&1 ; if [ $$?  -eq 0 ]; then \
-		( sleep 5 ; qemu -net nic,model=ne2k_pci -net socket,connect=127.0.0.1:12345 -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a ; )& \
+		( sleep 5 ; qemu -net nic,model=ne2k_pci,vlan=1,macaddr=00:1F:C6:BF:74:93 -net socket,connect=127.0.0.1:12345 -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a ; )& \
 		echo "Launching QEMU in connect mode" ; \
 	else \
-		qemu -net nic,model=ne2k_pci -net socket,listen=127.0.0.1:12345 -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a ; \
+		qemu -net nic,model=ne2k_pci,vlan=1,macaddr=00:1F:C6:BF:74:92 -net socket,listen=:12345 -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a ; \
 		echo "Launching QEMU in listen mode" ; \
 	fi
 else
@@ -230,6 +243,12 @@ ifeq ($(TARGET), native)
 $(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
 	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
 endif
+
+ifeq ($(TARGET), x86.linuxtaste)
+$(BINARY): check-linuxtaste generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
+	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
+endif
+
 
 %.o: %.cpp
 	$(CPP) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<

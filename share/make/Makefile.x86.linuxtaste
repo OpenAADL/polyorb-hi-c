@@ -12,12 +12,12 @@ GPROF                        =
 TARGET_SOURCES               = 
 TARGET_TRANSPORT_SOURCES     = 
 
-TARGET_CFLAGS                = -I$(LINUXTASTE_PATH)/output/target/usr/local/include
+TARGET_CFLAGS                = -I$(LINUXTASTE_PATH)/output/target/usr/local/include -DPOSIX
 TARGET_INCLUDE               =
 
-LD                           =
-TARGET_LDFLAGS               = -L$(LINUXTASTE_PATH)/output/target/usr/local/lib
+LD                           = i386-linux-ld 
+TARGET_LDFLAGS               = -L$(LINUXTASTE_PATH)/output/target/usr/local/lib -lrt -lpthread -lcomedi -lm
 			     
 target-clean:
 
-
+target-objects:

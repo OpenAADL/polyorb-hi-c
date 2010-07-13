@@ -301,6 +301,7 @@ PolyORB-HI-C has been compiled and sucessfully tested on
 @item embedded platforms
 @itemize @bullet
 @item RTLinx, using Elinos
+@item Linux embedded, specific version for the TASTE toolset.
 @item Nintendo DS (tm) (Linux) - see http://www.dslinux.org
 @item Nokia 770 (Linux) - see http://www.maemo.org
 @item LEON (SPARC-like CPU) (RTEMS)
@@ -308,9 +309,18 @@ PolyORB-HI-C has been compiled and sucessfully tested on
 @end itemize
 @end itemize
 
+
+When you are using RTEMS operating system, you have to define the @code{RTEMS_MAKEFILE_PATH} environment variable. This variable must point to the directory
+that contains the @code{Makefile.inc} file relevant to your platform. In a similar way, when you are using the linux distribution specific to @emph{TASTE}, you have to 
+set the variable @code{LINUXTASTE_PATH}. This variable should point to the directory where the linux-specific distribution was built. To be sure that
+the variable is well defined, you can check that the directory @code{$LINUXTASTE_PATH/output/staging/usr/bin/} exists and that the @code{$LINUXTASTE_PATH/output/staging/usr/bin/i386-linux-gcc}
+file exists and is executable (it corresponds to the cross-compiler for this distribution).
+
 @noindent
 @emph{Note: PolyORB-HI-C should compile and run on every
 POSIX-compliant system.}
+
+
 
 @c -------------------------------------------------------------------
 @node Tree structure
@@ -630,7 +640,10 @@ Actually, PolyORB-HI-C supports the following devices
    @item
       @b{NI 6071E} : driver for the National Instrument 6071E card. See
       @url{http://sine.ni.com/nips/cds/view/p/lang/en/nid/1042}. The driver was
-      designed for the EXARM project.
+      designed for the EXARM project. To be able to use it, you must use
+      the LINUX TASTE specific distribution that embedds the low-level driver
+      for the card. For that, the underlying operating system must be
+      set to x86.linuxtaste.
 @end enumerate
 
 
