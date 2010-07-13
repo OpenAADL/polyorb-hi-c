@@ -221,10 +221,10 @@ $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(U
 ifeq ($(NEED_TRANSPORT), yes)
 run: $(BINARY)
 	pidof qemu >/dev/null 2>&1 ; if [ $$?  -eq 0 ]; then \
-		( sleep 5 ; qemu -net nic,model=ne2k_pci,vlan=1,macaddr=00:1F:C6:BF:74:93 -net socket,connect=127.0.0.1:12345 -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a ; )& \
+		( sleep 5 ; qemu -net nic,model=ne2k_pci,macaddr=52:54:00:12:34:93 -net socket,connect=127.0.0.1:12345 -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a -serial /dev/stdout ; )& \
 		echo "Launching QEMU in connect mode" ; \
 	else \
-		qemu -net nic,model=ne2k_pci,vlan=1,macaddr=00:1F:C6:BF:74:92 -net socket,listen=:12345 -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a ; \
+		qemu -net nic,model=ne2k_pci,macaddr=52:54:00:12:34:92 -net socket,listen=:12345 -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a -serial /dev/stdout; \
 		echo "Launching QEMU in listen mode" ; \
 	fi
 else

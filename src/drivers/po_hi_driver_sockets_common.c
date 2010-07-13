@@ -119,7 +119,7 @@ void __po_hi_driver_sockets_common_generic_init (__po_hi_device_id id, void* (*p
       if( listen( nodes[id].socket , __PO_HI_NB_ENTITIES ) < 0 )
       {
 #ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("Cannot listen on socket %d\n", nodes[mynode].socket);
+         __DEBUGMSG ("Cannot listen on socket %d\n", nodes[id].socket);
 #endif
       }
 
@@ -173,9 +173,11 @@ void __po_hi_driver_sockets_common_generic_init (__po_hi_device_id id, void* (*p
 
          if (nodes[dev].socket == -1 )
          {
-            __DEBUGMSG ("[DRIVER SOCKETS] Socket for node %d is not created", node);
+            __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d is not created\n", dev);
             return;
          }
+
+         __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d created, value=%d\n", dev, nodes[dev].socket);
 
          hostinfo = gethostbyname ((char*)dev_addr);
 
@@ -207,6 +209,7 @@ void __po_hi_driver_sockets_common_generic_init (__po_hi_device_id id, void* (*p
           * We try to connect on the remote host. We try every
           * second to connect on.
           */
+         __PO_HI_SET_SOCKET_TIMEOUT(nodes[dev].socket,5);
 
          ret = connect (nodes[dev].socket, 
                         (struct sockaddr*) &sa ,
@@ -220,7 +223,12 @@ void __po_hi_driver_sockets_common_generic_init (__po_hi_device_id id, void* (*p
             {
                __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id\n", id);
             }
+            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d\n", id);
             break;
+         }
+         else
+         {
+            __DEBUGMSG ("connect() failed, return=%d\n", ret);
          }
 
          if (close (nodes[dev].socket))

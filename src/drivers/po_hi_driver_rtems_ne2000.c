@@ -13,7 +13,7 @@
 extern __po_hi_device_id socket_device_id;
 
 extern struct rtems_bsdnet_ifconfig netdriver_config;
-char __po_hi_rtems_ethernet_address[6] = { 0x00, 0x1F, 0xC6, 0xBF, 0x74, 0x06}; 
+char __po_hi_rtems_ethernet_address[6] = { 0x52, 0x54, 0x00, 0x12, 0x34, 0x57}; 
 
 extern __po_hi_inetnode_t nodes[__PO_HI_NB_DEVICES];
 extern __po_hi_inetnode_t rnodes[__PO_HI_NB_DEVICES];

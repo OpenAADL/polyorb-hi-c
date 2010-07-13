@@ -25,6 +25,7 @@
 #include <po_hi_main.h>
 #include <po_hi_task.h>
 #include <drivers/po_hi_driver_sockets.h>
+#include <drivers/po_hi_driver_sockets_common.h>
 
 #include <activity.h>
 
@@ -164,6 +165,7 @@ void* __po_hi_sockets_poller (void)
    __po_hi_node_t     dev_init;
    __po_hi_request_t  received_request;
    __po_hi_msg_t      msg;
+   int                established = 0; 
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
 
@@ -183,12 +185,27 @@ void* __po_hi_sockets_poller (void)
    {
       if (dev != socket_device_id)
       {
-         sock = accept (nodes[socket_device_id].socket, (struct sockaddr*) &sa, &socklen);
+         __DEBUGMSG ("[DRIVER SOCKETS] Poller wait for connection with device %d\n", dev);
 
-         if (read (sock, &dev_init, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
+         __PO_HI_SET_SOCKET_TIMEOUT(nodes[socket_device_id].socket,5);
+
+         established = 0;
+
+         while (established == 0)
          {
-            __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d\n", dev, sock);
-            continue;
+            sock = accept (nodes[socket_device_id].socket, (struct sockaddr*) &sa, &socklen);
+
+            __PO_HI_SET_SOCKET_TIMEOUT(sock,10);
+
+            if (read (sock, &dev_init, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
+            {
+               established = 0;
+               __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d\n", dev, sock);
+            }
+            else
+            {
+               established = 1;
+            }
          }
          __DEBUGMSG ("[DRIVER SOCKETS] read device-id %d from socket=%d\n", dev_init, sock);
          rnodes[dev].socket = sock;
