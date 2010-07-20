@@ -170,7 +170,7 @@ PolyORB-HI-C API
 * Marshallers functions::       
 * GIOP functions::              
 * Messages functions::          
-* Protocols functions::         
+@c * Protocols functions::         
 * Transport functions::         
 * Protected types functions::   
 * Global queue functions::      
@@ -1578,7 +1578,7 @@ of distribution features and concurrent interactions.
 * Marshallers functions::       
 * GIOP functions::              
 * Messages functions::          
-* Protocols functions::         
+@c * Protocols functions::         
 * Transport functions::         
 * Protected types functions::   
 * Global queue functions::      
@@ -1622,11 +1622,11 @@ of distribution features and concurrent interactions.
 @include po_hi_messages.h.texi
 
 @c -------------------------------------------------------------------
-@node Protocols functions
-@section @code{po_hi_protocols.h}
+@c @node Protocols functions
+@c @section @code{po_hi_protocols.h}
 @c -------------------------------------------------------------------
 
-@include po_hi_protocols.h.texi
+@c @include po_hi_protocols.h.texi
 
 @c -------------------------------------------------------------------
 @node Transport functions

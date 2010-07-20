@@ -5,7 +5,6 @@ EXTRA_DIST = $(srcdir)/po_hi_common.h \
              $(srcdir)/po_hi_marshallers.h \
              $(srcdir)/po_hi_messages.h \
              $(srcdir)/po_hi_protected.h \
-             $(srcdir)/po_hi_protocols.h \
              $(srcdir)/po_hi_returns.h \
              $(srcdir)/po_hi_gqueue.h \
              $(srcdir)/po_hi_giop.h \
