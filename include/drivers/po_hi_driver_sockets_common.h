@@ -46,7 +46,7 @@ extern __po_hi_node_t mynode;
                                             timeout.tv_usec = 0; \
                                             setsockopt (mysocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,sizeof (timeout)); }
 #else
-   #define __PO_HI_SET_SOCKET_TIMEOUT(fd)
+   #define __PO_HI_SET_SOCKET_TIMEOUT(mysocket,nsec)
 #endif
 
 
