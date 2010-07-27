@@ -6,6 +6,7 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2007-2009, GET-Telecom Paris.
+ * Copyright (C) 2007-2010, European Space Agency
  */
 
 #ifndef __PO_HI_RETURNS_H__
