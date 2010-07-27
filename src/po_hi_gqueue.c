@@ -259,15 +259,27 @@ int __po_hi_gqueue_get_value( __po_hi_task_id id,
    else
    {
       memcpy (request, 
-            (void *)&__po_hi_gqueues[id][port] 
-            + ( __po_hi_gqueues_first[id][port] 
-               + __po_hi_gqueues_offsets[id][port] ) 
-            * sizeof (__po_hi_request_t), 
+             (void *)&__po_hi_gqueues[id][port] + ( __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port] )* sizeof (__po_hi_request_t), 
             sizeof (__po_hi_request_t));
    }
 
 #ifdef __PO_HI_DEBUG
    __DEBUGMSG ("Task %d get a value on port %d\n", id, port);
+   __DEBUGMSG ("RECEIVED Value: |");
+   {
+         int s;
+         int i;
+         unsigned int* tmp;
+         tmp = (unsigned int*) &request->vars;
+         s = sizeof (request->vars);
+         for (i = 0 ; i < s ; i+=4)
+         {
+            printf("%x", *tmp);
+            tmp++;
+            fflush (stdout);
+         }
+   }
+   __DEBUGMSG ("|\n");
 #endif
 
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);

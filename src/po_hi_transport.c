@@ -74,6 +74,25 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
 #ifdef __PO_HI_DEBUG
    __DEBUGMSG ("Send value, emitter task %d, emitter port %d, emitter entity %d, destination ports :\n", id,  port, __po_hi_port_global_to_entity[port]);
 #endif
+
+#ifdef __PO_HI_DEBUG
+   __DEBUGMSG ("SENT Value: |");
+   {
+         int s;
+         int i;
+         unsigned int* tmp;
+         tmp = (unsigned int*) &request->vars;
+         s = sizeof (request->vars);
+         for (i = 0 ; i < s ; i+=4)
+         {
+            printf("%x", *tmp);
+            tmp++;
+            fflush (stdout);
+         }
+   }
+   __DEBUGMSG ("|\n");
+#endif
+
    for (i=0 ; i < __po_hi_gqueue_get_destinations_number (id, local_port) ; i++)
    {
       destination_port     = __po_hi_gqueue_get_destination (id, local_port, i);
