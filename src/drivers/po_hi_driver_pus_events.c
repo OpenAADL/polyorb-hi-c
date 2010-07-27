@@ -16,7 +16,7 @@
  * standard.
  */
 
-int __po_hi_driver_pus_events_report (uint8_t severity, __po_hi_driver_pus_events_rid_t rid, char* parameters, int param_len)
+int __po_hi_driver_pus_events_report (uint8_t severity, __po_hi_driver_pus_rid_t rid, char* parameters, int param_len)
 {
    return __PO_HI_SUCCESS;
 }

@@ -15,14 +15,14 @@
 #define __PO_HI_DRIVER_PUS_EVENTS_SUBTYPE_ERROR_LOW         1<<1
 #define __PO_HI_DRIVER_PUS_EVENTS_SUBTYPE_ERROR_MEDIUM      (1<<1)|1
 #define __PO_HI_DRIVER_PUS_EVENTS_SUBTYPE_ERROR_HIGH        1<<2
-#define __PO_HI_DRIVER_PUS_EVENTS_SUBTYPE_REPORT_ENABLE     (1<<2|1)
-#define __PO_HI_DRIVER_PUS_EVENTS_SUBTYPE_REPORT_DISABLE    (1<<2|1<<1)
+#define __PO_HI_DRIVER_PUS_EVENTS_SUBTYPE_REPORT_ENABLE     (1<<2|1<<1)
+#define __PO_HI_DRIVER_PUS_EVENTS_SUBTYPE_REPORT_DISABLE    (1<<2|1)
 
 /*
  * The following code needs extra declaration to work.
  *
  * Generated code must contain at least two definition :
- * 1. The __po_hi_driver_pus_events_rid_t type that is an
+ * 1. The __po_hi_driver_pus_rid_t type that is an
  *    enumeration and describe all Report Identifier
  *    we can have in the system.
  *    ex :
@@ -30,7 +30,7 @@
  *       {
  *          pus_rid_sensor_value_too_high = 1,
  *          pus_rid_sensor_error          = 2
- *       }__po_hi_driver_pis_events_rid_t;
+ *       }__po_hi_driver_pis_rid_t;
  *
  * 2. The __PO_HI_DRIVER_PUS_EVENTS_NB_EVENTS maccro
  *    that specifies the number of events we have in
@@ -38,10 +38,10 @@
  *    ex : #define __PO_HI_DRIVER_PUS_EVENTS_NB_EVENTS 2
  */
 
-int __po_hi_driver_pus_events_report (uint8_t severity, 
-                                      __po_hi_driver_pus_events_rid_t rid,
-                                      char* parameters,
-                                      int param_len);
+int __po_hi_driver_pus_events_report (uint8_t                  severity, 
+                                      __po_hi_driver_pus_rid_t rid,
+                                      char*                    parameters,
+                                      int                      param_len);
 /*
  * This function is used to report events using TM packets.
  * This is describe in the section 10.3 of the ECSS-E-70-41A
@@ -78,6 +78,14 @@ int __po_hi_driver_pus_events_enable (char* data);
  *   _______________________
  *  | RID TO ENABLE/DISABLE |
  *   -----------------------
+ *
+ *
+ * When enable a report generation, the subtype if 6 while
+ * the subtype is 5 when you want to disable a report
+ * event generation.
+ *
+ * Also, enable/disable a report generation is an additional
+ * capability set and is not mandatory.
  *
  * These functions returns __PO_HI_SUCCESS is successfull, another
  * value otherwise.
