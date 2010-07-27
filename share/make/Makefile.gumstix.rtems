@@ -20,11 +20,11 @@ TARGET_SOURCES               =
 #TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
 TARGET_TRANSPORT_SOURCES     = 
 
-TARGET_CFLAGS                = -DRTEMS_POSIX -DNDS_RTEMS -mstructure-size-boundary=8 -mcpu=arm9tdmi -mfpu=vfp -mfloat-abi=soft
+TARGET_CFLAGS                = -DRTEMS_POSIX -DGUMSTIX_RTEMS  -mstructure-size-boundary=8 -mcpu=xscale -mfpu=vfp -mfloat-abi=soft
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
 LD                           = arm-rtems4.10-ld
-TARGET_LDFLAGS               =  -lrtemsbsp -lc
+TARGET_LDFLAGS               = 
 			     
 target-clean:
 
@@ -50,10 +50,7 @@ target-objects:
 define bsp-post-link
 	$(NM) -g -n $@ > $(basename $@).num
 	$(SIZE) $@
-	$(OBJCOPY) -O binary $(basename $@) $(basename $@).bin
-	$(NDSTOOL) -c $(basename $@).nds -9 $(basename $@).bin \
-		-7 $(COPROC_ELF_PATH)/coproc.bin
-	rm -f $(basename $@).bin
+   cp $@ $(basename $@).ralf
 endef
 
 

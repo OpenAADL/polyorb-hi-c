@@ -6,6 +6,7 @@ EXTRA_DIST=$(srcdir)/Makefile.common \
 			  $(srcdir)/Makefile.x86.rtems \
 			  $(srcdir)/Makefile.x86.linuxtaste \
 			  $(srcdir)/Makefile.nds.rtems \
+			  $(srcdir)/Makefile.gumstix.rtems \
 			  $(srcdir)/Makefile.spif.rtems \
            $(srcdir)/Makefile.template
 

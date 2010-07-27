@@ -238,6 +238,14 @@ $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(U
 	$(make-exe)
 endif
 
+
+ifeq ($(TARGET), gumstix.rtems)
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
+$(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
+	$(make-exe)
+endif
+
+
 ifeq ($(TARGET), native)
 $(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
 	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 

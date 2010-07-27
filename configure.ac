@@ -154,6 +154,7 @@ AC_OUTPUT([
 	share/config/spif-rtems/Makefile
 	share/config/leon-rtems/Makefile
 	share/config/nds-rtems/Makefile
+	share/config/gumstix-rtems/Makefile
 	support/Makefile
 ])
 
