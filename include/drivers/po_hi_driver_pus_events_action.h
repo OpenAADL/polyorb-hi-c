@@ -5,8 +5,11 @@
  *
  * For more informations, please visit http://ocarina.enst.fr
  *
- * Copyright (C) 2010, European Space Agency
+ * Copyright (C) 2010, European Space Agency.
  */
+
+#ifndef __PO_HI_DRIVER_PUS_EVENTS_ACTION_H__
+#define __PO_HI_DRIVER_PUS_EVENTS_ACTION_H__
 
 /*
  * This file defines the functions that implement the Event-Action service
@@ -139,6 +142,52 @@ int __po_hi_driver_pus_events_action_clear_detection_list ();
  * Returns __PO_HI_SUCCESS is no error is reported.
  */
 
+int __po_hi_driver_pus_events_action_events_enable (char* data,
+                                                    int data_length);
+/*
+ * Enable one or several events. The data argument is a raw package and
+ * the data_length argument is the length of the data.
+ *
+ * It corresponds to subservice 4
+ * (__PO_HI_DRIVER_PUS_EVENT_ACTION_SUBTYPE_ACTIONS_ENABLE)
+ *
+ * The data argument structure is like this :
+ *    _____________________
+ *   |  N  | APID  |  RID  |
+ *    ---------------------
+ *          <------------->
+ *          Repeated N times
+ * See page 178 of the ECSS standard to have a full description, section 21.3.4.
+ * The N value correspond to the number of events to enable.
+ * So, for each event, the data contain the APID and the Event
+ * Identifier that will be enable to trigger an action.
+ *
+ * Returns __PO_HI_SUCCESS if no error are raised.
+ */
+
+int __po_hi_driver_pus_events_action_events_disable (char* data,
+                                                     int data_length);
+/*
+ * Disable one or several events. The data argument is a raw package and
+ * the data_length argument is the length of the data.
+ *
+ * It corresponds to subservice 5
+ * (__PO_HI_DRIVER_PUS_EVENT_ACTION_SUBTYPE_ACTIONS_DISABLE)
+ *
+ * The data argument structure is like this :
+ *    _____________________
+ *   |  N  | APID  |  RID  |
+ *    ---------------------
+ *          <------------->
+ *          Repeated N times
+ * See page 178 of the ECSS standard to have a full description, section 21.3.4.
+ * The N value correspond to the number of events to disable.
+ * So, for each event, the data contain the APID and the Event
+ * Identifier for which the triggered action will be disabled.
+ *
+ * Returns __PO_HI_SUCCESS if no error are raised.
+ */
+
 
 int __po_hi_driver_pus_events_action_event_enable (__po_hi_driver_pus_apid_t apid,
                                                    __po_hi_driver_pus_rid_t  rid);
@@ -169,4 +218,7 @@ int __po_hi_driver_pus_events_action_event_report ();
  * all events/action registered in the detection list. To generate
  * this report, we use the __po_hi_driver_pus_events_action_report_t type.
  */
+
+
+#endif /* __PO_HI_DRIVER_PUS_EVENTS_ACTION_H__ */
 
