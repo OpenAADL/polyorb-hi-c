@@ -50,6 +50,11 @@
  * The following are additional capabilities.
  */
 
+#define __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_ERROR_LIST_FULL      14
+#define __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_ERROR_EXIST          15
+#define __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_ERROR_NO_ACCESS      16
+#define __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_ERROR_NOT_BOOLEAN    17
+
 typedef struct
 {
    char*                      low_limit;
@@ -162,7 +167,32 @@ int __po_hi_driver_pus_parameter_monitoring_add_items (__po_hi_uint32_t         
                                                       char*                                                      data,
                                                       __po_hi_uint32_t                                           data_length);
 /*
- * Returns __PO_HI_SUCCESS if no error is encountered.
+ * The interval parameter corresponds to the interval at which parameters are
+ * monitored.
+ * The n_samples_values param corresponds to the number of values should be
+ * sampled before a value monitoring report.
+ * The n_samples_delta param corresponds to the number of values that should be
+ * sampled before issuing a delta monitoring report.
+ * The n_parameters param indicates how many parameters are we adding to the
+ * monitoring list.
+ * The data param contains relevant data for adding one or several monitoring
+ * report definition to the list.
+ * The data_length param defines the size of the data parameter.
+ *
+ * The data parameter is structured as in the 15.3.4 section of the ECSS PUS
+ * standard. It repeats n_parameters times the same sequence that defines the
+ * addition of a parameter to the monitoring list.
+ *
+ * Returns : 
+ *    __PO_HI_SUCCESS             if no error is encountered.
+ *    __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_ERROR_LIST_FULL 
+ *                               if the monitoring list is full
+ *    __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_ERROR_EXIST
+ *                               if the parameter is already monitored.
+ *    __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_ERROR_NO_ACCESS
+ *                               if the parameter is not accessible.
+ *    __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_ERROR_NOT_BOOLEAN
+ *                               if the parameter is not boolean.
  */
 
 
@@ -179,7 +209,38 @@ int __po_hi_driver_pus_parameter_monitoring_add_item (__po_hi_uint32_t          
                                                       __po_hi_driver_pus_parameter_monitoring_expected_check_t*  expected_checks);
 
 /*
- * Returns __PO_HI_SUCCESS if no error is encountered.
+ * Returns 
+ *    __PO_HI_SUCCESS if no error is encountered.
+ *    __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_ERROR_LIST_FULL 
+ *                               if the monitoring list is full
+ *    __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_ERROR_EXIST
+ *                               if the parameter is already monitored.
+ *    __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_ERROR_NO_ACCESS
+ *                               if the parameter is not accessible.
+ *    __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_ERROR_NOT_BOOLEAN
+ *                               if the parameter is not boolean.
+ */
+
+int __po_hi_driver_pus_parameter_monitoring_delete_item (__po_hi_driver_pus_pid_t pid);
+/*
+ * Delete a parameter from the monitoring list.
+ * The pid param corresponds to the parameter to remove from the list.
+ *
+ * Returns 
+ *    __PO_HI_SUCCESS if no error is encountered.
+ */
+
+int __po_hi_driver_pus_parameter_monitoring_delete_items (__po_hi_uint32_t n_parameters,
+                                                          char*            data,
+                                                          __po_hi_uint32_t data_length);
+/*
+ * Delete several parameters from the parameter list. The n_parameters param
+ * indicates how many parameters are removed from the list. The data param is
+ * a raw structure that contain all parameter id to be removed. The data_length
+ * size specifies the size of the data param.
+ * 
+ * Returns 
+ *    __PO_HI_SUCCESS if no error is encountered.
  */
 
 
