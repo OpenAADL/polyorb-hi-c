@@ -81,20 +81,81 @@ typedef struct
 
 typedef struct
 {
+   __po_hi_int_t  check_position;
+   int            check_selection_parameter;
+}__po_hi_driver_pus_parameter_monitoring_modification_t;
+
+typedef struct
+{
+   __po_hi_pus_parameter_monitoring_pid_t                      pid;
    __po_hi_uint32_t                                            interval;
    __po_hi_uint32_t                                            n_values;
    /* Number of values that are monitored before issuing a value check */
    __po_hi_uint32_t                                            n_delta;
    /* Number of values that are monitored before issuing a delta check */
-   __po_hi_pus_parameter_monitoring_pid_t                      pid;
    __po_hi_uint32_t                                            n_limit_checks;
    __po_hi_uint32_t                                            n_delta_checks;
    __po_hi_uint32_t                                            n_expected_checks;
-   __po_hi
    __po_hi_driver_pus_parameter_monitoring_limit_check_t       limit_checks[__PO_HI_DRIVER_PUS_PARAMETER_MONITORING_MAX_CHECK_PER_ITEM];
    __po_hi_driver_pus_parameter_monitoring_delta_check_t       delta_checks[__PO_HI_DRIVER_PUS_PARAMETER_MONITORING_MAX_CHECK_PER_ITEM];
    __po_hi_driver_pus_parameter_monitoring_expected_check_t    expected_checks[__PO_HI_DRIVER_PUS_PARAMETER_MONITORING_MAX_CHECK_PER_ITEM];
 }__po_hi_driver_pus_parameter_monitoring_item_t;
+
+
+
+typedef struct
+{
+   __po_hi_bool_t                                              enable;
+   __po_hi_uint32_t                                            max_reporting_delay;
+   __po_hi_uint32_t                                            n_items;
+   __po_hi_driver_pus_parameter_monitoring_item_t              items;
+}__po_hi_driver_pus_parameter_monitoring_status_t;
+
+
+#define   __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_EXPECTED_VALUE       0
+#define   __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_WITHIN_LIMITS        0
+#define   __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_WITHIN_THRESOLDS     0
+#define   __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_UNCHECKED            1
+#define   __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_INVALID              2
+#define   __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_UNSELECTED           3
+#define   __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_UNEXPECTED_VALUE     4
+#define   __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_BELOW_LIMIT          4
+#define   __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_BELOW_THRESOLD       4
+#define   __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_ABOVE_LIMIT          5
+#define   __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_ABOVE_THRESOLD       5
+
+typedef struct
+{
+
+   __po_hi_pus_parameter_monitoring_pid_t                      pid;
+   char*                                                       param_value;
+   char*                                                       limit_crossed;
+   __po_hi_uint8_t                                             previous_status;
+   /* 
+    * Correspond to a value of the macro 
+    * __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_* 
+    */
+   __po_hi_uint8_t                                             current_status;
+   /* 
+    * Correspond to a value of the macro 
+    * __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_CHECKING_STATUS_* 
+    */
+   __po_hi_time_t                                              crossed_time;
+}__po_hi_driver_pus_parameter_monitoring_report_status_item_t;
+
+
+typedef struct
+{
+   __po_hi_uint32_t                                               n_items;
+   __po_hi_driver_pus_parameter_monitoring_report_status_item_t*  items;
+}__po_hi_driver_pus_parameter_monitoring_ool_status_t;
+
+
+typedef struct
+{
+   __po_hi_uint32_t                                               n_items;
+   __po_hi_driver_pus_parameter_monitoring_report_status_item_t*  items;
+}__po_hi_driver_pus_parameter_monitoring_check_transition_report_t;
 
 
 int __po_hi_driver_pus_parameter_monitoring_enable (char* data, int data_length);
@@ -238,10 +299,88 @@ int __po_hi_driver_pus_parameter_monitoring_delete_items (__po_hi_uint32_t n_par
  * indicates how many parameters are removed from the list. The data param is
  * a raw structure that contain all parameter id to be removed. The data_length
  * size specifies the size of the data param.
+ *
+ * Correspond to subtype 6
+ * (__PO_HI_DRIVER_PUS_PARAMETER_MONITORING_SUBTYPE_LIST_DELETE)
  * 
  * Returns 
  *    __PO_HI_SUCCESS if no error is encountered.
  */
+
+int __po_hi_driver_pus_parameter_monitoring_modify_item (__po_hi_driver_pus_pid_t pid,
+                                                         __po_hi_bool_t                                             is_valid,
+                                                         __po_hi_uint32_t                                           n_limit_checks,
+                                                         __po_hi_driver_pus_parameter_monitoring_modification_t*    checks_modifications;
+                                                         __po_hi_driver_pus_parameter_monitoring_limit_check_t*     limit_checks,
+                                                         __po_hi_uint32_t                                           n_delta_checks,
+                                                         __po_hi_driver_pus_parameter_monitoring_modification_t*    delta_modifications;
+                                                         __po_hi_driver_pus_parameter_monitoring_delta_check_t*     delta_checks,
+                                                         __po_hi_uint32_t                                           n_expected_checks,
+                                                         __po_hi_driver_pus_parameter_monitoring_modification_t*    expected_modifications;
+                                                         __po_hi_driver_pus_parameter_monitoring_expected_check_t*  expected_checks);
+
+/*
+ * Modify the monitoring of one parameter. The checks_modifications,
+ * delta_modifications and expected_modifications parameters correspond to the
+ * "Check Position" and "Check Selection Parameter#" item in section 1.3.6 of
+ * the standard. For each modified parameter, we must have a value in
+ * *_modifications data that indicate how the change are applied.
+ *
+ * Returns __PO_HI_SUCCESS if no error is encountered.
+ */
+
+
+
+int __po_hi_driver_pus_parameter_monitoring_modify_items (__po_hi_uint32_t n_parameters,
+                                                          char*            data,
+                                                          __po_hi_uint32_t data_length);
+/*
+ * Modify several parameters from the parameter list. The n_parameters param
+ * indicates how many parameters are removed from the list. The data param is
+ * a structure, detailed in section 15.3.6 of the standard.
+ *
+ * Correspond to service subtype 7 of the service 12.
+ * (__PO_HI_DRIVER_PUS_PARAMETER_MONITORING_SUBTYPE_LIST_MODIFY)
+ * 
+ * Returns 
+ *    __PO_HI_SUCCESS if no error is encountered.
+ */
+
+int __po_hi_driver_pus_parameter_monitoring_report_list ();
+/*
+ * Report the list of ALL monitored parameters. Correspond to service subtype 8
+ * (ask for report, TC packet - __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_SUBTYPE_LIST_REPORT_ASK)
+ * and 9 (send the report, TM packet - __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_SUBTYPE_LIST_REPORT_ANSWER).
+ *
+ * Returns __PO_HI_SUCCESS if no error are encountered.
+ */
+
+
+int __po_hi_driver_pus_parameter_monitoring_report_ool ();
+/*
+ * Issue a report with ALL out of limit parameters. This corresponds to the
+ * service subtype 10 (__PO_HI_DRIVER_PUS_PARAMETER_MONITORING_SUBTYPE_OOL_ASK)
+ * for the TC packet and service 11 (__PO_HI_DRIVER_PUS_PARAMETER_MONITORING_SUBTYPE_OOL_ANSWER)
+ * for the TM packet.
+ *
+ * Correspond to the section 15.3.8 of the ECSS standard.
+ *
+ * Returns __PO_HI_SUCCESS if no error are encountered.
+ */
+
+
+int __po_hi_driver_pus_parameter_monitoring_report_check_transitions ();
+/*
+ * Report the transition list that have been performed since the last report.
+ * Correspond to service subtype 12
+ * (__PO_HI_DRIVER_PUS_PARAMETER_MONITORING_SUBTYPE_CHECK_TRANSITION_REPORT)
+ * and it sends a TM packet to the ground that contains the check transitions
+ * informations. The packet structure is detailed in section 15.3.9 of the ECSS
+ * standard.
+ *
+ * Returns __PO_HI_SUCCESS if no error are encountered.
+ */
+
 
 
 #endif /* __PO_HI_DRIVER_PUS_PARAMETER_MONITORING_H__ */
