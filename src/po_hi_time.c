@@ -9,14 +9,20 @@
  */
 
 #include <time.h>
-#include <pthread.h>
 #include <errno.h>
 
 #include <po_hi_config.h>
 #include <po_hi_time.h>
 #include <po_hi_returns.h>
+#include <po_hi_debug.h>
 
-#ifdef NEED_CLOCK_GETTIME
+#if defined (POSIX) || defined (RTEMS_POSIX)
+#include <pthread.h>
+#elif defined (RTEMS_PURE)
+#include <bsp.h>
+#endif 
+
+#if defined (POSIX) && defined (NEED_CLOCK_GETTIME)
 #include <sys/time.h>
 int clock_gettime(int clk_id, struct timespec *tp)
 {
@@ -38,6 +44,7 @@ int clock_gettime(int clk_id, struct timespec *tp)
 
 int __po_hi_get_time (__po_hi_time_t* mytime)
 {
+#if defined (POSIX) || defined (RTEMS_POSIX)
    struct timespec ts;
    __po_hi_time_t tmp;
 
@@ -51,6 +58,23 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
    *mytime = tmp;
 
    return (__PO_HI_SUCCESS);
+#elif defined (RTEMS_PURE)
+   rtems_time_of_day    current_time;
+   __po_hi_time_t       tmp;
+
+   tmp = 0;
+   if (rtems_clock_get (RTEMS_CLOCK_GET_TOD, &current_time) != RTEMS_SUCCESSFUL)
+   {
+      __DEBUGMSG ("Error when trying to get the clock on RTEMS\n");
+   }
+
+   tmp = _TOD_To_seconds (&current_time) * 1000000;
+   tmp += current_time.ticks * _TOD_Microseconds_per_tick;
+   
+   return (__PO_HI_SUCCESS);
+#else
+   return (__PO_HI_UNAVAILABLE);
+#endif
 }
 
 __po_hi_time_t __po_hi_add_times (__po_hi_time_t left, __po_hi_time_t right)
@@ -83,6 +107,7 @@ __po_hi_time_t __po_hi_microseconds (__po_hi_uint32_t microseconds)
 
 int __po_hi_delay_until (__po_hi_time_t time)
 {
+#if defined (POSIX) || defined (RTEMS_POSIX)
    pthread_mutex_t mutex;
    pthread_cond_t cond;
    struct timespec timer;
@@ -128,4 +153,9 @@ int __po_hi_delay_until (__po_hi_time_t time)
       ret = __PO_HI_ERROR_PTHREAD_MUTEX;
    }
    return (ret);
+#elif defined (RTEMS_PURE)
+   return (__PO_HI_UNAVAILABLE);
+#else
+   return (__PO_HI_UNAVAILABLE);
+#endif
 }

@@ -28,7 +28,6 @@
    #define __PO_HI_MAIN_NAME Init
    #define __PO_HI_MAIN_TYPE rtems_task
    #define __PO_HI_MAIN_ARGS rtems_task_argument argument
-   rtems_task Init (rtems_task_argument);
    #define __PO_HI_MAIN_RETURN 0
    #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
 #elif defined(RTEMS_POSIX)
@@ -53,7 +52,9 @@
 #elif defined(RTEMS_PURE)
 #include <rtems.h>
 #include <inttypes.h>
+#include <po_hi_time.h>
 #include <bsp.h>
+#define __PO_HI_DEFAULT_PRIORITY 10
 #endif
 
 #include <po_hi_types.h>
@@ -81,10 +82,10 @@ int __po_hi_initialize_tasking();
  * it returns the negative value ERROR_CREATE_TASK.
  */
 int __po_hi_create_periodic_task (__po_hi_task_id      id, 
-				  __po_hi_time_t       period, 
-				  __po_hi_priority_t   priority, 
-				  __po_hi_stack_t      stack_size,
-				  void*                (*start_routine)(void));
+                                  __po_hi_time_t       period, 
+                                  __po_hi_priority_t   priority, 
+                                  __po_hi_stack_t      stack_size,
+                                 void*                (*start_routine)(void));
 
 /*
  * Create a sporadic task. 

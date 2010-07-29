@@ -24,7 +24,7 @@ GPROF                        = i386-rtems4.8-gprof
 TARGET_SOURCES               = 
 TARGET_TRANSPORT_SOURCES     = 
 
-TARGET_CFLAGS                = -DRTEMS_POSIX -DX86_RTEMS
+TARGET_CFLAGS                = -DRTEMS_PURE -DX86_RTEMS
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/
 
 LD                           = i386-rtems4.8-ld

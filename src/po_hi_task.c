@@ -18,10 +18,15 @@
 #include <po_hi_task.h>
 #include <po_hi_debug.h>
 #include <po_hi_returns.h>
+#include <po_hi_types.h>
 /* Header files in PolyORB-HI */
 
 #include <deployment.h>	
 /* Header files from generated code */
+#ifdef  RTEMS_PURE
+#include <bsp.h>
+#endif
+
 
 int nb_tasks; /* number of created tasks */
 
@@ -29,15 +34,16 @@ typedef struct
 {
   __po_hi_task_id     id;       /* Identifier of the task in the system */
   __po_hi_time_t      period;
-  __po_hi_time_t      timer;
 #if defined(RTEMS_POSIX) || defined(POSIX)
+  __po_hi_time_t      timer;
   pthread_t           tid;              /* The pthread_t type used by the
                                            POSIX library */
   pthread_mutex_t     mutex;
   pthread_cond_t      cond;
+#elif defined(RTEMS_PURE)
+  rtems_time_of_day   timer; /* Next period to wait */
 #endif
-}
-__po_hi_task_t;
+} __po_hi_task_t;
 /*
  * Structure of a task, contains platform-dependent members
  */
@@ -47,12 +53,16 @@ __po_hi_task_t tasks[__PO_HI_NB_TASKS];
 
 void __po_hi_wait_for_tasks ()
 {
-  int i;
 #if defined(RTEMS_POSIX) || defined(POSIX)
+  int i;
+
   for (i = 0; i < __PO_HI_NB_TASKS; i++)
     {
       pthread_join( tasks[i].tid , NULL );
     }
+#endif
+#ifdef RTEMS_PURE
+  rtems_task_suspend(RTEMS_SELF);
 #endif
 }
 
@@ -63,6 +73,7 @@ void __po_hi_wait_for_tasks ()
  */
 int __po_hi_compute_next_period (__po_hi_task_id task)
 {
+#if defined(RTEMS_POSIX) || defined(POSIX)
   __po_hi_time_t mytime;
 
   if (__po_hi_get_time (&mytime) != __PO_HI_SUCCESS)
@@ -72,10 +83,28 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
   tasks[task].timer = __po_hi_add_times( mytime, tasks[task].period );
   
   return (__PO_HI_SUCCESS);
+#elif defined (RTEMS_PURE)
+   if (rtems_clock_get (RTEMS_CLOCK_GET_TOD, &tasks[task].timer) != RTEMS_SUCCESSFUL)
+   {
+      __DEBUGMSG ("ERROR WHILE TRYING TO GET THE CLOCK\n");
+      return (__PO_HI_UNAVAILABLE);
+   }
+   tasks[task].timer.second += 2;
+   /*
+    * TODO
+    * MUST FIX THAT
+    */
+
+   return (__PO_HI_SUCCESS);
+
+#else
+   return (__PO_HI_UNAVAILABLE);
+#endif
 }
 
 int __po_hi_wait_for_next_period (__po_hi_task_id task)
 {
+#if defined (POSIX) || defined (RTEMS_POSIX)
   int ret;
   __po_hi_task_delay_until (tasks[task].timer, task);
   if ( (ret = __po_hi_compute_next_period (task)) != 1)
@@ -84,6 +113,20 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
     }
 
   return (__PO_HI_SUCCESS);
+#elif defined (RTEMS_PURE)
+  if (rtems_task_wake_when (&tasks[task].timer) != RTEMS_SUCCESSFUL)
+  {
+      __DEBUGMSG ("Error rtems_task_wake_when()\n");
+//      return (__PO_HI_UNAVAILABLE);
+  }
+
+  rtems_task_wake_after(RTEMS_YIELD_PROCESSOR);
+  __po_hi_compute_next_period (task);
+
+  return (__PO_HI_SUCCESS);
+#else
+  return (__PO_HI_UNAVAILABLE);
+#endif
 }
 
 int __po_hi_initialize_tasking( )
@@ -194,7 +237,31 @@ int __po_hi_posix_initialize_task (__po_hi_task_t* task)
         }
         return (__PO_HI_SUCCESS);
 }
-#endif /* POSIX */
+
+#endif /* POSIX || RTEMS_POSIX */
+
+
+#ifdef RTEMS_PURE
+int __po_hi_rtems_create_thread (__po_hi_priority_t priority, 
+                                 __po_hi_stack_t    stack_size,
+                                void*              (*start_routine)(void))
+{
+  rtems_id id;
+   if (rtems_task_create (rtems_build_name( 'T', 'A', nb_tasks, ' ' ), 1, RTEMS_MINIMUM_STACK_SIZE, RTEMS_DEFAULT_MODES, RTEMS_DEFAULT_ATTRIBUTES | RTEMS_FLOATING_POINT, &id) != RTEMS_SUCCESSFUL)
+   {
+      __DEBUGMSG ("ERROR when creating the task\n");
+   }
+
+  if (rtems_task_start( id, start_routine, 0 ) != RTEMS_SUCCESSFUL)
+  {
+      __DEBUGMSG ("ERROR when starting the task\n");
+  }
+
+   return __PO_HI_SUCCESS;
+}
+#endif
+
+
 
 int __po_hi_create_generic_task (__po_hi_task_id    id, 
                                  __po_hi_time_t     period, 
@@ -205,7 +272,15 @@ int __po_hi_create_generic_task (__po_hi_task_id    id,
   __po_hi_task_t* my_task;
   if (id == -1) 
     {
+#if defined (POSIX) || defined (RTEMS_POSIX)
       __po_hi_posix_create_thread (priority, stack_size, start_routine);
+      return (__PO_HI_SUCCESS);
+#elif defined (RTEMS_PURE)
+      __po_hi_rtems_create_thread (priority, stack_size, start_routine);
+      return (__PO_HI_SUCCESS);
+#else
+      return (__PO_HI_UNAVAILABLE);
+#endif
     } 
   else
     {
@@ -213,9 +288,14 @@ int __po_hi_create_generic_task (__po_hi_task_id    id,
       my_task->period = period;
       my_task->id     = id;
       
+#if defined (POSIX) || defined (RTEMS_POSIX)
       my_task->tid    = __po_hi_posix_create_thread (priority, stack_size, start_routine);
       __po_hi_posix_initialize_task (my_task);
-      
+#elif defined (RTEMS_PURE)
+      __po_hi_rtems_create_thread (priority, stack_size, start_routine);
+#else
+      return (__PO_HI_UNAVAILABLE);
+#endif
       nb_tasks++;
     }
 
@@ -267,6 +347,7 @@ int __po_hi_create_sporadic_task (__po_hi_task_id    id,
 
 int __po_hi_task_delay_until (__po_hi_time_t time, __po_hi_task_id task)
 {
+#if defined (POSIX) || defined (RTEMS_POSIX)
   struct timespec timer;
   int ret;
 
@@ -290,4 +371,6 @@ int __po_hi_task_delay_until (__po_hi_time_t time, __po_hi_task_id task)
   pthread_mutex_unlock (&tasks[task].mutex);
 
   return (ret);
+#endif
+  return (__PO_HI_UNAVAILABLE);
 }

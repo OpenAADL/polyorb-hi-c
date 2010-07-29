@@ -50,6 +50,30 @@
    #include <rtems/confdefs.h>
 #endif  /* RTEMS_POSIX */
 
+#if defined(RTEMS_PURE)
+   #include <rtems.h>
+   #include <inttypes.h>
+   #define CONFIGURE_INIT
+   #include <bsp.h>
+   #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
+   #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
+   #define CONFIGURE_APPLICATION_NEEDS_NULL_DRIVER
+   #define CONFIGURE_APPLICATION_NEEDS_TIMER_DRIVER
+   #define CONFIGURE_MAXIMUM_TIMERS                40
+   #define CONFIGURE_EXECUTIVE_RAM_SIZE    (512*1024)
+   #define CONFIGURE_MAXIMUM_SEMAPHORES    20
+   #define CONFIGURE_MAXIMUM_TASKS         20
+   #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 20
+
+   int Init ();
+   #define CONFIGURE_EXTRA_TASK_STACKS         (20 * RTEMS_MINIMUM_STACK_SIZE)
+   #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
+   #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
+   #define CONFIGURE_MAXIMUM_TASKS 20
+   #include <rtems/confdefs.h>
+#endif  /* RTEMS_POSIX */
+
+
 
 #if defined (X86_RTEMS)
 #include <rtems/rtems_bsdnet.h>

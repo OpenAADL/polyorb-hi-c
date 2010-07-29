@@ -11,6 +11,7 @@
 #include <po_hi_config.h>
 #include <po_hi_time.h>
 #include <po_hi_types.h>
+#include <po_hi_debug.h>
 #include <po_hi_utils.h>
 /* Header files in PolyORB-HI */
 
@@ -21,6 +22,7 @@
 
 int __po_hi_simulate_wcet (__po_hi_time_t time1, __po_hi_time_t time2)
 {
+#if defined (POSIX) || defined (RTEMS_POSIX)
    __po_hi_time_t tmp;
    __po_hi_time_t limit;
    __po_hi_get_time(&limit);
@@ -33,6 +35,10 @@ int __po_hi_simulate_wcet (__po_hi_time_t time1, __po_hi_time_t time2)
          return 0;
       }
    }
+   return 0;
+#else
+   __DEBUGMSG ("WCET simulation not handled at this time\n");
+#endif
    return 0;
 }
 

@@ -9,8 +9,6 @@
  * Copyright (C) 2010, European Space Agency (ESA)
  */
 
-#include <pthread.h>
-/* POSIX files */
 
 #include <deployment.h>
 /* included files from the generated code */
@@ -23,8 +21,13 @@
 #include <po_hi_protected.h>
 /* included files from PolyORB-HI-C */
 
+#if defined (POSIX) || defined (RTEMS_POSIX)
+#include <pthread.h>
+/* POSIX files */
+
 pthread_cond_t cond_init;
 pthread_mutex_t mutex_init;
+#endif
 
 int initialized_tasks = 0;
 /* The barrier is initialized with __PO_HI_NB_TASKS +1
@@ -40,25 +43,30 @@ void __po_hi_initialize_add_task ()
 
 int __po_hi_initialize ()
 {
+#if defined (POSIX) || defined (RTEMS_POSIX)
    pthread_mutexattr_t mutex_attr;
+#endif
 
-#ifdef RTEMS_POSIX
+#if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
 #include <rtems/rtems/clock.h>
-  rtems_status_code status;
   rtems_time_of_day time;
 
   time.year   = 1988;
   time.month  = 12;
   time.day    = 31;
   time.hour   = 9;
-  time.minute = 0;
-  time.second = 0;
+  time.minute = 1;
+  time.second = 10;
   time.ticks  = 0;
 
-  status = rtems_clock_set( &time );
+  if (rtems_clock_set( &time ) != RTEMS_SUCCESSFUL)
+  {
+     __DEBUGMSG ("Cannot set the clock\n");
+  }
   
 #endif
 
+#if defined (RTEMS_POSIX) || defined (POSIX)
    if (pthread_mutexattr_init (&mutex_attr) != 0)
    {
       __DEBUGMSG ("[MAIN] Unable to init mutex attributes\n");
@@ -83,6 +91,7 @@ int __po_hi_initialize ()
   {
      return (__PO_HI_ERROR_PTHREAD_COND);
   }
+#endif
 
   __po_hi_initialize_tasking ();
 
@@ -96,6 +105,7 @@ int __po_hi_initialize ()
 
 int __po_hi_wait_initialization ()
 {
+#if defined (POSIX) || defined (RTEMS_POSIX)
   if (pthread_mutex_lock (&mutex_init) != 0)
   {
     return (__PO_HI_ERROR_PTHREAD_MUTEX);
@@ -112,6 +122,9 @@ int __po_hi_wait_initialization ()
   pthread_cond_broadcast (&cond_init);
   pthread_mutex_unlock (&mutex_init);
   return (__PO_HI_SUCCESS);
+#else
+  return (__PO_HI_UNAVAILABLE);
+#endif
 }
 
 #ifdef __PO_HI_USE_GPROF
