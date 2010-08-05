@@ -90,7 +90,7 @@ int __po_hi_driver_xc4v_fpga_initialize()
    return 1;
 }
 
-unsigned __po_hi_driver_xc4v_fpga_write_register (unsigned offset) 
+unsigned __po_hi_driver_xc4v_fpga_read_register (unsigned offset) 
 {
    unsigned int xc4v_pci_address;
    unsigned int* data;
