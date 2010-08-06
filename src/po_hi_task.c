@@ -129,7 +129,8 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
          return (__PO_HI_ERROR_TASK_PERIOD);
          break;
       default:
-         return (__PO_HI_UNAVAILABLE);
+         __DEBUGMSG ("Error in rtems_rate_monotonic_period (unknown, error code=%d)\n", ret);
+         return (__PO_HI_ERROR_UNKNOWN);
          break;
    }
 

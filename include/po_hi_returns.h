@@ -22,6 +22,8 @@
 #define __PO_HI_ERROR_CLOCK               -15
 #define __PO_HI_ERROR_QUEUE_FULL          -20
 
+#define __PO_HI_ERROR_UNKNOWN             -30
+
 /* Errors related to the pthread library */
 #define __PO_HI_ERROR_PTHREAD_COND        -50
 #define __PO_HI_ERROR_PTHREAD_MUTEX       -51

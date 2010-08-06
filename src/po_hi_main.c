@@ -29,6 +29,10 @@ pthread_cond_t cond_init;
 pthread_mutex_t mutex_init;
 #endif
 
+#ifdef RTEMS_PURE
+rtems_id __po_hi_main_initialization_barrier;
+#endif
+
 int initialized_tasks = 0;
 /* The barrier is initialized with __PO_HI_NB_TASKS +1
  * members, because the main function must pass the barrier
@@ -45,28 +49,6 @@ int __po_hi_initialize ()
 {
 #if defined (POSIX) || defined (RTEMS_POSIX)
    pthread_mutexattr_t mutex_attr;
-#endif
-
-#if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
-#include <rtems/rtems/clock.h>
-  rtems_time_of_day time;
-
-  time.year   = 1988;
-  time.month  = 12;
-  time.day    = 31;
-  time.hour   = 9;
-  time.minute = 1;
-  time.second = 10;
-  time.ticks  = 0;
-
-  if (rtems_clock_set( &time ) != RTEMS_SUCCESSFUL)
-  {
-     __DEBUGMSG ("Cannot set the clock\n");
-  }
-  
-#endif
-
-#if defined (RTEMS_POSIX) || defined (POSIX)
    if (pthread_mutexattr_init (&mutex_attr) != 0)
    {
       __DEBUGMSG ("[MAIN] Unable to init mutex attributes\n");
@@ -90,6 +72,36 @@ int __po_hi_initialize ()
   if (pthread_cond_init (&cond_init, NULL) != 0)
   {
      return (__PO_HI_ERROR_PTHREAD_COND);
+  }
+
+#endif
+
+#if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
+#include <rtems/rtems/clock.h>
+  rtems_status_code ret;
+  rtems_time_of_day time;
+
+  time.year   = 1988;
+  time.month  = 12;
+  time.day    = 31;
+  time.hour   = 9;
+  time.minute = 1;
+  time.second = 10;
+  time.ticks  = 0;
+
+  ret = rtems_clock_set( &time );
+  if (ret != RTEMS_SUCCESSFUL)
+  {
+     __DEBUGMSG ("[MAIN] Cannot set the clock\n");
+     return __PO_HI_ERROR_CLOCK;
+  }
+ 
+  __DEBUGMSG ("[MAIN] Create a barrier that wait for %d tasks\n", nb_tasks_to_init);
+   
+  ret = rtems_barrier_create (rtems_build_name ('B', 'A', 'R', 'M'), RTEMS_BARRIER_AUTOMATIC_RELEASE, nb_tasks_to_init, &__po_hi_main_initialization_barrier);
+  if (ret != RTEMS_SUCCESSFUL)
+  {
+     __DEBUGMSG ("[MAIN] Cannot create the main barrier, return code=%d\n", ret);
   }
 #endif
 
@@ -121,6 +133,18 @@ int __po_hi_wait_initialization ()
     }
   pthread_cond_broadcast (&cond_init);
   pthread_mutex_unlock (&mutex_init);
+  return (__PO_HI_SUCCESS);
+#elif defined (RTEMS_PURE) 
+  rtems_status_code ret;
+
+  __DEBUGMSG ("[MAIN] Task wait for the barrier\n");
+  ret = rtems_barrier_wait (__po_hi_main_initialization_barrier, RTEMS_WAIT);
+  if (ret != RTEMS_SUCCESSFUL)
+  {
+     __DEBUGMSG ("[MAIN] Error while waiting for the barrier, return code=%d\n", ret);
+     return (__PO_HI_ERROR_UNKNOWN);
+  }
+  __DEBUGMSG ("[MAIN] Task release the barrier\n");
   return (__PO_HI_SUCCESS);
 #else
   return (__PO_HI_UNAVAILABLE);
