@@ -24,7 +24,7 @@ TARGET_CFLAGS                = -DRTEMS_POSIX -DNDS_RTEMS -mstructure-size-bounda
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
 LD                           = arm-rtems4.10-ld
-TARGET_LDFLAGS               =  -lrtemsbsp -lc
+TARGET_LDFLAGS               =  -lrtemsbsp -lc -lm
 			     
 target-clean:
 

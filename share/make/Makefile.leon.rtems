@@ -29,7 +29,7 @@ TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
 LD                           = sparc-rtems-ld
-TARGET_LDFLAGS               = -lrtemsbsp -lc
+TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
 			     
 target-clean:
 

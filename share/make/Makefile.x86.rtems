@@ -28,7 +28,7 @@ TARGET_CFLAGS                = -DRTEMS_PURE -DX86_RTEMS
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/
 
 LD                           = i386-rtems4.8-ld
-TARGET_LDFLAGS               = -lrtemsbsp -lc
+TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
 			     
 target-clean:
 
