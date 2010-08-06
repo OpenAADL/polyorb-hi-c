@@ -50,7 +50,6 @@
 #define __PO_HI_DEFAULT_PRIORITY ((sched_get_priority_min(SCHED_FIFO) + sched_get_priority_max(SCHED_FIFO))/2)
 
 #elif defined(RTEMS_PURE)
-
 #include <rtems.h>
 #include <inttypes.h>
 #include <po_hi_time.h>

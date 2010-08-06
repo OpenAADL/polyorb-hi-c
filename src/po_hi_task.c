@@ -125,11 +125,11 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
          return (__PO_HI_SUCCESS);
          break;
       case RTEMS_TIMEOUT:
-         __DEBUGMSG ("Error in rtems_rate_monotonic_period (TIMEOUT)\n");
+         __DEBUGMSG ("Error in rtems_rate_monotonic_period (TIMEOUT, task = %d)\n", task);
          return (__PO_HI_ERROR_TASK_PERIOD);
          break;
       default:
-         __DEBUGMSG ("Error in rtems_rate_monotonic_period (unknown, error code=%d)\n", ret);
+         __DEBUGMSG ("Error in rtems_rate_monotonic_period (unknown, error code=%d, task=%d)\n", ret, task);
          return (__PO_HI_ERROR_UNKNOWN);
          break;
    }
