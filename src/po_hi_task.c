@@ -22,10 +22,8 @@
 /* Header files in PolyORB-HI */
 
 #include <deployment.h>	
+
 /* Header files from generated code */
-#ifdef  RTEMS_PURE
-#include <bsp.h>
-#endif
 
 
 int nb_tasks; /* number of created tasks */
@@ -41,7 +39,7 @@ typedef struct
   pthread_mutex_t     mutex;
   pthread_cond_t      cond;
 #elif defined(RTEMS_PURE)
-  rtems_time_of_day   timer; /* Next period to wait */
+  rtems_id            ratemon_period;
 #endif
 } __po_hi_task_t;
 /*
@@ -73,6 +71,7 @@ void __po_hi_wait_for_tasks ()
  */
 int __po_hi_compute_next_period (__po_hi_task_id task)
 {
+
 #if defined(RTEMS_POSIX) || defined(POSIX)
   __po_hi_time_t mytime;
 
@@ -84,19 +83,21 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
   
   return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)
-   if (rtems_clock_get (RTEMS_CLOCK_GET_TOD, &tasks[task].timer) != RTEMS_SUCCESSFUL)
+   rtems_status_code ret;
+   rtems_name name;
+
+   if (tasks[task].ratemon_period == RTEMS_INVALID_ID)
    {
-      __DEBUGMSG ("ERROR WHILE TRYING TO GET THE CLOCK\n");
-      return (__PO_HI_UNAVAILABLE);
+   name = rtems_build_name ('P', 'R', 'D' + (char)task, ' ');
+
+   __DEBUGMSG ("Create monotonic server for task %d\n", task);
+   ret = rtems_rate_monotonic_create (name, &(tasks[task].ratemon_period));
+   if (ret != RTEMS_SUCCESSFUL)
+   {
+      __DEBUGMSG ("Error while creating the monotonic server, task=%d, status=%d\n", task, ret);
    }
-   tasks[task].timer.second += 2;
-   /*
-    * TODO
-    * MUST FIX THAT
-    */
-
-   return (__PO_HI_SUCCESS);
-
+   }
+  return (__PO_HI_SUCCESS);
 #else
    return (__PO_HI_UNAVAILABLE);
 #endif
@@ -114,16 +115,25 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
 
   return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)
-  if (rtems_task_wake_when (&tasks[task].timer) != RTEMS_SUCCESSFUL)
-  {
-      __DEBUGMSG ("Error rtems_task_wake_when()\n");
-//      return (__PO_HI_UNAVAILABLE);
-  }
+   rtems_status_code ret;
+/*   ret = rtems_rate_monotonic_period (&tasks[task].ratemon_period, (rtems_interval)tasks[task].period * ); */
+   ret = rtems_rate_monotonic_period (tasks[task].ratemon_period, tasks[task].period / _TOD_Microseconds_per_tick); 
 
-  rtems_task_wake_after(RTEMS_YIELD_PROCESSOR);
-  __po_hi_compute_next_period (task);
+   switch (ret)
+   {
+      case RTEMS_SUCCESSFUL:
+         return (__PO_HI_SUCCESS);
+         break;
+      case RTEMS_TIMEOUT:
+         __DEBUGMSG ("Error in rtems_rate_monotonic_period (TIMEOUT)\n");
+         return (__PO_HI_ERROR_TASK_PERIOD);
+         break;
+      default:
+         return (__PO_HI_UNAVAILABLE);
+         break;
+   }
 
-  return (__PO_HI_SUCCESS);
+   return (__PO_HI_UNAVAILABLE);
 #else
   return (__PO_HI_UNAVAILABLE);
 #endif
@@ -137,6 +147,9 @@ int __po_hi_initialize_tasking( )
   {
      tasks[i].period = 0;
      tasks[i].id     = invalid_task_id; 
+#ifdef RTEMS_PURE
+      tasks[i].ratemon_period = RTEMS_INVALID_ID;
+#endif
   }
 
   nb_tasks = 0;
@@ -252,7 +265,7 @@ int __po_hi_rtems_create_thread (__po_hi_priority_t priority,
       __DEBUGMSG ("ERROR when creating the task\n");
    }
 
-  if (rtems_task_start( id, start_routine, 0 ) != RTEMS_SUCCESSFUL)
+  if (rtems_task_start( id, (rtems_task_entry)start_routine, 0 ) != RTEMS_SUCCESSFUL)
   {
       __DEBUGMSG ("ERROR when starting the task\n");
   }
@@ -287,7 +300,7 @@ int __po_hi_create_generic_task (__po_hi_task_id    id,
       my_task         = &(tasks[id]);
       my_task->period = period;
       my_task->id     = id;
-      
+     
 #if defined (POSIX) || defined (RTEMS_POSIX)
       my_task->tid    = __po_hi_posix_create_thread (priority, stack_size, start_routine);
       __po_hi_posix_initialize_task (my_task);
@@ -317,11 +330,12 @@ int __po_hi_create_periodic_task (__po_hi_task_id    id,
    * Compute the next period of the task, using the 
    *__po_hi_time* functions.
    */
-
+#if defined (RTEMS_POSIX) || defined (POSIX)
   if (__po_hi_compute_next_period (id) != __PO_HI_SUCCESS)
     {
       return (__PO_HI_ERROR_CLOCK);
     }
+#endif
     
   return (__PO_HI_SUCCESS);
 }

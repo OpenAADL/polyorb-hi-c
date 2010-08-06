@@ -14,7 +14,7 @@ define bsp-post-link
 endef
 
 
-MANAGERS = all
+MANAGERS = all rate_monotonic
 
 CC                           = i386-rtems4.8-gcc
 CPP                          = i386-rtems4.8-g++

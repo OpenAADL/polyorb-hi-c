@@ -51,10 +51,6 @@
 #endif  /* RTEMS_POSIX */
 
 #if defined(RTEMS_PURE)
-   #include <rtems.h>
-   #include <inttypes.h>
-   #define CONFIGURE_INIT
-   #include <bsp.h>
    #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_NULL_DRIVER
@@ -64,12 +60,19 @@
    #define CONFIGURE_MAXIMUM_SEMAPHORES    20
    #define CONFIGURE_MAXIMUM_TASKS         20
    #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 20
+   #define CONFIGURE_MAXIMUM_PERIODS 40
+   #define CONFIGURE_TICKS_PER_TIMESLICE        0
+
 
    int Init ();
    #define CONFIGURE_EXTRA_TASK_STACKS         (20 * RTEMS_MINIMUM_STACK_SIZE)
    #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
    #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
    #define CONFIGURE_MAXIMUM_TASKS 20
+   #define CONFIGURE_INIT
+   #include <rtems.h>
+   #include <inttypes.h>
+   #include <bsp.h>
    #include <rtems/confdefs.h>
 #endif  /* RTEMS_POSIX */
 

@@ -36,8 +36,10 @@ int __po_hi_simulate_wcet (__po_hi_time_t time1, __po_hi_time_t time2)
       }
    }
    return 0;
+   /*
 #else
    __DEBUGMSG ("WCET simulation not handled at this time\n");
+   */
 #endif
    return 0;
 }

@@ -18,6 +18,7 @@
 
 /* Errors from the API */
 #define __PO_HI_ERROR_CREATE_TASK         -10
+#define __PO_HI_ERROR_TASK_PERIOD         -11
 #define __PO_HI_ERROR_CLOCK               -15
 #define __PO_HI_ERROR_QUEUE_FULL          -20
 
