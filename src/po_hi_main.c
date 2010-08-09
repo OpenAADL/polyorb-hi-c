@@ -95,7 +95,9 @@ int __po_hi_initialize ()
      __DEBUGMSG ("[MAIN] Cannot set the clock\n");
      return __PO_HI_ERROR_CLOCK;
   }
- 
+#endif
+
+#ifdef RTEMS_PURE
   __DEBUGMSG ("[MAIN] Create a barrier that wait for %d tasks\n", nb_tasks_to_init);
    
   ret = rtems_barrier_create (rtems_build_name ('B', 'A', 'R', 'M'), RTEMS_BARRIER_AUTOMATIC_RELEASE, nb_tasks_to_init, &__po_hi_main_initialization_barrier);
