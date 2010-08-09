@@ -11,10 +11,9 @@
 #include <po_hi_config.h>
 #include <po_hi_protected.h>
 #include <po_hi_returns.h>
+#include <po_hi_debug.h>
+#include <po_hi_task.h>
 #include <po_hi_types.h>
-
-#include <pthread.h>
-
 #include <deployment.h>
 
 #ifndef __PO_HI_NB_PROTECTED
@@ -23,43 +22,107 @@
 
 #if __PO_HI_NB_PROTECTED > 0
 
+#if defined (RTEMS_POSIX) || defined (POSIX)
+
+#include <pthread.h>
+
 /* Declare only needed mutexes according to the generated
  * declarations. The __PO_HI_NB_PROTECTED is a generated macro that
  * represents the needed number of mutexes in the system.
  */
 
-pthread_mutex_t mutexes[__PO_HI_NB_PROTECTED];
+pthread_mutex_t __po_hi_protected_mutexes[__PO_HI_NB_PROTECTED];
 
 int __po_hi_protected_init ()
 {
-  __po_hi_uint8_t i;
+   __po_hi_uint8_t i;
 
-  for (i = 0 ; i < __PO_HI_NB_PROTECTED ; i++ )
-    {
-      if (pthread_mutex_init (&mutexes[i], NULL) != 0)
-	{
-	  return __PO_HI_ERROR_PTHREAD_MUTEX;
-	}
-    }
-  return (__PO_HI_SUCCESS);
+   for (i = 0 ; i < __PO_HI_NB_PROTECTED ; i++ )
+   {
+      if (pthread_mutex_init (&__po_hi_protected_mutexes[i], NULL) != 0)
+      {
+         return __PO_HI_ERROR_PROTECTED_CREATE;
+      }
+   }
+   return (__PO_HI_SUCCESS);
 }
 
 int __po_hi_protected_lock (__po_hi_protected_t protected_id)
 {
-  if (pthread_mutex_lock (&mutexes[protected_id]) != 0 )
-    {
-      return __PO_HI_ERROR_PTHREAD_MUTEX;
-    }
-  return __PO_HI_SUCCESS;
+   if (pthread_mutex_lock (&__po_hi_protected_mutexes[protected_id]) != 0 )
+   {
+      return __PO_HI_ERROR_PROTECTED_LOCK;
+   }
+   return __PO_HI_SUCCESS;
 }
 
 int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
 {
-  if (pthread_mutex_unlock (&mutexes[protected_id]) != 0 )
+  if (pthread_mutex_unlock (&__po_hi_protected_mutexes[protected_id]) != 0 )
     {
-      return __PO_HI_ERROR_PTHREAD_MUTEX;
+      return __PO_HI_ERROR_PROTECTED_UNLOCK;
     }
   return __PO_HI_SUCCESS;
 }
+#endif /* POSIX or RTEMS_POSIX */
+
+
+#if defined (RTEMS_PURE)
+
+/* Declare only needed mutexes according to the generated
+ * declarations. The __PO_HI_NB_PROTECTED is a generated macro that
+ * represents the needed number of mutexes in the system.
+ */
+
+#include <rtems.h>
+
+rtems_id __po_hi_protected_mutexes[__PO_HI_NB_PROTECTED];
+
+int __po_hi_protected_init ()
+{
+   __po_hi_uint8_t      i;
+   rtems_status_code    ret;
+
+   for (i = 0 ; i < __PO_HI_NB_PROTECTED ; i++ )
+   {
+      ret = rtems_semaphore_create (rtems_build_name ('P', 'S', 'E' , 'A' + (char) i), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &(__po_hi_protected_mutexes[i]));
+      if (ret != RTEMS_SUCCESSFUL)
+      {
+         __DEBUGMSG ("[PROTECTED] Cannot create binary semaphore, error code=%d\n", ret);
+         return __PO_HI_ERROR_PROTECTED_CREATE;
+      }
+   }
+   return (__PO_HI_SUCCESS);
+}
+
+int __po_hi_protected_lock (__po_hi_protected_t protected_id)
+{
+   rtems_status_code ret;
+   __DEBUGMSG ("[PROTECTED] Try to obtain binary semaphore for protected object %d\n", protected_id);
+   ret = rtems_semaphore_obtain (__po_hi_protected_mutexes[protected_id], RTEMS_WAIT, RTEMS_NO_TIMEOUT);
+   if (ret != RTEMS_SUCCESSFUL)
+   {
+      __DEBUGMSG ("[PROTECTED] Cannot obtain binary semaphore in __po_hi_protected_lock()\n");
+      return __PO_HI_ERROR_PROTECTED_LOCK;
+   }
+
+   return __PO_HI_SUCCESS;
+}
+
+int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
+{
+   rtems_status_code ret;
+   __DEBUGMSG ("[PROTECTED] Try to release protected object %d\n", protected_id);
+   ret = rtems_semaphore_release (__po_hi_protected_mutexes[protected_id]);
+   if (ret != RTEMS_SUCCESSFUL)
+   {
+      __DEBUGMSG ("[PROTECTED] Cannot release semaphore in __po_hi_protected_unlock()\n");
+      return __PO_HI_ERROR_PROTECTED_UNLOCK;
+   }
+
+  return __PO_HI_SUCCESS;
+}
+#endif /* POSIX or RTEMS_POSIX */
+
 
 #endif /* __PO_HI_NB_PROTECTED > 0 */

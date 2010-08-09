@@ -33,6 +33,10 @@
 #define __PO_HI_ERROR_TRANSPORT_SEND      -55
 #define __PO_HI_ERROR_PTHREAD_BARRIER     -56
 
+#define __PO_HI_ERROR_PROTECTED_LOCK      -60
+#define __PO_HI_ERROR_PROTECTED_UNLOCK    -61
+#define __PO_HI_ERROR_PROTECTED_CREATE    -62
+
 /* GIOP error code */
 #define __PO_HI_GIOP_INVALID_SIZE         -100
 #define __PO_HI_GIOP_INVALID_VERSION      -120
