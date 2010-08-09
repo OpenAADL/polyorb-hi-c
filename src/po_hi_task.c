@@ -8,8 +8,11 @@
  * Copyright (C) 2007-2009, GET-Telecom Paris.
  */
 
+#if defined (RTEMS_POSIX) || defined (POSIX)
 #include <pthread.h>
 #include <sched.h>
+#endif
+
 #include <errno.h>
 /* Headers from the executive */
 
