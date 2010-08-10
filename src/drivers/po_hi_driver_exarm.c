@@ -10,10 +10,10 @@
  */
 
 #include <deployment.h>
-#include <marshallers.h>
 
 #ifdef __PO_HI_NEED_DRIVER_EXARM
 
+#include <marshallers.h>
 #include <po_hi_config.h>
 #include <po_hi_task.h>
 #include <po_hi_transport.h>
