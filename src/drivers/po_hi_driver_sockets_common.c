@@ -12,6 +12,7 @@
 
 #if (defined (__PO_HI_NEED_DRIVER_SOCKETS) || \
      defined (__PO_HI_NEED_DRIVER_SOCKETS_ASN1) || \
+     defined (__PO_HI_NEED_DRIVER_SOCKETSNEW) || \
      defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
 
 #include <activity.h>
@@ -48,6 +49,7 @@ __po_hi_inetnode_t rnodes[__PO_HI_NB_DEVICES];
 __po_hi_device_id socket_device_id;
 
 #if (defined (__PO_HI_NEED_DRIVER_SOCKETS_ASN1) || \
+     defined (__PO_HI_NEED_DRIVER_SOCKETSNEW) || \
      defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
 void __po_hi_driver_sockets_common_generic_init (__po_hi_device_id id, void* (*poller)(void))
 {
@@ -208,8 +210,8 @@ void __po_hi_driver_sockets_common_generic_init (__po_hi_device_id id, void* (*p
          /*
           * We try to connect on the remote host. We try every
           * second to connect on.
-          */
          __PO_HI_SET_SOCKET_TIMEOUT(nodes[dev].socket,5);
+          */
 
          ret = connect (nodes[dev].socket, 
                         (struct sockaddr*) &sa ,
@@ -223,7 +225,7 @@ void __po_hi_driver_sockets_common_generic_init (__po_hi_device_id id, void* (*p
             {
                __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id\n", id);
             }
-            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d\n", id);
+            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, nodes[dev].socket);
             break;
          }
          else

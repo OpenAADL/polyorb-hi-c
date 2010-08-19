@@ -13,6 +13,7 @@
 
 
 #if (defined (__PO_HI_NEED_DRIVER_SOCKETS)  \
+               || defined (__PO_HI_NEED_DRIVER_SOCKETSNEW) \
                || defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
 
 #include <po_hi_transport.h>
@@ -23,7 +24,14 @@
 
 void __po_hi_driver_sockets_receiver (void);
 
+#ifdef __PO_HI_NEED_DRIVER_SOCKETS
 int  __po_hi_driver_sockets_send (__po_hi_entity_t from, __po_hi_entity_t to, __po_hi_msg_t* msg);
+#endif
+
+#ifdef __PO_HI_NEED_DRIVER_SOCKETSNEW
+int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
+                                 __po_hi_port_t port);
+#endif
 /*
  * Send data through the sending socket
  */

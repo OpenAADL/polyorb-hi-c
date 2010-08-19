@@ -19,6 +19,7 @@ typedef char*            __po_hi_inetaddr_t;
 
 #if (defined (__PO_HI_NEED_DRIVER_SOCKETS)  \
       || defined (__PO_HI_NEED_DRIVER_SOCKETS_ASN1) \
+      || defined (__PO_HI_NEED_DRIVER_SOCKETSNEW) \
       || defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
 
 #define __PO_HI_NOPORT 1
