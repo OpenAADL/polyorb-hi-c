@@ -1,0 +1,23 @@
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * Copyright (C) 2010, European Space Agency
+ */
+
+#include <deployment.h>
+
+#ifndef __PO_HI_DRIVER_LINUX_KEYBOARD_H__
+#define __PO_HI_DRIVER_LINUX_KEYBOARD_H__
+
+#ifdef __PO_HI_NEED_DRIVER_GENERIC_KEYBOARD
+
+void __po_hi_driver_generic_keyboard_poller (void);
+
+void __po_hi_driver_generic_keyboard_init (__po_hi_device_id id);
+
+#endif
+
+#endif
+

@@ -84,6 +84,7 @@ ifeq ($(NEED_TRANSPORT), yes)
 	po_hi_types.o                             \
 	po_hi_gqueue.o                            \
    drivers/po_hi_driver_exarm.o              \
+   drivers/po_hi_driver_keyboard.o           \
    drivers/po_hi_driver_exarm_ni_6071e_analog.o \
    drivers/po_hi_driver_exarm_ni_6071e_digital.o \
    drivers/po_hi_driver_linux_serial.o       \
