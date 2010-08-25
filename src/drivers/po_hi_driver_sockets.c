@@ -272,9 +272,9 @@ void* __po_hi_sockets_poller (void)
     */
    for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
    {
-      if (dev != socket_device_id)
+      if ( (dev != socket_device_id) && (strstr (__po_hi_get_device_naming (dev), "ip") != NULL))
       {
-         __DEBUGMSG ("[DRIVER SOCKETS] Poller wait for connection with device %d\n", dev);
+         __DEBUGMSG ("[DRIVER SOCKETS] Poller waits for connection with device %d\n", dev);
 
          /*
          __PO_HI_SET_SOCKET_TIMEOUT(nodes[socket_device_id].socket,5);
