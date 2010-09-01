@@ -3,6 +3,14 @@ TARGET_LDFLAGS  = @NATIVE_LDFLAGS@
 SIMULINK_LDFLAGS  = @SIMULINK_LDFLAGS@
 CC              = gcc
 LD              = ld
+GPROF           = gprof
+
+
+ifdef USE_GPROF
+TARGET_LDFLAGS+=-pg
+endif
+
+
 
 target-clean:
 

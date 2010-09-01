@@ -27,6 +27,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <termios.h>
 /* POSIX-style files */
 
 #include <pci.h>
@@ -46,18 +47,28 @@ void __po_hi_c_driver_serial_rasta_poller (void)
 
    int n;
    int ts;
+   int tr;
+   uint8_t* ptr;
 
    __DEBUGMSG ("[RASTA SERIAL] Hello, i'm the serial poller !\n");
-
-   n = read (po_hi_c_driver_rasta_serial_fd, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE); 
-
-   if (n == -1)
+   ts = __PO_HI_MESSAGES_MAX_SIZE;
+   tr = 0;
+   ptr = &msg.content;
+   while (ts > 0)
    {
-      __DEBUGMSG("[RASTA SERIAL] Cannot read on socket !\n");
-      return;
+      n = read (po_hi_c_driver_rasta_serial_fd, ptr, ts); 
+      ptr += n;
+
+      if (n == -1)
+      {
+         __DEBUGMSG("[RASTA SERIAL] Cannot read on socket !\n");
+         return;
+      }
+      ts -= n;
+   tr += n;
    }
 
-   __DEBUGMSG ("[RASTA SERIAL] read() returns %d\n", n);
+   __DEBUGMSG ("[RASTA SERIAL] read() returns total %d, max message size=%d\n", tr, __PO_HI_MESSAGES_MAX_SIZE);
 
    __DEBUGMSG ("[RASTA SERIAL] Message received by poller: 0x");
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
@@ -66,7 +77,7 @@ void __po_hi_c_driver_serial_rasta_poller (void)
    }
    __DEBUGMSG ("\n");
 
-   msg.length = n;
+   msg.length = tr;
 
    __po_hi_unmarshall_request (&request, &msg);
 
@@ -88,9 +99,14 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BLOCKING, APBUART_BLK_RX | APBUART_BLK_TX | APBUART_BLK_FLUSH);
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_TXFIFO_LEN, 64);  /* Transmitt buffer 64 chars */
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_RXFIFO_LEN, 256); /* Receive buffer 256 chars */
-  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_ASCII_MODE, 0); /* Make \n go \n\r or \r\n */
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_ASCII_MODE, 1); /* Make \n go \n\r or \r\n */
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_CLR_STATS, 0);
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_START, 0);
+
+  if (tcflush (po_hi_c_driver_rasta_serial_fd, TCIOFLUSH) != 0)
+  {
+     __DEBUGMSG("[RASTA SERIAL] Error when trying to flush\n");
+  }
 }
 
 int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const __po_hi_port_t port)
