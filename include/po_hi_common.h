@@ -28,6 +28,7 @@
    #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_NULL_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_TIMER_DRIVER
+   #define CONFIGURE_MAXIMUM_DRIVERS                 10
    #define CONFIGURE_MAXIMUM_POSIX_TIMERS                40
    #define CONFIGURE_MAXIMUM_TIMERS                      40
    #define CONFIGURE_EXECUTIVE_RAM_SIZE                  (512*1024)
@@ -74,9 +75,7 @@
    #include <inttypes.h>
    #include <bsp.h>
    #include <rtems/confdefs.h>
-#endif  /* RTEMS_POSIX */
-
-
+#endif  /* RTEMS_PURE */
 
 #if defined (X86_RTEMS) && defined (__PO_HI_USE_TRANSPORT) && __PO_HI_NB_DEVICES > 1
 #include <rtems/rtems_bsdnet.h>

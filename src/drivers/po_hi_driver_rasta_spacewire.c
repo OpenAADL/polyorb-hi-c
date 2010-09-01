@@ -21,6 +21,7 @@
 #include <po_hi_messages.h>
 #include <drivers/po_hi_rtems_utils.h>
 #include <drivers/po_hi_driver_rasta_spacewire.h>
+#include <drivers/po_hi_driver_rasta_common.h>
 
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -45,6 +46,9 @@ int po_hi_c_driver_rasta_spacewire_fd;
 void po_hi_c_driver_rasta_spacewire_init_pkt(__po_hi_c_driver_spacewire_pkt_hdr_t *p, __po_hi_port_t destination_port)
 {
   p->addr = atoi (__po_hi_get_device_naming (destination_port));
+
+  __DEBUGMSG ("[RASTA SPACEWIRE] Init packet with address %d !\n", p->addr);
+
   p->protid = 50;
   p->dummy = 0x01;
   p->channel = 0x01;
@@ -60,7 +64,7 @@ void __po_hi_c_driver_spacewire_rasta_poller (void)
    __po_hi_msg_t msg;
    __po_hi_request_t request;
 
-   __DEBUGMSG ("[RASTA SPACEWIRE] Hello, i'm the poller !\n");
+   __DEBUGMSG ("[RASTA SPACEWIRE] Hello, i'm the spacewire poller !\n");
 
    len = read (po_hi_c_driver_rasta_spacewire_fd,
                &po_hi_c_driver_spacewire_rxpkt[0],
@@ -100,16 +104,7 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
 
    __DEBUGMSG ("[RASTA SPACEWIRE] Init\n");
 
-   init_pci();
-
-   __DEBUGMSG ("[RASTA SPACEWIRE] Initializing RASTA ...");
-
-   if  (rasta_register ())
-   {
-      __DEBUGMSG(" ERROR !\n");
-     return;
-   }
-   __DEBUGMSG(" OK !\n");
+   __po_hi_c_driver_rasta_common_init ();
 
    __DEBUGMSG ("[RASTA SPACEWIRE] Open spacewire device ...");
 

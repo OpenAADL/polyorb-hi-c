@@ -93,6 +93,7 @@ ifeq ($(NEED_TRANSPORT), yes)
    drivers/po_hi_driver_sockets_asn1.o       \
    drivers/po_hi_driver_rtems_ne2000.o       \
    drivers/po_hi_driver_rasta_serial.o       \
+   drivers/po_hi_driver_rasta_common.o       \
    drivers/po_hi_driver_rasta_1553.o         \
    drivers/po_hi_driver_xc4v_fpga.o          \
    drivers/po_hi_driver_rasta_1553_brmlib.o  \

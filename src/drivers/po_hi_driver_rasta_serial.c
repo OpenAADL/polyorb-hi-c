@@ -21,6 +21,7 @@
 #include <po_hi_utils.h>
 #include <drivers/po_hi_rtems_utils.h>
 #include <drivers/po_hi_driver_rasta_serial.h>
+#include <drivers/po_hi_driver_rasta_common.h>
 
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -46,7 +47,7 @@ void __po_hi_c_driver_serial_rasta_poller (void)
    int n;
    int ts;
 
-   __DEBUGMSG ("[RASTA SERIAL] Hello, i'm the poller !\n");
+   __DEBUGMSG ("[RASTA SERIAL] Hello, i'm the serial poller !\n");
 
    n = read (po_hi_c_driver_rasta_serial_fd, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE); 
 
@@ -75,16 +76,8 @@ void __po_hi_c_driver_serial_rasta_poller (void)
 
 void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 {
-   __DEBUGMSG ("[RASTA SERIAL] Init\n");
-   init_pci();
-   __DEBUGMSG ("[RASTA SERIAL] Initializing RASTA ...\n");
-  if  ( rasta_register() ){
-    __DEBUGMSG(" ERROR !\n");
-    return;
-  }
-    __DEBUGMSG(" OK !\n");
-
-  po_hi_c_driver_rasta_serial_fd = open (__PO_HI_DRIVER_SERIAL_RASTA_DEVICE, O_RDWR);
+   __po_hi_c_driver_rasta_common_init ();
+   po_hi_c_driver_rasta_serial_fd = open (__PO_HI_DRIVER_SERIAL_RASTA_DEVICE, O_RDWR);
 
    if (po_hi_c_driver_rasta_serial_fd < 0)
    {

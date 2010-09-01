@@ -6,6 +6,7 @@ C_FILES =   $(srcdir)/po_hi_driver_linux_serial.c        \
             $(srcdir)/po_hi_driver_sockets_asn1.c        \
             $(srcdir)/po_hi_driver_rtems_ne2000.c        \
             $(srcdir)/po_hi_driver_rasta_spacewire.c     \
+            $(srcdir)/po_hi_driver_rasta_common.c        \
             $(srcdir)/po_hi_driver_exarm.c               \
             $(srcdir)/po_hi_driver_keyboard.c            \
             $(srcdir)/po_hi_driver_exarm_ni_6071e_analog.c            \

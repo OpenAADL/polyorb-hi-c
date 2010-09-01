@@ -8,6 +8,7 @@ EXTRA_DIST = $(srcdir)/po_hi_driver_linux_serial.h       \
              $(srcdir)/po_hi_driver_rasta_1553_brmlib.h  \
              $(srcdir)/po_hi_driver_xc4v_fpga.h          \
              $(srcdir)/po_hi_driver_rasta_serial.h       \
+             $(srcdir)/po_hi_driver_rasta_common.h       \
              $(srcdir)/po_hi_driver_sockets.h            \
              $(srcdir)/po_hi_driver_keyboard.h           \
              $(srcdir)/po_hi_driver_sockets_common.h     \
