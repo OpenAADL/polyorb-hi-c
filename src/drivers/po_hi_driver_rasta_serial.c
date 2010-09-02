@@ -40,10 +40,11 @@
 
 int po_hi_c_driver_rasta_serial_fd;
 
+__po_hi_msg_t msg;
+__po_hi_request_t request;
+
 void __po_hi_c_driver_serial_rasta_poller (void)
 {
-   __po_hi_msg_t msg;
-   __po_hi_request_t request;
 
    int n;
    int ts;
@@ -53,7 +54,7 @@ void __po_hi_c_driver_serial_rasta_poller (void)
    __DEBUGMSG ("[RASTA SERIAL] Hello, i'm the serial poller !\n");
    ts = __PO_HI_MESSAGES_MAX_SIZE;
    tr = 0;
-   ptr = &msg.content;
+   ptr = &(msg.content[0]);
    while (ts > 0)
    {
       n = read (po_hi_c_driver_rasta_serial_fd, ptr, ts); 
@@ -81,7 +82,26 @@ void __po_hi_c_driver_serial_rasta_poller (void)
 
    __po_hi_unmarshall_request (&request, &msg);
 
-   __DEBUGMSG ("[RASTA SERIAL] Destination port: %d\n", request.port);
+#ifdef __PO_HI_DEBUG
+   __DEBUGMSG ("REQUEST vars: |");
+   {
+         int s;
+         int i;
+         uint8_t* tmp;
+         tmp = (uint8_t*) &(request.vars);
+         s = sizeof (request.vars);
+         for (i = 0 ; i < s ; i++)
+         {
+            printf("%x", *tmp);
+            tmp++;
+            fflush (stdout);
+         }
+   }
+   __DEBUGMSG ("|\n");
+#endif
+
+
+   __DEBUGMSG ("[RASTA SERIAL] Destination port: %d, sizeof(port)=%d, sizeof(vars)=%d\n", request.port, sizeof( request.port), sizeof (request.vars));
    __po_hi_main_deliver (&request);
 }
 
@@ -99,7 +119,7 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BLOCKING, APBUART_BLK_RX | APBUART_BLK_TX | APBUART_BLK_FLUSH);
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_TXFIFO_LEN, 64);  /* Transmitt buffer 64 chars */
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_RXFIFO_LEN, 256); /* Receive buffer 256 chars */
-  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_ASCII_MODE, 1); /* Make \n go \n\r or \r\n */
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_ASCII_MODE, 0); /* Make \n go \n\r or \r\n */
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_CLR_STATS, 0);
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_START, 0);
 

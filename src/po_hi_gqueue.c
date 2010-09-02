@@ -406,16 +406,21 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
             sizeof (__po_hi_request_t));
    }
 
+   /*
+    * As this part of the code is now considered as stable, we don't print debug output
+    *
+    
+   
 #ifdef __PO_HI_DEBUG
    __DEBUGMSG ("Task %d get a value on port %d\n", id, port);
-   __DEBUGMSG ("RECEIVED Value: |");
+   __DEBUGMSG ("RECEIVED vars in gqueue: |");
    {
          int s;
          int i;
-         unsigned int* tmp;
+         uint8_t* tmp;
          tmp = (unsigned int*) &request->vars;
          s = sizeof (request->vars);
-         for (i = 0 ; i < s ; i+=4)
+         for (i = 0 ; i < s ; i++)
          {
             printf("%x", *tmp);
             tmp++;
@@ -424,6 +429,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
    }
    __DEBUGMSG ("|\n");
 #endif
+*/
 
 #if defined (POSIX) || defined (RTEMS_POSIX)
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
