@@ -205,40 +205,15 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
    __po_hi_msg_reallocate (&msg);
 
    request->port = destination_port;
-   __DEBUGMSG ("REQUEST vars: |");
-   {
-         int s;
-         int i;
-         uint8_t* tmp;
-         tmp = (uint8_t*) &(request->vars);
-         s = sizeof (request->vars);
-         for (i = 0 ; i < s ; i++)
-         {
-            printf("%x", *tmp);
-            tmp++;
-            fflush (stdout);
-         }
-   }
-   __DEBUGMSG ("|\n");
-
 
    __po_hi_marshall_request (request, &msg);
-   printf ("MSG AVANT SWAP:");
-   __po_hi_messages_debug (&msg);
-   printf ("\n");
-   for (tmp = 0 ; tmp < __PO_HI_MESSAGES_MAX_SIZE ; tmp += 4)
-   {
-      swap_pointer  = (unsigned long*) &msg.content[tmp];
-      swap_value    = *swap_pointer;
-      *swap_pointer = __po_hi_swap_byte (swap_value);
-   }
-   printf ("MSG APRES SWAP:");
-   __po_hi_messages_debug (&msg);
-   printf ("\n");
+
+   /* Swap only the port (first 32 bytes) */
+   swap_pointer  = (unsigned long*) &msg.content[0];
+   swap_value    = *swap_pointer;
+   *swap_pointer = __po_hi_swap_byte (swap_value);
 
    n = write (po_hi_c_driver_serial_fd, &msg, __PO_HI_MESSAGES_MAX_SIZE);
-
-   __DEBUGMSG ("[LINUX SERIAL] write() returns %d, sizeof (port)=%d, sizeof(vars)=%d\n", n, sizeof (request->port), sizeof (request->vars));
 
    __DEBUGMSG  ("[LINUX SERIAL] Message sent: 0x");
 

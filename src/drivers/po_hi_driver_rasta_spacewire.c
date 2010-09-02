@@ -91,7 +91,7 @@ void __po_hi_c_driver_spacewire_rasta_poller (void)
 
       __po_hi_unmarshall_request (&request, &msg);
 
-      printf ("[RASTA SPACEWIRE] Destination port: %d\n", request.port);
+      __DEBUGMSG ("[RASTA SPACEWIRE] Destination port: %d\n", request.port);
       __po_hi_main_deliver (&request);
    }
 }

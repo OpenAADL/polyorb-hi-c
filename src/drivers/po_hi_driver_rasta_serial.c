@@ -40,8 +40,8 @@
 
 int po_hi_c_driver_rasta_serial_fd;
 
-__po_hi_msg_t msg;
-__po_hi_request_t request;
+__po_hi_msg_t        __po_hi_c_driver_rasta_serial_msg;
+__po_hi_request_t    __po_hi_c_driver_rasta_serial_request;
 
 void __po_hi_c_driver_serial_rasta_poller (void)
 {
@@ -51,10 +51,11 @@ void __po_hi_c_driver_serial_rasta_poller (void)
    int tr;
    uint8_t* ptr;
 
-   __DEBUGMSG ("[RASTA SERIAL] Hello, i'm the serial poller !\n");
+   __DEBUGMSG ("[RASTA SERIAL] Poller waits for incoming message !\n");
    ts = __PO_HI_MESSAGES_MAX_SIZE;
    tr = 0;
-   ptr = &(msg.content[0]);
+   ptr = &(__po_hi_c_driver_rasta_serial_msg.content[0]);
+   __po_hi_msg_reallocate (&__po_hi_c_driver_rasta_serial_msg);
    while (ts > 0)
    {
       n = read (po_hi_c_driver_rasta_serial_fd, ptr, ts); 
@@ -74,35 +75,16 @@ void __po_hi_c_driver_serial_rasta_poller (void)
    __DEBUGMSG ("[RASTA SERIAL] Message received by poller: 0x");
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
-      __DEBUGMSG ("%x", msg.content[ts]);
+      __DEBUGMSG ("%x", __po_hi_c_driver_rasta_serial_msg.content[ts]);
    }
    __DEBUGMSG ("\n");
 
-   msg.length = tr;
+   __po_hi_c_driver_rasta_serial_msg.length = tr;
 
-   __po_hi_unmarshall_request (&request, &msg);
+   __po_hi_unmarshall_request (&__po_hi_c_driver_rasta_serial_request,
+                               &__po_hi_c_driver_rasta_serial_msg);
 
-#ifdef __PO_HI_DEBUG
-   __DEBUGMSG ("REQUEST vars: |");
-   {
-         int s;
-         int i;
-         uint8_t* tmp;
-         tmp = (uint8_t*) &(request.vars);
-         s = sizeof (request.vars);
-         for (i = 0 ; i < s ; i++)
-         {
-            printf("%x", *tmp);
-            tmp++;
-            fflush (stdout);
-         }
-   }
-   __DEBUGMSG ("|\n");
-#endif
-
-
-   __DEBUGMSG ("[RASTA SERIAL] Destination port: %d, sizeof(port)=%d, sizeof(vars)=%d\n", request.port, sizeof( request.port), sizeof (request.vars));
-   __po_hi_main_deliver (&request);
+   __po_hi_main_deliver (&__po_hi_c_driver_rasta_serial_request);
 }
 
 void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
