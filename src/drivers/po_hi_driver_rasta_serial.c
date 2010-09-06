@@ -35,7 +35,6 @@
 #include <apbuart_rasta.h>
 /* Rasta includes from GAISLER drivers */
 
-#define __PO_HI_DRIVER_SERIAL_RASTA_DEVICE "/dev/apburasta0"
 #define __PO_HI_DRIVER_SERIAL_RASTA_BAUDRATE 19200
 
 int po_hi_c_driver_rasta_serial_fd;
@@ -90,11 +89,11 @@ void __po_hi_c_driver_serial_rasta_poller (void)
 void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 {
    __po_hi_c_driver_rasta_common_init ();
-   po_hi_c_driver_rasta_serial_fd = open (__PO_HI_DRIVER_SERIAL_RASTA_DEVICE, O_RDWR);
+   po_hi_c_driver_rasta_serial_fd = open (__po_hi_get_device_naming (id), O_RDWR);
 
    if (po_hi_c_driver_rasta_serial_fd < 0)
    {
-      __DEBUGMSG ("[RASTA SERIAL] Error while opening device %s\n", __PO_HI_DRIVER_SERIAL_RASTA_DEVICE);
+      __DEBUGMSG ("[RASTA SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
    }
 
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BAUDRATE, __PO_HI_DRIVER_SERIAL_RASTA_BAUDRATE); /* stream mode */
