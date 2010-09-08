@@ -218,6 +218,13 @@ end POS;
 data implementation POS.Impl
 subcomponents
   Field : data POS_Internal_Type;
+  spgUpdate : subprogram Update;
+  spgRead   : subprogram Read_POS; 
+
+connections
+  Cnx_Pos_1 : subprogram access SpgUpdate -> Update;
+  Cnx_Pos_2 : subprogram access SpgRead -> Read;
+
 properties
   Data_Model::Data_Representation => Struct;
 end POS.Impl;
