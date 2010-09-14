@@ -1,4 +1,13 @@
-# It detect if networking functions have to be compiled
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://ocarina.enst.fr
+ *
+ * Copyright (C) 2010, European Space Agency (ESA).
+ */
+
 # With the generated code.
 
 all: build-node
@@ -173,7 +182,7 @@ endif
 
 check-rtems:
 	if [ ! -d $$RTEMS_MAKEFILE_PATH/make ]; then \
-		echo "Please define the RTEMS_MAKEFILE_PATH variable" && exit 2 ; \
+		echo "Please define the RTEMS_MAKEFILE_PATH variable [currently set to \"$(RTEMS_MAKEFILE_PATH)\"]" && exit 2 ; \
 	fi
 
 

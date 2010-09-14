@@ -5,8 +5,7 @@
  *
  * For more informations, please visit http://ocarina.enst.fr
  *
- * Copyright (C) 2007-2009, GET-Telecom Paris.
- * Copyright (C) 2010, European Space Agency
+ * Copyright (C) 2010, European Space Agency (ESA).
  */
 
 #include <po_hi_config.h>
@@ -188,6 +187,7 @@ void __po_hi_gqueue_store_out (__po_hi_task_id id,
    request->port = __PO_HI_GQUEUE_OUT_PORT;
    ptr = &__po_hi_gqueues_most_recent_values[id][port];
    memcpy (ptr, request, sizeof (*request));
+   __DEBUGMSG ("__po_hi_gqueue_store_out() from task %d on port %d\n", id, port);
 }
 
 
@@ -405,14 +405,14 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
              (void *)&__po_hi_gqueues[id][port] + ( __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port] )* sizeof (__po_hi_request_t), 
             sizeof (__po_hi_request_t));
    }
+    
+   
+   __DEBUGMSG ("Task %d get a value on port %d\n", id, port);
 
    /*
     * As this part of the code is now considered as stable, we don't print debug output
     *
-    
-   
-#ifdef __PO_HI_DEBUG
-   __DEBUGMSG ("Task %d get a value on port %d\n", id, port);
+
    __DEBUGMSG ("RECEIVED vars in gqueue: |");
    {
          int s;
@@ -525,4 +525,3 @@ __po_hi_port_t __po_hi_gqueue_get_destination (const __po_hi_task_id task_id, co
 {
       return (__po_hi_gqueues_destinations[task_id][local_port][destination_number]);
 }
-

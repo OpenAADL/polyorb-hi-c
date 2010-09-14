@@ -3,7 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * Copyright (C) 2010, European Space Agency
+ * For more informations, please visit http://ocarina.enst.fr
+ *
+ * Copyright (C) 2010, European Space Agency (ESA).
  */
 
 #include <drivers/po_hi_driver_linux_serial.h>
@@ -288,7 +290,7 @@ void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
    }
    else
    {
-      __DEBUGMSG ("[LINUX SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_serial_fd_serial);
+      __DEBUGMSG ("[LINUX SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_serial_fd_read);
    }
 
    tcgetattr (po_hi_c_driver_serial_fd_read, &oldtio);  /* save current serial port settings */
@@ -371,7 +373,6 @@ void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
 int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port_t port)
 {
    int n;
-   int tmp;
    int ts;
    unsigned long* swap_pointer;
    unsigned long swap_value;
@@ -412,4 +413,3 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 #endif
 
 #endif
-

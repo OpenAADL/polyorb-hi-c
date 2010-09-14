@@ -5,8 +5,7 @@
  *
  * For more informations, please visit http://ocarina.enst.fr
  *
- * Copyright (C) 2007-2009, GET-Telecom Paris.
- * Copyright (C) 2010, European Space Agency (ESA)
+ * Copyright (C) 2010, European Space Agency (ESA).
  */
 
 
@@ -120,6 +119,17 @@ int __po_hi_initialize ()
 int __po_hi_wait_initialization ()
 {
 #if defined (POSIX) || defined (RTEMS_POSIX)
+   int cstate;
+   if (pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, &cstate) != 0)
+   {
+      __DEBUGMSG ("[MAIN] Cannot modify the cancel state\n");
+   }
+
+   if (pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &cstate) != 0)
+   {
+      __DEBUGMSG ("[MAIN] Cannot modify the cancel type\n");
+   }
+
   if (pthread_mutex_lock (&mutex_init) != 0)
   {
     return (__PO_HI_ERROR_PTHREAD_MUTEX);
@@ -156,16 +166,23 @@ int __po_hi_wait_initialization ()
 #ifdef __PO_HI_USE_GPROF
 void __po_hi_wait_end_of_instrumentation ()
 {
+#ifdef RTEMS_PURE
+   rtems_task_wake_after (10000000 / _TOD_Microseconds_per_tick); 
+#else
    #include <po_hi_time.h> 
    #include <unistd.h>
 
    __po_hi_time_t now;
    __po_hi_get_time (&now);
    __po_hi_delay_until (__po_hi_add_times (now, __po_hi_seconds (10)));
+#endif
   __DEBUGMSG ("Call exit()\n");
+  __po_hi_tasks_killall ();
    exit (1);
 
   __DEBUGMSG ("exit() called\n");
+#ifdef RTEMS_PURE
+  rtems_task_delete (rtems_self ());
+#endif
 }
 #endif
-

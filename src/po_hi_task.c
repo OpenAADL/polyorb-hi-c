@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://ocarina.enst.fr
  *
- * Copyright (C) 2007-2009, GET-Telecom Paris.
+ * Copyright (C) 2007-2010, European Space Agency (ESA).
  */
 
 #if defined (RTEMS_POSIX) || defined (POSIX)
@@ -43,6 +43,7 @@ typedef struct
   pthread_cond_t      cond;
 #elif defined(RTEMS_PURE)
   rtems_id            ratemon_period;
+  rtems_id            rtems_id;
 #endif
 } __po_hi_task_t;
 /*
@@ -175,7 +176,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
   int                policy;
   pthread_t          tid;
   pthread_attr_t     attr;
-  struct sched_param param;  
+  struct sched_param param;
 
   if (pthread_attr_init (&attr) != 0)
     {
@@ -259,22 +260,24 @@ int __po_hi_posix_initialize_task (__po_hi_task_t* task)
 
 
 #ifdef RTEMS_PURE
-int __po_hi_rtems_create_thread (__po_hi_priority_t priority, 
-                                 __po_hi_stack_t    stack_size,
-                                void*              (*start_routine)(void))
+rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority, 
+                                      __po_hi_stack_t    stack_size,
+                                      void*              (*start_routine)(void))
 {
-  rtems_id id;
-   if (rtems_task_create (rtems_build_name( 'T', 'A', nb_tasks, ' ' ), 1, RTEMS_MINIMUM_STACK_SIZE, RTEMS_DEFAULT_MODES, RTEMS_DEFAULT_ATTRIBUTES | RTEMS_FLOATING_POINT, &id) != RTEMS_SUCCESSFUL)
+  rtems_id rid;
+   if (rtems_task_create (rtems_build_name( 'T', 'A', nb_tasks, ' ' ), 1, RTEMS_MINIMUM_STACK_SIZE, RTEMS_DEFAULT_MODES, RTEMS_DEFAULT_ATTRIBUTES | RTEMS_FLOATING_POINT, &rid) != RTEMS_SUCCESSFUL)
    {
       __DEBUGMSG ("ERROR when creating the task\n");
+      return __PO_HI_ERROR_CREATE_TASK;
    }
 
-  if (rtems_task_start( id, (rtems_task_entry)start_routine, 0 ) != RTEMS_SUCCESSFUL)
+  if (rtems_task_start (rid, (rtems_task_entry)start_routine, 0 ) != RTEMS_SUCCESSFUL)
   {
       __DEBUGMSG ("ERROR when starting the task\n");
+      return __PO_HI_ERROR_CREATE_TASK;
   }
 
-   return __PO_HI_SUCCESS;
+   return rid;
 }
 #endif
 
@@ -309,7 +312,7 @@ int __po_hi_create_generic_task (__po_hi_task_id    id,
       my_task->tid    = __po_hi_posix_create_thread (priority, stack_size, start_routine);
       __po_hi_posix_initialize_task (my_task);
 #elif defined (RTEMS_PURE)
-      __po_hi_rtems_create_thread (priority, stack_size, start_routine);
+      my_task->rtems_id = __po_hi_rtems_create_thread (priority, stack_size, start_routine);
 #else
       return (__PO_HI_UNAVAILABLE);
 #endif
@@ -391,4 +394,20 @@ int __po_hi_task_delay_until (__po_hi_time_t time, __po_hi_task_id task)
   return (ret);
 #endif
   return (__PO_HI_UNAVAILABLE);
+}
+
+void __po_hi_tasks_killall ()
+{
+   int i;
+   for (i = 0; i < __PO_HI_NB_TASKS; i++)
+    {
+       __DEBUGMSG ("Kill task %d\n", i);
+#ifdef RTEMS_PURE
+      rtems_task_delete (tasks[i].rtems_id);
+#endif
+#if defined (POSIX) || defined (RTEMS_POSIX)
+      pthread_cancel (tasks[i].tid);
+      __DEBUGMSG ("[TASKS] Cancel thread %d\n", (int) tasks[i].tid);
+#endif
+    }
 }

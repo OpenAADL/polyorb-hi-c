@@ -5,8 +5,7 @@
  *
  * For more informations, please visit http://ocarina.enst.fr
  *
- * Copyright (C) 2007-2008, GET-Telecom Paris.
- * Copyright (C) 2010, European Space Agency.
+ * Copyright (C) 2010, European Space Agency (ESA).
  */
 
 #ifndef __PO_HI_TASK_H__
@@ -149,5 +148,11 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task);
  * is the task-identifier in the node (__po_hi_task_id type).
  */
  int __po_hi_compute_next_period (__po_hi_task_id task);
+
+ /*
+  * Delete all the tasks that were created within the system.
+  */
+void __po_hi_tasks_killall ();
+
 
 #endif /* __PO_HI_TASK_H__ */ 
