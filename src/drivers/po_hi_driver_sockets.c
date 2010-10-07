@@ -172,6 +172,15 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 
    associated_device = __po_hi_get_device_from_port (destination_port);
 
+   if (request->port == -1)
+   {
+
+#ifdef __PO_HI_DEBUG
+      __DEBUGMSG (" [DRIVER SOCKETS] No data to write on port %d\n", port);
+#endif
+      return;
+   }
+
    if (nodes[associated_device].socket == -1 )
    {
 #ifdef __PO_HI_DEBUG
