@@ -1,0 +1,17 @@
+TARGET_CFLAGS   = -DPOSIX -m64
+TARGET_LDFLAGS  =  -lpthread -lrt -m64
+SIMULINK_LDFLAGS  = -lm
+CC              = gcc
+LD              = ld
+GPROF           = gprof
+
+
+ifdef USE_GPROF
+TARGET_LDFLAGS+=-pg
+endif
+
+
+
+target-clean:
+
+target-objects:

@@ -250,7 +250,7 @@ $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(U
 endif
 
 
-ifeq ($(TARGET), native)
+ifeq ($(TARGET), $(filter $(TARGET), native linux32 linux64))
 $(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
 	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
 endif

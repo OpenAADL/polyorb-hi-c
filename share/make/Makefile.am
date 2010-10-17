@@ -3,6 +3,8 @@ EXTRA_DIST=$(srcdir)/Makefile.common \
 			  $(srcdir)/Makefile.arm.n770 \
 			  $(srcdir)/Makefile.leon.ork \
 			  $(srcdir)/Makefile.leon.rtems \
+			  $(srcdir)/Makefile.linux32 \
+			  $(srcdir)/Makefile.linux64 \
 			  $(srcdir)/Makefile.x86.rtems \
 			  $(srcdir)/Makefile.x86.linuxtaste \
 			  $(srcdir)/Makefile.nds.rtems \
