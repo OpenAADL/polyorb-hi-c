@@ -14,11 +14,47 @@
 #include <po_hi_config.h>
 #include <po_hi_time.h>
 
-#ifdef __PO_HI_DEBUG
-#include <stdio.h>
-#define __DEBUGMSG(s, args...) fprintf(stderr, s, ##args); fflush (stderr); 
-#else
-#define __DEBUGMSG(s, args...) 
+
+#define __PO_HI_DEBUG_LEVEL_INFO     12
+#define __PO_HI_DEBUG_LEVEL_DEBUG    10
+#define __PO_HI_DEBUG_LEVEL_WARNING  6
+#define __PO_HI_DEBUG_LEVEL_CRITICAL 4
+#define __PO_HI_DEBUG_LEVEL_NONE     0
+
+#ifndef __PO_HI_DEBUG_LEVEL
+   #define __PO_HI_DEBUG_LEVEL __PO_HI_DEBUG_LEVEL_NONE
 #endif
+
+
+#if __PO_HI_DEBUG_LEVEL > __PO_HI_DEBUG_LEVEL_NONE
+   #include <stdio.h>
+#endif
+
+#if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_CRITICAL
+   #define __PO_HI_DEBUG_CRITICAL(s, args...) fprintf(stderr, s, ##args); fflush (stderr); 
+#else
+   #define __PO_HI_DEBUG_CRITICAL(s, args...) 
+#endif
+
+#if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_WARNING
+   #define __PO_HI_DEBUG_WARNING(s, args...) fprintf(stderr, s, ##args); fflush (stderr); 
+#else
+   #define __PO_HI_DEBUG_WARNING(s, args...) 
+#endif
+
+#if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_DEBUG
+   #define __PO_HI_DEBUG_DEBUG(s, args...) fprintf(stderr, s, ##args); fflush (stderr); 
+#else
+   #define __PO_HI_DEBUG_DEBUG(s, args...) 
+#endif
+
+#if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_INFO
+   #define __PO_HI_DEBUG_INFO(s, args...) fprintf(stderr, s, ##args); fflush (stderr); 
+   #define __DEBUGMSG(s, args...) fprintf(stderr, s, ##args); fflush (stderr); 
+#else
+   #define __PO_HI_DEBUG_INFO(s, args...) 
+   #define __DEBUGMSG(s, args...)
+#endif
+
 
 #endif	/* __DEBUG_H__ */

@@ -128,18 +128,18 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 #endif
 
 #ifdef RTEMS_PURE
-   __DEBUGMSG ("[GQUEUE] Create semaphore for queue of task %d\n", id);
+   __PO_HI_DEBUG_INFO ("[GQUEUE] Create semaphore for queue of task %d\n", id);
    ret = rtems_semaphore_create (rtems_build_name ('G', 'S', 'E' , 'A' + (char) id), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &(__po_hi_gqueues_semaphores[id]));
    if (ret != RTEMS_SUCCESSFUL)
    {
-      __DEBUGMSG ("[GQUEUE] Cannot create semaphore, error code=%d\n", ret);
+      __PO_HI_DEBUG_WARNING ("[GQUEUE] Cannot create semaphore, error code=%d\n", ret);
    }
 
-   __DEBUGMSG ("[GQUEUE] Create barrier for queue of task %d\n", id);
+   __PO_HI_DEBUG_INFO ("[GQUEUE] Create barrier for queue of task %d\n", id);
    ret = rtems_barrier_create (rtems_build_name ('G', 'S', 'I' , 'A' + (char) id),RTEMS_BARRIER_AUTOMATIC_RELEASE , 10, &(__po_hi_gqueues_barriers[id]));
    if (ret != RTEMS_SUCCESSFUL)
    {
-      __DEBUGMSG ("[GQUEUE] Cannot create barrier, error code=%d\n", ret);
+      __PO_HI_DEBUG_WARNING ("[GQUEUE] Cannot create barrier, error code=%d\n", ret);
    }
 #endif
 
@@ -187,7 +187,7 @@ void __po_hi_gqueue_store_out (__po_hi_task_id id,
    request->port = __PO_HI_GQUEUE_OUT_PORT;
    ptr = &__po_hi_gqueues_most_recent_values[id][port];
    memcpy (ptr, request, sizeof (*request));
-   __DEBUGMSG ("__po_hi_gqueue_store_out() from task %d on port %d\n", id, port);
+   __PO_HI_DEBUG_DEBUG ("__po_hi_gqueue_store_out() from task %d on port %d\n", id, port);
 }
 
 
@@ -243,10 +243,10 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
          ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
          if (ret != RTEMS_SUCCESSFUL)
          {
-            __DEBUGMSG ("[GQUEUE] Cannot release semaphore in __po_hi_gqueue_store_in()\n");
+            __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Cannot release semaphore in __po_hi_gqueue_store_in()\n");
          }
 #endif
-         __DEBUGMSG ("[GQUEUE] QUEUE FULL, task-id=%d, port=%d", id, port);
+         __PO_HI_DEBUG_CRITICAL ("[GQUEUE] QUEUE FULL, task-id=%d, port=%d", id, port);
          return __PO_HI_ERROR_QUEUE_FULL;
       }
 
@@ -273,7 +273,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
    ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
    if (ret != RTEMS_SUCCESSFUL)
    {
-      __DEBUGMSG ("[GQUEUE] Cannot release semaphore in __po_hi_gqueue_store_in()\n");
+      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Cannot release semaphore in __po_hi_gqueue_store_in()\n");
    }
 #endif
 
@@ -407,7 +407,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
    }
     
    
-   __DEBUGMSG ("Task %d get a value on port %d\n", id, port);
+   __PO_HI_DEBUG_INFO ("[GQUEUE] Task %d get a value on port %d\n", id, port);
 
    /*
     * As this part of the code is now considered as stable, we don't print debug output

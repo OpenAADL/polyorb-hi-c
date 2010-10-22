@@ -76,8 +76,26 @@ AM_PATH_OCARINA(1.1, ,AC_MSG_ERROR([Ocarina 1.1 or later is not installed on you
 r system]))
 
 AC_ARG_ENABLE(debug,
-  [  --enable-debug          Turn on debugging options],
-  [ AC_DEFINE([__PO_HI_DEBUG], [], ["Enable debug options for PolyORB-HI-C"])])
+  [  --enable-debug[=level] specify debugging level.
+                            Values are:
+                             * critical - runtime errors that will imply a failure
+                             * warning  - runtime errors that do not crash the system
+                             * debug    - useful for debugging purpose
+                             * info     - ALL informations about the system],
+  [ case ${enableval} in
+	info)
+      AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 10, "Debug level - show ALL potential informations.")
+		;;
+	debug)
+      AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 6, "Warning - information that can show errors but are not so important")
+		;;
+	warning)
+      AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 4, "Critical - Errors that will imply a fault or a crash")
+		;;
+	*)
+      AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 0, "None - Do not print anything")
+		;;
+   esac])
 
 AC_ARG_ENABLE(giop,
   [  --enable-giop           Use the GIOP protocol],

@@ -63,19 +63,15 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
 
    if (request->port == -1)
    {
-#ifdef __PO_HI_DEBUG
-      __DEBUGMSG ("Send output task %d, port %d : no value to send\n", id, port);
-#endif
+      __PO_HI_DEBUG_DEBUG ("Send output task %d, port %d : no value to send\n", id, port);
       return __PO_HI_SUCCESS;
    }
 
    ndest          = __po_hi_gqueue_get_destinations_number (id, local_port);
 
-#ifdef __PO_HI_DEBUG
-   __DEBUGMSG ("Send value, emitter task %d, emitter port %d, emitter entity %d, destination ports :\n", id,  port, __po_hi_port_global_to_entity[port]);
-#endif
+   __PO_HI_DEBUG_DEBUG ("Send value, emitter task %d, emitter port %d, emitter entity %d, destination ports :\n", id,  port, __po_hi_port_global_to_entity[port]);
 
-#ifdef __PO_HI_DEBUG
+#if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_INFO
    __DEBUGMSG ("SENT Value: |");
    {
          int s;
@@ -97,11 +93,7 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
    {
       destination_port     = __po_hi_gqueue_get_destination (id, local_port, i);
       destination_entity   = __po_hi_get_entity_from_global_port (destination_port);
-#ifdef __PO_HI_DEBUG
-      __DEBUGMSG ("\t%d (entity=%d)", 
-            destination_port,
-            destination_entity);
-#endif
+      __PO_HI_DEBUG_DEBUG ("\t%d (entity=%d)", destination_port, destination_entity);
       __po_hi_msg_reallocate (&msg);
 
       request->port = destination_port;
@@ -109,13 +101,13 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
       if (__po_hi_transport_get_node_from_entity (__po_hi_get_entity_from_global_port (port)) ==
           __po_hi_transport_get_node_from_entity (__po_hi_get_entity_from_global_port (destination_port)))
       {
-            __DEBUGMSG (" [deliver locally]\n");
+            __PO_HI_DEBUG_DEBUG (" [deliver locally]\n");
             __po_hi_main_deliver (request);
       }
 #if defined (__PO_HI_NEED_DRIVER_SOCKETS) && (__PO_HI_NB_NODES > 1)
       else
       {
-         __DEBUGMSG (" [deliver using network sockets]");
+         __PO_HI_DEBUG_DEBUG (" [deliver using network sockets]");
          __po_hi_marshall_request (request, &msg);
 
          error =__po_hi_driver_sockets_send (__po_hi_port_global_to_entity[port],
@@ -131,7 +123,7 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
    request->port = __PO_HI_GQUEUE_INVALID_PORT;
 
 #ifdef __PO_HI_DEBUG
-   __DEBUGMSG ("\n");
+   __PO_HI_DEBUG_DEBUG ("\n");
 #endif
 
    return __PO_HI_SUCCESS;
