@@ -1,5 +1,5 @@
 AC_PREREQ(2.60)
-AC_INIT(PolyORB-HI/C, 1.0w, polyorb-hi-devel@listes.enst.fr)
+AC_INIT(PolyORB-HI/C, 1.0w, taste-dev@lists.tuxfamily.org)
 AC_CONFIG_SRCDIR(src)
 AC_CONFIG_AUX_DIR(support)
 

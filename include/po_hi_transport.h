@@ -20,6 +20,8 @@
 #define __PO_HI_BIGENDIAN     0
 #define __PO_HI_LITTLEENDIAN  1
 
+#if __PO_HI_NB_PORTS > 0
+
 typedef uint8_t __po_hi_queue_id;
 
 __po_hi_node_t    __po_hi_transport_get_node_from_entity (const __po_hi_entity_t entity);
@@ -44,11 +46,11 @@ char* __po_hi_get_port_name (const __po_hi_port_t port);
 __po_hi_local_port_t __po_hi_get_local_port_from_global_port (const __po_hi_port_t global_port);
 
 __po_hi_uint8_t  __po_hi_get_endianness (const __po_hi_node_t node);
-
-#if __PO_HI_NB_DEVICES > 0
 __po_hi_device_id __po_hi_get_device_from_port (const __po_hi_port_t port);
 
 char* __po_hi_get_device_naming (const __po_hi_device_id dev);
-#endif
+
+
+#endif /* __PO_HI_NB_PORTS > 0 */
 
 #endif /* __PO_HI_TRANSPORT__ */

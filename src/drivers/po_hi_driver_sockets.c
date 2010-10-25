@@ -150,7 +150,9 @@ int __po_hi_driver_sockets_send (__po_hi_entity_t from,
 }
 #endif
 
-#ifdef __PO_HI_NEED_DRIVER_SOCKETSNEW
+#if (defined (__PO_HI_NEED_DRIVER_SOCKETSNEW) || \
+     defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
+
 int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
                                  __po_hi_port_t port)
 {

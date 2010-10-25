@@ -13,9 +13,9 @@
 #include <stdint.h>
 #include <deployment.h>
 
-#define __PO_HI_PROTECTED_TYPE_REGULAR
-#define __PO_HI_PROTECTED_TYPE_PIP
-#define __PO_HI_PROTECTED_TYPE_PCP
+#define __PO_HI_PROTECTED_TYPE_REGULAR    0
+#define __PO_HI_PROTECTED_TYPE_PIP        1
+#define __PO_HI_PROTECTED_TYPE_PCP        2
 
 typedef uint8_t __po_hi_protected_t;
 

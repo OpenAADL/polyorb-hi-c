@@ -103,8 +103,8 @@ ifeq ($(NEED_TRANSPORT), yes)
 	subprograms.o                    \
 	types.o                          \
 	request.o                        \
-	deployment.o                     \
 	marshallers.o                    \
+	deployment.o                     \
 	naming.o                         \
 	main.o
 else
@@ -118,6 +118,7 @@ else
    GENERATED_OBJS =                 \
 	activity.o                       \
 	subprograms.o                    \
+	deployment.o                     \
 	types.o                          \
 	main.o
 endif

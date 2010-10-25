@@ -1,3 +1,13 @@
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://ocarina.enst.fr
+ *
+ * Copyright (C) 2010, European Space Agency (ESA).
+ */
+
 #ifdef __PO_HI_USE_GPROF
 
 #include <po_hi_debug.h>
@@ -252,6 +262,7 @@ void _mcount() __attribute__((weak, alias("mcount")));
  */
 extern unsigned int _endtext, text_start;
 extern int initialize_serial();
+extern void end_serial ();
 extern void write_serial(uint8_t vector[] , unsigned int dim);
 
 /*
@@ -308,13 +319,11 @@ static void _mcleanup()
     moncontrol(0);
 #if (CONFIG_OS_PROFILE_OVER_SERIAL == 1)
     ret = initialize_serial();
-#endif
     if( ret >= 0 )
     {
-#if (CONFIG_OS_PROFILE_OVER_SERIAL == 1)
         write_serial( (uint8_t*)sbuf , (unsigned int)ssiz );
-#endif
     }
+#endif
 
 //    fprintf( stderr , "[mcleanup] sbuf 0x%x ssiz %d\n" , (unsigned int)sbuf , (unsigned int)ssiz );
     endfrom = s_textsize / (HASHFRACTION * sizeof(*froms));
@@ -343,6 +352,10 @@ static void _mcleanup()
             }
         }
     }
+#if (CONFIG_OS_PROFILE_OVER_SERIAL == 1)
+    end_serial ();
+#endif
+
 }
 
 void monstartup(char *lowpc, char *highpc)
@@ -537,6 +550,7 @@ overflow:
 }
 
 extern rtems_status_code __real_Clock_isr();
+extern rtems_status_code Clock_isr();
 
 static uint32_t pc = 0;
 rtems_isr __wrap_Clock_isr()
@@ -564,9 +578,6 @@ static rtems_isr profile_clock_isr(rtems_vector_number vector)
     Clock_isr(vector);
     
 }
-
-
-
 
 #if (CONFIG_OS_PROFILE_OVER_SERIAL == 1)
 
@@ -597,19 +608,18 @@ static int serialFD = -1;
 
 int initialize_serial()
 {
-  struct termios oldtio, newtio;
    __DEBUGMSG ("[RASTA SERIAL] Init\n");
    init_pci();
    __DEBUGMSG ("[RASTA SERIAL] Initializing RASTA ...\n");
   if  ( rasta_register() ){
     __DEBUGMSG(" ERROR !\n");
-    return;
+    return -1;
   }
-    __DEBUGMSG(" OK !\n");
+   __DEBUGMSG(" OK !\n");
 
 
 
-  serialFD = open( "/dev/apburasta0" , O_RDWR | O_NOCTTY);
+  serialFD = open( "/dev/apburasta0" , O_RDWR);
   if( serialFD < 0 )
   {
 #if(SERIAL_VERBOSE_MODE == 1)
@@ -618,32 +628,21 @@ int initialize_serial()
     return -1;
   }
   
-  tcgetattr(serialFD , &oldtio);
-  bzero(&newtio, sizeof(newtio));
-  
-  newtio.c_cflag = BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
-  
-  newtio.c_iflag = IGNPAR | ICRNL;
-  
-  newtio.c_oflag  = 0;
-  newtio.c_lflag  = 0;
-  
-  newtio.c_cc[VTIME] = 0;
-  newtio.c_cc[VMIN]  = 1;
-  
-  tcflush(serialFD , TCIFLUSH);
-  tcsetattr(serialFD , TCSANOW , &newtio);
-  
-  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_BAUDRATE, 57600); /* stream mode */
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_BAUDRATE, 38400); /* stream mode */
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_BLOCKING, APBUART_BLK_RX | APBUART_BLK_TX | APBUART_BLK_FLUSH);
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_TXFIFO_LEN, 64);  /* Transmitt buffer 64 chars */
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_RXFIFO_LEN, 256); /* Receive buffer 256 chars */
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_ASCII_MODE, 0); /* Make \n go \n\r or \r\n */
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_CLR_STATS, 0);
-  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_START, 1);
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_START, 0);
+  if (tcflush (serialFD, TCIOFLUSH) != 0)
+  {
+     __DEBUGMSG("[GPROF] Error when trying to flush\n");
+  }
+
 
 #if(SERIAL_VERBOSE_MODE == 1)
-    printk("Serial init done = %d" , serialFD);
+    printk("Serial init done (using file descriptor %d)\n" , serialFD);
 #endif
   
   return 0;
@@ -651,7 +650,24 @@ int initialize_serial()
 
 void write_serial(uint8_t vector[] , unsigned int dim)
 {
-  write(serialFD , vector , dim);
+   int i;
+   write(serialFD , vector , dim);
+   /*
+   for (i = 0 ; i < dim ; i++)
+   {
+      write(serialFD , &vector[i] , 1);
+   }
+   */
+
+   if (tcflush (serialFD, TCIOFLUSH) != 0)
+   {
+      __DEBUGMSG("[GPROF] Error when trying to flush serial port\n");
+   }
+}
+
+void end_serial ()
+{
+      __DEBUGMSG("[GPROF] Analysis results sent\n");
 }
 
 #endif /* TIMELINE_USE_SERIAL_CABLE */
@@ -659,4 +675,3 @@ void write_serial(uint8_t vector[] , unsigned int dim)
 
 
 #endif
-

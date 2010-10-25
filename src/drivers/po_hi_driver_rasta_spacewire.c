@@ -30,6 +30,10 @@
 #include <fcntl.h>
 /* POSIX-style files */
 
+
+#include <rtems/bspIo.h>
+#include <ambapp.h>
+
 #include <pci.h>
 #include <rasta.h>
 #include <grspw_rasta.h>
@@ -96,6 +100,13 @@ void __po_hi_c_driver_spacewire_rasta_poller (void)
    }
 }
 
+
+extern rtems_isr __po_hi_rasta_interrupt_handler (rtems_vector_number v);
+extern unsigned int __po_hi_driver_rasta_bar0, __po_hi_driver_rasta_bar1;
+
+void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg);
+extern amba_confarea_type* __po_hi_driver_rasta_common_get_bus ();
+
 void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
 {
    unsigned int node_addr;
@@ -105,6 +116,17 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
    __DEBUGMSG ("[RASTA SPACEWIRE] Init\n");
 
    __po_hi_c_driver_rasta_common_init ();
+
+    /* provide the spacewire driver with AMBA Plug&Play
+     * info so that it can find the GRSPW cores.
+     */
+   /*
+    grspw_rasta_int_reg=__po_hi_rasta_interrrupt_register;
+    if ( grspw_rasta_register(__po_hi_driver_rasta_common_get_bus (),__po_hi_driver_rasta_bar1) ){
+      printk("Failed to register RASTA GRSPW driver\n\r");
+      return;
+    }
+    */
 
    __DEBUGMSG ("[RASTA SPACEWIRE] Open spacewire device ...");
 

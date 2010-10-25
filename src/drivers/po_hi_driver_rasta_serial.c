@@ -86,9 +86,24 @@ void __po_hi_c_driver_serial_rasta_poller (void)
    __po_hi_main_deliver (&__po_hi_c_driver_rasta_serial_request);
 }
 
+extern amba_confarea_type* __po_hi_driver_rasta_common_get_bus ();
+void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg);
+
 void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 {
    __po_hi_c_driver_rasta_common_init ();
+
+    /* provide the spacewire driver with AMBA Plug&Play
+     * info so that it can find the GRSPW cores.
+     */
+
+   /*
+    apbuart_rasta_int_reg=__po_hi_rasta_interrrupt_register;
+    if ( apbuart_rasta_register(__po_hi_driver_rasta_common_get_bus ()) ){
+      printk("Failed to register RASTA APBUART driver\n\r");
+    }
+    */
+
    po_hi_c_driver_rasta_serial_fd = open (__po_hi_get_device_naming (id), O_RDWR);
 
    if (po_hi_c_driver_rasta_serial_fd < 0)
