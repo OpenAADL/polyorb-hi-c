@@ -50,7 +50,7 @@ void __po_hi_c_driver_serial_rasta_poller (void)
    int tr;
    uint8_t* ptr;
 
-   __DEBUGMSG ("[RASTA SERIAL] Poller waits for incoming message !\n");
+   __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Poller waits for incoming message !\n");
    ts = __PO_HI_MESSAGES_MAX_SIZE;
    tr = 0;
    ptr = &(__po_hi_c_driver_rasta_serial_msg.content[0]);
@@ -62,21 +62,21 @@ void __po_hi_c_driver_serial_rasta_poller (void)
 
       if (n == -1)
       {
-         __DEBUGMSG("[RASTA SERIAL] Cannot read on socket !\n");
+         __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Cannot read on socket !\n");
          return;
       }
       ts -= n;
    tr += n;
    }
 
-   __DEBUGMSG ("[RASTA SERIAL] read() returns total %d, max message size=%d\n", tr, __PO_HI_MESSAGES_MAX_SIZE);
+   __PO_HI_DEBUG_INFO ("[RASTA SERIAL] read() returns total %d, max message size=%d\n", tr, __PO_HI_MESSAGES_MAX_SIZE);
 
-   __DEBUGMSG ("[RASTA SERIAL] Message received by poller: 0x");
+   __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Message received by poller: 0x");
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
-      __DEBUGMSG ("%x", __po_hi_c_driver_rasta_serial_msg.content[ts]);
+      __PO_HI_DEBUG_INFO ("%x", __po_hi_c_driver_rasta_serial_msg.content[ts]);
    }
-   __DEBUGMSG ("\n");
+   __PO_HI_DEBUG_INFO ("\n");
 
    __po_hi_c_driver_rasta_serial_msg.length = tr;
 
@@ -97,10 +97,12 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
      * info so that it can find the GRSPW cores.
      */
 
-   /*
+   __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Initialization starts !\n");
+/*
     apbuart_rasta_int_reg=__po_hi_rasta_interrrupt_register;
-    if ( apbuart_rasta_register(__po_hi_driver_rasta_common_get_bus ()) ){
-      printk("Failed to register RASTA APBUART driver\n\r");
+    if ( apbuart_rasta_register(__po_hi_driver_rasta_common_get_bus ()) )
+    {
+      __PO_HI_DEBUG_CRITICAL ("[RASTA SERIAL] Failed to register RASTA APBUART driver\n\r");
     }
     */
 
@@ -108,7 +110,7 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 
    if (po_hi_c_driver_rasta_serial_fd < 0)
    {
-      __DEBUGMSG ("[RASTA SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
+      __PO_HI_DEBUG_CRITICAL ("[RASTA SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
    }
 
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BAUDRATE, __PO_HI_DRIVER_SERIAL_RASTA_BAUDRATE); /* stream mode */
@@ -121,8 +123,9 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 
   if (tcflush (po_hi_c_driver_rasta_serial_fd, TCIOFLUSH) != 0)
   {
-     __DEBUGMSG("[RASTA SERIAL] Error when trying to flush\n");
+     __PO_HI_DEBUG_CRITICAL ("[RASTA SERIAL] Error when trying to flush\n");
   }
+  __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Initialization complete !\n");
 }
 
 int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const __po_hi_port_t port)
@@ -146,16 +149,17 @@ int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const _
 
    __po_hi_marshall_request (request, &msg);
 
-   __DEBUGMSG  ("[RASTA SERIAL] Message sent: 0x");
+   __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Message sent: 0x");
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
-      __DEBUGMSG ("%x", msg.content[ts]);
+      __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
    }
-   __DEBUGMSG ("\n");
+
+   __PO_HI_DEBUG_INFO ("\n");
 
    n = write (po_hi_c_driver_rasta_serial_fd, &msg, __PO_HI_MESSAGES_MAX_SIZE);
 
-   __DEBUGMSG ("[RASTA SERIAL] write() returns %d\n", n);
+   __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] write() returns %d\n", n);
    return 1;
 }
 

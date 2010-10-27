@@ -84,10 +84,10 @@ AC_ARG_ENABLE(debug,
                              * info     - ALL informations about the system],
   [ case ${enableval} in
 	info)
-      AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 10, "Debug level - show ALL potential informations.")
+      AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 12, "Debug level - show ALL potential informations.")
 		;;
 	debug)
-      AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 6, "Warning - information that can show errors but are not so important")
+      AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 10, "Warning - information that can show errors but are not so important")
 		;;
 	warning)
       AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 4, "Critical - Errors that will imply a fault or a crash")

@@ -80,29 +80,37 @@ static rtems_isr __po_hi_rasta_interrupt_handler (rtems_vector_number v)
     DBG("Interrupt triggered\n");
 
     if ( (status & GRCAN_IRQ) && grcan_int_handler ) {
+
+    DBG("CAN triggered\n");
       grcan_int_handler(GRCAN_IRQNO,grcan_int_arg);
     }
     
     if (status & SPW_IRQ) {
       if ( (status & SPW0_IRQ) && spw0_int_handler ){
+    DBG("SPW0 triggered\n");
         spw0_int_handler(SPW0_IRQNO,spw0_int_arg);
       }
 
       if ( (status & SPW1_IRQ) && spw1_int_handler ){
+    DBG("SPW1 triggered\n");
         spw1_int_handler(SPW1_IRQNO,spw1_int_arg);
       }
       
       if ( (status & SPW2_IRQ) && spw2_int_handler ){
+    DBG("SPW2 triggered\n");
         spw2_int_handler(SPW2_IRQNO,spw2_int_arg);
       }
     }
     if ((status & BRM_IRQ) && brm_int_handler ){ 
+    DBG("BRM triggered\n");
         brm_int_handler(BRM_IRQNO,brm_int_arg);
     }
     if ( (status & UART0_IRQ) && uart0_int_handler ) {
+    DBG("UART0 triggered\n");
       uart0_int_handler(UART0_IRQNO,uart0_int_arg);
     }
     if ( (status & UART1_IRQ) && uart1_int_handler) {
+    DBG("UART1 triggered\n");
       uart1_int_handler(UART1_IRQNO,uart1_int_arg);
     }
     irq->iclear = status;
@@ -239,8 +247,6 @@ int __po_hi_rasta_register(void)
     pci_read_config_dword(bus, dev, fun, 0x10, &__po_hi_driver_rasta_bar0);
     pci_read_config_dword(bus, dev, fun, 0x14, &__po_hi_driver_rasta_bar1);
 
-    DBG("here1\n", dev, fun);
-
     page0 = (unsigned int *)(__po_hi_driver_rasta_bar0 + 0x400000); 
     *page0 = 0x80000000;                  /* Point PAGE0 to start of APB       */
 
@@ -266,8 +272,6 @@ int __po_hi_rasta_register(void)
     irq->ilevel = 0;
     irq->mask[0] = 0xffff & ~(UART0_IRQ|UART1_IRQ|SPW0_IRQ|SPW1_IRQ|SPW2_IRQ|GRCAN_IRQ|BRM_IRQ);
 
-    DBG("here2\n", dev, fun);
-
     /* Configure AT697 ioport bit 7 to input pci irq */
     regs->PIO_Direction &= ~(1<<7);
     regs->PIO_Interrupt |= (0x87<<8);     /* level sensitive */
@@ -275,9 +279,6 @@ int __po_hi_rasta_register(void)
     apb_base[0x100] |= 0x40000000;        /* Set GRPCI mmap 0x4 */
     apb_base[0x104] =  0x40000000;        /* 0xA0000000;  Point PAGE1 to RAM */
 
-    DBG("here21\n");
-
-    
     /* set parity error response */
     pci_read_config_dword(bus, dev, fun, 0x4, &data);
     pci_write_config_dword(bus, dev, fun, 0x4, data|0x40);
@@ -341,12 +342,12 @@ void __po_hi_c_driver_rasta_common_init ()
       return;
    }
 
-   __DEBUGMSG ("[RASTA SERIAL] Init\n");
+   __PO_HI_DEBUG_INFO ("[RASTA COMMON] Init\n");
    init_pci();
-   __DEBUGMSG ("[RASTA SERIAL] Initializing RASTA ...\n");
+   __PO_HI_DEBUG_DEBUG ("[RASTA COMMON] Initializing RASTA ...");
    /*
   if  (__po_hi_rasta_register() ){
-    __DEBUGMSG(" ERROR !\n");
+    __PO_HI_DEBUG_DEBUG (" ERROR !\n");
     return;
   }
   */
@@ -355,10 +356,9 @@ void __po_hi_c_driver_rasta_common_init ()
     return;
   }
 
-    __DEBUGMSG(" OK !\n");
+    __PO_HI_DEBUG_DEBUG (" OK !\n");
 
    __po_hi_c_driver_rasta_common_is_init = 1;
-
 }
 
 #endif

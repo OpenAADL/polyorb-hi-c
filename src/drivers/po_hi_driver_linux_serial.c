@@ -53,23 +53,23 @@ void __po_hi_c_driver_serial_linux_poller (void)
    __po_hi_msg_t msg;
    __po_hi_request_t request;
 
-   __DEBUGMSG ("[LINUX SERIAL] Hello, i'm the serial poller , must read %d bytes!\n", __PO_HI_MESSAGES_MAX_SIZE);
+   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Hello, i'm the serial poller , must read %d bytes!\n", __PO_HI_MESSAGES_MAX_SIZE);
 
    __po_hi_msg_reallocate (&msg);
 
    n = read (po_hi_c_driver_serial_fd_read, &(msg.content[0]), __PO_HI_MESSAGES_MAX_SIZE); 
 
-   __DEBUGMSG  ("[LINUX SERIAL] Message: 0x");
+   __PO_HI_DEBUG_INFO  ("[LINUX SERIAL] Message: 0x");
 
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
-      __DEBUGMSG ("%x", msg.content[ts]);
+      __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
    }
-   __DEBUGMSG ("\n");
+   __PO_HI_DEBUG_INFO ("\n");
    
    if (n == -1)
    {
-      __DEBUGMSG("[LINUX SERIAL] Cannot read on socket !\n");
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Cannot read on socket !\n");
       return;
    }
 
@@ -79,7 +79,7 @@ void __po_hi_c_driver_serial_linux_poller (void)
    }
 
 
-   __DEBUGMSG ("[LINUX SERIAL] read() returns %d\n", n);
+   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] read() returns %d\n", n);
 
    msg.length = n;
 
@@ -87,18 +87,18 @@ void __po_hi_c_driver_serial_linux_poller (void)
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
 
-   __DEBUGMSG  ("[LINUX SERIAL] Message after swapped port: 0x");
+   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Message after swapped port: 0x");
    for (ts = 0 ; ts < msg.length ; ts++)
    {
-        __DEBUGMSG ("%x", msg.content[ts]);
+        __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
    }
-   __DEBUGMSG ("\n");
+   __PO_HI_DEBUG_INFO ("\n");
 
-   __DEBUGMSG ("[LINUX SERIAL] Received: %s\n", msg.content);
+   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Received: %s\n", msg.content);
 
    __po_hi_unmarshall_request (&request, &msg);
 
-   __DEBUGMSG ("[LINUX SERIAL] Destination port: %d\n", request.port);
+   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Destination port: %d\n", request.port);
    __po_hi_main_deliver (&request);
 }
 #endif
@@ -111,17 +111,17 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
 {
    struct termios oldtio,newtio;
 
-   __DEBUGMSG ("[LINUX SERIAL] Init\n");
+   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init\n");
 
    po_hi_c_driver_serial_fd_write = open( __po_hi_get_device_naming (id), O_RDWR | O_NOCTTY | O_NONBLOCK);
 
    if (po_hi_c_driver_serial_fd_write < 0)
    {
-      __DEBUGMSG ("[LINUX SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
    }
    else
    {
-      __DEBUGMSG ("[LINUX SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_serial_fd_write);
+      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_serial_fd_write);
    }
 
    tcgetattr (po_hi_c_driver_serial_fd_write, &oldtio);  /* save current serial port settings */
@@ -185,15 +185,15 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
     */
    if (tcflush (po_hi_c_driver_serial_fd_write, TCIOFLUSH) == -1)
    {
-      __DEBUGMSG ("[LINUX SERIAL] Error in tcflush()\n");
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcflush()\n");
    }
 
    if (tcsetattr (po_hi_c_driver_serial_fd_write, TCSANOW, &newtio) == -1)
    {
-      __DEBUGMSG ("[LINUX SERIAL] Error in tcsetattr()\n");
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcsetattr()\n");
    }
 
-    __DEBUGMSG ("[LINUX SERIAL] End of init\n");
+    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] End of init\n");
 }
 #endif
 
@@ -204,17 +204,17 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
 {
    struct termios oldtio,newtio;
 
-   __DEBUGMSG ("[LINUX SERIAL] Init\n");
+   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init\n");
 
    po_hi_c_driver_serial_fd_read = open( __po_hi_get_device_naming (id), O_RDONLY | O_NOCTTY);
 
    if (po_hi_c_driver_serial_fd_read < 0)
    {
-      __DEBUGMSG ("[LINUX SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
    }
    else
    {
-      __DEBUGMSG ("[LINUX SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_serial_fd_read);
+      __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_serial_fd_read);
    }
 
    tcgetattr (po_hi_c_driver_serial_fd_read, &oldtio);  /* save current serial port settings */
@@ -261,15 +261,15 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
     */
    if (tcflush (po_hi_c_driver_serial_fd_read, TCIOFLUSH) == -1)
    {
-      __DEBUGMSG ("[LINUX SERIAL] Error in tcflush()\n");
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcflush()\n");
    }
 
    if (tcsetattr (po_hi_c_driver_serial_fd_read, TCSANOW, &newtio) == -1)
    {
-      __DEBUGMSG ("[LINUX SERIAL] Error in tcsetattr()\n");
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcsetattr()\n");
    }
 
-    __DEBUGMSG ("[LINUX SERIAL] End of init\n");
+    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] End of init\n");
 }
 #endif
 
@@ -280,17 +280,17 @@ void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
 {
    struct termios oldtio,newtio;
 
-   __DEBUGMSG ("[LINUX SERIAL] Init\n");
+   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init\n");
 
    po_hi_c_driver_serial_fd_read = po_hi_c_driver_serial_fd_write = open( __po_hi_get_device_naming (id), O_RDWR | O_NOCTTY | O_NONBLOCK);
 
    if (po_hi_c_driver_serial_fd_read < 0)
    {
-      __DEBUGMSG ("[LINUX SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
    }
    else
    {
-      __DEBUGMSG ("[LINUX SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_serial_fd_read);
+      __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_serial_fd_read);
    }
 
    tcgetattr (po_hi_c_driver_serial_fd_read, &oldtio);  /* save current serial port settings */
@@ -354,15 +354,15 @@ void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
     */
    if (tcflush (po_hi_c_driver_serial_fd_read, TCIOFLUSH) == -1)
    {
-      __DEBUGMSG ("[LINUX SERIAL] Error in tcflush()\n");
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcflush()\n");
    }
 
    if (tcsetattr (po_hi_c_driver_serial_fd_read, TCSANOW, &newtio) == -1)
    {
-      __DEBUGMSG ("[LINUX SERIAL] Error in tcsetattr()\n");
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcsetattr()\n");
    }
 
-    __DEBUGMSG ("[LINUX SERIAL] End of init\n");
+    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] End of init\n");
 }
 #endif
 
@@ -400,13 +400,13 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    n = write (po_hi_c_driver_serial_fd_write, &msg, __PO_HI_MESSAGES_MAX_SIZE);
 
-   __DEBUGMSG  ("[LINUX SERIAL] Message sent: 0x");
+   __PO_HI_DEBUG_INFO  ("[LINUX SERIAL] Message sent: 0x");
 
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
-      __DEBUGMSG ("%x", msg.content[ts]);
+      __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
    }
-   __DEBUGMSG ("\n");
+   __PO_HI_DEBUG_INFO ("\n");
 
    return 1;
 }
