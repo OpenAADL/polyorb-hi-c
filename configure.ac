@@ -57,6 +57,7 @@ case ${host_os} in
 		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lrt"
 		;;
 	*)
+		NATIVE_CFLAGS="${NATIVE_CFLAGS} -D_POSIX_SOURCE -D_GNU_SOURCE"
 		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lrt"
 		SIMULINK_LDFLAGS="-lm"
 		;;
