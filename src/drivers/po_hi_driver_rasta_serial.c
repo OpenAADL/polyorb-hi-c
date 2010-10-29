@@ -69,6 +69,7 @@ void __po_hi_c_driver_serial_rasta_poller (void)
    tr += n;
    }
 
+#ifdef __PO_HI_DEBUG_INFO
    __PO_HI_DEBUG_INFO ("[RASTA SERIAL] read() returns total %d, max message size=%d\n", tr, __PO_HI_MESSAGES_MAX_SIZE);
 
    __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Message received by poller: 0x");
@@ -77,6 +78,7 @@ void __po_hi_c_driver_serial_rasta_poller (void)
       __PO_HI_DEBUG_INFO ("%x", __po_hi_c_driver_rasta_serial_msg.content[ts]);
    }
    __PO_HI_DEBUG_INFO ("\n");
+#endif
 
    __po_hi_c_driver_rasta_serial_msg.length = tr;
 
@@ -99,8 +101,7 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 
    __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Initialization starts !\n");
 /*
-    apbuart_rasta_int_reg=__po_hi_rasta_interrrupt_register;
-    if ( apbuart_rasta_register(__po_hi_driver_rasta_common_get_bus ()) )
+    if ( apbuart_rasta_register (__po_hi_driver_rasta_common_get_bus ()) )
     {
       __PO_HI_DEBUG_CRITICAL ("[RASTA SERIAL] Failed to register RASTA APBUART driver\n\r");
     }
@@ -112,6 +113,7 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
    {
       __PO_HI_DEBUG_CRITICAL ("[RASTA SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
    }
+   __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Device open, fd=%d\n", po_hi_c_driver_rasta_serial_fd);
 
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BAUDRATE, __PO_HI_DRIVER_SERIAL_RASTA_BAUDRATE); /* stream mode */
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BLOCKING, APBUART_BLK_RX | APBUART_BLK_TX | APBUART_BLK_FLUSH);
@@ -150,10 +152,12 @@ int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const _
    __po_hi_marshall_request (request, &msg);
 
    __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Message sent: 0x");
+#ifdef __PO_HI_DEBUG_LEVEL_INFO
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
       __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
    }
+#endif
 
    __PO_HI_DEBUG_INFO ("\n");
 

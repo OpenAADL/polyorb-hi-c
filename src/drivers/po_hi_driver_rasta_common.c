@@ -44,6 +44,9 @@
 #define GPIO1_OFF      0x200700
 
 
+void rasta_interrrupt_register(void *handler, int irqno, void *arg);
+
+int apbuart_rasta_register(amba_confarea_type *bus);
 
 int __po_hi_c_driver_rasta_common_is_init = 0;
 
@@ -196,19 +199,28 @@ int __po_hi_rasta_get_gpio(amba_confarea_type *abus, int index, struct gpio_reg 
   amba_apb_device dev;
   int cores;
   
-  if ( !abus ) 
+  if (! abus) 
+  {
+     __PO_HI_DEBUG_CRITICAL ("[RASTA COMMON] NULL abus\n");
     return -1;
+  }
   
   /* Scan PnP info for GPIO port number 'index' */
   cores = amba_find_next_apbslv(abus,VENDOR_GAISLER,GAISLER_GPIO,&dev,index);
   if ( cores < 1 )
+  {
     return -1;
+  }
   
   if ( regs )
+  {
     *regs = (struct gpio_reg *)dev.start;
+  }
   
   if ( irq )
+  {
     *irq = dev.irq;
+  }
   
   return 0;
 }
@@ -317,20 +329,22 @@ int __po_hi_rasta_register(void)
     memset(&abus,0,sizeof(abus));
         
     /* Start AMBA PnP scan at first AHB bus */
-    amba_scan(&abus,__po_hi_driver_rasta_bar0+(AHB1_IOAREA_BASE_ADDR&~0xf0000000),&amba_maps[0]);
+    amba_scan (&abus,__po_hi_driver_rasta_bar0+(AHB1_IOAREA_BASE_ADDR&~0xf0000000),&amba_maps[0]);
+    __PO_HI_DEBUG_DEBUG ("abus addr=%x\n", &abus);
 
     /* Find GPIO0 address */
     if ( __po_hi_rasta_get_gpio(&abus,0,&gpio0,NULL) ){
-      printk("Failed to get address for RASTA GPIO0\n\r");
-      return -1;
+       printk("Failed to get address for RASTA GPIO0\n\r");
+       return -1;
     }
-        
+
+
     /* Find GPIO1 address */
     if ( __po_hi_rasta_get_gpio(&abus,1,&gpio1,NULL) ){
-      printk("Failed to get address for RASTA GPIO1\n\r");
+      __PO_HI_DEBUG_DEBUG ("Failed to get address for RASTA GPIO1\n\r");
       return -1;
     }
-    DBG ("Successful init of the RASTA\n"); 
+    __PO_HI_DEBUG_DEBUG ("Successful init of the RASTA\n"); 
     /* Successfully registered the RASTA board */
     return 0;
 }
@@ -352,7 +366,7 @@ void __po_hi_c_driver_rasta_common_init ()
   }
   */
   if  (rasta_register() ){
-    __DEBUGMSG(" ERROR !\n");
+    __PO_HI_DEBUG_DEBUG(" ERROR !\n");
     return;
   }
 

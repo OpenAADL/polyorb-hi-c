@@ -59,6 +59,7 @@ void __po_hi_c_driver_serial_linux_poller (void)
 
    n = read (po_hi_c_driver_serial_fd_read, &(msg.content[0]), __PO_HI_MESSAGES_MAX_SIZE); 
 
+#ifdef __PO_HI_DEBUG_INFO
    __PO_HI_DEBUG_INFO  ("[LINUX SERIAL] Message: 0x");
 
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
@@ -66,6 +67,7 @@ void __po_hi_c_driver_serial_linux_poller (void)
       __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
    }
    __PO_HI_DEBUG_INFO ("\n");
+#endif
    
    if (n == -1)
    {
@@ -87,6 +89,7 @@ void __po_hi_c_driver_serial_linux_poller (void)
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
 
+#ifdef __PO_HI_DEBUG_INFO
    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Message after swapped port: 0x");
    for (ts = 0 ; ts < msg.length ; ts++)
    {
@@ -95,6 +98,7 @@ void __po_hi_c_driver_serial_linux_poller (void)
    __PO_HI_DEBUG_INFO ("\n");
 
    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Received: %s\n", msg.content);
+#endif
 
    __po_hi_unmarshall_request (&request, &msg);
 
@@ -400,6 +404,7 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    n = write (po_hi_c_driver_serial_fd_write, &msg, __PO_HI_MESSAGES_MAX_SIZE);
 
+#ifdef __PO_HI_DEBUG_INFO
    __PO_HI_DEBUG_INFO  ("[LINUX SERIAL] Message sent: 0x");
 
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
@@ -407,6 +412,7 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
       __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
    }
    __PO_HI_DEBUG_INFO ("\n");
+#endif
 
    return 1;
 }
