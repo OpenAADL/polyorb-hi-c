@@ -39,7 +39,9 @@ extern __po_hi_uint8_t                 __po_hi_protected_priorities[__PO_HI_NB_P
 int __po_hi_protected_init ()
 {
    __po_hi_uint8_t i;
+#ifndef __PO_HI_PLATFORM_LINUXTASTE
    __po_hi_uint8_t prio;
+#endif
 
    for (i = 0 ; i < __PO_HI_NB_PROTECTED ; i++ )
    {
@@ -48,6 +50,7 @@ int __po_hi_protected_init ()
          __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while initializing mutex attr\n");
       }
 
+#ifndef __PO_HI_PLATFORM_LINUXTASTE
       if (__po_hi_protected_configuration[i] == __PO_HI_PROTECTED_IPCP)
       {
          if (pthread_mutexattr_setprotocol (&__po_hi_protected_mutexes_attr[i], PTHREAD_PRIO_PROTECT) != 0)
@@ -77,6 +80,7 @@ int __po_hi_protected_init ()
             __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while changing mutex protocol\n");
          }
       }
+#endif
 
       if (pthread_mutex_init (&__po_hi_protected_mutexes[i], &__po_hi_protected_mutexes_attr[i]) != 0)
       {
