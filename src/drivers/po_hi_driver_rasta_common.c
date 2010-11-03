@@ -43,6 +43,9 @@
 #define GPIO0_OFF      0x200600
 #define GPIO1_OFF      0x200700
 
+#ifndef GAISLER_GPIO
+#define GAISLER_GPIO         0x01a
+#endif
 
 void rasta_interrrupt_register(void *handler, int irqno, void *arg);
 
