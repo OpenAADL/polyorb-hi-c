@@ -62,14 +62,6 @@
 #define __PO_HI_NB_NODES 1
 #endif
 
-/*
- * We have two arrays of sockets. The first array (nodes) is used to
- * send data to other nodes. A special socket if nodes[mynode] : this
- * socket is used to listen others processes.  The second array
- * (rnodes), is used to store all socket that are created by the
- * listen socket. This array is used only by the receiver_task
- */
-
 __po_hi_inetnode_t nodes[__PO_HI_NB_DEVICES];
 __po_hi_inetnode_t rnodes[__PO_HI_NB_DEVICES];
 
@@ -262,7 +254,7 @@ void* __po_hi_sockets_asn1_poller (void)
       if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
       {
 #ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("[DRIVER SOCKETS] Error on select for node %d\n", mynode);
+         __DEBUGMSG ("[DRIVER SOCKETS] Error on select for node %d\n", __po_hi_mynode);
 #endif 
       }
 #ifdef __PO_HI_DEBUG

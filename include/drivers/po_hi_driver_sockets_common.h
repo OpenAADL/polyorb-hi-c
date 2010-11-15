@@ -32,9 +32,9 @@ typedef struct
    int socket;
 } __po_hi_inetnode_t;
 
-extern __po_hi_inetport_t node_port[__PO_HI_NB_NODES];
-extern __po_hi_inetaddr_t node_addr[__PO_HI_NB_NODES];
-extern __po_hi_node_t mynode;
+extern __po_hi_inetport_t  __po_hi_node_port[__PO_HI_NB_NODES];
+extern __po_hi_inetaddr_t  __po_hi_node_addr[__PO_HI_NB_NODES];
+extern __po_hi_node_t      __po_hi_mynode;
 
 
 /* We only need to set the timeout for the NE2000 driver socket.

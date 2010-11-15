@@ -62,7 +62,7 @@
 
 /*
  * We have two arrays of sockets. The first array (nodes) is used to
- * send data to other nodes. A special socket if nodes[mynode] : this
+ * send data to other nodes. A special socket if nodes[__po_hi_mynode] : this
  * socket is used to listen others processes.  The second array
  * (rnodes), is used to store all socket that are created by the
  * listen socket. This array is used only by the receiver_task
@@ -338,7 +338,7 @@ void* __po_hi_sockets_poller (void)
       if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
       {
 #ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("[DRIVER SOCKETS] Error on select for node %d\n", mynode);
+         __DEBUGMSG ("[DRIVER SOCKETS] Error on select for node %d\n", __po_hi_mynode);
 #endif 
       }
 #ifdef __PO_HI_DEBUG
@@ -416,9 +416,9 @@ void* __po_hi_sockets_receiver_task (void)
     */
    for (node = 0; node < __PO_HI_NB_NODES ; node++)
    {
-      if (node != mynode )
+      if (node != __po_hi_mynode )
       {
-         sock = accept (nodes[mynode].socket, (struct sockaddr*) &sa, &socklen);
+         sock = accept (nodes[__po_hi_mynode].socket, (struct sockaddr*) &sa, &socklen);
          if (sock == -1)
          {
             __DEBUGMSG ("accept() failed, return=%d\n", sock);
@@ -451,7 +451,7 @@ void* __po_hi_sockets_receiver_task (void)
       FD_ZERO( &selector );
       for (node = 0; node < __PO_HI_NB_NODES ; node++)
       {
-         if ( (node != mynode ) && ( rnodes[node].socket != -1 ) )
+         if ( (node != __po_hi_mynode ) && ( rnodes[node].socket != -1 ) )
          {
             FD_SET( rnodes[node].socket , &selector );
          }
@@ -460,7 +460,7 @@ void* __po_hi_sockets_receiver_task (void)
       if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
       {
 #ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("Error on select for node %d\n", mynode);
+         __DEBUGMSG ("Error on select for node %d\n", __po_hi_mynode);
 #endif 
       }
 #ifdef __PO_HI_DEBUG
@@ -539,36 +539,36 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
     * listen to other nodes. So, we create a socket, bind it and
     * listen to other nodes.
     */
-   if ( node_port[mynode] != __PO_HI_NOPORT )
+   if ( __po_hi_node_port[__po_hi_mynode] != __PO_HI_NOPORT )
    {
-      nodes[mynode].socket = socket (AF_INET, SOCK_STREAM, 0);
+      nodes[__po_hi_mynode].socket = socket (AF_INET, SOCK_STREAM, 0);
 
-      if (nodes[mynode].socket == -1 )
+      if (nodes[__po_hi_mynode].socket == -1 )
       {
 #ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("Cannot create socket for node %d\n", mynode);
+         __DEBUGMSG ("Cannot create socket for node %d\n", __po_hi_mynode);
 #endif
          return;
       }
 
       reuse = 1;
-      setsockopt (nodes[mynode].socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof (reuse));
+      setsockopt (nodes[__po_hi_mynode].socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof (reuse));
 
       sa.sin_addr.s_addr = htonl (INADDR_ANY);   /* We listen on all adresses */
       sa.sin_family = AF_INET;                   
-      sa.sin_port = htons (node_port[mynode]);   /* Port provided by the generated code */
+      sa.sin_port = htons (__po_hi_node_port[__po_hi_mynode]);   /* Port provided by the generated code */
 
-      if( bind( nodes[mynode].socket , ( struct sockaddr * ) &sa , sizeof( struct sockaddr_in ) ) < 0 )
+      if( bind( nodes[__po_hi_mynode].socket , ( struct sockaddr * ) &sa , sizeof( struct sockaddr_in ) ) < 0 )
       {
 #ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("Unable to bind socket and port on socket %d\n", nodes[mynode].socket);
+         __DEBUGMSG ("Unable to bind socket and port on socket %d\n", nodes[__po_hi_mynode].socket);
 #endif
       }
 
-      if( listen( nodes[mynode].socket , __PO_HI_NB_ENTITIES ) < 0 )
+      if( listen( nodes[__po_hi_mynode].socket , __PO_HI_NB_ENTITIES ) < 0 )
       {
 #ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("Cannot listen on socket %d\n", nodes[mynode].socket);
+         __DEBUGMSG ("Cannot listen on socket %d\n", nodes[__po_hi_mynode].socket);
 #endif
       }
 
@@ -590,7 +590,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
     */
    for (node = 0 ; node < __PO_HI_NB_NODES ; node++ )
    {
-      if ( (node != mynode) && (node_port[node] != __PO_HI_NOPORT) && (nodes[node].socket == -1) )
+      if ( (node != __po_hi_mynode) && (__po_hi_node_port[node] != __PO_HI_NOPORT) && (nodes[node].socket == -1) )
       {
          while (1)
          {
@@ -604,7 +604,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
                return;
             }
 
-            hostinfo = gethostbyname ((char*)node_addr[node]);
+            hostinfo = gethostbyname ((char*)__po_hi_node_addr[node]);
 
             if (hostinfo == NULL )
             {
@@ -613,7 +613,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
 #endif
             }
 
-            sa.sin_port = htons( node_port[node] );
+            sa.sin_port = htons( __po_hi_node_port[node] );
             sa.sin_family = AF_INET;
 
             /* The following lines are used to copy the
@@ -642,7 +642,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
 
             if (ret == 0)
             {
-               if (write (nodes[node].socket, &mynode, sizeof (__po_hi_node_t)) != sizeof (__po_hi_node_t))
+               if (write (nodes[node].socket, &__po_hi_mynode, sizeof (__po_hi_node_t)) != sizeof (__po_hi_node_t))
                {
 #ifdef __PO_HI_DEBUG
                   __DEBUGMSG ("Node %d cannot send his node-id\n", node);

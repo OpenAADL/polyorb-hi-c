@@ -30,7 +30,7 @@
  * deployment.h.
  */
 
-extern __po_hi_node_t  entity_table[__PO_HI_NB_ENTITIES];
+extern __po_hi_node_t         __po_hi_entity_table[__PO_HI_NB_ENTITIES];
 
 extern __po_hi_entity_t       __po_hi_port_global_to_entity[__PO_HI_NB_PORTS];
 extern __po_hi_local_port_t   __po_hi_port_global_to_local[__PO_HI_NB_PORTS];
@@ -131,7 +131,7 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
 
 __po_hi_node_t __po_hi_transport_get_node_from_entity (const __po_hi_entity_t entity)
 {
-   return entity_table[entity];
+   return __po_hi_entity_table[entity];
 }
 
 __po_hi_entity_t __po_hi_get_entity_from_global_port (const __po_hi_port_t port)
