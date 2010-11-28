@@ -8,7 +8,6 @@ package PING
 public
   with Software;
   with Deployment;
-  with Cheddar_Properties;
 
 ---------------
 -- Processor --
@@ -21,6 +20,7 @@ properties
   Deployment::location           => "127.0.0.1";
   Deployment::Execution_Platform => Native;
   Priority_Range                 => 0 .. 255;
+  Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
 end the_processor;
 
 ---------

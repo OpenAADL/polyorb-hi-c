@@ -2,7 +2,6 @@ package PING_Local
 public
   with Software;
   with Deployment;
-  with Cheddar_Properties;
 
 ---------------
 -- Processor --
@@ -10,15 +9,13 @@ public
 
 processor the_processor
 properties
-  Deployment::Execution_Platform => leon_rtems;
+  Deployment::Execution_Platform => Native;
 end the_processor;
 
 processor implementation the_processor.Impl
 properties 
    Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
    Priority_Range => 0 .. 255;
-   Cheddar_Properties::Scheduler_Quantum => 0 Ms;
-   Cheddar_Properties::Preemptive_Scheduler => true;
 end the_processor.Impl;
 
 ---------------
@@ -51,7 +48,7 @@ subcomponents
 
   CPU : processor the_processor.Impl;
 properties
-  actual_processor_binding => reference (CPU) applies to Node_A;
+  actual_processor_binding => (reference (CPU)) applies to Node_A;
 end PING.Local;
 
 end PING_Local;
