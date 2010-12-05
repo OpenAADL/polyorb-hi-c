@@ -180,7 +180,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 #ifdef __PO_HI_DEBUG
       __DEBUGMSG (" [DRIVER SOCKETS] No data to write on port %d\n", port);
 #endif
-      return;
+      return __PO_HI_ERROR_TRANSPORT_SEND;
    }
 
    if (nodes[associated_device].socket == -1 )
