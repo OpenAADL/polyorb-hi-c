@@ -80,6 +80,11 @@ void __po_hi_c_driver_serial_linux_poller (void)
       return;
    }
 
+   if (n != __PO_HI_MESSAGES_MAX_SIZE)
+   {
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Inconsistent received message size !\n");
+      return;
+   }
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] read() returns %d\n", n);
 
@@ -101,6 +106,12 @@ void __po_hi_c_driver_serial_linux_poller (void)
 #endif
 
    __po_hi_unmarshall_request (&request, &msg);
+
+   if (request.port > __PO_HI_NB_PORTS)
+   {
+      __PO_HI_DEBUG_WARNING ("[LINUX SERIAL] Invalid port number !\n");
+      return;
+   }
 
    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Destination port: %d\n", request.port);
    __po_hi_main_deliver (&request);

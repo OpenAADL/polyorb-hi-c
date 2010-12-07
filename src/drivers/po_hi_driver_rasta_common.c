@@ -333,7 +333,6 @@ int __po_hi_rasta_register(void)
         
     /* Start AMBA PnP scan at first AHB bus */
     amba_scan (&abus,__po_hi_driver_rasta_bar0+(AHB1_IOAREA_BASE_ADDR&~0xf0000000),&amba_maps[0]);
-    __PO_HI_DEBUG_DEBUG ("abus addr=%x\n", &abus);
 
     /* Find GPIO0 address */
     if ( __po_hi_rasta_get_gpio(&abus,0,&gpio0,NULL) ){

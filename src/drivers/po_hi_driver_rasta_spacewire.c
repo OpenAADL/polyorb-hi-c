@@ -179,6 +179,8 @@ int __po_hi_c_driver_spacewire_rasta_sender (const __po_hi_task_id task_id, cons
    for(i=0; i<1; i++)
    {
       po_hi_c_driver_rasta_spacewire_init_pkt (&po_hi_c_driver_spacewire_txpkts[i], destination_port);
+
+      __PO_HI_DEBUG_INFO ("destination note = %d ...", po_hi_c_driver_spacewire_txpkts[i].addr);
    }
 
    memcpy (po_hi_c_driver_spacewire_txpkts[0].data, &msg, __PO_HI_MESSAGES_MAX_SIZE);
