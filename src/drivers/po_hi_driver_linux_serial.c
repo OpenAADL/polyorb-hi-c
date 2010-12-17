@@ -140,7 +140,7 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
    }
 
    tcgetattr (po_hi_c_driver_serial_fd_write, &oldtio);  /* save current serial port settings */
-   bzero (&newtio, sizeof(newtio));                /* clear struct for new port settings */
+   memset (&newtio, '\0', sizeof(newtio));                /* clear struct for new port settings */
         
    /* 
     * BAUDRATE: Set bps rate. You could also use cfsetispeed and cfsetospeed.
@@ -233,7 +233,7 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
    }
 
    tcgetattr (po_hi_c_driver_serial_fd_read, &oldtio);  /* save current serial port settings */
-   bzero (&newtio, sizeof(newtio));                /* clear struct for new port settings */
+   memset (&newtio, '\0', sizeof(newtio));                /* clear struct for new port settings */
         
    /* 
     * BAUDRATE: Set bps rate. You could also use cfsetispeed and cfsetospeed.
@@ -309,7 +309,7 @@ void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
    }
 
    tcgetattr (po_hi_c_driver_serial_fd_read, &oldtio);  /* save current serial port settings */
-   bzero (&newtio, sizeof(newtio));                /* clear struct for new port settings */
+   memset (&newtio, '\0', sizeof(newtio));                /* clear struct for new port settings */
         
    /* 
     * BAUDRATE: Set bps rate. You could also use cfsetispeed and cfsetospeed.
