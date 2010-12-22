@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <strings.h>
+#include <string.h>
 /* Linux-specific files */
 
 int po_hi_c_driver_serial_fd_read;
@@ -82,14 +82,13 @@ void __po_hi_c_driver_serial_linux_poller (void)
 
    if (n != __PO_HI_MESSAGES_MAX_SIZE)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Inconsistent received message size !\n");
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Inconsistent received message size (received %d bytes)!\n", n);
       return;
    }
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] read() returns %d\n", n);
 
    msg.length = n;
-
    swap_pointer  = (unsigned long*) &msg.content[0];
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);

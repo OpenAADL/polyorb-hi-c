@@ -148,6 +148,7 @@ int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const _
    __po_hi_msg_reallocate (&msg);
 
    request->port = destination_port;
+   __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Destination port= %d\n", destination_port);
 
    __po_hi_marshall_request (request, &msg);
 
