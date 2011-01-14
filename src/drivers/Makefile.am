@@ -1,6 +1,7 @@
 AUTOMAKE_OPTIONS = no-dependencies
 
 C_FILES =   $(srcdir)/po_hi_driver_linux_serial.c        \
+            $(srcdir)/po_hi_driver_leon_serial.c         \
             $(srcdir)/po_hi_driver_sockets.c             \
             $(srcdir)/po_hi_driver_sockets_common.c      \
             $(srcdir)/po_hi_driver_sockets_asn1.c        \

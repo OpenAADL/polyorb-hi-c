@@ -1,4 +1,13 @@
-all: build-node
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://ocarina.enst.fr
+ *
+ * Copyright (C) 2011, European Space Agency (ESA).
+ */
+
 
 all-with-tweak: 
 	$(MAKE) all ENABLE_DYNAMIC_CONFIGURATION=1
@@ -85,6 +94,7 @@ ifeq ($(NEED_TRANSPORT), yes)
    drivers/po_hi_driver_exarm_ni_6071e_analog.o \
    drivers/po_hi_driver_exarm_ni_6071e_digital.o \
    drivers/po_hi_driver_linux_serial.o       \
+   drivers/po_hi_driver_leon_serial.o        \
    drivers/po_hi_driver_sockets.o            \
    drivers/po_hi_driver_sockets_common.o     \
    drivers/po_hi_driver_sockets_asn1.o       \
