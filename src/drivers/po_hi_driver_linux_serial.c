@@ -125,7 +125,7 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
 {
    struct termios oldtio,newtio;
 
-   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init\n");
+   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init sender\n");
 
    po_hi_c_driver_serial_fd_write = open( __po_hi_get_device_naming (id), O_RDWR | O_NOCTTY | O_NONBLOCK);
 
@@ -218,7 +218,7 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
 {
    struct termios oldtio,newtio;
 
-   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init\n");
+   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init receiver\n");
 
    po_hi_c_driver_serial_fd_read = open( __po_hi_get_device_naming (id), O_RDONLY | O_NOCTTY);
 
@@ -294,7 +294,7 @@ void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
 {
    struct termios oldtio,newtio;
 
-   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init\n");
+   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init both sender and receiver\n");
 
    po_hi_c_driver_serial_fd_read = po_hi_c_driver_serial_fd_write = open( __po_hi_get_device_naming (id), O_RDWR | O_NOCTTY | O_NONBLOCK);
 
