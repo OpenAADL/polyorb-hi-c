@@ -1,6 +1,7 @@
 AUTOMAKE_OPTIONS = no-dependencies
 EXTRA_DIST = $(srcdir)/po_hi_driver_linux_serial.h       \
-             $(srcdir)/po_hi_driver_leon_serial.h              \
+             $(srcdir)/po_hi_driver_leon_serial.h        \
+             $(srcdir)/po_hi_driver_serial_common.h      \
              $(srcdir)/po_hi_driver_exarm.h              \
              $(srcdir)/po_hi_driver_exarm_ni_6071e_analog.h              \
              $(srcdir)/po_hi_driver_exarm_ni_6071e_digital.h              \

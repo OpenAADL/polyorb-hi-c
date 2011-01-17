@@ -14,13 +14,12 @@
     defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_SENDER) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_RECEIVER)
 
-#define __PO_HI_DRIVER_SERIAL_LEON_BAUDRATE B19200
-
 #include <po_hi_debug.h>
 #include <po_hi_utils.h>
 #include <po_hi_messages.h>
 #include <po_hi_transport.h>
 #include <po_hi_gqueue.h>
+#include <drivers/po_hi_driver_serial_common.h>
 /* po-hi-c related files */
 
 #include <activity.h>
@@ -126,15 +125,30 @@ void __po_hi_c_driver_serial_leon_poller (void)
 
 void __po_hi_c_driver_serial_leon_init_sender (__po_hi_device_id id)
 {
+   char  devname[16];
    struct termios oldtio,newtio;
 
    __PO_HI_DEBUG_INFO ("[LEON SERIAL] Init sender\n");
 
-   po_hi_c_driver_leon_serial_fd_write = open( __po_hi_get_device_naming (id), O_RDWR | O_NOCTTY | O_NONBLOCK);
+   memset (devname, '\0', 16);
+
+   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   {
+      __PO_HI_DEBUG_INFO ("[LEON SERIAL] Cannot get the name of the device !\n");
+      return;
+   }
+
+   if (__po_hi_c_driver_serial_common_get_speed (id) != __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400)
+   {
+      __PO_HI_DEBUG_INFO ("[LEON SERIAL] This driver handles only a speed of 38400, exiting initialization !\n");
+      return;
+   }
+
+   po_hi_c_driver_leon_serial_fd_write = open (devname, O_WRONLY );
 
    if (po_hi_c_driver_leon_serial_fd_write < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
+      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", devname);
    }
    else
    {
@@ -153,26 +167,29 @@ void __po_hi_c_driver_serial_leon_init_sender (__po_hi_device_id id)
     * CREAD   : enable receiving characters
     */
 
-   newtio.c_cflag = __PO_HI_DRIVER_SERIAL_LEON_BAUDRATE;
-   /*| CRTSCTS | CS8 | CLOCAL;
-         
+   newtio.c_cflag = CRTSCTS | CS8 | CLOCAL;
+   /* 
     *  IGNPAR  : ignore bytes with parity errors
     *  ICRNL   : map CR to NL (otherwise a CR input on the other computer
     *            will not terminate input) otherwise make device raw 
     *            (no other input processing)
-   newtio.c_iflag = IGNPAR | ICRNL;
     */
+   newtio.c_iflag = IGNPAR | ICRNL;
          
    /*
     * Raw output.
     */
-   newtio.c_oflag = 1;
+   newtio.c_oflag = OCRNL;
          
    /*
     * ICANON  : enable canonical input
     * disable all echo functionality, and don't send signals to calling program
    newtio.c_lflag = ICANON;
     */
+   newtio.c_lflag = ~( ICANON | ECHO | ECHONL | ECHOK | ECHOE | ECHOPRT | ECHOCTL );
+   newtio.c_cc[VMIN] = 5;
+   newtio.c_cc[VTIME] = 20;
+
 
    if (tcsetattr (po_hi_c_driver_leon_serial_fd_write, TCSANOW, &newtio) == -1)
    {
@@ -197,15 +214,32 @@ void __po_hi_c_driver_serial_leon_init_sender (__po_hi_device_id id)
     defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_RECEIVER)
 void __po_hi_c_driver_serial_leon_init_receiver (__po_hi_device_id id)
 {
+   char  devname[16];
    struct termios oldtio,newtio;
 
    __PO_HI_DEBUG_INFO ("[LEON SERIAL] Init receiver\n");
+
+   memset (devname, '\0', 16);
+
+   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   {
+      __PO_HI_DEBUG_INFO ("[LEON SERIAL] Cannot get the name of the device !\n");
+      return;
+   }
+
+   if (__po_hi_c_driver_serial_common_get_speed (id) != __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400)
+   {
+      __PO_HI_DEBUG_INFO ("[LEON SERIAL] This driver handles only a speed of 38400, exiting initialization !\n");
+      return;
+   }
+
+
 
    po_hi_c_driver_leon_serial_fd_read = open( __po_hi_get_device_naming (id), O_RDONLY | O_NOCTTY);
 
    if (po_hi_c_driver_leon_serial_fd_read < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
+      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", devname);
    }
    else
    {
@@ -224,7 +258,7 @@ void __po_hi_c_driver_serial_leon_init_receiver (__po_hi_device_id id)
     * CREAD   : enable receiving characters
     */
 
-   newtio.c_cflag = __PO_HI_DRIVER_SERIAL_LEON_BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
+   newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD;
          
    /*
     *  IGNPAR  : ignore bytes with parity errors
@@ -273,15 +307,30 @@ void __po_hi_c_driver_serial_leon_init_receiver (__po_hi_device_id id)
 
 void __po_hi_c_driver_serial_leon_init (__po_hi_device_id id)
 {
+   char  devname[16];
    struct termios oldtio,newtio;
 
    __PO_HI_DEBUG_INFO ("[LEON SERIAL] Init both sender and receiver\n");
+
+   memset (devname, '\0', 16);
+
+   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   {
+      __PO_HI_DEBUG_INFO ("[LEON SERIAL] Cannot get the name of the device !\n");
+      return;
+   }
+
+   if (__po_hi_c_driver_serial_common_get_speed (id) != __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400)
+   {
+      __PO_HI_DEBUG_INFO ("[LEON SERIAL] This driver handles only a speed of 38400, exiting initialization !\n");
+      return;
+   }
 
    po_hi_c_driver_leon_serial_fd_read = po_hi_c_driver_leon_serial_fd_write = open( __po_hi_get_device_naming (id), O_RDWR | O_NOCTTY | O_NONBLOCK);
 
    if (po_hi_c_driver_leon_serial_fd_read < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
+      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", devname);
    }
    else
    {
@@ -300,7 +349,7 @@ void __po_hi_c_driver_serial_leon_init (__po_hi_device_id id)
     * CREAD   : enable receiving characters
     */
 
-   newtio.c_cflag = __PO_HI_DRIVER_SERIAL_LEON_BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
+   newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD;
          
    /*
     *  IGNPAR  : ignore bytes with parity errors

@@ -23,6 +23,8 @@
 #include <drivers/po_hi_driver_rasta_serial.h>
 #include <drivers/po_hi_driver_rasta_common.h>
 
+#include <drivers/po_hi_driver_serial_common.h>
+
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -93,29 +95,55 @@ void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg);
 
 void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 {
+   char  devname[16];
    __po_hi_c_driver_rasta_common_init ();
+
+   memset (devname, '\0', 16);
+
+   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   {
+      __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Cannot get the name of the device !\n");
+      return;
+   }
+
 
     /* provide the spacewire driver with AMBA Plug&Play
      * info so that it can find the GRSPW cores.
      */
 
    __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Initialization starts !\n");
-/*
-    if ( apbuart_rasta_register (__po_hi_driver_rasta_common_get_bus ()) )
-    {
-      __PO_HI_DEBUG_CRITICAL ("[RASTA SERIAL] Failed to register RASTA APBUART driver\n\r");
-    }
-    */
 
-   po_hi_c_driver_rasta_serial_fd = open (__po_hi_get_device_naming (id), O_RDWR);
+   po_hi_c_driver_rasta_serial_fd = open (devname, O_RDWR);
 
    if (po_hi_c_driver_rasta_serial_fd < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[RASTA SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
+      __PO_HI_DEBUG_CRITICAL ("[RASTA SERIAL] Error while opening device %s\n", devname);
    }
    __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Device open, fd=%d\n", po_hi_c_driver_rasta_serial_fd);
 
-  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BAUDRATE, __PO_HI_DRIVER_SERIAL_RASTA_BAUDRATE); /* stream mode */
+   switch (__po_hi_c_driver_serial_common_get_speed (id))
+   {
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_19200:
+         __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BAUDRATE, 19200);
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400:
+         __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BAUDRATE, 38400);
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_57600:
+         __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BAUDRATE, 57600);
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_115200:
+         __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BAUDRATE, 115200);
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_UNKNWON:
+         __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Unknwon speed for the serial line\n");
+         break;
+   }
+
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BLOCKING, APBUART_BLK_RX | APBUART_BLK_TX | APBUART_BLK_FLUSH);
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_TXFIFO_LEN, 64);  /* Transmitt buffer 64 chars */
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_RXFIFO_LEN, 256); /* Receive buffer 256 chars */

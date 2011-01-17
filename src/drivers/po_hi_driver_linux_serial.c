@@ -14,13 +14,12 @@
     defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_SENDER) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_RECEIVER)
 
-#define __PO_HI_DRIVER_SERIAL_LINUX_BAUDRATE B19200
-
 #include <po_hi_debug.h>
 #include <po_hi_utils.h>
 #include <po_hi_messages.h>
 #include <po_hi_transport.h>
 #include <po_hi_gqueue.h>
+#include <drivers/po_hi_driver_serial_common.h>
 /* po-hi-c related files */
 
 #include <activity.h>
@@ -123,15 +122,24 @@ void __po_hi_c_driver_serial_linux_poller (void)
 
 void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
 {
+   char  devname[16];
    struct termios oldtio,newtio;
 
    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init sender\n");
 
-   po_hi_c_driver_serial_fd_write = open( __po_hi_get_device_naming (id), O_RDWR | O_NOCTTY | O_NONBLOCK);
+   memset (devname, '\0', 16);
+
+   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   {
+      __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Cannot get the name of the device !\n");
+      return;
+   }
+
+   po_hi_c_driver_serial_fd_write = open (devname, O_RDWR | O_NOCTTY | O_NONBLOCK);
 
    if (po_hi_c_driver_serial_fd_write < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", devname);
    }
    else
    {
@@ -150,7 +158,31 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
     * CREAD   : enable receiving characters
     */
 
-   newtio.c_cflag = __PO_HI_DRIVER_SERIAL_LINUX_BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
+   newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD;
+
+   switch (__po_hi_c_driver_serial_common_get_speed (id))
+   {
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_19200:
+         newtio.c_cflag |= B19200;
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400:
+         newtio.c_cflag |= B38400;
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_57600:
+         newtio.c_cflag |= B57600;
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_115200:
+         newtio.c_cflag |= B115200;
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_UNKNWON:
+         __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Unknwon speed for the serial line\n");
+         break;
+   }
+
          
    /*
     *  IGNPAR  : ignore bytes with parity errors
@@ -216,15 +248,24 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
     defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_RECEIVER)
 void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
 {
+   char   devname[16];
    struct termios oldtio,newtio;
 
    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init receiver\n");
 
-   po_hi_c_driver_serial_fd_read = open( __po_hi_get_device_naming (id), O_RDONLY | O_NOCTTY);
+   memset (devname, '\0', 16);
+
+   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   {
+      __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Cannot get the name of the device !\n");
+      return;
+   }
+
+   po_hi_c_driver_serial_fd_read = open (devname, O_RDONLY | O_NOCTTY);
 
    if (po_hi_c_driver_serial_fd_read < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", devname);
    }
    else
    {
@@ -243,7 +284,31 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
     * CREAD   : enable receiving characters
     */
 
-   newtio.c_cflag = __PO_HI_DRIVER_SERIAL_LINUX_BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
+   newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD;
+
+   switch (__po_hi_c_driver_serial_common_get_speed (id))
+   {
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_19200:
+         newtio.c_cflag |= B19200;
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400:
+         newtio.c_cflag |= B38400;
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_57600:
+         newtio.c_cflag |= B57600;
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_115200:
+         newtio.c_cflag |= B115200;
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_UNKNWON:
+         __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Unknwon speed for the serial line\n");
+         break;
+   }
+ 
          
    /*
     *  IGNPAR  : ignore bytes with parity errors
@@ -292,15 +357,24 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
 
 void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
 {
+   char  devname[16];
    struct termios oldtio,newtio;
+
+   memset (devname, '\0', 16);
 
    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init both sender and receiver\n");
 
-   po_hi_c_driver_serial_fd_read = po_hi_c_driver_serial_fd_write = open( __po_hi_get_device_naming (id), O_RDWR | O_NOCTTY | O_NONBLOCK);
+   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   {
+      __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Cannot get the name of the device !\n");
+      return;
+   }
+
+   po_hi_c_driver_serial_fd_read = po_hi_c_driver_serial_fd_write = open(devname, O_RDWR | O_NOCTTY | O_NONBLOCK);
 
    if (po_hi_c_driver_serial_fd_read < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", __po_hi_get_device_naming (id));
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", devname);
    }
    else
    {
@@ -319,7 +393,30 @@ void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
     * CREAD   : enable receiving characters
     */
 
-   newtio.c_cflag = __PO_HI_DRIVER_SERIAL_LINUX_BAUDRATE | CRTSCTS | CS8 | CLOCAL | CREAD;
+   newtio.c_cflag = __PO_HI_DRIVER_SERIAL_COMMON_CONVERT_SPEED_TO_POSIX | CRTSCTS | CS8 | CLOCAL | CREAD;
+
+   switch (__po_hi_c_driver_serial_common_get_speed (id))
+   {
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_19200:
+         newtio.c_cflag |= B19200;
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400:
+         newtio.c_cflag |= B38400;
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_57600:
+         newtio.c_cflag |= B57600;
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_115200:
+         newtio.c_cflag |= B115200;
+         break;
+
+      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_UNKNWON:
+         __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Unknwon speed for the serial line\n");
+         break;
+   }
          
    /*
     *  IGNPAR  : ignore bytes with parity errors
