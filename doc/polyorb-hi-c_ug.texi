@@ -621,30 +621,93 @@ You can see the code of all available drivers in the @file{src/drivers} director
 Actually, PolyORB-HI-C supports the following devices
 @enumerate
    @item
-      @b{sockets} : a socket interface that uses PolyORB marshallers to send data accross an ethernet network.
+      @b{sockets}: a socket interface that uses PolyORB marshallers to send data accross an ethernet network.
       It relies on the TCP/IP protocol and uses POSIX functions to send and receive data. 
    @item
-      @b{Linux serial} : provides function to send data accross the serial bus on a Linux host.
+      @b{Linux serial}: provides function to send data accross the serial bus on a Linux host.
    @item
-      @b{RASTA serial} : is the same than Linux serial but for LEON/Rasta software. It also uses
+      @b{RASTA serial}: is the same than Linux serial but for LEON/Rasta software. It also uses
       PolyORB-HI-C marshallers. It requires that you use the RTEMS executive.
    @item
-      @b{RASTA spacewire} : sends data accross a Spacewire bus. It works on top of the RTEMS operating system.
+      @b{RASTA spacewire}: sends data accross a Spacewire bus. It works on top of the RTEMS operating system.
    @item
-      @b{RASTA 1553} : sends data accross a 1553 bus. It provides functions to use the bus as
+      @b{RASTA 1553}: sends data accross a 1553 bus. It provides functions to use the bus as
       a controller or a terminal (monitor mode not yet implemented).
    @item
-      @b{Exarm} : a driver that implements a network protocol dedicated to the
+      @b{LEON serial}: provides ability to use the serial port of a LEON board
+      under RTEMS 4.8. This driver supports only a speed of 38400 bauds.
+   @item
+      @b{Exarm}: a driver that implements a network protocol dedicated to the
       EXARM project. You can find more information about this project on
       @url{http://www.esa.int/TEC/Robotics/SEMA9EVHESE_0.html}.
    @item
-      @b{NI 6071E} : driver for the National Instrument 6071E card. See
+      @b{NI 6071E}:  driver for the National Instrument 6071E card. See
       @url{http://sine.ni.com/nips/cds/view/p/lang/en/nid/1042}. The driver was
       designed for the EXARM project. To be able to use it, you must use
       the LINUX TASTE specific distribution that embedds the low-level driver
       for the card. For that, the underlying operating system must be
       set to x86.linuxtaste.
 @end enumerate
+
+
+
+@subsection Drivers configuration
+The configuration of drivers is specified in AADL models using the
+@code{Deployment::Config} property. This property is a string that is later
+translated into code used by PolyORB-HI-C to configure the drivers. The code
+created consists in an array (@code{__po_hi_devices_naming}) that contains the strings specified using the
+AADL property.
+
+The following list summarizes how device driver configuration should be written
+in the @code{Deployment::Config} property and so, how PolyORB-HI-C understands
+drivers configuration.
+
+@itemize
+   @item
+      @b{Ethernet driver for Linux and NE2000 driver for RTEMS}: the
+      configuration should be written like that :
+
+      @code{ip XXX.XXX.XXX.XXX NNN}
+
+      Where @code{XXX.XXX.XXX.XXX} corresponds to the IP address associated to
+      the interface and @code{NNN} the port bound to the generated
+      application (produced programs will listen on this port for incoming
+      requests/data).
+   @item
+      @b{Serial driver for LEON2/LEON3 on RTEMS and serial driver for i386 on Linux and RTEMS}: the
+      configuration should be written like this:
+      @code{dev=accessed_device speed=baudrate}
+
+      For example:
+
+      @itemize
+
+         @item
+            On RTEMS/LEON, a valid configuration that accesses the
+            second serial port would be:
+       @code{dev=/dev/console_b speed=34600}
+         @item
+            On RTEMS/LEON with a RASTA board, a valid configuration that accesses the
+            first serial port of the RASTA rack would be:
+       @code{dev=/dev/apburasta0 speed=19200}
+         @item
+            On Linux/x86, a valid configuration that accesses the
+            first serial COM port would be:
+       @code{dev=/dev/ttyS0 speed=115200}
+      @end itemize
+
+      Note that the RTEMS/LEON driver supports only a speed of 34600 bauds.
+      Other specified values will raise an error at run-time.
+
+      Also, when the speed of the driver is not specified, the driver
+      automatically fallback to a default speed, which is 34600.
+   @item
+      @b{Spacewire for LEON2/LEON3 with RTEMS}: the configuration is
+      composed of one number that corresponds to the node identifier of the
+      device. You directly write in the configuration the node number associated
+      with the device.
+@end itemize
+
 
 
 @subsection Adding a new driver
