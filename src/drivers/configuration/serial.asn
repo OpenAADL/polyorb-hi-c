@@ -1,0 +1,21 @@
+POHICDRIVER-UART DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+
+Baudrate-T  ::= ENUMERATED
+                  {b9600,
+                   b19200,
+                   b38400,
+                   b57600,
+                   b115200,
+                   b230400}
+
+Parity-T    ::= ENUMERATED {even, odd}
+
+Serial-Conf-T ::= SEQUENCE {
+   devname        IA5String (SIZE (1..20)),
+   speed          Baudrate-T OPTIONAL,
+   parity         Parity-T OPTIONAL,
+   bits           INTEGER (7 .. 8) OPTIONAL,
+   use-paritybit  BOOLEAN  OPTIONAL
+}
+END
+

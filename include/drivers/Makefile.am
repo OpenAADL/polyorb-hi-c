@@ -16,8 +16,9 @@ EXTRA_DIST = $(srcdir)/po_hi_driver_linux_serial.h       \
              $(srcdir)/po_hi_driver_sockets_common.h     \
              $(srcdir)/po_hi_driver_sockets_asn1.h       \
              $(srcdir)/po_hi_rtems_utils.h
-
 CLEANFILES = *~
+
+SUBDIRS=configuration
 
 hsrc = ${shell $(CYGPATH_U) '$(OCARINA_RUNTIME)/polyorb-hi-c/include/drivers'}
 

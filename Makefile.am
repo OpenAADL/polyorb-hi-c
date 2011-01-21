@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = no-dependencies
 CLEANFILES = config-stamp svn-commit*.tmp* *~
-SUBDIRS = src support tools share include @DOC_DIR@
+SUBDIRS = src support tools share include doc
 DIST_SUBDIRS = $(SUBDIRS) examples
 
 check-local:: examples
@@ -16,6 +16,9 @@ clean-examples::
 
 distclean-examples::
 	$(MAKE) -C examples distclean
+
+generate-driver-configuration::
+	$(MAKE) -C src/drivers/configuration regenerate
 
 po_hi_doc_dir = ${shell $(CYGPATH_U) '$(OCARINA_PREFIX)/share/doc/ocarina'}
 

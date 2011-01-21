@@ -150,8 +150,10 @@ AC_OUTPUT([
 	doc/Makefile 
 	src/Makefile 
 	src/drivers/Makefile 
+	src/drivers/configuration/Makefile 
 	include/Makefile 
 	include/drivers/Makefile 
+	include/drivers/configuration/Makefile 
 	examples/Makefile
 	examples/aadlv1/Makefile
 	examples/aadlv1/d3.1.3-1/Makefile
