@@ -28,6 +28,8 @@
 #include <arpa/inet.h>
 #include <sys/time.h>
 
+#include <drivers/configuration/ip.h>
+
 
 #include <po_hi_debug.h>
 #include <po_hi_transport.h>
@@ -62,37 +64,30 @@ void __po_hi_driver_sockets_common_generic_init (__po_hi_device_id id, void* (*p
    struct sockaddr_in sa;
    struct hostent*    hostinfo;
 
-   char* dev_conf;
-   char dev_addr[16];
-   int  dev_port;
+
+   __po_hi_c_ip_conf_t* ipconf;
+   char ip_addr[16];
+   int ip_port;
    int node;
 
    socket_device_id = id;
-
-   memset (dev_addr, '\0', 16);
 
    for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)
    {
       nodes[node].socket = -1;
    }
 
+   ipconf = (__po_hi_c_ip_conf_t*)__po_hi_get_device_configuration (id);
+   ip_port = (int)ipconf->port;
 
-   dev_conf = __po_hi_get_device_naming (id);
-   dev_port = 0;
-
-   if (sscanf (dev_conf, "ip %s %d", dev_addr, &dev_port) == 0)
-   {
-      __DEBUGMSG ("[DRIVER SOCKETS] Unable to parse device configuration (id=%d)\n", id);
-   }
-
-   __DEBUGMSG ("My configuration, addr=%s, port=%d\n", dev_addr, dev_port);
+   __DEBUGMSG ("My configuration, addr=%s, port=%lld\n", ipconf->address, ipconf->port );
 
    /*
     * If the current node port has a port number, then it has to
     * listen to other nodes. So, we create a socket, bind it and
     * listen to other nodes.
     */
-   if (dev_port != 0)
+   if (ip_port != 0)
    {
       nodes[id].socket = socket (AF_INET, SOCK_STREAM, 0);
 
@@ -109,7 +104,7 @@ void __po_hi_driver_sockets_common_generic_init (__po_hi_device_id id, void* (*p
 
       sa.sin_addr.s_addr = htonl (INADDR_ANY);   /* We listen on all adresses */
       sa.sin_family = AF_INET;                   
-      sa.sin_port = htons (dev_port);   /* Port provided by the generated code */
+      sa.sin_port = htons (ip_port);   /* Port provided by the generated code */
 
       if( bind( nodes[id].socket , ( struct sockaddr * ) &sa , sizeof( struct sockaddr_in ) ) < 0 )
       {
@@ -150,20 +145,15 @@ void __po_hi_driver_sockets_common_generic_init (__po_hi_device_id id, void* (*p
 
       __DEBUGMSG ("[DRIVER SOCKETS] Will initialize connection with device %d\n", dev);
 
-      memset (dev_addr, '\0', 16);
-      dev_port = 0;
+      memset (ip_addr, '\0', 16);
+      ip_port = 0;
 
-      dev_conf = __po_hi_get_device_naming (dev);
+      ipconf = (__po_hi_c_ip_conf_t*) __po_hi_get_device_configuration (dev);
+      ip_port = (int)ipconf->port;
 
-      if (sscanf (dev_conf, "ip %s %d", dev_addr, &dev_port) == 0)
-      {
-         __DEBUGMSG ("[DRIVER SOCKETS] Unable to parse device configuration (id=%d)\n", id);
-         continue;
-      }
+      __DEBUGMSG ("[DRIVER SOCKETS] Configuration for device %d, addr=%s, port=%d\n", dev, ipconf->address, ip_port);
 
-      __DEBUGMSG ("[DRIVER SOCKETS] Configuration for device %d, addr=%s, port=%d\n", dev, dev_addr, dev_port);
-
-      if (dev_port == 0)
+      if (ip_port == 0)
       {
          __DEBUGMSG ("[DRIVER SOCKETS] Invalid remote port\n");
          continue;
@@ -181,14 +171,14 @@ void __po_hi_driver_sockets_common_generic_init (__po_hi_device_id id, void* (*p
 
          __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d created, value=%d\n", dev, nodes[dev].socket);
 
-         hostinfo = gethostbyname ((char*)dev_addr);
+         hostinfo = gethostbyname ((char*)ipconf->address);
 
          if (hostinfo == NULL )
          {
             __DEBUGMSG ("[DRIVER SOCKETS] Error while getting host informations for device %d\n", dev);
          }
 
-         sa.sin_port = htons (dev_port);
+         sa.sin_port = htons (ip_port);
          sa.sin_family = AF_INET;
 
          /* The following lines are used to copy the
