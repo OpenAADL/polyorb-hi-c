@@ -1,13 +1,14 @@
 POHICDRIVER-IP DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 
 
-Ip-Address-T ::= SEQUENCE (SIZE (4)) OF INTEGER (0 .. 255)
-
 Port-T ::= INTEGER (0 .. 16535)
+
+Version-T  ::= ENUMERATED {ipv4,ipv6}
 
 IP-Conf-T ::= SEQUENCE {
    devname        IA5String (SIZE (1..20)),
-   address        Ip-Address-T,
+   address        IA5String (SIZE (1..40)),
+   version        Version-T DEFAULT ipv4,
    port           Port-T
 }
 
