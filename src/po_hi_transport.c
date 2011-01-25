@@ -13,7 +13,6 @@
 #include <po_hi_types.h>
 #include <po_hi_debug.h>
 #include <po_hi_transport.h>
-#include <drivers/po_hi_driver_sockets.h>
 #include <po_hi_giop.h>
 #include <po_hi_messages.h>
 #include <po_hi_returns.h>
@@ -54,10 +53,6 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
    __po_hi_local_port_t  local_port;
    __po_hi_port_t        destination_port; 
    __po_hi_entity_t      destination_entity;
-
-#if defined (__PO_HI_NEED_DRIVER_SOCKETS) && (__PO_HI_NB_NODES > 1)
-   int error;
-#endif
 
    local_port  = __po_hi_get_local_port_from_global_port (port);
    request     = __po_hi_gqueue_get_most_recent_value (id, local_port);
@@ -105,21 +100,6 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
             __PO_HI_DEBUG_DEBUG (" [deliver locally]\n");
             __po_hi_main_deliver (request);
       }
-#if defined (__PO_HI_NEED_DRIVER_SOCKETS) && (__PO_HI_NB_NODES > 1)
-      else
-      {
-         __PO_HI_DEBUG_DEBUG (" [deliver using network sockets]");
-         __po_hi_marshall_request (request, &msg);
-
-         error =__po_hi_driver_sockets_send (__po_hi_port_global_to_entity[port],
-                                             __po_hi_port_global_to_entity[destination_port],
-                                             &msg);
-         if (error != __PO_HI_SUCCESS) 
-         {
-            return error;
-         }
-      }
-#endif
    }
    request->port = __PO_HI_GQUEUE_INVALID_PORT;
 
