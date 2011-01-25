@@ -13,7 +13,6 @@
 #define __PO_HI_TRANSPORT__
 
 #include <po_hi_messages.h>
-#include <drivers/po_hi_driver_sockets_common.h>
 #include <deployment.h>
 #include <request.h>
 
