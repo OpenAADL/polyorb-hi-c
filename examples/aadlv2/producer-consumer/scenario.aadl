@@ -5,6 +5,7 @@
 
 system producer_consumer
 properties
+  Ocarina_Config::Use_Components_Library => true;
   Ocarina_Config::Timeout_Property     => 4000ms;
   Ocarina_Config::Referencial_Files    =>
     ("pr_a", "pr_a.ref",

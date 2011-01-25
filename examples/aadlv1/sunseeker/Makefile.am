@@ -4,10 +4,9 @@ C_FILES =  \
 
 AADL_FILES = \
            $(srcdir)/sunseeker.aadl \
-           $(srcdir)/sunseeker_dist.aadl \
            $(srcdir)/sunseeker_local.aadl
 
-SCENARIO_FILES = $(srcdir)/scenario_local.aadl $(srcdir)/scenario_dist.aadl
+SCENARIO_FILES = $(srcdir)/scenario_local.aadl
 
 include $(srcdir)/../../Makefile.common
 

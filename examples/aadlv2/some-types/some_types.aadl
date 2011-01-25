@@ -2,27 +2,17 @@ package Some_types
 public
   with Software;
   with Deployment;
+  with ocarina_drivers;
+  with ocarina_buses;
 
 ---------------
 -- Processor --
 ---------------
 
 processor the_processor
-features
-  ETH : requires bus access Ethernet_Bus;
 properties
-  Deployment::location           => "127.0.0.1";
   Deployment::Execution_Platform => Native;
 end the_processor;
-
----------
--- Bus --
----------
-
-bus Ethernet_Bus
-properties
-  Deployment::Transport_API => BSD_Sockets;
-end Ethernet_Bus;
 
 ---------------
 -- Processes --
@@ -72,12 +62,17 @@ end Some_Types;
 system implementation Some_Types.Impl
 subcomponents
   Node_A : process A.Impl;
-  Node_B : process B.Impl {Deployment::port_number => 12002;};
-
-  CPU : processor the_processor;
-  the_bus : bus Ethernet_Bus;
+  Node_B : process B.Impl;
+  Device_A : device ocarina_drivers::generic_sockets_ip.pohic
+    {Source_Text => ("devicesconf.c");};
+  Device_B : device ocarina_drivers::generic_sockets_ip.pohic
+    {Source_Text => ("devicesconf.c");};
+  CPU_A : processor the_processor;
+  CPU_B : processor the_processor;
+  the_bus : bus ocarina_buses::ip.i;
 connections
-  bus access the_bus -> CPU.ETH;
+  bus access the_bus -> Device_A.thebus;
+  bus access the_bus -> Device_B.thebus;
   port Node_A.Out_Boolean -> Node_B.In_Boolean
     {Actual_Connection_Binding => (reference (the_bus));};
   port Node_A.Out_Integer -> Node_B.In_Integer
@@ -85,8 +80,10 @@ connections
   port Node_A.Out_Struct -> Node_B.In_Struct
     {Actual_Connection_Binding => (reference (the_bus));};
 properties
-  actual_processor_binding => reference (CPU) applies to Node_A;
-  actual_processor_binding => reference (CPU) applies to Node_B;
+  actual_processor_binding => (reference (CPU_A)) applies to Node_A;
+  actual_processor_binding => (reference (CPU_B)) applies to Node_B;
+  actual_processor_binding => (reference (CPU_A)) applies to Device_A;
+  actual_processor_binding => (reference (CPU_B)) applies to Device_B;
 end Some_Types.Impl;
 
 end Some_Types;

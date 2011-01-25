@@ -5,7 +5,6 @@ AADL_FILES = \
 	$(srcdir)/ping.aadl
 
 SCENARIO_FILES = \
-	$(srcdir)/scenario.aadl \
 	$(srcdir)/scenario-local.aadl
 
 include $(srcdir)/../../Makefile.common

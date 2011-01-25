@@ -2,18 +2,15 @@ package Sunseeker_Dist
 public
   with Sunseeker;
   with Deployment;
+  with ocarina_buses;
+  with ocarina_drivers;
 
 ---------------
 -- Processor --
 ---------------
 
 processor Pentium_Type
-features
-  ETH : requires bus access Ethernet_Bus;
 properties
-  --  Add a location and an execution platform for the processor
-
-  Deployment::location           => "127.0.0.1";
   Deployment::Execution_Platform => Native;
 end Pentium_Type;
 
@@ -41,17 +38,22 @@ end Sunseekercontrolsystem_Type;
 system implementation Sunseekercontrolsystem_Type.Dist
 subcomponents
 
-  Sunseekerplant      : process Sunseeker::Sunseekerplant_Type.Sunseekerplant
-    {Deployment::port_number => 12000;};
-  Sunseekercontroller : process Sunseeker::Sunseekercontroller_Type.Sunseekercontroller
-    {Deployment::port_number => 12001;};
+  Sunseekerplant      : process Sunseeker::Sunseekerplant_Type.Sunseekerplant;
+  Sunseekercontroller : process Sunseeker::Sunseekercontroller_Type.Sunseekercontroller;
 
   --  The processor
-  Platform: processor Pentium_Type.Pentium;
+  Platform_A: processor Pentium_Type.Pentium;
+  Platform_B: processor Pentium_Type.Pentium;
 
-  the_bus : bus Ethernet_Bus;
+  Device_A : device ocarina_drivers::generic_sockets_ip.pohic
+               {Source_Text => ("devicesconf.c");};
+  Device_B : device ocarina_drivers::generic_sockets_ip.pohic
+               {Source_Text => ("devicesconf.c");};
+
+  the_bus : bus ocarina_buses::ip.i;
 connections
-  bus access the_bus -> Platform.ETH;
+  bus access the_bus -> Device_A.thebus;
+  bus access the_bus -> Device_B.thebus;
   port Sunseekerplant.Outputfeedback
   -> Sunseekercontroller.Outputfeedback
     {Actual_Connection_Binding => (reference (the_bus));};
@@ -61,10 +63,15 @@ connections
 
 --  Bind the processes to the processor
 properties
-  Actual_Processor_Binding => reference (Platform) 
+  Actual_Processor_Binding => reference (Platform_A) 
     applies to Sunseekerplant;
-  Actual_Processor_Binding => reference (Platform) 
+  Actual_Processor_Binding => reference (Platform_B) 
     applies to Sunseekercontroller;
+
+  Actual_Processor_Binding => reference (Platform_A) 
+    applies to Device_A;
+  Actual_Processor_Binding => reference (Platform_B) 
+    applies to Device_B;
 end Sunseekercontrolsystem_Type.Dist;
 
 end Sunseeker_Dist;

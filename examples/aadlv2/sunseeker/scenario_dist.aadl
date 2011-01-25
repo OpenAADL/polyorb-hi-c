@@ -17,6 +17,7 @@ properties
      value (Ocarina_Config::Deployment),
      value (Ocarina_Config::Cheddar_Properties));
   Ocarina_Config::AADL_Version         => AADLv2;
+  Ocarina_Config::Use_Components_Library => true;
 end sunseeker;
 
 system implementation sunseeker.Impl
