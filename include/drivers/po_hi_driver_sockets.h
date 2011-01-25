@@ -13,25 +13,50 @@
 
 
 #if (defined (__PO_HI_NEED_DRIVER_SOCKETS)  \
-               || defined (__PO_HI_NEED_DRIVER_SOCKETSNEW) \
-               || defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
+  || defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
 
 #include <po_hi_transport.h>
 
-#include <drivers/po_hi_driver_sockets_common.h>
-/* Files from PolyORB-HI-C */
+typedef __po_hi_uint16_t __po_hi_inetport_t;
+typedef char*            __po_hi_inetaddr_t;
+
+#define __PO_HI_NOPORT 1
+#define __PO_HI_NOADDR ""
+
+typedef struct
+{
+   int socket;
+} __po_hi_inetnode_t;
+
+extern __po_hi_node_t      __po_hi_mynode;
+
+
+/* We only need to set the timeout for the NE2000 driver socket.
+ * So, this function is used only for this driver.
+ */
+#ifdef __PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS
+   #include <sys/time.h>
+   #define __PO_HI_SET_SOCKET_TIMEOUT(mysocket,nsec) { struct timeval timeout; \
+                                            timeout.tv_sec = nsec; \
+                                            timeout.tv_usec = 0; \
+                                            setsockopt (mysocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,sizeof (timeout)); }
+#else
+   #define __PO_HI_SET_SOCKET_TIMEOUT(mysocket,nsec)
+#endif
+
+
+#define __PO_HI_TRANSPORT_SOCKET_NEED_RECEIVER_TASK()  \
+   (node_port[mynode] != __PO_HI_NOPORT)
+/*
+ * Maccro that declare if we need to activate another thread
+ * that receives data from a socket (receiver task)
+ */
 
 
 void __po_hi_driver_sockets_receiver (void);
 
-#ifdef __PO_HI_NEED_DRIVER_SOCKETS
-int  __po_hi_driver_sockets_send (__po_hi_entity_t from, __po_hi_entity_t to, __po_hi_msg_t* msg);
-#endif
-
-#ifdef __PO_HI_NEED_DRIVER_SOCKETSNEW
 int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
                                  __po_hi_port_t port);
-#endif
 /*
  * Send data through the sending socket
  */
