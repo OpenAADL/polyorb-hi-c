@@ -50,6 +50,7 @@ __po_hi_device_id __po_hi_get_device_from_port (const __po_hi_port_t port);
 
 char* __po_hi_get_device_naming (const __po_hi_device_id dev);
 
+__po_hi_uint32_t* __po_hi_get_device_configuration (const __po_hi_device_id);
 
 #endif /* __PO_HI_NB_PORTS > 0 */
 
