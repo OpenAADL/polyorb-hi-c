@@ -31,20 +31,6 @@
 
 #define __PO_HI_DRIVER_SERIAL_COMMON_SPEED_DEFAULT  __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400
 
-
-int __po_hi_c_driver_serial_common_get_dev (const __po_hi_device_id id, char* dev);
-/*
- * __po_hi_c_driver_serial_common_get_dev finds the name associated
- * with the device. In the config filed, this is the identifier of the
- * dev argument.
- * Configuration should be like that : dev=/dev/ttyS0 speed=115200
- *
- * The first parameter is the device id while the second is the memory
- * chunk where the device name will be copied.
- *
- * Returns 1 when retrieved successfully the device name, 0 otherwise.
- */
-
 int __po_hi_c_driver_serial_common_get_speed (const __po_hi_device_id id);
 /*
  * __po_hi_c_driver_serial_common_get_speed provides the speed
