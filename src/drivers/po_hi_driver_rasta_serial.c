@@ -37,7 +37,7 @@
 #include <apbuart_rasta.h>
 /* Rasta includes from GAISLER drivers */
 
-#define __PO_HI_DRIVER_SERIAL_RASTA_BAUDRATE 19200
+#include <drivers/configuration/serial.h>
 
 int po_hi_c_driver_rasta_serial_fd;
 
@@ -95,17 +95,17 @@ void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg);
 
 void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 {
-   char  devname[16];
+   __po_hi_c_serial_conf_t* serialconf;
+
    __po_hi_c_driver_rasta_common_init ();
 
-   memset (devname, '\0', 16);
+   serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
 
-   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   if (serialconf == NULL)
    {
       __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Cannot get the name of the device !\n");
       return;
    }
-
 
     /* provide the spacewire driver with AMBA Plug&Play
      * info so that it can find the GRSPW cores.
@@ -113,11 +113,11 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 
    __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Initialization starts !\n");
 
-   po_hi_c_driver_rasta_serial_fd = open (devname, O_RDWR);
+   po_hi_c_driver_rasta_serial_fd = open (serialconf->devname, O_RDWR);
 
    if (po_hi_c_driver_rasta_serial_fd < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[RASTA SERIAL] Error while opening device %s\n", devname);
+      __PO_HI_DEBUG_CRITICAL ("[RASTA SERIAL] Error while opening device %s\n", serialconf->devname);
    }
    __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Device open, fd=%d\n", po_hi_c_driver_rasta_serial_fd);
 

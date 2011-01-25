@@ -9,6 +9,7 @@
  */
 
 #include <drivers/po_hi_driver_linux_serial.h>
+#include <drivers/configuration/serial.h>
 
 #if defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_SENDER) || \
@@ -122,24 +123,24 @@ void __po_hi_c_driver_serial_linux_poller (void)
 
 void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
 {
-   char  devname[16];
-   struct termios oldtio,newtio;
+   struct termios             oldtio,newtio;
+   __po_hi_c_serial_conf_t*   serialconf;
 
    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init sender\n");
 
-   memset (devname, '\0', 16);
+   serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
 
-   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   if (serialconf == NULL)
    {
-      __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Cannot get the name of the device !\n");
+      __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Cannot get the configuration of the device !\n");
       return;
    }
 
-   po_hi_c_driver_serial_fd_write = open (devname, O_RDWR | O_NOCTTY | O_NONBLOCK);
+   po_hi_c_driver_serial_fd_write = open (serialconf->devname, O_RDWR | O_NOCTTY | O_NONBLOCK);
 
    if (po_hi_c_driver_serial_fd_write < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", devname);
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", serialconf->devname);
    }
    else
    {
@@ -248,24 +249,24 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
     defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_RECEIVER)
 void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
 {
-   char   devname[16];
-   struct termios oldtio,newtio;
+   struct termios             oldtio,newtio;
+   __po_hi_c_serial_conf_t*   serialconf;
 
    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init receiver\n");
 
-   memset (devname, '\0', 16);
+   serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
 
-   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   if (serialconf == NULL)
    {
       __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Cannot get the name of the device !\n");
       return;
    }
 
-   po_hi_c_driver_serial_fd_read = open (devname, O_RDONLY | O_NOCTTY);
+   po_hi_c_driver_serial_fd_read = open (serialconf->devname, O_RDONLY | O_NOCTTY);
 
    if (po_hi_c_driver_serial_fd_read < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", devname);
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", serialconf->devname);
    }
    else
    {
@@ -357,24 +358,24 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
 
 void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
 {
-   char  devname[16];
-   struct termios oldtio,newtio;
-
-   memset (devname, '\0', 16);
+   struct                     termios oldtio,newtio;
+   __po_hi_c_serial_conf_t*   serialconf;
 
    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init both sender and receiver\n");
 
-   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
+
+   if (serialconf == NULL)
    {
       __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Cannot get the name of the device !\n");
       return;
    }
 
-   po_hi_c_driver_serial_fd_read = po_hi_c_driver_serial_fd_write = open(devname, O_RDWR | O_NOCTTY | O_NONBLOCK);
+   po_hi_c_driver_serial_fd_read = po_hi_c_driver_serial_fd_write = open(serialconf->devname, O_RDWR | O_NOCTTY | O_NONBLOCK);
 
    if (po_hi_c_driver_serial_fd_read < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", devname);
+      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", serialconf->devname);
    }
    else
    {

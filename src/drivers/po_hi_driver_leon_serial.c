@@ -20,6 +20,7 @@
 #include <po_hi_transport.h>
 #include <po_hi_gqueue.h>
 #include <drivers/po_hi_driver_serial_common.h>
+#include <drivers/configuration/serial.h>
 /* po-hi-c related files */
 
 #include <activity.h>
@@ -125,14 +126,12 @@ void __po_hi_c_driver_serial_leon_poller (void)
 
 void __po_hi_c_driver_serial_leon_init_sender (__po_hi_device_id id)
 {
-   char  devname[16];
-   struct termios oldtio,newtio;
+   struct termios             oldtio,newtio;
+   __po_hi_c_serial_conf_t*   serialconf;
 
    __PO_HI_DEBUG_INFO ("[LEON SERIAL] Init sender\n");
 
-   memset (devname, '\0', 16);
-
-   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   if (serialconf == NULL)
    {
       __PO_HI_DEBUG_INFO ("[LEON SERIAL] Cannot get the name of the device !\n");
       return;
@@ -144,15 +143,15 @@ void __po_hi_c_driver_serial_leon_init_sender (__po_hi_device_id id)
       return;
    }
 
-   po_hi_c_driver_leon_serial_fd_write = open (devname, O_WRONLY );
+   po_hi_c_driver_leon_serial_fd_write = open (serialconf->devname, O_WRONLY );
 
    if (po_hi_c_driver_leon_serial_fd_write < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", devname);
+      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", serialconf->devname);
    }
    else
    {
-      __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] Device %s successfully opened, fd=%d\n", __po_hi_get_device_naming (id), po_hi_c_driver_leon_serial_fd_write);
+      __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] Device %s successfully opened, fd=%d\n", serialconf->devname, po_hi_c_driver_leon_serial_fd_write);
    }
 
    tcgetattr (po_hi_c_driver_leon_serial_fd_write, &oldtio);  /* save current serial port settings */
@@ -214,16 +213,16 @@ void __po_hi_c_driver_serial_leon_init_sender (__po_hi_device_id id)
     defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_RECEIVER)
 void __po_hi_c_driver_serial_leon_init_receiver (__po_hi_device_id id)
 {
-   char  devname[16];
-   struct termios oldtio,newtio;
+   struct termios             oldtio,newtio;
+   __po_hi_c_serial_conf_t*   serialconf;
 
    __PO_HI_DEBUG_INFO ("[LEON SERIAL] Init receiver\n");
 
-   memset (devname, '\0', 16);
+   serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
 
-   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   if (serialconf == NULL)
    {
-      __PO_HI_DEBUG_INFO ("[LEON SERIAL] Cannot get the name of the device !\n");
+      __PO_HI_DEBUG_INFO ("[LEON SERIAL] Cannot get the configuration of the device !\n");
       return;
    }
 
@@ -233,13 +232,11 @@ void __po_hi_c_driver_serial_leon_init_receiver (__po_hi_device_id id)
       return;
    }
 
-
-
-   po_hi_c_driver_leon_serial_fd_read = open( __po_hi_get_device_naming (id), O_RDONLY | O_NOCTTY);
+   po_hi_c_driver_leon_serial_fd_read = open (serialconf->devname, O_RDONLY | O_NOCTTY);
 
    if (po_hi_c_driver_leon_serial_fd_read < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", devname);
+      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", serialconf->devname);
    }
    else
    {
@@ -307,14 +304,14 @@ void __po_hi_c_driver_serial_leon_init_receiver (__po_hi_device_id id)
 
 void __po_hi_c_driver_serial_leon_init (__po_hi_device_id id)
 {
-   char  devname[16];
-   struct termios oldtio,newtio;
+   struct                     termios oldtio,newtio;
+   __po_hi_c_serial_conf_t*   serialconf;
 
    __PO_HI_DEBUG_INFO ("[LEON SERIAL] Init both sender and receiver\n");
 
-   memset (devname, '\0', 16);
+   serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
 
-   if (! __po_hi_c_driver_serial_common_get_dev (id, devname))
+   if (serialconf == NULL)
    {
       __PO_HI_DEBUG_INFO ("[LEON SERIAL] Cannot get the name of the device !\n");
       return;
@@ -326,11 +323,11 @@ void __po_hi_c_driver_serial_leon_init (__po_hi_device_id id)
       return;
    }
 
-   po_hi_c_driver_leon_serial_fd_read = po_hi_c_driver_leon_serial_fd_write = open( __po_hi_get_device_naming (id), O_RDWR | O_NOCTTY | O_NONBLOCK);
+   po_hi_c_driver_leon_serial_fd_read = po_hi_c_driver_leon_serial_fd_write = open( serialconf->devname, O_RDWR | O_NOCTTY | O_NONBLOCK);
 
    if (po_hi_c_driver_leon_serial_fd_read < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", devname);
+      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", serialconf->devname);
    }
    else
    {
