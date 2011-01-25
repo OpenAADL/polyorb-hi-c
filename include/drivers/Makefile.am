@@ -13,8 +13,6 @@ EXTRA_DIST = $(srcdir)/po_hi_driver_linux_serial.h       \
              $(srcdir)/po_hi_driver_rasta_common.h       \
              $(srcdir)/po_hi_driver_sockets.h            \
              $(srcdir)/po_hi_driver_keyboard.h           \
-             $(srcdir)/po_hi_driver_sockets_common.h     \
-             $(srcdir)/po_hi_driver_sockets_asn1.h       \
              $(srcdir)/po_hi_rtems_utils.h
 CLEANFILES = *~
 
