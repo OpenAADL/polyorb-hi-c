@@ -5,6 +5,12 @@ C_FILES =   $(srcdir)/1553.c       \
             $(srcdir)/serial.c     \
             $(srcdir)/spacewire.c
 
+ASN_FILES = $(srcdir)/1553.asn       \
+            $(srcdir)/ip.asn         \
+            $(srcdir)/serial.asn     \
+            $(srcdir)/spacewire.asn
+
+
 csrc = ${shell $(CYGPATH_U) '$(OCARINA_RUNTIME)/polyorb-hi-c/src/drivers/configuration'}
 
 $(srcdir)/1553.c:
@@ -58,10 +64,11 @@ regenerate:
 install-data-local:
 	$(INSTALL) -d $(DESTDIR)$(csrc)
 	for f in $(C_FILES); do $(INSTALL) -m 444 $$f $(DESTDIR)$(csrc) ; done
+	for f in $(ASN_FILES); do $(INSTALL) -m 444 $$f $(DESTDIR)$(csrc) ; done
 
 uninstall-local:
 	rm -rf $(DESTDIR)$(csrc)
 
-EXTRA_DIST = $(C_FILES)
+EXTRA_DIST = $(C_FILES) $(ASN_FILES)
 
 CLEANFILES = *~ $(C_FILES)
