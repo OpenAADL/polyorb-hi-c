@@ -61,7 +61,7 @@ regenerate:
 	rm -f $(C_FILES)
 	for v in $(C_FILES); do $(MAKE) $$v ; done
 
-install-data-local:
+install-data-local: $(C_FILES) $(ASN_FILES)
 	$(INSTALL) -d $(DESTDIR)$(csrc)
 	for f in $(C_FILES); do $(INSTALL) -m 444 $$f $(DESTDIR)$(csrc) ; done
 	for f in $(ASN_FILES); do $(INSTALL) -m 444 $$f $(DESTDIR)$(csrc) ; done
