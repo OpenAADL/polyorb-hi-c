@@ -1,4 +1,3 @@
-#
 # This is a part of PolyORB-HI-C distribution, a minimal
 # middleware written for generated code from AADL models.
 # You should use it with the Ocarina toolsuite.
@@ -62,7 +61,7 @@ INCLUDE=-I. -I$(RUNTIME_PATH)/include/
 endif
 
 ifdef USER_SOURCES_DIRS
-INCLUDE+=-I$(USER_SOURCES_DIRS) 
+INCLUDE+=$(USER_SOURCES_DIRS) 
 endif
 
 INCLUDE+=$(USER_INCLUDE)
