@@ -9,8 +9,8 @@ Clock-Division-T ::= INTEGER (0 .. 255)
 Spacewire-Conf-T ::= SEQUENCE {
    devname        IA5String (SIZE (1..20)),
 	nodeaddr			Node-Addr-T,
-	corefreq			Core-Frequence-T,
-	clockdiv			Clock-Division-T,
+	corefreq			Core-Frequence-T OPTIONAL,
+	clockdiv			Clock-Division-T OPTIONAL,
 	remove-prot-id	BOOLEAN OPTIONAL,
 	rxblock			BOOLEAN OPTIONAL,
 	txblock			BOOLEAN OPTIONAL
