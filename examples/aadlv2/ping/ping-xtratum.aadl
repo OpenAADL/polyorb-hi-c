@@ -46,6 +46,9 @@ memory implementation  myram.i
 subcomponents
 	segment1 : memory segment.i;
 	segment2 : memory segment.i;
+properties
+   Base_Address => 16000;
+   Byte_Count   => 4000;
 end myram.i;
 
 ------------
