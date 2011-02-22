@@ -55,6 +55,17 @@ __po_hi_task_t tasks[__PO_HI_NB_TASKS];
 
 void __po_hi_wait_for_tasks ()
 {
+#if defined (XENO_POSIX) || defined (XENO_NATIVE)
+   /*
+    * Once initialization has been done, we avoid ALL 
+    * potential paging operations that can introduce
+    * some indeterministic timing behavior.
+    */
+
+   #include <sys/mman.h>
+   mlockall(MCL_CURRENT|MCL_FUTURE);
+#endif
+
 #if defined(RTEMS_POSIX) || defined(POSIX)
   int i;
 
