@@ -1,0 +1,16 @@
+TARGET_CFLAGS   = `xeno-config --skin native --cflags` -DXENO_NATIVE -D_POSIX_SOURCE -D_GNU_SOURCE 
+TARGET_LDFLAGS  = `xeno-config --skin native --ldflags` 
+SIMULINK_LDFLAGS  = -lm
+CC              = gcc
+LD              = ld
+GPROF           = gprof
+
+
+ifdef USE_GPROF
+TARGET_LDFLAGS+=-pg
+endif
+
+
+target-clean:
+
+target-objects:

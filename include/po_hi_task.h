@@ -15,7 +15,7 @@
  * Define some values that are dependant of the 
  * underlying executive.
  */
-#if defined(POSIX)
+#if defined(POSIX) || defined (XENO_POSIX)
    #include <stdlib.h>
    #include <stdio.h>
    #define __PO_HI_MAIN_NAME main
@@ -39,7 +39,7 @@
 
 
 
-#if defined(POSIX) || defined (RTEMS_POSIX)
+#if defined(POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
 #include <semaphore.h>
 #include <po_hi_time.h>
 #include <pthread.h>

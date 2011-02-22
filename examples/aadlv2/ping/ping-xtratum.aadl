@@ -42,14 +42,20 @@ end segment;
 memory implementation segment.i
 end segment.i;
 
-memory implementation  myram.i
-subcomponents
-	segment1 : memory segment.i;
-	segment2 : memory segment.i;
+memory implementation  myram.stram
 properties
-   Base_Address => 16000;
-   Byte_Count   => 4000;
-end myram.i;
+   Base_Address => 40000000;
+   Byte_Count   => 4194304;
+end myram.stram;
+
+memory implementation myram.sdram
+subcomponents
+	segment1 : memory segment.i {Base_Address => 60000000; Byte_Count => 131072;};
+	segment2 : memory segment.i {Base_Address => 60020000; Byte_Count => 131072;};
+properties
+   Base_Address => 60000000;
+   Byte_Count   => 134217728;
+end myram.sdram;
 
 ------------
 -- System --
@@ -62,8 +68,9 @@ system implementation PING.Impl
 subcomponents
   Node_A : process A.Impl;
   Node_B : process B.Impl;
-  mem :  memory myram.i;
-  cpu : processor ocarina_processors_leon::leon3.xtratum_2partitions;
+  memst  :  memory myram.stram;
+  mem    :  memory myram.sdram;
+  cpu    : processor ocarina_processors_leon::leon3.xtratum_2partitions;
 connections
   port Node_A.Out_Port -> Node_B.In_Port;
 properties
