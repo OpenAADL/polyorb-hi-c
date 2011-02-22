@@ -44,6 +44,8 @@ typedef struct
 #elif defined(RTEMS_PURE)
   rtems_id            ratemon_period;
   rtems_id            rtems_id;
+#elif defined(XENO_NATIVE)
+  RT_TASK             xeno_id;
 #endif
 } __po_hi_task_t;
 /*
@@ -120,7 +122,7 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
 
 int __po_hi_wait_for_next_period (__po_hi_task_id task)
 {
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
   int ret;
   __po_hi_task_delay_until (tasks[task].timer, task);
   if ( (ret = __po_hi_compute_next_period (task)) != 1)
@@ -150,6 +152,13 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
    }
 
    return (__PO_HI_UNAVAILABLE);
+#elif defined (XENO_NATIVE)
+   if ( ! rt_task_wait_period (NULL))
+   {
+         return (__PO_HI_ERROR_TASK_PERIOD);
+   }
+
+   return (__PO_HI_SUCCESS);
 #else
   return (__PO_HI_UNAVAILABLE);
 #endif
@@ -179,7 +188,7 @@ int __po_hi_initialize_tasking( )
  * is called __po_hi_posix_create_thread
  */
 
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
 pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority, 
                                        __po_hi_stack_t    stack_size,
 				       void*              (*start_routine)(void))
@@ -194,7 +203,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
     }
 
-#if defined (POSIX)
+#if defined (POSIX) or defined (XENO_POSIX)
   if (pthread_attr_setscope (&attr, PTHREAD_SCOPE_SYSTEM) != 0)
     {
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
@@ -292,6 +301,28 @@ rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority,
 }
 #endif
 
+#ifdef XENO_NATIVE
+RT_TASK __po_hi_xenomai_create_thread (__po_hi_priority_t priority, 
+                                     __po_hi_stack_t    stack_size,
+                                     void*              (*start_routine)(void))
+{
+   RT_TASK newtask;
+
+   if (! rt_task_create (&newtask, NULL, stack_size, priority, 0))
+   {
+      __DEBUGMSG ("ERROR when creating the task\n");
+   }
+   if ( ! rt_task_start (&newtask, (void*)start_routine, NULL))
+   {
+      __DEBUGMSG ("ERROR when starting the task\n");
+   }
+
+   return newtask;
+}
+#endif
+
+
+
 
 
 int __po_hi_create_generic_task (__po_hi_task_id    id, 
@@ -303,8 +334,11 @@ int __po_hi_create_generic_task (__po_hi_task_id    id,
   __po_hi_task_t* my_task;
   if (id == -1) 
     {
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
       __po_hi_posix_create_thread (priority, stack_size, start_routine);
+      return (__PO_HI_SUCCESS);
+#elif defined (XENO_NATIVE)
+      __po_hi_xenomai_create_thread (priority, stack_size, start_routine);
       return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)
       __po_hi_rtems_create_thread (priority, stack_size, start_routine);
@@ -324,6 +358,8 @@ int __po_hi_create_generic_task (__po_hi_task_id    id,
       __po_hi_posix_initialize_task (my_task);
 #elif defined (RTEMS_PURE)
       my_task->rtems_id = __po_hi_rtems_create_thread (priority, stack_size, start_routine);
+#elif defined (XENO_NATIVE)
+      my_task->xeno_id = __po_hi_xenomai_create_thread (priority, stack_size, start_routine);
 #else
       return (__PO_HI_UNAVAILABLE);
 #endif
@@ -348,11 +384,16 @@ int __po_hi_create_periodic_task (__po_hi_task_id    id,
    * Compute the next period of the task, using the 
    *__po_hi_time* functions.
    */
-#if defined (RTEMS_POSIX) || defined (POSIX)
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
   if (__po_hi_compute_next_period (id) != __PO_HI_SUCCESS)
     {
       return (__PO_HI_ERROR_CLOCK);
     }
+#elif defined (XENO_NATIVE)
+   if (! rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW, tasks[id].period * 1000000))
+   {
+      return (__PO_HI_ERROR_CLOCK);
+   }
 #endif
     
   return (__PO_HI_SUCCESS);

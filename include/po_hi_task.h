@@ -23,6 +23,14 @@
    #define __PO_HI_MAIN_ARGS int argc , char *argv[] , char **arge
    #define __PO_HI_MAIN_RETURN EXIT_SUCCESS
    #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
+#elif defined (XENO_NATIVE)
+   #include <native/task.h>
+   #include <native/timer.h>
+   #define __PO_HI_MAIN_NAME main
+   #define __PO_HI_MAIN_TYPE int
+   #define __PO_HI_MAIN_ARGS int argc , char *argv[] , char **arge
+   #define __PO_HI_MAIN_RETURN 0
+   #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
 #elif defined(RTEMS_PURE)
    #define __PO_HI_MAIN_NAME Init
    #define __PO_HI_MAIN_TYPE rtems_task
@@ -40,21 +48,26 @@
 
 
 #if defined(POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-#include <semaphore.h>
-#include <po_hi_time.h>
-#include <pthread.h>
-#include <sched.h>
-#define __PO_HI_MAX_PRIORITY sched_get_priority_max(SCHED_FIFO)
-#define __PO_HI_MIN_PRIORITY sched_get_priority_min(SCHED_FIFO)
-#define __PO_HI_DEFAULT_PRIORITY ((sched_get_priority_min(SCHED_FIFO) + sched_get_priority_max(SCHED_FIFO))/2)
-
+   #include <semaphore.h>
+   #include <po_hi_time.h>
+   #include <pthread.h>
+   #include <sched.h>
+   #define __PO_HI_MAX_PRIORITY sched_get_priority_max(SCHED_FIFO)
+   #define __PO_HI_MIN_PRIORITY sched_get_priority_min(SCHED_FIFO)
+   #define __PO_HI_DEFAULT_PRIORITY ((sched_get_priority_min(SCHED_FIFO) + sched_get_priority_max(SCHED_FIFO))/2)
 #elif defined(RTEMS_PURE)
-#include <rtems.h>
-#include <inttypes.h>
-#include <po_hi_time.h>
-#define __PO_HI_DEFAULT_PRIORITY RTEMS_NO_PRIORITY
-#define __PO_HI_MAX_PRIORITY RTEMS_NO_PRIORITY
-#define __PO_HI_MIN_PRIORITY RTEMS_NO_PRIORITY
+   #include <rtems.h>
+   #include <inttypes.h>
+   #include <po_hi_time.h>
+   #define __PO_HI_DEFAULT_PRIORITY RTEMS_NO_PRIORITY
+   #define __PO_HI_MAX_PRIORITY RTEMS_NO_PRIORITY
+   #define __PO_HI_MIN_PRIORITY RTEMS_NO_PRIORITY
+#elif defined(XENO_NATIVE)
+   #include <inttypes.h>
+   #include <po_hi_time.h>
+   #define __PO_HI_DEFAULT_PRIORITY 50
+   #define __PO_HI_MAX_PRIORITY 99
+   #define __PO_HI_MIN_PRIORITY 0
 #endif
 
 #include <po_hi_types.h>
