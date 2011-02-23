@@ -203,7 +203,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
     }
 
-#if defined (POSIX) or defined (XENO_POSIX)
+#if defined (POSIX) || defined (XENO_POSIX)
   if (pthread_attr_setscope (&attr, PTHREAD_SCOPE_SYSTEM) != 0)
     {
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
