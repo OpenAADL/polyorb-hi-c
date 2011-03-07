@@ -158,11 +158,8 @@ AC_OUTPUT([
 	examples/aadlv1/Makefile
 	examples/aadlv1/d3.1.3-1/Makefile
 	examples/aadlv1/ping/Makefile
-	examples/aadlv1/producer-consumer/Makefile
 	examples/aadlv1/flight-mgmt/Makefile
 	examples/aadlv1/rma/Makefile
-	examples/aadlv1/some-types/Makefile
-	examples/aadlv1/some-types-stdint/Makefile
 	examples/aadlv1/sunseeker/Makefile
 	examples/aadlv2/Makefile
 	examples/aadlv2/d3.1.3-1/Makefile
