@@ -20,7 +20,7 @@
 #include <po_hi_protected.h>
 /* included files from PolyORB-HI-C */
 
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
 #include <pthread.h>
 /* POSIX files */
 
@@ -46,7 +46,20 @@ void __po_hi_initialize_add_task ()
 
 int __po_hi_initialize ()
 {
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (XENO_POSIX) || defined (XENO_NATIVE)
+   /*
+    * Once initialization has been done, we avoid ALL 
+    * potential paging operations that can introduce
+    * some indeterministic timing behavior.
+    */
+
+   #include <sys/mman.h>
+   mlockall(MCL_CURRENT|MCL_FUTURE);
+#endif
+
+
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutexattr_t mutex_attr;
    if (pthread_mutexattr_init (&mutex_attr) != 0)
    {
@@ -118,7 +131,7 @@ int __po_hi_initialize ()
 
 int __po_hi_wait_initialization ()
 {
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    int cstate;
    if (pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, &cstate) != 0)
    {

@@ -8,7 +8,7 @@
  * Copyright (C) 2007-2011, European Space Agency (ESA).
  */
 
-#if defined (RTEMS_POSIX) || defined (POSIX)
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
 #include <pthread.h>
 #include <sched.h>
 #endif
@@ -35,7 +35,7 @@ typedef struct
 {
   __po_hi_task_id     id;       /* Identifier of the task in the system */
   __po_hi_time_t      period;
-#if defined(RTEMS_POSIX) || defined(POSIX)
+#if defined(RTEMS_POSIX) || defined(POSIX) || defined (XENO_POSIX)
   __po_hi_time_t      timer;
   pthread_t           tid;              /* The pthread_t type used by the
                                            POSIX library */
@@ -57,18 +57,7 @@ __po_hi_task_t tasks[__PO_HI_NB_TASKS];
 
 void __po_hi_wait_for_tasks ()
 {
-#if defined (XENO_POSIX) || defined (XENO_NATIVE)
-   /*
-    * Once initialization has been done, we avoid ALL 
-    * potential paging operations that can introduce
-    * some indeterministic timing behavior.
-    */
-
-   #include <sys/mman.h>
-   mlockall(MCL_CURRENT|MCL_FUTURE);
-#endif
-
-#if defined(RTEMS_POSIX) || defined(POSIX)
+#if defined(RTEMS_POSIX) || defined(POSIX) || defined (XENO_POSIX)
   int i;
 
   for (i = 0; i < __PO_HI_NB_TASKS; i++)
@@ -353,7 +342,7 @@ int __po_hi_create_generic_task (__po_hi_task_id    id,
       my_task->period = period;
       my_task->id     = id;
      
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
       my_task->tid    = __po_hi_posix_create_thread (priority, stack_size, start_routine);
       __po_hi_posix_initialize_task (my_task);
 #elif defined (RTEMS_PURE)
@@ -420,7 +409,7 @@ int __po_hi_create_sporadic_task (__po_hi_task_id    id,
 
 int __po_hi_task_delay_until (__po_hi_time_t time, __po_hi_task_id task)
 {
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
   struct timespec timer;
   int ret;
 
@@ -457,7 +446,7 @@ void __po_hi_tasks_killall ()
 #ifdef RTEMS_PURE
       rtems_task_delete (tasks[i].rtems_id);
 #endif
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
       pthread_cancel (tasks[i].tid);
       __DEBUGMSG ("[TASKS] Cancel thread %d\n", (int) tasks[i].tid);
 #endif

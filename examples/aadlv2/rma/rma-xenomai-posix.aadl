@@ -94,9 +94,9 @@ end rma;
 system implementation rma.impl
 subcomponents
    node_a : process node_a.impl;
-   cpu_rm : processor cpurm.impl;
+   mycpu  : processor cpurm.impl;
 properties
-   Actual_Processor_Binding => (reference (cpu_rm)) applies to node_a;
+   Actual_Processor_Binding => (reference (mycpu)) applies to node_a;
 end rma.impl;
 
 end RMAAadl;
