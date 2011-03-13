@@ -17,6 +17,8 @@
 
 #include <po_hi_transport.h>
 
+#include <drivers/configuration/ip.h>
+
 typedef __po_hi_uint16_t __po_hi_inetport_t;
 typedef char*            __po_hi_inetaddr_t;
 

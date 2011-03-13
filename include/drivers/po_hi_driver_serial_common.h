@@ -22,6 +22,7 @@
     defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_RECEIVER)
 
 #include <po_hi_debug.h>
+#include <drivers/configuration/serial.h>
 
 #define __PO_HI_DRIVER_SERIAL_COMMON_SPEED_19200    2
 #define __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400    6
