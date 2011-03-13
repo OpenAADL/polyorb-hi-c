@@ -35,13 +35,13 @@ typedef struct
 {
   __po_hi_task_id     id;       /* Identifier of the task in the system */
   __po_hi_time_t      period;
-#if defined(RTEMS_POSIX) || defined(POSIX) || defined (XENO_POSIX)
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
   __po_hi_time_t      timer;
   pthread_t           tid;              /* The pthread_t type used by the
                                            POSIX library */
   pthread_mutex_t     mutex;
   pthread_cond_t      cond;
-#elif defined(RTEMS_PURE)
+#elif defined (RTEMS_PURE)
   rtems_id            ratemon_period;
   rtems_id            rtems_id;
 #elif defined(XENO_NATIVE)
@@ -57,7 +57,7 @@ __po_hi_task_t tasks[__PO_HI_NB_TASKS];
 
 void __po_hi_wait_for_tasks ()
 {
-#if defined(RTEMS_POSIX) || defined(POSIX) || defined (XENO_POSIX)
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
   int i;
 
   for (i = 0; i < __PO_HI_NB_TASKS; i++)
@@ -78,7 +78,7 @@ void __po_hi_wait_for_tasks ()
 int __po_hi_compute_next_period (__po_hi_task_id task)
 {
 
-#if defined(RTEMS_POSIX) || defined(POSIX)
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
   __po_hi_time_t mytime;
 
   if (__po_hi_get_time (&mytime) != __PO_HI_SUCCESS)

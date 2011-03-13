@@ -16,7 +16,7 @@
 #include <po_hi_returns.h>
 #include <po_hi_debug.h>
 
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
 #include <pthread.h>
 #elif defined (RTEMS_PURE)
 #include <bsp.h>
@@ -44,7 +44,7 @@ int clock_gettime(int clk_id, struct timespec *tp)
 
 int __po_hi_get_time (__po_hi_time_t* mytime)
 {
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    struct timespec ts;
    __po_hi_time_t tmp;
 
@@ -107,7 +107,7 @@ __po_hi_time_t __po_hi_microseconds (__po_hi_uint32_t microseconds)
 
 int __po_hi_delay_until (__po_hi_time_t time)
 {
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_t mutex;
    pthread_cond_t cond;
    struct timespec timer;
