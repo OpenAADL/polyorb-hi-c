@@ -32,6 +32,15 @@ pthread_mutex_t mutex_init;
 rtems_id __po_hi_main_initialization_barrier;
 #endif
 
+#if defined (XENO_NATIVE)
+#include <native/cond.h>
+#include <native/mutex.h>
+RT_COND   cond_init;
+RT_MUTEX  mutex_init;
+#endif
+
+
+
 int initialized_tasks = 0;
 /* The barrier is initialized with __PO_HI_NB_TASKS +1
  * members, because the main function must pass the barrier
@@ -57,7 +66,33 @@ int __po_hi_initialize ()
    mlockall(MCL_CURRENT|MCL_FUTURE);
 #endif
 
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   pthread_mutexattr_t mutex_attr;
+   if (pthread_mutexattr_init (&mutex_attr) != 0)
+   {
+      __DEBUGMSG ("[MAIN] Unable to init mutex attributes\n");
+   }
 
+#ifdef RTEMS_POSIX
+   if (pthread_mutexattr_setprioceiling (&mutex_attr, 50) != 0)
+   {
+      __DEBUGMSG ("[MAIN] Unable to set priority ceiling on mutex\n");
+   }
+#endif
+
+   if (pthread_mutex_init (&mutex_init, &mutex_attr) != 0 )
+    {
+      __DEBUGMSG ("[MAIN] Unable to init pthread_mutex\n");
+      return (__PO_HI_ERROR_PTHREAD_MUTEX);
+    }
+
+  __DEBUGMSG ("[MAIN] Have %d tasks to init\n", nb_tasks_to_init);
+
+  if (pthread_cond_init (&cond_init, NULL) != 0)
+  {
+     return (__PO_HI_ERROR_PTHREAD_COND);
+  }
+#endif
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutexattr_t mutex_attr;
@@ -87,6 +122,21 @@ int __po_hi_initialize ()
   }
 
 #endif
+
+#if defined (XENO_NATIVE)
+   if (rt_cond_create (&cond_init, NULL))
+   {
+      __DEBUGMSG ("[MAIN] Unable to init the initialization condition variable \n");
+      return (__PO_HI_ERROR_PTHREAD_MUTEX);
+   }
+
+  if (rt_mutex_create (&mutex_init, NULL) != 0)
+  {
+      __DEBUGMSG ("[MAIN] Unable to init the initialization mutex variable \n");
+     return (__PO_HI_ERROR_PTHREAD_COND);
+  }
+#endif
+
 
 #if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
 #include <rtems/rtems/clock.h>
@@ -171,6 +221,27 @@ int __po_hi_wait_initialization ()
   }
   __DEBUGMSG ("[MAIN] Task release the barrier\n");
   return (__PO_HI_SUCCESS);
+#elif defined (XENO_NATIVE)
+  int ret;
+  ret = rt_mutex_acquire (&mutex_init, TM_INFINITE);
+  if (ret != 0)
+  {
+   __DEBUGMSG ("[MAIN] Cannot acquire mutex (return code = %d)\n", ret);
+    return (__PO_HI_ERROR_PTHREAD_MUTEX);
+  }
+
+  initialized_tasks++;
+
+  __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", initialized_tasks, nb_tasks_to_init);
+ 
+  while (initialized_tasks < nb_tasks_to_init)
+  {
+      rt_cond_wait (&cond_init, &mutex_init, TM_INFINITE);
+  }
+  rt_cond_broadcast (&cond_init);
+  rt_mutex_release (&mutex_init);
+  return (__PO_HI_SUCCESS);
+
 #else
   return (__PO_HI_UNAVAILABLE);
 #endif
