@@ -153,9 +153,9 @@ int __po_hi_wait_initialization ()
   __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", initialized_tasks, nb_tasks_to_init);
  
   while (initialized_tasks < nb_tasks_to_init)
-    {
+  {
       pthread_cond_wait (&cond_init, &mutex_init);
-    }
+  }
   pthread_cond_broadcast (&cond_init);
   pthread_mutex_unlock (&mutex_init);
   return (__PO_HI_SUCCESS);

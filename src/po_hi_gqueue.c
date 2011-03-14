@@ -24,7 +24,7 @@
 
 #include <string.h>
 
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
 #include <pthread.h>
 #elif defined(RTEMS_PURE)
 #include <rtems.h>
@@ -59,7 +59,7 @@ __po_hi_uint8_t*       __po_hi_gqueues_port_is_empty[__PO_HI_NB_TASKS];
 __po_hi_uint8_t        __po_hi_gqueues_queue_is_empty[__PO_HI_NB_TASKS];
 __po_hi_uint8_t        __po_hi_gqueues_n_empty[__PO_HI_NB_TASKS];
 
-#if defined (RTEMS_POSIX) || defined (POSIX)
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
 pthread_mutex_t        __po_hi_gqueues_mutexes[__PO_HI_NB_TASKS];
 pthread_cond_t         __po_hi_gqueues_conds[__PO_HI_NB_TASKS];
 pthread_mutexattr_t    __po_hi_gqueues_mutexes_attr[__PO_HI_NB_TASKS];
@@ -117,10 +117,10 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 
    __po_hi_gqueues_queue_is_empty[id] = 1;
 
-#if defined (RTEMS_POSIX) || defined (POSIX)
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
    pthread_mutexattr_init (&__po_hi_gqueues_mutexes_attr[id]);
    pthread_condattr_init (&__po_hi_gqueues_conds_attr[id]);
-#ifdef POSIX
+#if defined (POSIX) || defined (XENO_POSIX)
    pthread_mutexattr_setpshared(&__po_hi_gqueues_mutexes_attr[id],PTHREAD_PROCESS_SHARED); 
 #endif
    pthread_mutex_init (&__po_hi_gqueues_mutexes[id], &__po_hi_gqueues_mutexes_attr[id]);
@@ -208,7 +208,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
    }
 #endif
 
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_lock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (RTEMS_PURE)
    /*
@@ -237,7 +237,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
 #endif
       if (__po_hi_gqueues_used_size[id][port] == __po_hi_gqueues_sizes[id][port])
       {
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
          pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (RTEMS_PURE)
          ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
@@ -266,7 +266,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
       __po_hi_gqueues_queue_is_empty[id] = 0;
    }
 
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
    pthread_cond_broadcast (&__po_hi_gqueues_conds[id]);
 #elif defined (RTEMS_PURE)
@@ -288,7 +288,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
 #endif
 
 
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_lock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (RTEMS_PURE)
    /*
@@ -306,7 +306,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
 
    while(__po_hi_gqueues_queue_is_empty[id] == 1)
    {
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
       pthread_cond_wait (&__po_hi_gqueues_conds[id],
             &__po_hi_gqueues_mutexes[id]);
 #elif defined (RTEMS_PURE)
@@ -326,7 +326,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
 
    }
    *port = __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_offset[id]];
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (RTEMS_PURE)
    ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
@@ -361,7 +361,7 @@ int __po_hi_gqueue_get_value( __po_hi_task_id id,
 
 
    ptr = &__po_hi_gqueues_most_recent_values[id][port];
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_lock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (RTEMS_PURE)
    /*
@@ -386,7 +386,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
    {
       while (__po_hi_gqueues_port_is_empty[id][port] == 1)
       {
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
          pthread_cond_wait (&__po_hi_gqueues_conds[id],
                &__po_hi_gqueues_mutexes[id]);
 #elif defined (RTEMS_PURE)
@@ -431,7 +431,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
 #endif
 */
 
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (RTEMS_PURE)
    ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
@@ -460,7 +460,7 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
       return 1;
    }
 
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_lock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (RTEMS_PURE)
    /*
@@ -498,7 +498,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
       (__po_hi_gqueues_global_history_offset[id] + 1) 
       % __po_hi_gqueues_total_fifo_size[id];
 
-#if defined (POSIX) || defined (RTEMS_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (RTEMS_PURE)
    ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);

@@ -113,6 +113,14 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
       }
    }
   return (__PO_HI_SUCCESS);
+#elif defined (XENO_NATIVE)
+
+  /*
+   * In XENO_NATIVE target, we don't need to recompute the next period
+   * since the API provides functionnalities to do it automatically.
+   */
+
+  return (__PO_HI_SUCCESS);
 #else
    return (__PO_HI_UNAVAILABLE);
 #endif
@@ -431,7 +439,6 @@ int __po_hi_create_sporadic_task (__po_hi_task_id    id,
     }
   
 #if defined (XENO_NATIVE)
-
    int ret;
 
    ret = rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW,  tasks[id].period * 1000);
