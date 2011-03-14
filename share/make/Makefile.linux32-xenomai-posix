@@ -1,5 +1,5 @@
-TARGET_CFLAGS   = `xeno-config --skin posix --cflags` -DXENO_POSIX -D_POSIX_SOURCE -D_GNU_SOURCE 
-TARGET_LDFLAGS  = `xeno-config --skin posix --ldflags`  
+TARGET_CFLAGS   = `xeno-config --skin posix --cflags` -DXENO_POSIX -D_POSIX_SOURCE -D_GNU_SOURCE -m32
+TARGET_LDFLAGS  = `xeno-config --skin posix --ldflags` -m32 
 
 SIMULINK_LDFLAGS  = -lm
 CC              = gcc

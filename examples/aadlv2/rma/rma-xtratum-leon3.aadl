@@ -1,6 +1,7 @@
 package RMAAadl
 public
   with Deployment;
+  with ARINC653;
 
 -----------------
 -- Subprograms --
@@ -72,6 +73,9 @@ processor implementation cpurm.impl
 subcomponents
    part1 : virtual processor partition_runtime.i;
    part2 : virtual processor partition_runtime.i;
+properties
+   ARINC653::Partition_Slots => (1000 ms, 1000 ms);
+   ARINC653::Slots_Allocation => ( reference (part1), reference (part2));
 end cpurm.impl;
 
 ---------------
@@ -87,6 +91,32 @@ subcomponents
    Task2 : thread Task.impl_2;
 end node_a.impl;
 
+memory myram
+end myram;
+
+memory segment
+end segment;
+
+memory implementation segment.i
+end segment.i;
+
+memory implementation  myram.stram
+properties
+   Base_Address => 40000000;
+   Byte_Count   => 4194304;
+end myram.stram;
+
+memory implementation myram.sdram
+subcomponents
+	segment1 : memory segment.i {Base_Address => 60000000; Byte_Count => 131072;};
+	segment2 : memory segment.i {Base_Address => 60020000; Byte_Count => 131072;};
+properties
+   Base_Address => 60000000;
+   Byte_Count   => 134217728;
+end myram.sdram;
+
+
+
 ------------
 -- System --
 ------------
@@ -99,9 +129,13 @@ subcomponents
    node_a : process node_a.impl;
    node_b : process node_a.impl;
    cpu_rm : processor cpurm.impl;
+   mem    :  memory myram.sdram;
+   memst  :  memory myram.stram;
 properties
    Actual_Processor_Binding => (reference (cpu_rm.part1)) applies to node_a;
    Actual_Processor_Binding => (reference (cpu_rm.part2)) applies to node_b;
+   actual_memory_binding => (reference (mem.segment1)) applies to Node_A;
+   actual_memory_binding => (reference (mem.segment2)) applies to Node_B;
 end rma.impl;
 
 end RMAAadl;

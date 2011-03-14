@@ -64,9 +64,18 @@ void __po_hi_wait_for_tasks ()
     {
       pthread_join( tasks[i].tid , NULL );
     }
-#endif
-#ifdef RTEMS_PURE
+#elif defined (RTEMS_PURE)
   rtems_task_suspend(RTEMS_SELF);
+#elif defined (XENO_NATIVE)
+  int ret;
+  while (1)
+  {
+  ret = rt_task_join (&(tasks[0].xeno_id));
+  if (ret != 0)
+  {
+      __DEBUGMSG ("Error while calling rt_task_suspend in __po_hi_wait_for_tasks (ret=%d)\n", ret);
+  }
+  }
 #endif
 }
 
@@ -94,14 +103,14 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
 
    if (tasks[task].ratemon_period == RTEMS_INVALID_ID)
    {
-   name = rtems_build_name ('P', 'R', 'D' + (char)task, ' ');
+      name = rtems_build_name ('P', 'R', 'D' + (char)task, ' ');
 
-   __DEBUGMSG ("Create monotonic server for task %d\n", task);
-   ret = rtems_rate_monotonic_create (name, &(tasks[task].ratemon_period));
-   if (ret != RTEMS_SUCCESSFUL)
-   {
-      __DEBUGMSG ("Error while creating the monotonic server, task=%d, status=%d\n", task, ret);
-   }
+      __DEBUGMSG ("Create monotonic server for task %d\n", task);
+      ret = rtems_rate_monotonic_create (name, &(tasks[task].ratemon_period));
+      if (ret != RTEMS_SUCCESSFUL)
+      {
+         __DEBUGMSG ("Error while creating the monotonic server, task=%d, status=%d\n", task, ret);
+      }
    }
   return (__PO_HI_SUCCESS);
 #else
@@ -142,9 +151,18 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
 
    return (__PO_HI_UNAVAILABLE);
 #elif defined (XENO_NATIVE)
-   if ( ! rt_task_wait_period (NULL))
+   unsigned long overrun;
+   int ret;
+   ret = rt_task_wait_period (&overrun);
+   if ( ret != 0)
    {
+         __DEBUGMSG ("Error in rt_task_period (task=%d;ret=%d)\n", task, ret);
          return (__PO_HI_ERROR_TASK_PERIOD);
+   }
+
+   if (overrun != 0)
+   {
+      return (__PO_HI_ERROR_TASK_PERIOD);
    }
 
    return (__PO_HI_SUCCESS);
@@ -297,21 +315,18 @@ RT_TASK __po_hi_xenomai_create_thread (__po_hi_priority_t priority,
 {
    RT_TASK newtask;
 
-   if (! rt_task_create (&newtask, NULL, stack_size, priority, 0))
+   /*
+    * Uses T_JOINABLE at this time, should avoid that later and put 0 instead
+    * to be able to use kernel-based threads.
+    */
+
+   if (rt_task_create (&newtask, NULL, stack_size, priority, T_JOINABLE))
    {
       __DEBUGMSG ("ERROR when creating the task\n");
    }
-   if ( ! rt_task_start (&newtask, (void*)start_routine, NULL))
-   {
-      __DEBUGMSG ("ERROR when starting the task\n");
-   }
-
    return newtask;
 }
 #endif
-
-
-
 
 
 int __po_hi_create_generic_task (__po_hi_task_id    id, 
@@ -364,10 +379,11 @@ int __po_hi_create_periodic_task (__po_hi_task_id    id,
 				  __po_hi_stack_t    stack_size,
 				  void*              (*start_routine)(void))
 {
-  if (__po_hi_create_generic_task( id, period , priority , stack_size, start_routine ) != 1)
-    {
+   if (__po_hi_create_generic_task( id, period , priority , stack_size, start_routine ) != 1)
+   {
+      __DEBUGMSG ("ERROR when creating generic task (task id=%d)\n", id);
       return (__PO_HI_ERROR_CREATE_TASK);
-    }
+   }
 
   /*
    * Compute the next period of the task, using the 
@@ -379,9 +395,19 @@ int __po_hi_create_periodic_task (__po_hi_task_id    id,
       return (__PO_HI_ERROR_CLOCK);
     }
 #elif defined (XENO_NATIVE)
-   if (! rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW, tasks[id].period * 1000000))
+
+   int ret;
+
+   ret = rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW,  tasks[id].period * 1000);
+   if (ret != 0)
    {
+      __DEBUGMSG ("ERROR when calling rt_task_set_periodic on task %d, ret=%d, period=%lu\n", id, ret, (unsigned long)tasks[id].period);
       return (__PO_HI_ERROR_CLOCK);
+   }
+
+   if (rt_task_start (&(tasks[id].xeno_id), (void*)start_routine, NULL))
+   {
+      __DEBUGMSG ("ERROR when starting the task\n");
    }
 #endif
     
@@ -404,6 +430,23 @@ int __po_hi_create_sporadic_task (__po_hi_task_id    id,
       return (__PO_HI_ERROR_CREATE_TASK);
     }
   
+#if defined (XENO_NATIVE)
+
+   int ret;
+
+   ret = rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW,  tasks[id].period * 1000);
+   if (ret != 0)
+   {
+      __DEBUGMSG ("ERROR when calling rt_task_set_periodic on task %d, ret=%d, period=%lu\n", id, ret, (unsigned long)tasks[id].period);
+      return (__PO_HI_ERROR_CLOCK);
+   }
+
+   if (rt_task_start (&(tasks[id].xeno_id), (void*)start_routine, NULL))
+   {
+      __DEBUGMSG ("ERROR when starting the task\n");
+   }
+#endif
+ 
   return (__PO_HI_SUCCESS);
 }
 

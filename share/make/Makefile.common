@@ -223,6 +223,13 @@ $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(U
 	$(make-exe)
 endif
 
+ifeq ($(TARGET), leon3-xm3)
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
+$(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
+	$(make-exe)
+endif
+
+
 ifeq ($(TARGET), x86.rtems)
 OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
 $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)

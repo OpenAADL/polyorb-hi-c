@@ -2,6 +2,7 @@ EXTRA_DIST=$(srcdir)/Makefile.common \
            $(srcdir)/Makefile.arm.dslinux \
 			  $(srcdir)/Makefile.arm.n770 \
 			  $(srcdir)/Makefile.leon.ork \
+			  $(srcdir)/Makefile.leon3-xm3 \
 			  $(srcdir)/Makefile.leon.rtems \
 			  $(srcdir)/Makefile.linux32 \
 			  $(srcdir)/Makefile.linux32-xenomai-native \

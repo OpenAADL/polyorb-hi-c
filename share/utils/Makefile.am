@@ -1,4 +1,4 @@
-EXTRA_DIST=$(srcdir)/x86-rtems-boot.img
+EXTRA_DIST=$(srcdir)/x86-rtems-boot.img $(srcdir)/xpath
 
 CLEANFILES = *~
 
