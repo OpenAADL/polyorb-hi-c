@@ -37,22 +37,54 @@ rtems_id __po_hi_main_initialization_barrier;
 #include <native/mutex.h>
 RT_COND   cond_init;
 RT_MUTEX  mutex_init;
+
+RT_TASK*  main_task_id;
+/*
+ * If we use the XENO_NATIVE skin, then, the main task
+ * is considered as non real-time and cannot lock
+ * mutexes that are used by real-time threads.
+ * Then, we need to differenciate operations
+ * between the main task and the other tasks.
+ *
+ * For that reason, the main task does not wait for
+ * the initialization of the other tasks. The 
+ * __po_hi_wait_initialization just passes when it is
+ * called from the main task. To do that, we need
+ * to differentiate the main task from the other,
+ * we do that by getting the main task descriptor
+ * address in the main_task_id variable.
+ *
+ * Moreover, when using the XENO_NATIVE API, we
+ * remove one task to initialize (the main task).
+ * Only generated/created tasks wait for their mutual
+ * initialization.
+ */
 #endif
 
 
 
-int initialized_tasks = 0;
+int __po_hi_initialized_tasks = 0;
 /* The barrier is initialized with __PO_HI_NB_TASKS +1
- * members, because the main function must pass the barrier
+ * members, because the main function must pass the barrier.
+ *
+ * Be careful: for the XENO_NATIVE API, we decrement
+ * the __po_hi_nb_tasks_to_init variable since the main task
+ * does not wait for the other tasks to be initialized.
  */
-int nb_tasks_to_init = __PO_HI_NB_TASKS + 1;
+int __po_hi_nb_tasks_to_init = __PO_HI_NB_TASKS + 1;
 
 void __po_hi_initialize_add_task ()
 {
       __DEBUGMSG ("[MAIN] Add a task to initialize\n");
-      nb_tasks_to_init++;
+      __po_hi_nb_tasks_to_init++;
 }
 
+
+/*
+ * The __po_hi_initialize function is only called
+ * by the main thread (the one that executes the traditional
+ * main() function.
+ */
 int __po_hi_initialize ()
 {
 #if defined (XENO_POSIX) || defined (XENO_NATIVE)
@@ -66,32 +98,19 @@ int __po_hi_initialize ()
    mlockall(MCL_CURRENT|MCL_FUTURE);
 #endif
 
-#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   pthread_mutexattr_t mutex_attr;
-   if (pthread_mutexattr_init (&mutex_attr) != 0)
-   {
-      __DEBUGMSG ("[MAIN] Unable to init mutex attributes\n");
-   }
+#if defined (XENO_NATIVE)
+   main_task_id = rt_task_self ();
 
-#ifdef RTEMS_POSIX
-   if (pthread_mutexattr_setprioceiling (&mutex_attr, 50) != 0)
-   {
-      __DEBUGMSG ("[MAIN] Unable to set priority ceiling on mutex\n");
-   }
-#endif
-
-   if (pthread_mutex_init (&mutex_init, &mutex_attr) != 0 )
-    {
-      __DEBUGMSG ("[MAIN] Unable to init pthread_mutex\n");
-      return (__PO_HI_ERROR_PTHREAD_MUTEX);
-    }
-
-  __DEBUGMSG ("[MAIN] Have %d tasks to init\n", nb_tasks_to_init);
-
-  if (pthread_cond_init (&cond_init, NULL) != 0)
-  {
-     return (__PO_HI_ERROR_PTHREAD_COND);
-  }
+   __po_hi_nb_tasks_to_init--;
+   /*
+    * If we are using the XENO_NATIVE skin, we need
+    * to differentiate the main task (that is non real-time)
+    * from the others since the main task cannot use
+    * the services and operates on resources of real-time tasks.
+    * In addition, we decrement the amount of tasks to
+    * initialize since the main task does not wait
+    * for the initialization of the other tasks.
+    */
 #endif
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
@@ -114,13 +133,12 @@ int __po_hi_initialize ()
       return (__PO_HI_ERROR_PTHREAD_MUTEX);
     }
 
-  __DEBUGMSG ("[MAIN] Have %d tasks to init\n", nb_tasks_to_init);
+  __DEBUGMSG ("[MAIN] Have %d tasks to init\n", __po_hi_nb_tasks_to_init);
 
   if (pthread_cond_init (&cond_init, NULL) != 0)
   {
      return (__PO_HI_ERROR_PTHREAD_COND);
   }
-
 #endif
 
 #if defined (XENO_NATIVE)
@@ -160,9 +178,9 @@ int __po_hi_initialize ()
 #endif
 
 #ifdef RTEMS_PURE
-  __DEBUGMSG ("[MAIN] Create a barrier that wait for %d tasks\n", nb_tasks_to_init);
+  __DEBUGMSG ("[MAIN] Create a barrier that wait for %d tasks\n", __po_hi_nb_tasks_to_init);
    
-  ret = rtems_barrier_create (rtems_build_name ('B', 'A', 'R', 'M'), RTEMS_BARRIER_AUTOMATIC_RELEASE, nb_tasks_to_init, &__po_hi_main_initialization_barrier);
+  ret = rtems_barrier_create (rtems_build_name ('B', 'A', 'R', 'M'), RTEMS_BARRIER_AUTOMATIC_RELEASE, __po_hi_nb_tasks_to_init, &__po_hi_main_initialization_barrier);
   if (ret != RTEMS_SUCCESSFUL)
   {
      __DEBUGMSG ("[MAIN] Cannot create the main barrier, return code=%d\n", ret);
@@ -198,11 +216,11 @@ int __po_hi_wait_initialization ()
     return (__PO_HI_ERROR_PTHREAD_MUTEX);
   }
 
-  initialized_tasks++;
+  __po_hi_initialized_tasks++;
 
-  __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", initialized_tasks, nb_tasks_to_init);
+  __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
  
-  while (initialized_tasks < nb_tasks_to_init)
+  while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init)
   {
       pthread_cond_wait (&cond_init, &mutex_init);
   }
@@ -223,6 +241,18 @@ int __po_hi_wait_initialization ()
   return (__PO_HI_SUCCESS);
 #elif defined (XENO_NATIVE)
   int ret;
+
+  if (main_task_id == rt_task_self ())
+  {
+     /*
+      * Here, this function is called by the main thread (the one that executes
+      * the main() function) so that we don't wait for the initialization of the
+      * other tasks, we automatically pass through the function and immeditaly
+      * return.
+      */
+     return (__PO_HI_SUCCESS);
+  }
+
   ret = rt_mutex_acquire (&mutex_init, TM_INFINITE);
   if (ret != 0)
   {
@@ -230,11 +260,11 @@ int __po_hi_wait_initialization ()
     return (__PO_HI_ERROR_PTHREAD_MUTEX);
   }
 
-  initialized_tasks++;
+  __po_hi_initialized_tasks++;
 
-  __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", initialized_tasks, nb_tasks_to_init);
+  __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
  
-  while (initialized_tasks < nb_tasks_to_init)
+  while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init)
   {
       rt_cond_wait (&cond_init, &mutex_init, TM_INFINITE);
   }
