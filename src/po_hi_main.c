@@ -80,12 +80,7 @@ void __po_hi_initialize_add_task ()
 }
 
 
-/*
- * The __po_hi_initialize function is only called
- * by the main thread (the one that executes the traditional
- * main() function.
- */
-int __po_hi_initialize ()
+int __po_hi_initialize_early ()
 {
 #if defined (XENO_POSIX) || defined (XENO_NATIVE)
    /*
@@ -95,7 +90,7 @@ int __po_hi_initialize ()
     */
 
    #include <sys/mman.h>
-   mlockall(MCL_CURRENT|MCL_FUTURE);
+   mlockall (MCL_CURRENT|MCL_FUTURE);
 #endif
 
 #if defined (XENO_NATIVE)
@@ -112,7 +107,16 @@ int __po_hi_initialize ()
     * for the initialization of the other tasks.
     */
 #endif
+   return (__PO_HI_SUCCESS);
+}
 
+/*
+ * The __po_hi_initialize function is only called
+ * by the main thread (the one that executes the traditional
+ * main() function.
+ */
+int __po_hi_initialize ()
+{
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutexattr_t mutex_attr;
    if (pthread_mutexattr_init (&mutex_attr) != 0)

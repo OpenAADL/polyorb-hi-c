@@ -174,7 +174,7 @@ void* __po_hi_sockets_poller (void)
    int                max_socket;
    fd_set             selector;
    struct sockaddr_in sa;
-   __po_hi_node_t     dev;
+   __po_hi_device_id  dev;
    __po_hi_node_t     dev_init;
    __po_hi_request_t  received_request;
    __po_hi_msg_t      msg;

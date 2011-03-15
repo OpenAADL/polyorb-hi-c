@@ -42,4 +42,12 @@ void __po_hi_wait_end_of_instrumentation ();
  */
 #endif
 
+
+int __po_hi_initialize_early ();
+/*
+ * __po_hi_initialize_earlier() is used to perform
+ * some early initialization, before device
+ * init functions are invoked.
+ */
+
 #endif /* __PO_HI_MAIN__ */
