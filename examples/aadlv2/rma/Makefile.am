@@ -10,6 +10,6 @@ SCENARIO_FILES =  $(srcdir)/scenario.aadl \
 
 include $(srcdir)/../../Makefile.common
 
-EXTRA_DIST = $(AADL_FILES) $(SCENARIO_FILE) $(C_FILES)
+EXTRA_DIST = $(AADL_FILES) $(SCENARIO_FILES) $(C_FILES)
 
 CLEANDIRS = rma_impl
