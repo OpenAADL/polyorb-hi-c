@@ -124,7 +124,7 @@ properties
   Period                             => 1000 ms;
   Compute_Execution_time             => 0 ms .. 600 ms;
   Deadline                           => 1000 ms;
-  Cheddar_Properties::Fixed_Priority => 250;
+  Cheddar_Properties::Fixed_Priority => 50;
 end GNC_thread.Impl;
 
 thread TMTC_Thread
@@ -144,7 +144,7 @@ properties
   Period                             => 100 ms;
   Compute_Execution_time             => 0 ms .. 50 ms;
   Deadline                           => 100 ms;
-  Cheddar_Properties::Fixed_Priority => 190;
+  Cheddar_Properties::Fixed_Priority => 40;
 end TMTC_Thread.Impl;
 
 ---------------
@@ -171,7 +171,7 @@ end Toy_Example_Proc.Impl;
 processor the_processor
 properties
   Deployment::Execution_Platform => LINUX32_XENOMAI_NATIVE;
-  Priority_Range => 0 .. 255;
+  Priority_Range => 0 .. 99;
 end the_processor;
 
 ------------

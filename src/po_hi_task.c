@@ -164,7 +164,7 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
    ret = rt_task_wait_period (&overrun);
    if ( ret != 0)
    {
-         __DEBUGMSG ("Error in rt_task_period (task=%d;ret=%d)\n", task, ret);
+         __DEBUGMSG ("Error in rt_task_period (task=%d;ret=%d,overrun=%lu)\n", task, ret, overrun);
          return (__PO_HI_ERROR_TASK_PERIOD);
    }
 

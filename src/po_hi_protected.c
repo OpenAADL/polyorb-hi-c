@@ -22,9 +22,10 @@
 
 #if __PO_HI_NB_PROTECTED > 0
 
-#if defined (RTEMS_POSIX) || defined (POSIX)
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
 #define __USE_UNIX98 1
 #include <pthread.h>
+#include <po_hi_task.h>
 
 /* Declare only needed mutexes according to the generated
  * declarations. The __PO_HI_NB_PROTECTED is a generated macro that
@@ -39,9 +40,7 @@ extern __po_hi_uint8_t                 __po_hi_protected_priorities[__PO_HI_NB_P
 int __po_hi_protected_init ()
 {
    __po_hi_uint8_t i;
-#ifndef __PO_HI_PLATFORM_LINUXTASTE
    __po_hi_uint8_t prio;
-#endif
 
    for (i = 0 ; i < __PO_HI_NB_PROTECTED ; i++ )
    {
@@ -50,7 +49,6 @@ int __po_hi_protected_init ()
          __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while initializing mutex attr\n");
       }
 
-#ifndef __PO_HI_PLATFORM_LINUXTASTE
       if (__po_hi_protected_configuration[i] == __PO_HI_PROTECTED_IPCP)
       {
          if (pthread_mutexattr_setprotocol (&__po_hi_protected_mutexes_attr[i], PTHREAD_PRIO_PROTECT) != 0)
@@ -62,7 +60,6 @@ int __po_hi_protected_init ()
 
          if (prio == 0)
          {
-#include <po_hi_task.h>
             prio = __PO_HI_MAX_PRIORITY - 1;
          }
 
@@ -80,7 +77,6 @@ int __po_hi_protected_init ()
             __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while changing mutex protocol\n");
          }
       }
-#endif
 
       if (pthread_mutex_init (&__po_hi_protected_mutexes[i], &__po_hi_protected_mutexes_attr[i]) != 0)
       {
@@ -97,8 +93,11 @@ int __po_hi_protected_lock (__po_hi_protected_t protected_id)
 {
    if (pthread_mutex_lock (&__po_hi_protected_mutexes[protected_id]) != 0 )
    {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when lock protected resource %d\n", protected_id);
       return __PO_HI_ERROR_PROTECTED_LOCK;
    }
+
+   __PO_HI_DEBUG_DEBUG ("[PROTECTED] Successfully lock protected resource %d\n", protected_id);
    return __PO_HI_SUCCESS;
 }
 
@@ -106,11 +105,14 @@ int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
 {
   if (pthread_mutex_unlock (&__po_hi_protected_mutexes[protected_id]) != 0 )
     {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when unlock protected resource %d\n", protected_id);
       return __PO_HI_ERROR_PROTECTED_UNLOCK;
     }
+
+  __PO_HI_DEBUG_DEBUG ("[PROTECTED] Successfully unlock protected resource %d\n", protected_id);
   return __PO_HI_SUCCESS;
 }
-#endif /* POSIX or RTEMS_POSIX */
+#endif /* POSIX or RTEMS_POSIX or XENO_POSIX*/
 
 
 #if defined (RTEMS_PURE)
@@ -169,7 +171,61 @@ int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
 
   return __PO_HI_SUCCESS;
 }
-#endif /* POSIX or RTEMS_POSIX */
+#endif /* RTEMS_PURE */
 
+
+#if defined (XENO_NATIVE)
+#include <native/mutex.h>
+#include <po_hi_task.h>
+
+/* Declare only needed mutexes according to the generated
+ * declarations. The __PO_HI_NB_PROTECTED is a generated macro that
+ * represents the needed number of mutexes in the system.
+ */
+
+RT_MUTEX                               __po_hi_protected_mutexes[__PO_HI_NB_PROTECTED];
+
+int __po_hi_protected_init ()
+{
+   __po_hi_uint8_t i;
+
+   for (i = 0 ; i < __PO_HI_NB_PROTECTED ; i++ )
+   {
+      if (rt_mutex_create (&__po_hi_protected_mutexes[i], NULL) != 0)
+      {
+         __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while creating mutex %d\n", i);
+         return __PO_HI_ERROR_PROTECTED_CREATE;
+      }
+
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Successfully create mutex %d\n", i);
+   }
+   return (__PO_HI_SUCCESS);
+}
+
+int __po_hi_protected_lock (__po_hi_protected_t protected_id)
+{
+   if (rt_mutex_acquire (&__po_hi_protected_mutexes[protected_id], TM_INFINITE) != 0 )
+   {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when lock protected resource %d\n", protected_id);
+      return __PO_HI_ERROR_PROTECTED_LOCK;
+   }
+
+   __PO_HI_DEBUG_DEBUG ("[PROTECTED] Successfully lock protected resource %d\n", protected_id);
+   return __PO_HI_SUCCESS;
+}
+
+int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
+{
+  if (rt_mutex_release (&__po_hi_protected_mutexes[protected_id]) != 0 )
+    {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when unlock protected resource %d\n", protected_id);
+      return __PO_HI_ERROR_PROTECTED_UNLOCK;
+    }
+
+  __PO_HI_DEBUG_DEBUG ("[PROTECTED] Successfully unlock protected resource %d\n", protected_id);
+  return __PO_HI_SUCCESS;
+}
+#endif /* XENO_NATIVE */
 
 #endif /* __PO_HI_NB_PROTECTED > 0 */
+
