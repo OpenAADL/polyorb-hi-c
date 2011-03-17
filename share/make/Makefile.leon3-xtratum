@@ -11,9 +11,7 @@ SRCS := $(sort $(wildcard *.c))
 ASRCS := $(sort $(wildcard *.S))
 OBJS := $(patsubst %.c,%.o, $(SRCS)) $(patsubst %.S,%.o, $(ASRCS))
 
-PACK_ARGS=-h $(XMCORE):xm_cf.xef.xmc \
-        -p 0:partition1.xef \
-        -p 1:partition2.xef
+PACK_ARGS=-h $(XMCORE):xm_cf.xef.xmc $(GENERATED_PACK_ARGS)
 
 container.bin: $(PARTITIONS) xm_cf.xef.xmc
 	$(XMPACK) build $(PACK_ARGS) $@
