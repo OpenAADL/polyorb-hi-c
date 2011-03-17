@@ -45,6 +45,7 @@ properties
    Period                             => 1000ms;
    Compute_Execution_time             => 0 ms .. 3 ms;
    Deadline                           => 1000 ms;
+   Priority => 1;
 end Task.impl_1;
 
 thread implementation Task.impl_2
@@ -57,6 +58,7 @@ properties
    Period                             => 500ms;
    Compute_Execution_time             => 0 ms .. 3 ms;
    Deadline                           => 500 ms;
+   Priority => 2;
 end Task.impl_2;
 
 ---------------
@@ -69,6 +71,8 @@ properties
 end cpurm;
 
 processor implementation cpurm.impl
+properties
+   Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
 end cpurm.impl;
 
 ---------------
@@ -96,7 +100,7 @@ subcomponents
    node_a : process node_a.impl;
    cpu_rm : processor cpurm.impl;
 properties
-   Actual_Processor_Binding => reference (cpu_rm) applies to node_a;
+   Actual_Processor_Binding => (reference (cpu_rm)) applies to node_a;
 end rma.impl;
 
 end RMAAadl;
