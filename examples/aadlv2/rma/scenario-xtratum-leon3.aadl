@@ -9,6 +9,7 @@ properties
   Ocarina_Config::Needed_Property_Sets => 
     (value (Ocarina_Config::Data_Model),
      value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::ARINC653_Properties),
      value (Ocarina_Config::Cheddar_Properties));
   Ocarina_Config::AADL_Version         => AADLv2;
 end rma;
