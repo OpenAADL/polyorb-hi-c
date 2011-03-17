@@ -74,6 +74,7 @@ subcomponents
    part1 : virtual processor partition_runtime.i;
    part2 : virtual processor partition_runtime.i;
 properties
+   ARINC653::Module_Major_Frame => 2000 ms;
    ARINC653::Partition_Slots => (1000 ms, 1000 ms);
    ARINC653::Slots_Allocation => ( reference (part1), reference (part2));
 end cpurm.impl;
