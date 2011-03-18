@@ -230,8 +230,9 @@ void* __po_hi_sockets_poller (void)
          }	  
       }
    }
-   __DEBUGMSG ("[DRIVER SOCKETS] Poller initialization finished\n");
+   __DEBUGMSG ("[DRIVER SOCKETS] Poller initialization finished, waiting for other tasks\n");
    __po_hi_wait_initialization ();
+   __DEBUGMSG ("[DRIVER SOCKETS] Other tasks are initialized, let's start the polling !\n");
 
    /*
     * Then, listen and receive data on the socket, identify the node
