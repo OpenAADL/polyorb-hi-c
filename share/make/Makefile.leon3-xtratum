@@ -69,6 +69,7 @@ resident_sw: container.bin
 
 clean:
 	@$(RM) $(PARTITIONS) $(patsubst %.bin,%, $(PARTITIONS)) $(patsubst %.xef,%, $(PARTITIONS))
+	@$(RM) $(PARTITIONS) $(patsubst %.exe,%, $(PARTITIONS)) $(patsubst %.xef,%, $(PARTITIONS))
 	@$(RM) partition*.bin partition*.xef
 	@$(RM) container.bin resident_sw xm_cf xm_cf.bin xm_cf.*.c xm_cf.*.xmc
 	@find -name "*.o" -exec rm '{}' \;
