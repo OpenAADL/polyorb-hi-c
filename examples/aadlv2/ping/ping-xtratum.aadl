@@ -11,26 +11,26 @@ public
 
 process A
 features
-  Out_Port : out event data port Software::Simple_Type;
+  Data_Source : out event data port Software::Simple_Type;
 end A;
 
 process implementation A.Impl
 subcomponents
   Pinger        : thread Software::P.Impl;
 connections
-  port Pinger.Data_Source -> Out_Port;
+  port Pinger.Data_Source -> Data_Source;
 end A.Impl;
 
 process B
 features
-  In_Port  : in event data port Software::Simple_Type;
+  Data_Sink  : in event data port Software::Simple_Type;
 end B;
 
 process implementation B.Impl
 subcomponents
   Ping_Me        : thread Software::Q.Impl;
 connections
-  port In_Port -> Ping_Me.Data_Sink;
+  port Data_Sink -> Ping_Me.Data_Sink;
 end B.Impl;
 
 memory myram
@@ -69,7 +69,7 @@ subcomponents
   mem    :  memory myram.sdram;
   cpu    : processor ocarina_processors_leon::leon3.xtratum_2partitions;
 connections
-  port Node_A.Out_Port -> Node_B.In_Port;
+  port Node_A.Data_Source -> Node_B.Data_Sink;
 properties
   actual_processor_binding => (reference (cpu.part1)) applies to Node_A;
   actual_processor_binding => (reference (cpu.part2)) applies to Node_B;

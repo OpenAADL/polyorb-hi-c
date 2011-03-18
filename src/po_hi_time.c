@@ -71,7 +71,10 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
    tmp = _TOD_To_seconds (&current_time) * 1000000;
    tmp += current_time.ticks * _TOD_Microseconds_per_tick;
 
-   mytime = tmp;
+   /*
+    * FIXME: should check this assignment
+    */
+   *mytime = (__po_hi_time_t) tmp;
    
    return (__PO_HI_SUCCESS);
 #elif defined (XENO_NATIVE)

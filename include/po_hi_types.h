@@ -82,6 +82,23 @@ typedef double __po_hi_float64_t;
 
 typedef unsigned char            __po_hi_byte_t;
 
+
+typedef enum
+{
+   __PO_HI_IN_DATA_INTER_PROCESS             = 0,
+   __PO_HI_OUT_DATA_INTER_PROCESS            = 2,
+   __PO_HI_IN_DATA_INTRA_PROCESS             = 4,
+   __PO_HI_OUT_DATA_INTRA_PROCESS            = 6,
+   __PO_HI_IN_EVENT_DATA_INTER_PROCESS       = 8,
+   __PO_HI_OUT_EVENT_DATA_INTER_PROCESS      = 10,
+   __PO_HI_IN_EVENT_DATA_INTRA_PROCESS       = 12,
+   __PO_HI_OUT_EVENT_DATA_INTRA_PROCESS      = 14,
+   __PO_HI_IN_EVENT_INTER_PROCESS            = 16,
+   __PO_HI_OUT_EVENT_INTER_PROCESS           = 18,
+   __PO_HI_IN_EVENT_INTRA_PROCESS            = 20,
+   __PO_HI_OUT_EVENT_INTRA_PROCESS           = 22
+}__po_hi_port_kind_t;
+
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size);
 
 #endif /* __PO_HI_TYPES_H_ */

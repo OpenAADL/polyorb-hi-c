@@ -200,6 +200,67 @@ int __po_hi_initialize_early ()
  */
 int __po_hi_initialize ()
 {
+#ifdef XM3_RTEMS_MODE
+   #include <deployment.h>
+   #include <po_hi_types.h>
+   #include <xm.h>
+
+   extern __po_hi_node_t         __po_hi_mynode;
+   extern __po_hi_entity_t       __po_hi_port_global_to_entity[__PO_HI_NB_PORTS];
+   extern __po_hi_node_t         __po_hi_entity_table[__PO_HI_NB_ENTITIES];
+   extern __po_hi_port_kind_t    __po_hi_port_global_kind[__PO_HI_NB_PORTS];
+   extern char*                  __po_hi_port_global_model_names[__PO_HI_NB_PORTS];
+
+   __po_hi_port_t tmp;
+
+   for (tmp = 0 ; tmp < __PO_HI_NB_PORTS ; tmp++)
+   {
+      if ((__po_hi_entity_table[__po_hi_port_global_to_entity[tmp]] == __po_hi_mynode) &&
+          ( (__po_hi_port_global_kind[tmp] ==  __PO_HI_IN_DATA_INTER_PROCESS) ||
+            (__po_hi_port_global_kind[tmp] ==  __PO_HI_OUT_DATA_INTER_PROCESS) ||
+            (__po_hi_port_global_kind[tmp] ==  __PO_HI_IN_EVENT_DATA_INTER_PROCESS) ||
+            (__po_hi_port_global_kind[tmp] ==  __PO_HI_OUT_EVENT_DATA_INTER_PROCESS)
+          ))
+      {
+         __DEBUGMSG ("[MAIN] Should init port %d\n", tmp);
+         switch (__po_hi_port_global_kind[tmp])
+         {
+            case __PO_HI_IN_DATA_INTER_PROCESS:
+               if (XM_create_sampling_port (__po_hi_port_global_model_names [tmp], 8, XM_DESTINATION_PORT) < 0)
+               {
+                  __DEBUGMSG ("[MAIN] Sampling destination port %d cannot be created !\n", tmp);
+               }
+               break;
+
+            case __PO_HI_OUT_DATA_INTER_PROCESS:
+               if (XM_create_sampling_port (__po_hi_port_global_model_names [tmp], 8, XM_SOURCE_PORT) < 0)
+               {
+                  __DEBUGMSG ("[MAIN] Sampling source port %d cannot be created !\n", tmp);
+               }
+               break;
+
+            case __PO_HI_IN_EVENT_DATA_INTER_PROCESS:
+               if (XM_create_queuing_port (__po_hi_port_global_model_names [tmp], 1, 8, XM_DESTINATION_PORT) < 0)
+               {
+                  __DEBUGMSG ("[MAIN] Queuing destination port %d cannot be created !\n", tmp);
+               }
+               break;
+
+            case __PO_HI_OUT_EVENT_DATA_INTER_PROCESS:
+               if (XM_create_queuing_port (__po_hi_port_global_model_names [tmp], 1, 8, XM_SOURCE_PORT) < 0)
+               {
+                  __DEBUGMSG ("[MAIN] Queuing source port %d cannot be created !\n", tmp);
+               }
+               break;
+
+            default:
+               __DEBUGMSG ("[MAIN] Port kind not handled at this time for port %d\n", tmp);
+               break;
+         }
+
+      }
+   }
+#endif
   return (__PO_HI_SUCCESS);
 }
 
