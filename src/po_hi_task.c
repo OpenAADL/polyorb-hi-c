@@ -350,7 +350,12 @@ int __po_hi_create_generic_task (__po_hi_task_id    id,
       __po_hi_posix_create_thread (priority, stack_size, start_routine);
       return (__PO_HI_SUCCESS);
 #elif defined (XENO_NATIVE)
-      __po_hi_xenomai_create_thread (priority, stack_size, start_routine);
+      RT_TASK t;
+      t = __po_hi_xenomai_create_thread (priority, stack_size, start_routine);
+      if (rt_task_start (&(t), (void*)start_routine, NULL))
+      {
+         __DEBUGMSG ("ERROR when starting the task\n");
+      }
       return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)
       __po_hi_rtems_create_thread (priority, stack_size, start_routine);
@@ -483,6 +488,15 @@ int __po_hi_task_delay_until (__po_hi_time_t time, __po_hi_task_id task)
   pthread_mutex_unlock (&tasks[task].mutex);
 
   return (ret);
+#elif defined (XENO_NATIVE)
+  int ret;
+  ret =  rt_task_sleep_until (time * 1000);
+  if (ret)
+  {
+      __DEBUGMSG ("[TASK] Error in rt_task_sleep_until, ret=%d\n", ret);
+      return (__PO_HI_ERROR_PTHREAD_COND);
+  }
+  return (__PO_HI_SUCCESS);
 #endif
   return (__PO_HI_UNAVAILABLE);
 }

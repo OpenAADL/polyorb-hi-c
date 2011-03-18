@@ -70,7 +70,17 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
 
    tmp = _TOD_To_seconds (&current_time) * 1000000;
    tmp += current_time.ticks * _TOD_Microseconds_per_tick;
+
+   mytime = tmp;
    
+   return (__PO_HI_SUCCESS);
+#elif defined (XENO_NATIVE)
+   __po_hi_time_t tmp;
+   tmp = (__po_hi_time_t) (rt_timer_tsc2ns (rt_timer_read ()));
+   __DEBUGMSG ("TIMER value %llu\n", tmp);
+   tmp = tmp / 1000;
+   __DEBUGMSG ("TIMER value2 %llu\n", tmp);
+   *mytime = (__po_hi_time_t)tmp;
    return (__PO_HI_SUCCESS);
 #else
    return (__PO_HI_UNAVAILABLE);
@@ -155,6 +165,15 @@ int __po_hi_delay_until (__po_hi_time_t time)
    return (ret);
 #elif defined (RTEMS_PURE)
    return (__PO_HI_UNAVAILABLE);
+#elif defined (XENO_NATIVE)
+  int ret;
+  ret =  rt_task_sleep_until (rt_timer_ns2tsc (time * 1000));
+  if (ret)
+  {
+      __DEBUGMSG ("[TASK] Error in rt_task_sleep_until, ret=%d, time=%llu\n", ret, time);
+      return (__PO_HI_ERROR_PTHREAD_COND);
+  }
+  return (__PO_HI_SUCCESS);
 #else
    return (__PO_HI_UNAVAILABLE);
 #endif

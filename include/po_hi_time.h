@@ -17,6 +17,11 @@
 #include <time.h>
 #endif
 
+#ifdef XENO_NATIVE
+#include <native/timer.h>
+#include <native/task.h>
+#endif
+
 
 typedef __po_hi_uint64_t __po_hi_time_t;
 /*
