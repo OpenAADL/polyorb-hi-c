@@ -96,7 +96,8 @@ typedef enum
    __PO_HI_IN_EVENT_INTER_PROCESS            = 16,
    __PO_HI_OUT_EVENT_INTER_PROCESS           = 18,
    __PO_HI_IN_EVENT_INTRA_PROCESS            = 20,
-   __PO_HI_OUT_EVENT_INTRA_PROCESS           = 22
+   __PO_HI_OUT_EVENT_INTRA_PROCESS           = 22,
+   __PO_HI_INVALID_PORT_KIND                 = 50
 }__po_hi_port_kind_t;
 
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size);

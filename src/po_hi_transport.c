@@ -44,6 +44,16 @@ extern char*                  __po_hi_devices_naming[__PO_HI_NB_DEVICES];
 extern __po_hi_uint32_t*      __po_hi_devices_configuration_values[__PO_HI_NB_DEVICES];
 #endif
 
+#ifdef XM3_RTEMS_MODE
+
+#include <deployment.h>
+#include <po_hi_types.h>
+#include <po_hi_transport.h>
+#include <xm.h>
+int                           __po_hi_xtratum_port[__PO_HI_NB_PORTS];
+#endif
+
+
 int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
 {
    __po_hi_msg_t         msg;
@@ -100,6 +110,32 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
             __PO_HI_DEBUG_DEBUG (" [deliver locally]\n");
             __po_hi_main_deliver (request);
       }
+#ifdef XM3_RTEMS_MODE
+      else
+      {
+         __po_hi_port_kind_t pkind = __po_hi_transport_get_port_kind (port);
+         int ret;
+         ret = -1;
+         if (pkind == __PO_HI_OUT_DATA_INTER_PROCESS)
+         {
+            ret = XM_write_sampling_message (__po_hi_xtratum_port[port], request, sizeof (__po_hi_request_t));
+         }
+
+         if (pkind == __PO_HI_OUT_EVENT_DATA_INTER_PROCESS)
+         {
+            ret = XM_send_queuing_message (__po_hi_xtratum_port[port], request, sizeof (__po_hi_request_t));
+         }
+
+         if (ret < 0)
+         {
+            __PO_HI_DEBUG_DEBUG ("[GQUEUE] Cannot deliver the data using inter-partitions ports, return=%d\n", ret);
+         }
+         else
+         {
+            __PO_HI_DEBUG_DEBUG ("[GQUEUE] Data delivered using inter-partitions ports, return=%d\n", ret);
+         }
+      }
+#endif
    }
    request->port = __PO_HI_GQUEUE_INVALID_PORT;
 
@@ -114,6 +150,13 @@ __po_hi_node_t __po_hi_transport_get_node_from_entity (const __po_hi_entity_t en
 {
    return __po_hi_entity_table[entity];
 }
+
+__po_hi_node_t __po_hi_transport_get_mynode (void)
+{
+   extern __po_hi_node_t __po_hi_mynode;
+   return (__po_hi_mynode);
+}
+
 
 __po_hi_entity_t __po_hi_get_entity_from_global_port (const __po_hi_port_t port)
 {
@@ -162,4 +205,79 @@ __po_hi_uint32_t* __po_hi_get_device_configuration (const __po_hi_device_id dev)
 }
 
 #endif
+
+
+char* __po_hi_transport_get_model_name (const __po_hi_port_t portno)
+{
+   extern char*                  __po_hi_port_global_model_names[__PO_HI_NB_PORTS];
+
+   if (portno >= __PO_HI_NB_PORTS)
+   {
+      __DEBUGMSG ("[TRANSPORT] Try to get the name of a non-existing port\n");
+      return NULL;
+   }
+   else
+   {
+      return __po_hi_port_global_model_names[portno];
+   }
+}
+
+
+__po_hi_uint32_t __po_hi_transport_get_queue_size (const __po_hi_port_t portno)
+{
+   extern __po_hi_uint32_t __po_hi_port_global_queue_size[__PO_HI_NB_PORTS];
+
+   if (portno >= __PO_HI_NB_PORTS)
+   {
+      __DEBUGMSG ("[TRANSPORT] Try to get the queue size of a non-existing port\n");
+      return 1;
+   }
+   else
+   {
+      return __po_hi_port_global_queue_size[portno];
+   }
+}
+
+__po_hi_uint32_t __po_hi_transport_get_data_size (const __po_hi_port_t portno)
+{
+   extern __po_hi_uint32_t __po_hi_port_global_data_size[__PO_HI_NB_PORTS];
+
+   if (portno >= __PO_HI_NB_PORTS)
+   {
+      __DEBUGMSG ("[TRANSPORT] Try to get the data size of a non-existing port\n");
+      return 1;
+   }
+   else
+   {
+      return __po_hi_port_global_data_size[portno];
+   }
+}
+
+__po_hi_port_kind_t __po_hi_transport_get_port_kind (const __po_hi_port_t portno)
+{
+   extern __po_hi_port_kind_t    __po_hi_port_global_kind[__PO_HI_NB_PORTS];
+   if (portno >= __PO_HI_NB_PORTS)
+   {
+      __DEBUGMSG ("[TRANSPORT] Try to get the type/kind of a non-existing port\n");
+      return __PO_HI_INVALID_PORT_KIND;
+   }
+   else
+   {
+      return __po_hi_port_global_kind[portno];
+   }
+
+}
+
+#ifdef XM3_RTEMS_MODE
+void __po_hi_transport_xtratum_port_init (const __po_hi_port_t portno, int val)
+{
+   __po_hi_xtratum_port[portno] = val;
+}
+
+int __po_hi_transport_xtratum_get_port (const __po_hi_port_t portno)
+{
+   return __po_hi_xtratum_port[portno];
+}
+#endif
+
 

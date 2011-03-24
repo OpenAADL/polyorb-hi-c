@@ -51,6 +51,25 @@ char* __po_hi_get_device_naming (const __po_hi_device_id dev);
 
 __po_hi_uint32_t* __po_hi_get_device_configuration (const __po_hi_device_id);
 
+
+__po_hi_uint32_t __po_hi_transport_get_data_size (const __po_hi_port_t portno);
+
+__po_hi_uint32_t __po_hi_transport_get_queue_size (const __po_hi_port_t portno);
+
+__po_hi_port_kind_t __po_hi_transport_get_port_kind (const __po_hi_port_t portno);
+
+char* __po_hi_transport_get_model_name (const __po_hi_port_t portno);
+
+__po_hi_node_t __po_hi_transport_get_mynode (void);
+
+#ifdef XM3_RTEMS_MODE
+void __po_hi_transport_xtratum_port_init (const __po_hi_port_t portno, int val);
+int __po_hi_transport_xtratum_get_port (const __po_hi_port_t portno);
+#endif
+
+
 #endif /* __PO_HI_NB_PORTS > 0 */
+
+
 
 #endif /* __PO_HI_TRANSPORT__ */

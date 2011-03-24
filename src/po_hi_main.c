@@ -203,59 +203,61 @@ int __po_hi_initialize ()
 #ifdef XM3_RTEMS_MODE
    #include <deployment.h>
    #include <po_hi_types.h>
+   #include <po_hi_transport.h>
    #include <xm.h>
 
-   extern __po_hi_node_t         __po_hi_mynode;
-   extern __po_hi_entity_t       __po_hi_port_global_to_entity[__PO_HI_NB_PORTS];
-   extern __po_hi_node_t         __po_hi_entity_table[__PO_HI_NB_ENTITIES];
-   extern __po_hi_port_kind_t    __po_hi_port_global_kind[__PO_HI_NB_PORTS];
-   extern char*                  __po_hi_port_global_model_names[__PO_HI_NB_PORTS];
+   __po_hi_port_kind_t        pkind; 
+   __po_hi_port_t             tmp;
+   __po_hi_node_t             tmpnode;
+   __po_hi_node_t             mynode;
+   int                        portno;
 
-   __po_hi_port_t tmp;
+   mynode = __po_hi_transport_get_mynode ();
 
    for (tmp = 0 ; tmp < __PO_HI_NB_PORTS ; tmp++)
    {
-      if ((__po_hi_entity_table[__po_hi_port_global_to_entity[tmp]] == __po_hi_mynode) &&
-          ( (__po_hi_port_global_kind[tmp] ==  __PO_HI_IN_DATA_INTER_PROCESS) ||
-            (__po_hi_port_global_kind[tmp] ==  __PO_HI_OUT_DATA_INTER_PROCESS) ||
-            (__po_hi_port_global_kind[tmp] ==  __PO_HI_IN_EVENT_DATA_INTER_PROCESS) ||
-            (__po_hi_port_global_kind[tmp] ==  __PO_HI_OUT_EVENT_DATA_INTER_PROCESS)
+      pkind = __po_hi_transport_get_port_kind (tmp);
+      tmpnode = __po_hi_transport_get_node_from_entity (__po_hi_get_entity_from_global_port (tmp));
+      if ((tmpnode == mynode) &&
+          ( (pkind ==  __PO_HI_IN_DATA_INTER_PROCESS)          ||
+            (pkind ==  __PO_HI_OUT_DATA_INTER_PROCESS)         ||
+            (pkind ==  __PO_HI_IN_EVENT_DATA_INTER_PROCESS)    ||
+            (pkind ==  __PO_HI_OUT_EVENT_DATA_INTER_PROCESS)
           ))
       {
          __DEBUGMSG ("[MAIN] Should init port %d\n", tmp);
-         switch (__po_hi_port_global_kind[tmp])
+         portno = -1;
+         switch (pkind)
          {
             case __PO_HI_IN_DATA_INTER_PROCESS:
-               if (XM_create_sampling_port (__po_hi_port_global_model_names [tmp], 8, XM_DESTINATION_PORT) < 0)
-               {
-                  __DEBUGMSG ("[MAIN] Sampling destination port %d cannot be created !\n", tmp);
-               }
+               portno = XM_create_sampling_port (__po_hi_transport_get_model_name (tmp), __po_hi_transport_get_queue_size (tmp), XM_DESTINATION_PORT);
                break;
 
             case __PO_HI_OUT_DATA_INTER_PROCESS:
-               if (XM_create_sampling_port (__po_hi_port_global_model_names [tmp], 8, XM_SOURCE_PORT) < 0)
-               {
-                  __DEBUGMSG ("[MAIN] Sampling source port %d cannot be created !\n", tmp);
-               }
+               portno = XM_create_sampling_port (__po_hi_transport_get_model_name (tmp), __po_hi_transport_get_queue_size (tmp), XM_SOURCE_PORT);
                break;
 
             case __PO_HI_IN_EVENT_DATA_INTER_PROCESS:
-               if (XM_create_queuing_port (__po_hi_port_global_model_names [tmp], 1, 8, XM_DESTINATION_PORT) < 0)
-               {
-                  __DEBUGMSG ("[MAIN] Queuing destination port %d cannot be created !\n", tmp);
-               }
+               portno = XM_create_queuing_port (__po_hi_transport_get_model_name (tmp), __po_hi_transport_get_queue_size (tmp), __po_hi_transport_get_data_size (tmp), XM_DESTINATION_PORT);
                break;
 
             case __PO_HI_OUT_EVENT_DATA_INTER_PROCESS:
-               if (XM_create_queuing_port (__po_hi_port_global_model_names [tmp], 1, 8, XM_SOURCE_PORT) < 0)
-               {
-                  __DEBUGMSG ("[MAIN] Queuing source port %d cannot be created !\n", tmp);
-               }
+               portno = XM_create_queuing_port (__po_hi_transport_get_model_name (tmp), __po_hi_transport_get_queue_size (tmp), __po_hi_transport_get_data_size (tmp), XM_SOURCE_PORT);
                break;
 
             default:
                __DEBUGMSG ("[MAIN] Port kind not handled at this time for port %d\n", tmp);
                break;
+         }
+
+         if (portno < 0)
+         {
+               __DEBUGMSG ("[MAIN] Cannot open port %d, name=%s, return=%d\n", tmp, __po_hi_transport_get_model_name (tmp), portno);
+         }
+         else
+         {
+               __po_hi_transport_xtratum_port_init (tmp, portno);
+               __DEBUGMSG ("[MAIN] Port %d (name=%s) created, identifier = %d\n", tmp, __po_hi_transport_get_model_name (tmp), portno);
          }
 
       }

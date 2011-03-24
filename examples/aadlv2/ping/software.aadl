@@ -17,6 +17,7 @@ data Simple_Type
 properties
   Type_Source_Name => "custom_int"; 
   Source_Text => ("ping");
+  Source_Data_Size => 8 Bytes;
 end Simple_Type;
 
 -----------------
@@ -40,6 +41,7 @@ properties
   source_name     => "user_ping_spg";
   source_text     => ("ping.c");
 end Ping_Spg;
+
 
 -------------
 -- Threads --
