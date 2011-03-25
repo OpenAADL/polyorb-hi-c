@@ -49,6 +49,7 @@ int __po_hi_protected_init ()
          __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while initializing mutex attr\n");
       }
 
+#if defined (RTEMS_POSIX) || defined (POSIX)
       if (__po_hi_protected_configuration[i] == __PO_HI_PROTECTED_IPCP)
       {
          if (pthread_mutexattr_setprotocol (&__po_hi_protected_mutexes_attr[i], PTHREAD_PRIO_PROTECT) != 0)
@@ -69,6 +70,7 @@ int __po_hi_protected_init ()
          }
 
       }
+#endif
 
       if (__po_hi_protected_configuration[i] == __PO_HI_PROTECTED_PIP)
       {
