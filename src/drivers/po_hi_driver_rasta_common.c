@@ -16,6 +16,7 @@
 #include <pci.h>
 #include <rasta.h>
 #include <ambapp.h>
+#include <grspw_rasta.h>
 
 #include <pci.h>
 #include <rasta.h>
@@ -47,7 +48,6 @@
 #define GAISLER_GPIO         0x01a
 #endif
 
-void rasta_interrrupt_register(void *handler, int irqno, void *arg);
 
 int apbuart_rasta_register(amba_confarea_type *bus);
 
@@ -78,49 +78,11 @@ extern void (*spw2_int_handler)(int irq, void *arg);
 extern void (*grcan_int_handler)(int irq, void *arg);
 extern void (*brm_int_handler)(int irq, void *arg);
 
-static rtems_isr __po_hi_rasta_interrupt_handler (rtems_vector_number v)
-{
-    unsigned int status;
- 
-    status = irq->ipend;
-    DBG("Interrupt triggered\n");
 
-    if ( (status & GRCAN_IRQ) && grcan_int_handler ) {
 
-    DBG("CAN triggered\n");
-      grcan_int_handler(GRCAN_IRQNO,grcan_int_arg);
-    }
-    
-    if (status & SPW_IRQ) {
-      if ( (status & SPW0_IRQ) && spw0_int_handler ){
-    DBG("SPW0 triggered\n");
-        spw0_int_handler(SPW0_IRQNO,spw0_int_arg);
-      }
+unsigned int __po_hi_driver_rasta_bar0, __po_hi_driver_rasta_bar1;
 
-      if ( (status & SPW1_IRQ) && spw1_int_handler ){
-    DBG("SPW1 triggered\n");
-        spw1_int_handler(SPW1_IRQNO,spw1_int_arg);
-      }
-      
-      if ( (status & SPW2_IRQ) && spw2_int_handler ){
-    DBG("SPW2 triggered\n");
-        spw2_int_handler(SPW2_IRQNO,spw2_int_arg);
-      }
-    }
-    if ((status & BRM_IRQ) && brm_int_handler ){ 
-    DBG("BRM triggered\n");
-        brm_int_handler(BRM_IRQNO,brm_int_arg);
-    }
-    if ( (status & UART0_IRQ) && uart0_int_handler ) {
-    DBG("UART0 triggered\n");
-      uart0_int_handler(UART0_IRQNO,uart0_int_arg);
-    }
-    if ( (status & UART1_IRQ) && uart1_int_handler) {
-    DBG("UART1 triggered\n");
-      uart1_int_handler(UART1_IRQNO,uart1_int_arg);
-    }
-    irq->iclear = status;
-}
+/*
 
 void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg)
 {
@@ -130,7 +92,6 @@ void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg)
     uart0_int_handler = handler;
     uart0_int_arg = arg;
     
-    /* unmask interrupt source */
     irq->iclear = UART0_IRQ;
     irq->mask[0] |= UART0_IRQ;
   }
@@ -140,7 +101,6 @@ void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg)
     uart1_int_handler = handler;
     uart1_int_arg = arg;
     
-    /* unmask interrupt source */
     irq->iclear = UART1_IRQ;
     irq->mask[0] |= UART1_IRQ;
   }
@@ -150,7 +110,6 @@ void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg)
     spw0_int_handler = handler;
     spw0_int_arg = arg;
     
-    /* unmask interrupt source */
     irq->iclear = SPW0_IRQ;
     irq->mask[0] |= SPW0_IRQ;
   }
@@ -160,7 +119,6 @@ void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg)
     spw1_int_handler = handler;
     spw1_int_arg = arg;
     
-    /* unmask interrupt source */
     irq->iclear = SPW1_IRQ;
     irq->mask[0] |= SPW1_IRQ;
   }
@@ -170,7 +128,6 @@ void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg)
     spw2_int_handler = handler;
     spw2_int_arg = arg;
     
-    /* unmask interrupt source */
     irq->iclear = SPW2_IRQ;
     irq->mask[0] |= SPW2_IRQ;
   }
@@ -180,7 +137,6 @@ void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg)
     grcan_int_handler = handler;
     grcan_int_arg = arg;
     
-    /* unmask interrupt source */
     irq->iclear = GRCAN_IRQ;
     irq->mask[0] |= GRCAN_IRQ;
   }
@@ -190,52 +146,55 @@ void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg)
     brm_int_handler = handler;
     brm_int_arg = arg;
     
-    /* unmask interrupt source */
     irq->iclear = BRM_IRQ;
     irq->mask[0] |= BRM_IRQ;
   } 
 }
 
 
-int __po_hi_rasta_get_gpio(amba_confarea_type *abus, int index, struct gpio_reg **regs, int *irq)
+static rtems_isr __po_hi_rasta_interrupt_handler (rtems_vector_number v)
 {
-  amba_apb_device dev;
-  int cores;
-  
-  if (! abus) 
-  {
-     __PO_HI_DEBUG_CRITICAL ("[RASTA COMMON] NULL abus\n");
-    return -1;
-  }
-  
-  /* Scan PnP info for GPIO port number 'index' */
-  cores = amba_find_next_apbslv(abus,VENDOR_GAISLER,GAISLER_GPIO,&dev,index);
-  if ( cores < 1 )
-  {
-    return -1;
-  }
-  
-  if ( regs )
-  {
-    *regs = (struct gpio_reg *)dev.start;
-  }
-  
-  if ( irq )
-  {
-    *irq = dev.irq;
-  }
-  
-  return 0;
+    unsigned int status;
+ 
+    status = irq->ipend;
+
+    if ( (status & GRCAN_IRQ) && grcan_int_handler ) {
+      grcan_int_handler(GRCAN_IRQNO,grcan_int_arg);
+    }
+    
+    if (status & SPW_IRQ) {
+      if ( (status & SPW0_IRQ) && spw0_int_handler ){
+        spw0_int_handler(SPW0_IRQNO,spw0_int_arg);
+      }
+
+      if ( (status & SPW1_IRQ) && spw1_int_handler ){
+        spw1_int_handler(SPW1_IRQNO,spw1_int_arg);
+      }
+      
+      if ( (status & SPW2_IRQ) && spw2_int_handler ){
+        spw2_int_handler(SPW2_IRQNO,spw2_int_arg);
+      }
+    }
+    if ((status & BRM_IRQ) && brm_int_handler ){ 
+        brm_int_handler(BRM_IRQNO,brm_int_arg);
+    }
+    if ( (status & UART0_IRQ) && uart0_int_handler ) {
+      uart0_int_handler(UART0_IRQNO,uart0_int_arg);
+    }
+    if ( (status & UART1_IRQ) && uart1_int_handler) {
+      uart1_int_handler(UART1_IRQNO,uart1_int_arg);
+    }
+    
+    DBG("RASTA-IRQ: 0x%x\n",status);
+    irq->iclear = status;
+ 
 }
 
 
-
-
-unsigned int __po_hi_driver_rasta_bar0, __po_hi_driver_rasta_bar1;
-
 int __po_hi_rasta_register(void) 
 {
-   unsigned int data;
+       unsigned int bar0, bar1, data;
+
     unsigned int *page0 = NULL;
     unsigned int *apb_base = NULL;
     int found=0;
@@ -243,35 +202,27 @@ int __po_hi_rasta_register(void)
 
     DBG("Searching for RASTA board ...");
     
-    /* Search PCI vendor/device id. */
     if (BSP_pciFindDevice(0x1AC8, 0x0010, 0, &bus, &dev, &fun) == 0) {
       found = 1;
     }
     
-    /* Search old PCI vendor/device id. */
     if ( (!found) && (BSP_pciFindDevice(0x16E3, 0x0210, 0, &bus, &dev, &fun) == 0) ) {
       found = 1;
     }
     
-    /* Did we find a RASTA board? */
     if ( !found )
       return -1;
     
     DBG(" found it (dev/fun: %d/%d).\n", dev, fun);
 
-    pci_read_config_dword(bus, dev, fun, 0x10, &__po_hi_driver_rasta_bar0);
-    pci_read_config_dword(bus, dev, fun, 0x14, &__po_hi_driver_rasta_bar1);
+    pci_read_config_dword(bus, dev, fun, 0x10, &bar0);
+    pci_read_config_dword(bus, dev, fun, 0x14, &bar1);
 
-    page0 = (unsigned int *)(__po_hi_driver_rasta_bar0 + 0x400000); 
-    *page0 = 0x80000000;                  /* Point PAGE0 to start of APB       */
+    page0 = (unsigned int *)(bar0 + 0x400000); 
+    *page0 = 0x80000000;
 
-    apb_base = (unsigned int *)(__po_hi_driver_rasta_bar0+APB2_OFFSET);
+    apb_base = (unsigned int *)(bar0+APB2_OFFSET);
 
-/*  apb_base[0] = 0x000002ff;
-    apb_base[1] = 0x8a205260;
-    apb_base[2] = 0x00184000; */
-
-    /* Configure memory controller */
 #ifdef RASTA_SRAM
     apb_base[0] = 0x000002ff;
     apb_base[1] = 0x00001260;
@@ -281,75 +232,75 @@ int __po_hi_rasta_register(void)
     apb_base[1] = 0x82206000;
     apb_base[2] = 0x000e8000;
 #endif
-    /* Set up rasta irq controller */
-    irq = (LEON3_IrqCtrl_Regs_Map *) (__po_hi_driver_rasta_bar0+IRQ_OFFSET); 
+    irq = (LEON3_IrqCtrl_Regs_Map *) (bar0+IRQ_OFFSET); 
     irq->iclear = 0xffff;
     irq->ilevel = 0;
     irq->mask[0] = 0xffff & ~(UART0_IRQ|UART1_IRQ|SPW0_IRQ|SPW1_IRQ|SPW2_IRQ|GRCAN_IRQ|BRM_IRQ);
 
-    /* Configure AT697 ioport bit 7 to input pci irq */
     regs->PIO_Direction &= ~(1<<7);
-    regs->PIO_Interrupt |= (0x87<<8);     /* level sensitive */
+    regs->PIO_Interrupt |= (0x87<<8);
 
-    apb_base[0x100] |= 0x40000000;        /* Set GRPCI mmap 0x4 */
-    apb_base[0x104] =  0x40000000;        /* 0xA0000000;  Point PAGE1 to RAM */
+    apb_base[0x100] |= 0x40000000;
+    apb_base[0x104] =  0x40000000;
 
-    /* set parity error response */
+    
     pci_read_config_dword(bus, dev, fun, 0x4, &data);
     pci_write_config_dword(bus, dev, fun, 0x4, data|0x40);
-
      
     pci_master_enable(bus, dev, fun);
 
-    /* install PCI interrupt vector */
-    /*
-     */
-      
-    /* install interrupt vector */
-
-    /*
-    set_vector(__po_hi_rasta_interrupt_handler,14+0x10, 1);
-    */
     set_vector(__po_hi_rasta_interrupt_handler, RASTA_IRQ+0x10, 1);
 
-    /* Scan AMBA Plug&Play */
-	
-    /* AMBA MAP bar0 (in CPU) ==> 0x80000000(remote amba address) */
     amba_maps[0].size = 0x10000000;
-    amba_maps[0].cpu_adr = __po_hi_driver_rasta_bar0;
+    amba_maps[0].cpu_adr = bar0;
     amba_maps[0].remote_amba_adr = 0x80000000;
 
-    /* AMBA MAP bar1 (in CPU) ==> 0x40000000(remote amba address) */
     amba_maps[1].size = 0x10000000;
-    amba_maps[1].cpu_adr = __po_hi_driver_rasta_bar1;
+    amba_maps[1].cpu_adr = bar1;
     amba_maps[1].remote_amba_adr = 0x40000000;
 
-    /* Mark end of table */
     amba_maps[2].size=0;
     amba_maps[2].cpu_adr = 0;
     amba_maps[2].remote_amba_adr = 0;
         
     memset(&abus,0,sizeof(abus));
         
-    /* Start AMBA PnP scan at first AHB bus */
-    amba_scan (&abus,__po_hi_driver_rasta_bar0+(AHB1_IOAREA_BASE_ADDR&~0xf0000000),&amba_maps[0]);
+    amba_scan(&abus,bar0+(AHB1_IOAREA_BASE_ADDR&~0xf0000000),&amba_maps[0]);
+        
+    printk("Registering RASTA BRM driver\n\r");
 
-    /* Find GPIO0 address */
-    if ( __po_hi_rasta_get_gpio(&abus,0,&gpio0,NULL) ){
-       printk("Failed to get address for RASTA GPIO0\n\r");
-       return -1;
-    }
-
-
-    /* Find GPIO1 address */
-    if ( __po_hi_rasta_get_gpio(&abus,1,&gpio1,NULL) ){
-      __PO_HI_DEBUG_DEBUG ("Failed to get address for RASTA GPIO1\n\r");
+    b1553brm_rasta_int_reg=__po_hi_rasta_interrrupt_register;
+          if ( b1553brm_rasta_register(&abus,2,0,3,bar1,0x40000000) ){
+      printk("Failed to register BRM RASTA driver\n");
       return -1;
     }
-    __PO_HI_DEBUG_DEBUG ("Successful init of the RASTA\n"); 
-    /* Successfully registered the RASTA board */
+        
+    grspw_rasta_int_reg=__po_hi_rasta_interrrupt_register;
+    if ( grspw_rasta_register(&abus,bar1) ){
+      printk("Failed to register RASTA GRSPW driver\n\r");
+      return -1;
+    }
+
+    apbuart_rasta_int_reg=__po_hi_rasta_interrrupt_register;
+    if ( apbuart_rasta_register(&abus) ){
+      printk("Failed to register RASTA APBUART driver\n\r");
+      return -1;
+    }
+
+    if ( rasta_get_gpio(&abus,0,&gpio0,NULL) ){
+      printk("Failed to get address for RASTA GPIO0\n\r");
+      return -1;
+    }
+        
+    if ( rasta_get_gpio(&abus,1,&gpio1,NULL) ){
+      printk("Failed to get address for RASTA GPIO1\n\r");
+      return -1;
+    }
+    
     return 0;
 }
+*/
+
 
 void __po_hi_c_driver_rasta_common_init ()
 {
@@ -361,12 +312,13 @@ void __po_hi_c_driver_rasta_common_init ()
    __PO_HI_DEBUG_INFO ("[RASTA COMMON] Init\n");
    init_pci();
    __PO_HI_DEBUG_DEBUG ("[RASTA COMMON] Initializing RASTA ...");
-   /*
+  /*
   if  (__po_hi_rasta_register() ){
     __PO_HI_DEBUG_DEBUG (" ERROR !\n");
     return;
   }
   */
+
   if  (rasta_register() ){
     __PO_HI_DEBUG_DEBUG(" ERROR !\n");
     return;
