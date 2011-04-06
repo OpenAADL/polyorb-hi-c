@@ -40,6 +40,7 @@ scenarios:
 	done;
 
 scenario:
+	$(MAKE) clean
 	@echo "*********  SCENARIO_FILE = $(SCENARIO_FILE)  *********";
 	ocarina -b -x '${shell $(CYGPATH_W) $(SCENARIO_FILE)}';
 
