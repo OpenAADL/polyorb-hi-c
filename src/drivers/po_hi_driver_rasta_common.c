@@ -53,9 +53,7 @@ int apbuart_rasta_register(amba_confarea_type *bus);
 
 int __po_hi_c_driver_rasta_common_is_init = 0;
 
-static int bus, dev, fun;
 static amba_confarea_type abus;
-static struct amba_mmap amba_maps[3];
 extern LEON3_IrqCtrl_Regs_Map *irq;
 extern LEON_Register_Map      *regs;
 
