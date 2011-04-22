@@ -19,6 +19,9 @@
 #include <po_hi_transport.h>
 #include <po_hi_gqueue.h>
 #include <po_hi_messages.h>
+#include <po_hi_returns.h>
+
+
 #include <drivers/po_hi_rtems_utils.h>
 #include <drivers/po_hi_driver_rasta_spacewire.h>
 #include <drivers/po_hi_driver_rasta_common.h>
@@ -49,9 +52,17 @@ int po_hi_c_driver_rasta_spacewire_fd;
 
 void po_hi_c_driver_rasta_spacewire_init_pkt(__po_hi_c_driver_spacewire_pkt_hdr_t *p, __po_hi_port_t destination_port)
 {
-  p->addr = atoi (__po_hi_get_device_naming (destination_port));
+   unsigned int dst_node_addr;
+   __po_hi_c_spacewire_conf_t* dst_conf;
 
-  __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Init packet with address %d !\n", p->addr);
+   dst_conf = (__po_hi_c_spacewire_conf_t*) __po_hi_get_device_configuration 
+               (__po_hi_get_device_from_port (destination_port));
+
+   dst_node_addr = dst_conf->nodeaddr;
+
+   p->addr = dst_node_addr;
+
+  __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Init packet with destination address address %d !\n", p->addr);
 
   p->protid = 50;
   p->dummy = 0x01;
@@ -110,10 +121,15 @@ extern amba_confarea_type* __po_hi_driver_rasta_common_get_bus ();
 void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
 {
    unsigned int node_addr;
+   __po_hi_c_spacewire_conf_t* drv_conf;
 
-   node_addr = atoi (__po_hi_get_device_naming (id));
+   drv_conf = (__po_hi_c_spacewire_conf_t*) __po_hi_get_device_configuration 
+               (id);
 
-   __PO_HI_DEBUG_INFO ("[RASTA SPACEWIRE] Init\n");
+   node_addr = drv_conf->nodeaddr;
+
+
+   __PO_HI_DEBUG_INFO ("[RASTA SPACEWIRE] Init, node address=%d\n", node_addr);
 
    __po_hi_c_driver_rasta_common_init ();
 
@@ -166,6 +182,12 @@ int __po_hi_c_driver_spacewire_rasta_sender (const __po_hi_task_id task_id, cons
 
    request = __po_hi_gqueue_get_most_recent_value (task_id, local_port);
 
+   if (request->port == -1)
+   {
+      __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Send output task %d, port %d : no value to send\n", task_id, port);
+      return __PO_HI_SUCCESS;
+   }
+
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
 
    __po_hi_msg_reallocate (&msg);
@@ -195,6 +217,9 @@ int __po_hi_c_driver_spacewire_rasta_sender (const __po_hi_task_id task_id, cons
    {
       __PO_HI_DEBUG_INFO (" OK !\n");
    }
+
+   request->port = __PO_HI_GQUEUE_INVALID_PORT;
+
    return 1;
 }
 
