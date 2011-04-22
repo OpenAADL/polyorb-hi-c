@@ -28,9 +28,6 @@
 int __po_hi_c_driver_serial_common_get_speed (const __po_hi_device_id id)
 {
    char*                      conf;
-   int                        n;
-   int                        speed;
-   char                       tmp[10];
    __po_hi_c_serial_conf_t*   serialconf;
    
    serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
