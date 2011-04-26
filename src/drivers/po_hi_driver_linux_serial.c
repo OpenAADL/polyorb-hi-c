@@ -394,7 +394,7 @@ void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
     * CREAD   : enable receiving characters
     */
 
-   newtio.c_cflag = __PO_HI_DRIVER_SERIAL_COMMON_CONVERT_SPEED_TO_POSIX | CRTSCTS | CS8 | CLOCAL | CREAD;
+   newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD;
 
    switch (__po_hi_c_driver_serial_common_get_speed (id))
    {
