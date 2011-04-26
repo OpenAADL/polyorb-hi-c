@@ -497,6 +497,12 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    request = __po_hi_gqueue_get_most_recent_value (task_id, local_port);
 
+   if (request->port == -1)
+   {
+      __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Send output task %d, port %d : no value to send\n", task_id, port);
+      return __PO_HI_SUCCESS;
+   }
+
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
 
    __po_hi_msg_reallocate (&msg);
@@ -521,6 +527,8 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
    }
    __PO_HI_DEBUG_INFO ("\n");
 #endif
+
+   request->port = __PO_HI_GQUEUE_INVALID_PORT;
 
    return 1;
 }
