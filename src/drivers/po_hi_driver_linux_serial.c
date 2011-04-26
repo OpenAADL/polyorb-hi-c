@@ -518,7 +518,6 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    n = write (po_hi_c_driver_serial_fd_write, &msg, __PO_HI_MESSAGES_MAX_SIZE);
 
-#ifdef __PO_HI_DEBUG_INFO
    __PO_HI_DEBUG_INFO  ("[LINUX SERIAL] Message sent: 0x");
 
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
@@ -526,7 +525,6 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
       __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
    }
    __PO_HI_DEBUG_INFO ("\n");
-#endif
 
    request->port = __PO_HI_GQUEUE_INVALID_PORT;
 
