@@ -500,7 +500,7 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    if (request->port == -1)
    {
-      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Send output task %d, port %d : no value to send\n", task_id, port);
+      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Send output task %d, port %d (local_port=%d): no value to send\n", task_id, port, local_port);
       return __PO_HI_SUCCESS;
    }
 
