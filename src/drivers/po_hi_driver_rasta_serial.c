@@ -18,6 +18,7 @@
 #include <po_hi_transport.h>
 #include <po_hi_gqueue.h>
 #include <po_hi_messages.h>
+#include <po_hi_returns.h>
 #include <po_hi_utils.h>
 #include <drivers/po_hi_rtems_utils.h>
 #include <drivers/po_hi_driver_rasta_serial.h>
@@ -171,6 +172,12 @@ int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const _
 
    request = __po_hi_gqueue_get_most_recent_value (task_id, local_port);
 
+   if (request->port == -1)
+   {
+      __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Send output task %d, port %d (local_port=%d): no value to send\n", task_id, port, local_port);
+      return __PO_HI_SUCCESS;
+   }
+
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
 
    __po_hi_msg_reallocate (&msg);
@@ -193,6 +200,9 @@ int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const _
    n = write (po_hi_c_driver_rasta_serial_fd, &msg, __PO_HI_MESSAGES_MAX_SIZE);
 
    __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] write() returns %d\n", n);
+
+   request->port = __PO_HI_GQUEUE_INVALID_PORT;
+
    return 1;
 }
 
