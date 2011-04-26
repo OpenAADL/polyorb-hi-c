@@ -16,6 +16,7 @@
     defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_RECEIVER)
 
 #include <po_hi_debug.h>
+#include <po_hi_returns.h>
 #include <po_hi_utils.h>
 #include <po_hi_messages.h>
 #include <po_hi_transport.h>
@@ -499,7 +500,7 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    if (request->port == -1)
    {
-      __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Send output task %d, port %d : no value to send\n", task_id, port);
+      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Send output task %d, port %d : no value to send\n", task_id, port);
       return __PO_HI_SUCCESS;
    }
 
