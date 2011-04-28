@@ -137,7 +137,7 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
       return;
    }
 
-   po_hi_c_driver_serial_fd_write = open (serialconf->devname, O_RDWR | O_NOCTTY | O_NONBLOCK);
+   po_hi_c_driver_serial_fd_write = open (serialconf->devname, O_WRONLY | O_NOCTTY | O_NONBLOCK);
 
    if (po_hi_c_driver_serial_fd_write < 0)
    {
@@ -145,7 +145,7 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
    }
    else
    {
-      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_serial_fd_write);
+      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Device successfully opened for sending, fd=%d\n", po_hi_c_driver_serial_fd_write);
    }
 
    tcgetattr (po_hi_c_driver_serial_fd_write, &oldtio);  /* save current serial port settings */
@@ -266,15 +266,15 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
       return;
    }
 
-   po_hi_c_driver_serial_fd_read = open (serialconf->devname, O_RDONLY | O_NOCTTY);
+   po_hi_c_driver_serial_fd_read = open (serialconf->devname, O_RDONLY | O_NOCTTY | O_NONBLOCK);
 
    if (po_hi_c_driver_serial_fd_read < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", serialconf->devname);
+      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Error while opening device %s\n", serialconf->devname);
    }
    else
    {
-      __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_serial_fd_read);
+      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Device successfully opened for reading, fd=%d\n", po_hi_c_driver_serial_fd_read);
    }
 
    tcgetattr (po_hi_c_driver_serial_fd_read, &oldtio);  /* save current serial port settings */
