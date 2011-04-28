@@ -166,17 +166,21 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
    {
       case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_19200:
          newtio.c_cflag |= B19200;
+         __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Set speed to 19200\n");
          break;
 
       case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400:
          newtio.c_cflag |= B38400;
+         __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Set speed to 38400\n");
          break;
 
       case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_57600:
          newtio.c_cflag |= B57600;
+         __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Set speed to 57600\n");
          break;
 
       case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_115200:
+         __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Set speed to 115200\n");
          newtio.c_cflag |= B115200;
          break;
 
@@ -185,7 +189,6 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
          break;
    }
 
-         
    /*
     *  IGNPAR  : ignore bytes with parity errors
     *  ICRNL   : map CR to NL (otherwise a CR input on the other computer
@@ -292,17 +295,21 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
    {
       case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_19200:
          newtio.c_cflag |= B19200;
+         __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Set speed to 19200\n");
          break;
 
       case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400:
          newtio.c_cflag |= B38400;
+         __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Set speed to 38400\n");
          break;
 
       case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_57600:
          newtio.c_cflag |= B57600;
+         __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Set speed to 57600\n");
          break;
 
       case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_115200:
+         __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Set speed to 115200\n");
          newtio.c_cflag |= B115200;
          break;
 
@@ -310,7 +317,7 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
          __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Unknwon speed for the serial line\n");
          break;
    }
- 
+
          
    /*
     *  IGNPAR  : ignore bytes with parity errors
@@ -359,123 +366,10 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
 
 void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
 {
-   struct                     termios oldtio,newtio;
-   __po_hi_c_serial_conf_t*   serialconf;
 
-   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init both sender and receiver\n");
-
-   serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
-
-   if (serialconf == NULL)
-   {
-      __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Cannot get the name of the device !\n");
-      return;
-   }
-
-   po_hi_c_driver_serial_fd_read = po_hi_c_driver_serial_fd_write = open(serialconf->devname, O_RDWR | O_NOCTTY | O_NONBLOCK);
-
-   if (po_hi_c_driver_serial_fd_read < 0)
-   {
-      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error while opening device %s\n", serialconf->devname);
-   }
-   else
-   {
-      __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_serial_fd_read);
-   }
-
-   tcgetattr (po_hi_c_driver_serial_fd_read, &oldtio);  /* save current serial port settings */
-   memset (&newtio, '\0', sizeof(newtio));                /* clear struct for new port settings */
-        
-   /* 
-    * BAUDRATE: Set bps rate. You could also use cfsetispeed and cfsetospeed.
-    * CRTSCTS : output hardware flow control (only used if the cable has
-    *           all necessary lines. See sect. 7 of Serial-HOWTO)
-    * CS8     : 8n1 (8bit,no parity,1 stopbit)
-    * CLOCAL  : local connection, no modem contol
-    * CREAD   : enable receiving characters
-    */
-
-   newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD;
-
-   switch (__po_hi_c_driver_serial_common_get_speed (id))
-   {
-      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_19200:
-         newtio.c_cflag |= B19200;
-         break;
-
-      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400:
-         newtio.c_cflag |= B38400;
-         break;
-
-      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_57600:
-         newtio.c_cflag |= B57600;
-         break;
-
-      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_115200:
-         newtio.c_cflag |= B115200;
-         break;
-
-      case __PO_HI_DRIVER_SERIAL_COMMON_SPEED_UNKNWON:
-         __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Unknwon speed for the serial line\n");
-         break;
-   }
-         
-   /*
-    *  IGNPAR  : ignore bytes with parity errors
-    *  ICRNL   : map CR to NL (otherwise a CR input on the other computer
-    *            will not terminate input) otherwise make device raw 
-    *            (no other input processing)
-    */
-   newtio.c_iflag = IGNPAR | ICRNL;
-         
-   /*
-    * Raw output.
-    */
-   newtio.c_oflag = 1;
-         
-   /*
-    * ICANON  : enable canonical input
-    * disable all echo functionality, and don't send signals to calling program
-    */
-   newtio.c_lflag = ICANON;
-
-   /* 
-    * Initialize all control characters 
-    * default values can be found in /usr/include/termios.h, and are given
-    * in the comments, but we don't need them here.
-    */
-   newtio.c_cc[VINTR]    = 0;     /* Ctrl-c */ 
-   newtio.c_cc[VQUIT]    = 0;     /* Ctrl-\ */
-   newtio.c_cc[VERASE]   = 0;     /* del */
-   newtio.c_cc[VKILL]    = 0;     /* @ */
-   newtio.c_cc[VEOF]     = 4;     /* Ctrl-d */
-   newtio.c_cc[VTIME]    = 0;     /* inter-character timer unused */
-   newtio.c_cc[VMIN]     = 1;     /* blocking read until 1 character arrives */
-   newtio.c_cc[VSWTC]    = 0;     /* '\0' */
-   newtio.c_cc[VSTART]   = 0;     /* Ctrl-q */ 
-   newtio.c_cc[VSTOP]    = 0;     /* Ctrl-s */
-   newtio.c_cc[VSUSP]    = 0;     /* Ctrl-z */
-   newtio.c_cc[VEOL]     = 0;     /* '\0' */
-   newtio.c_cc[VREPRINT] = 0;     /* Ctrl-r */
-   newtio.c_cc[VDISCARD] = 0;     /* Ctrl-u */
-   newtio.c_cc[VWERASE]  = 0;     /* Ctrl-w */
-   newtio.c_cc[VLNEXT]   = 0;     /* Ctrl-v */
-   newtio.c_cc[VEOL2]    = 0;     /* '\0' */
-
-   /* 
-    * clean the serial line and activate the settings for the port
-    */
-   if (tcflush (po_hi_c_driver_serial_fd_read, TCIOFLUSH) == -1)
-   {
-      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcflush()\n");
-   }
-
-   if (tcsetattr (po_hi_c_driver_serial_fd_read, TCSANOW, &newtio) == -1)
-   {
-      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcsetattr()\n");
-   }
-
-    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] End of init\n");
+   __po_hi_c_driver_serial_linux_init_receiver (id);
+   __po_hi_c_driver_serial_linux_init_sender (id);
+   return;
 }
 #endif
 
