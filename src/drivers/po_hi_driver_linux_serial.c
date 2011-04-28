@@ -519,7 +519,7 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    n = write (po_hi_c_driver_serial_fd_write, &msg, __PO_HI_MESSAGES_MAX_SIZE);
 
-   __PO_HI_DEBUG_DEBUG  ("[LINUX SERIAL] Message sent: 0x");
+   __PO_HI_DEBUG_DEBUG  ("[LINUX SERIAL] write() returns %d, message sent: 0x", n);
 
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
