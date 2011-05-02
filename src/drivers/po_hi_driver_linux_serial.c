@@ -137,7 +137,7 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
       return;
    }
 
-   po_hi_c_driver_serial_fd_write = open (serialconf->devname, O_WRONLY | O_NOCTTY | O_NONBLOCK);
+   po_hi_c_driver_serial_fd_write = open (serialconf->devname, O_WRONLY | O_NOCTTY | O_NDELAY);
 
    if (po_hi_c_driver_serial_fd_write < 0)
    {
@@ -149,18 +149,14 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
    }
 
    tcgetattr (po_hi_c_driver_serial_fd_write, &oldtio);  /* save current serial port settings */
-   memset (&newtio, '\0', sizeof(newtio));                /* clear struct for new port settings */
+   tcgetattr (po_hi_c_driver_serial_fd_write, &newtio);  /* save current serial port settings */
         
-   /* 
-    * BAUDRATE: Set bps rate. You could also use cfsetispeed and cfsetospeed.
-    * CRTSCTS : output hardware flow control (only used if the cable has
-    *           all necessary lines. See sect. 7 of Serial-HOWTO)
-    * CS8     : 8n1 (8bit,no parity,1 stopbit)
-    * CLOCAL  : local connection, no modem contol
-    * CREAD   : enable receiving characters
-    */
-
-   newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD;
+   newtio.c_cflag |= B115200 | CREAD ;
+   newtio.c_iflag = IGNPAR | IGNBRK;
+   newtio.c_lflag |= ICANON;
+   newtio.c_cc[VMIN]=1;
+   newtio.c_cc[VTIME]=0;
+   cfmakeraw (&newtio);
 
    switch (__po_hi_c_driver_serial_common_get_speed (id))
    {
@@ -188,48 +184,6 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
          __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Unknwon speed for the serial line\n");
          break;
    }
-
-   /*
-    *  IGNPAR  : ignore bytes with parity errors
-    *  ICRNL   : map CR to NL (otherwise a CR input on the other computer
-    *            will not terminate input) otherwise make device raw 
-    *            (no other input processing)
-    */
-   newtio.c_iflag = IGNPAR | ICRNL;
-         
-   /*
-    * Raw output.
-    */
-   newtio.c_oflag = 1;
-         
-   /*
-    * ICANON  : enable canonical input
-    * disable all echo functionality, and don't send signals to calling program
-    */
-   newtio.c_lflag = ICANON;
-
-   /* 
-    * Initialize all control characters 
-    * default values can be found in /usr/include/termios.h, and are given
-    * in the comments, but we don't need them here.
-    */
-   newtio.c_cc[VINTR]    = 0;     /* Ctrl-c */ 
-   newtio.c_cc[VQUIT]    = 0;     /* Ctrl-\ */
-   newtio.c_cc[VERASE]   = 0;     /* del */
-   newtio.c_cc[VKILL]    = 0;     /* @ */
-   newtio.c_cc[VEOF]     = 4;     /* Ctrl-d */
-   newtio.c_cc[VTIME]    = 0;     /* inter-character timer unused */
-   newtio.c_cc[VMIN]     = 1;     /* blocking read until 1 character arrives */
-   newtio.c_cc[VSWTC]    = 0;     /* '\0' */
-   newtio.c_cc[VSTART]   = 0;     /* Ctrl-q */ 
-   newtio.c_cc[VSTOP]    = 0;     /* Ctrl-s */
-   newtio.c_cc[VSUSP]    = 0;     /* Ctrl-z */
-   newtio.c_cc[VEOL]     = 0;     /* '\0' */
-   newtio.c_cc[VREPRINT] = 0;     /* Ctrl-r */
-   newtio.c_cc[VDISCARD] = 0;     /* Ctrl-u */
-   newtio.c_cc[VWERASE]  = 0;     /* Ctrl-w */
-   newtio.c_cc[VLNEXT]   = 0;     /* Ctrl-v */
-   newtio.c_cc[VEOL2]    = 0;     /* '\0' */
 
    /* 
     * clean the serial line and activate the settings for the port
@@ -277,19 +231,16 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
       __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Device successfully opened for reading, fd=%d\n", po_hi_c_driver_serial_fd_read);
    }
 
-   tcgetattr (po_hi_c_driver_serial_fd_read, &oldtio);  /* save current serial port settings */
-   memset (&newtio, '\0', sizeof(newtio));                /* clear struct for new port settings */
-        
-   /* 
-    * BAUDRATE: Set bps rate. You could also use cfsetispeed and cfsetospeed.
-    * CRTSCTS : output hardware flow control (only used if the cable has
-    *           all necessary lines. See sect. 7 of Serial-HOWTO)
-    * CS8     : 8n1 (8bit,no parity,1 stopbit)
-    * CLOCAL  : local connection, no modem contol
-    * CREAD   : enable receiving characters
-    */
 
-   newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD;
+   tcgetattr (po_hi_c_driver_serial_fd_write, &oldtio);  /* save current serial port settings */
+   tcgetattr (po_hi_c_driver_serial_fd_write, &newtio);  /* save current serial port settings */
+        
+   newtio.c_cflag |= B115200 | CREAD ;
+   newtio.c_iflag = IGNPAR | IGNBRK;
+   newtio.c_lflag |= ICANON;
+   newtio.c_cc[VMIN]=1;
+   newtio.c_cc[VTIME]=0;
+   cfmakeraw (&newtio);
 
    switch (__po_hi_c_driver_serial_common_get_speed (id))
    {
@@ -318,35 +269,6 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
          break;
    }
 
-         
-   /*
-    *  IGNPAR  : ignore bytes with parity errors
-    *  ICRNL   : map CR to NL (otherwise a CR input on the other computer
-    *            will not terminate input) otherwise make device raw 
-    *            (no other input processing)
-   newtio.c_iflag = IGNPAR | ICRNL;
-    */
-         
-   /*
-    * Raw output.
-    */
-   newtio.c_oflag = 1;
-         
-   /*
-    * ICANON  : enable canonical input
-    * disable all echo functionality, and don't send signals to calling program
-   newtio.c_lflag = ICANON;
-    */
-
-   /* 
-    * Initialize all control characters 
-    * default values can be found in /usr/include/termios.h, and are given
-    * in the comments, but we don't need them here.
-    */
-
-   /* 
-    * clean the serial line and activate the settings for the port
-    */
    if (tcflush (po_hi_c_driver_serial_fd_read, TCIOFLUSH) == -1)
    {
       __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcflush()\n");
