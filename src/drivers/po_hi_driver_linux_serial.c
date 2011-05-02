@@ -60,19 +60,17 @@ void __po_hi_c_driver_serial_linux_poller (void)
 
    n = read (po_hi_c_driver_serial_fd_read, &(msg.content[0]), __PO_HI_MESSAGES_MAX_SIZE); 
 
-#ifdef __PO_HI_DEBUG_INFO
-   __PO_HI_DEBUG_INFO  ("[LINUX SERIAL] Message: 0x");
+   __PO_HI_DEBUG_DEBUG  ("[LINUX SERIAL] Message: 0x");
 
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
-      __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
+      __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
    }
-   __PO_HI_DEBUG_INFO ("\n");
-#endif
+   __PO_HI_DEBUG_DEBUG ("\n");
    
    if (n == -1)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Cannot read on socket !\n");
+      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Cannot read on socket !\n");
       return;
    }
 
@@ -94,26 +92,24 @@ void __po_hi_c_driver_serial_linux_poller (void)
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
 
-#ifdef __PO_HI_DEBUG_INFO
-   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Message after swapped port: 0x");
+   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Message after swapped port: 0x");
    for (ts = 0 ; ts < msg.length ; ts++)
    {
-        __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
+        __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
    }
-   __PO_HI_DEBUG_INFO ("\n");
+   __PO_HI_DEBUG_DEBUG ("\n");
 
-   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Received: %s\n", msg.content);
-#endif
+   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Received: %s\n", msg.content);
 
    __po_hi_unmarshall_request (&request, &msg);
 
    if (request.port > __PO_HI_NB_PORTS)
    {
-      __PO_HI_DEBUG_WARNING ("[LINUX SERIAL] Invalid port number !\n");
+      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Invalid port number !\n");
       return;
    }
 
-   __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Destination port: %d\n", request.port);
+   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Destination port: %d\n", request.port);
    __po_hi_main_deliver (&request);
 }
 #endif
