@@ -87,10 +87,11 @@ void __po_hi_c_driver_serial_linux_poller (void)
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] read() returns %d\n", n);
 
-   msg.length = n;
    swap_pointer  = (unsigned long*) &msg.content[0];
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
+
+   msg.length = n;
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Message after swapped port: 0x");
    for (ts = 0 ; ts < msg.length ; ts++)

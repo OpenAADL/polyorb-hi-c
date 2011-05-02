@@ -304,10 +304,11 @@ void __po_hi_c_driver_rasta_common_init ()
 {
    if (__po_hi_c_driver_rasta_common_is_init == 1)
    {
+      __PO_HI_DEBUG_DEBUG ("[RASTA COMMON] RASTA already initialized, pass init\n");
       return;
    }
 
-   __PO_HI_DEBUG_INFO ("[RASTA COMMON] Init\n");
+   __PO_HI_DEBUG_DEBUG ("[RASTA COMMON] Init\n");
    init_pci();
    __PO_HI_DEBUG_DEBUG ("[RASTA COMMON] Initializing RASTA ...");
   /*
