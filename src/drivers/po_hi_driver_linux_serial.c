@@ -142,13 +142,13 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
    }
    else
    {
-      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Device successfully opened for sending, fd=%d\n", po_hi_c_driver_serial_fd_write);
+      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Device %s successfully opened for sending, fd=%d\n", serialconf->devname, po_hi_c_driver_serial_fd_write);
    }
 
    tcgetattr (po_hi_c_driver_serial_fd_write, &oldtio);  /* save current serial port settings */
    tcgetattr (po_hi_c_driver_serial_fd_write, &newtio);  /* save current serial port settings */
         
-   newtio.c_cflag |= B115200 | CREAD ;
+   newtio.c_cflag |= CREAD ;
    newtio.c_iflag = IGNPAR | IGNBRK;
    newtio.c_lflag |= ICANON;
    newtio.c_cc[VMIN]=1;
@@ -225,14 +225,14 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
    }
    else
    {
-      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Device successfully opened for reading, fd=%d\n", po_hi_c_driver_serial_fd_read);
+      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Device %s successfully opened for reading, fd=%d\n", serialconf->devname , po_hi_c_driver_serial_fd_read);
    }
 
 
    tcgetattr (po_hi_c_driver_serial_fd_write, &oldtio);  /* save current serial port settings */
    tcgetattr (po_hi_c_driver_serial_fd_write, &newtio);  /* save current serial port settings */
         
-   newtio.c_cflag |= B115200 | CREAD ;
+   newtio.c_cflag |= CREAD ;
    newtio.c_iflag = IGNPAR | IGNBRK;
    newtio.c_lflag |= ICANON;
    newtio.c_cc[VMIN]=1;

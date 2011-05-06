@@ -80,7 +80,6 @@ void __po_hi_c_driver_serial_rasta_poller (void)
       __PO_HI_DEBUG_DEBUG ("%x", __po_hi_c_driver_rasta_serial_msg.content[ts]);
    }
    __PO_HI_DEBUG_DEBUG ("\n");
-   return;
 
    __po_hi_c_driver_rasta_serial_msg.length = __PO_HI_MESSAGES_MAX_SIZE;
 
