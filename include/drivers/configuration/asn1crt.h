@@ -38,7 +38,6 @@ typedef asn1SccSint32 asn1SccSint;
 
 
 typedef int flag;
-//typedef int BOOL;
 
 typedef char NullType;
 

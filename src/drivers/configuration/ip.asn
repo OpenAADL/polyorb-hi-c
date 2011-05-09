@@ -12,5 +12,18 @@ IP-Conf-T ::= SEQUENCE {
    port           Port-T
 }
 
+localhost1 IP-Conf-T ::= {
+   devname "eth0",
+   address "127.0.0.1",
+   port    5489
+}
+
+localhost2 IP-Conf-T ::= {
+   devname "eth0",
+   address "127.0.0.1",
+   port    5489
+}
+
+
 END
 

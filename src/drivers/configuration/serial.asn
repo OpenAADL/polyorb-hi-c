@@ -17,5 +17,16 @@ Serial-Conf-T ::= SEQUENCE {
    bits           INTEGER (7 .. 8) OPTIONAL,
    use-paritybit  BOOLEAN  OPTIONAL
 }
+
+linux-ttyS0 Serial-Conf-T ::= {
+   devname     "/dev/ttyS0",
+   speed       b38400
+}
+
+leon-rasta-apburasta0 Serial-Conf-T ::= {
+   devname     "/dev/apburasta0",
+   speed       b38400
+}
+
 END
 

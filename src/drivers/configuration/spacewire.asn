@@ -17,6 +17,18 @@ Spacewire-Conf-T ::= SEQUENCE {
 }
 
 
+leon-rasta-spw-sender Spacewire-Conf-T ::= {
+   devname     "/dev/grspwrasta0",
+   nodeaddr    11
+}
+
+leon-rasta-spw-receiver Spacewire-Conf-T ::= {
+   devname     "/dev/grspwrasta0",
+   nodeaddr    22
+}
+
+
+
 
 END
 
