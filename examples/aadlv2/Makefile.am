@@ -1,5 +1,5 @@
 SUBDIRS = d3.1.3-1 ping rma sunseeker producer-consumer some-types	\
-some-types-stdint flight-mgmt
+some-types-stdint flight-mgmt import
 
 SAMPLE_DIR = ${shell $(CYGPATH_U) '$(OCARINA_PREFIX)/examples/ocarina/polyorb-hi-c/aadlv2'}
 

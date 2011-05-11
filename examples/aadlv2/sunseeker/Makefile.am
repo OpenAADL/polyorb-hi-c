@@ -1,6 +1,6 @@
 C_FILES =  \
 	$(srcdir)/sunseekercontroller.c \
-	$(srcdir)/sunseekerplant.c
+	$(srcdir)/sunseekerplant.c  $(srcdir)/devicesconf.c
 
 AADL_FILES = \
            $(srcdir)/sunseeker.aadl \

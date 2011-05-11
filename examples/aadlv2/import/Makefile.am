@@ -1,6 +1,6 @@
-C_FILES= $(srcdir)/ping.ads $(srcdir)/ping.adb $(srcdir)/import.c
+C_FILES= $(srcdir)/ping.ads $(srcdir)/ping.adb $(srcdir)/import.c  $(srcdir)/devicesconf.c
 AADL_FILES = $(srcdir)/ping.aadl $(srcdir)/software.aadl
-SCENARIO_FILE=$(srcdir)/scenario.aadl
+SCENARIO_FILE=
 
 include $(srcdir)/../../Makefile.common
 

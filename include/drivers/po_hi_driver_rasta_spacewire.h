@@ -8,6 +8,8 @@
 
 #include <deployment.h>
 
+#include <drivers/configuration/spacewire.h>
+
 #ifndef __PO_HI_DRIVER_RASTA_SPACEWIRE_H__
 #define __PO_HI_DRIVER_RASTA_SPACEWIRE_H__
 

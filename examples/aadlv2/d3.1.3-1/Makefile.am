@@ -1,5 +1,8 @@
 C_FILES = $(srcdir)/toy.c
-AADL_FILES = $(srcdir)/toy_example.aadl
+AADL_FILES = $(srcdir)/toy_example.aadl \
+             $(srcdir)/toy_example_xenomai_native.aadl \
+             $(srcdir)/toy_example_xenomai_posix.aadl
+
 SCENARIO_FILES = $(srcdir)/scenario_local.aadl \
                  $(srcdir)/scenario_local_xenomai_posix.aadl \
                  $(srcdir)/scenario_local_xenomai_native.aadl

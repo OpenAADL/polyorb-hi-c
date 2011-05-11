@@ -1,4 +1,4 @@
-C_FILES = $(srcdir)/some-types-stdint.c
+C_FILES = $(srcdir)/some-types-stdint.c  $(srcdir)/devicesconf.c
 AADL_FILES = $(srcdir)/some_types_stdint.aadl $(srcdir)/software.aadl
 SCENARIO_FILE = $(srcdir)/scenario.aadl
 

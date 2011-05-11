@@ -1,4 +1,4 @@
-C_FILES = $(srcdir)/ping.c $(srcdir)/ping.h
+C_FILES = $(srcdir)/ping.c $(srcdir)/ping.h  $(srcdir)/devicesconf.c
 AADL_FILES = \
 	$(srcdir)/ping-local.aadl  \
    $(srcdir)/ping-local-xenomai-native.aadl \
