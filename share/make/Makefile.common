@@ -7,6 +7,7 @@
 # Copyright (C) 2010-2011, European Space Agency (ESA).
 #
 
+GCC_GENERIC_CFLAGS=-Wall -g
 
 all: build-node
 
@@ -38,7 +39,7 @@ endif
 
 
 GCC=$(CC)
-CFLAGS=-Wall $(USER_CFLAGS) $(TARGET_CFLAGS) -g
+CFLAGS=$(USER_CFLAGS) $(TARGET_CFLAGS)
 CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
 LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS)
 
@@ -265,6 +266,12 @@ $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(U
 	$(make-exe)
 endif
 
+ifeq ($(TARGET), compcert)
+$(BINARY): generate-asn1-deployment target-objects compile-po-hi $(GENERATED_OBJS) $(TARGET_OBJECTS)
+	for v in $(USER_OBJS); do mv ../../$$v . ; done
+	for v in $(PO_HI_OBJS); do mv $(RUNTIME_PATH)/src/$$v . ; done
+	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
+endif
 
 ifeq ($(TARGET), $(filter $(TARGET), native linux32 linux64 linux32-xenomai-posix linux32-xenomai-native))
 $(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)

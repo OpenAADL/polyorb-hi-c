@@ -80,7 +80,7 @@ typedef size_t __po_hi_stack_t;
  * Initialize tasking entities
  * Returns SUCCESS if there is no error.
  */
-int __po_hi_initialize_tasking();
+int __po_hi_initialize_tasking(void);
 
 /*
  * Create a periodic task. 
@@ -140,7 +140,7 @@ int __po_hi_create_generic_task (__po_hi_task_id    id,
  * are doing an infinite loop and never ends. It just
  * used to avoid an infinite loop in the main thread.
  */
-void __po_hi_wait_for_tasks ();
+void __po_hi_wait_for_tasks (void);
 
 /*
  * Called by a periodic task, to wait for its next period
@@ -167,7 +167,7 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task);
  /*
   * Delete all the tasks that were created within the system.
   */
-void __po_hi_tasks_killall ();
+void __po_hi_tasks_killall (void);
 
 
 #endif /* __PO_HI_TASK_H__ */ 

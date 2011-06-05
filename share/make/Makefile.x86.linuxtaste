@@ -12,7 +12,7 @@ GPROF                        =
 TARGET_SOURCES               = 
 TARGET_TRANSPORT_SOURCES     = 
 
-TARGET_CFLAGS                = -I$(LINUXTASTE_PATH)/output/target/usr/local/include -DPOSIX -D_POSIX_SOURCE -D_GNU_SOURCE -D__PO_HI_PLATFORM_LINUXTASTE
+TARGET_CFLAGS                = -I$(LINUXTASTE_PATH)/output/target/usr/local/include -DPOSIX -D_POSIX_SOURCE -D_GNU_SOURCE -D__PO_HI_PLATFORM_LINUXTASTE $(GCC_GENERIC_FLAGS)
 
 TARGET_INCLUDE               =
 

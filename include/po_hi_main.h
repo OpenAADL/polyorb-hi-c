@@ -11,7 +11,7 @@
 #ifndef __PO_HI_MAIN__
 #define __PO_HI_MAIN__
 
-int __po_hi_initialize ();
+int __po_hi_initialize (void);
 /*
  * Invoke all functions to initialize tasks 
  * and network. Return __PO_HI_SUCCESS if there
@@ -19,12 +19,12 @@ int __po_hi_initialize ();
  * __PO_HI_ERROR_PTHREAD_BARRIER.
  */
 
-void __po_hi_initialize_add_task ();
+void __po_hi_initialize_add_task (void);
 /*
  * Declare that another task has to be initialized
  */
 
-int __po_hi_wait_initialization ();
+int __po_hi_wait_initialization (void);
 /*
  * Invoked by each node to wait initialization
  * of other node. It is used by synchronize all
@@ -35,7 +35,7 @@ int __po_hi_wait_initialization ();
  */
 
 #ifdef __PO_HI_USE_GPROF
-void __po_hi_wait_end_of_instrumentation ();
+void __po_hi_wait_end_of_instrumentation (void);
 /*
  * Wait a certain amount of time to finish the 
  * execution of the system.
@@ -43,7 +43,7 @@ void __po_hi_wait_end_of_instrumentation ();
 #endif
 
 
-int __po_hi_initialize_early ();
+int __po_hi_initialize_early (void);
 /*
  * __po_hi_initialize_earlier() is used to perform
  * some early initialization, before device

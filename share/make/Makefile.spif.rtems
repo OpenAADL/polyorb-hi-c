@@ -13,7 +13,7 @@ TARGET_TRANSPORT_SOURCES     = $(POLYORB_HI_PATH)/share/config/spif-rtems/config
 TARGET_CFLAGS                = --pipe -B$(RTEMS_MAKEFILE_PATH)/lib \
 															 -specs bsp_specs -qrtems -g -Wall  \
 															 -O4 -mmultiple -mstring -mstrict-align \
-															 -g    -mcpu=860 -Dmpc860 -DRTEMS_POSIX
+															 -g    -mcpu=860 -Dmpc860 -DRTEMS_POSIX $(GCC_GENERIC_FLAGS)
 LD                           =
 TARGET_INCLUDE               = -I $(RTEMS_MAKEFILE_PATH)/lib/include/ \
 															 -I $(POLYORB_HI_PATH)/share/config/spif-rtems/

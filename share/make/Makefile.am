@@ -5,6 +5,7 @@ EXTRA_DIST=$(srcdir)/Makefile.common \
 			  $(srcdir)/Makefile.leon3-xm3 \
 			  $(srcdir)/Makefile.leon3-xtratum \
 			  $(srcdir)/Makefile.leon.rtems \
+			  $(srcdir)/Makefile.compcert \
 			  $(srcdir)/Makefile.linux32 \
 			  $(srcdir)/Makefile.linux32-xenomai-native \
 			  $(srcdir)/Makefile.linux32-xenomai-posix \

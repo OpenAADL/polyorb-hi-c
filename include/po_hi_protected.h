@@ -36,7 +36,7 @@ int __po_hi_protected_unlock (__po_hi_protected_t protected_id);
  * __PO_HI_ERROR_PTHREAD_MUTEX value
  */
 
-int __po_hi_protected_init ();
+int __po_hi_protected_init (void);
 /*
  * Initialize all variables to handle protected
  * objects in PolyORB-HI-C

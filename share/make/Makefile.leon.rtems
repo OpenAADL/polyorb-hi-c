@@ -25,7 +25,7 @@ TARGET_SOURCES               =
 #TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
 TARGET_TRANSPORT_SOURCES     = 
 
-TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS
+TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS $(GCC_GENERIC_FLAGS)
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
 LD                           = sparc-rtems-ld
@@ -56,7 +56,9 @@ target-objects:
 	$(CC) $(INCLUDE) $(TARGET_INCLUDE) -D__PO_HI_USE_GPROF -Wall -c -o po_hi_gprof_rtems_leon.o $(RUNTIME_PATH)/src/po_hi_gprof_rtems_leon.c
 else
 target-objects:
-
 endif
+
+emulate-qemu: $(BINARY)
+	qemu-system-sparc -M at697 -nographic -kernel $(BINARY).exe
 
 
