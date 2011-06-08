@@ -46,21 +46,18 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
 {
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    struct timespec ts;
-   __po_hi_time_t tmp;
 
    if (clock_gettime (CLOCK_REALTIME, &ts)!=0)
    {
       return (__PO_HI_ERROR_CLOCK);
    }
-   tmp = ts.tv_sec;
-   tmp = tmp * 1000000;
-   tmp += ts.tv_nsec / 1000;
-   *mytime = tmp;
+   
+   mytime->sec    = ts.tv_sec;
+   mytime->nsec   = ts.tv_nsec;
 
    return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)
    rtems_time_of_day    current_time;
-   __po_hi_time_t       tmp;
 
    tmp = 0;
    if (rtems_clock_get (RTEMS_CLOCK_GET_TOD, &current_time) != RTEMS_SUCCESSFUL)
@@ -68,57 +65,53 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
       __DEBUGMSG ("Error when trying to get the clock on RTEMS\n");
    }
 
-   tmp = _TOD_To_seconds (&current_time) * 1000000;
-   tmp += current_time.ticks * _TOD_Microseconds_per_tick;
+   mytime->sec  = _TOD_To_seconds (&current_time);
+   mytime->nsec =  current_time.ticks * _TOD_Microseconds_per_tick * 1000;
 
-   /*
-    * FIXME: should check this assignment
-    */
-   *mytime = (__po_hi_time_t) tmp;
-   
    return (__PO_HI_SUCCESS);
 #elif defined (XENO_NATIVE)
-   __po_hi_time_t tmp;
-   tmp = (__po_hi_time_t) (rt_timer_tsc2ns (rt_timer_read ()));
-   __DEBUGMSG ("TIMER value %llu\n", tmp);
-   tmp = tmp / 1000;
-   __DEBUGMSG ("TIMER value2 %llu\n", tmp);
-   *mytime = (__po_hi_time_t)tmp;
+   mytime->sec  = rt_timer_tsc2ns (rt_timer_read ()) / 1000000000;
+   mytime->nsec =  rt_timer_tsc2ns (rt_timer_read ()) - (mytime->sec * 1000000000);
    return (__PO_HI_SUCCESS);
 #else
    return (__PO_HI_UNAVAILABLE);
 #endif
 }
 
-__po_hi_time_t __po_hi_add_times (__po_hi_time_t left, __po_hi_time_t right)
+int __po_hi_add_times (__po_hi_time_t* result, const __po_hi_time_t* left, const __po_hi_time_t* right)
 {
-   __po_hi_time_t rtime;
-   rtime = left + right;
-   return (rtime);
+   result->sec    = left->sec + right->sec;
+   result->nsec   = left->nsec + right->nsec;
+   if (result->nsec > 1000000000)
+   {
+      result->sec = result->sec + 1;
+      result->nsec = result->nsec - 1000000000;
+   }
+   return 1;
 }
 
-__po_hi_time_t __po_hi_seconds (__po_hi_uint32_t seconds)
+int __po_hi_seconds (__po_hi_time_t* time, const __po_hi_uint32_t seconds)
 {
-   __po_hi_time_t mytime;
-   mytime = seconds * 1000000;
-   return (mytime);
+   time->sec    = seconds;
+   time->nsec   = 0;
+   return 1;
 }
 
-__po_hi_time_t __po_hi_milliseconds (__po_hi_uint32_t milliseconds)
+int __po_hi_milliseconds (__po_hi_time_t* time, const __po_hi_uint32_t milliseconds)
 {
-   __po_hi_time_t mytime;
-   mytime = milliseconds * 1000;
-   return (mytime);
+   time->sec    = milliseconds / 1000;
+   time->nsec   = (milliseconds - (time->sec * 1000)) * 1000000;
+   return 1;
 }
 
-__po_hi_time_t __po_hi_microseconds (__po_hi_uint32_t microseconds)
+int __po_hi_microseconds (__po_hi_time_t* time, const __po_hi_uint32_t microseconds)
 {
-   __po_hi_time_t mytime;
-   mytime = microseconds;
-   return (mytime);
+   time->sec    = microseconds / 1000000;
+   time->nsec   = (microseconds - (time->sec * 1000000)) * 1000;
+   return 1;
 }
 
-int __po_hi_delay_until (__po_hi_time_t time)
+int __po_hi_delay_until (const __po_hi_time_t* time)
 {
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_t mutex;
@@ -126,9 +119,9 @@ int __po_hi_delay_until (__po_hi_time_t time)
    struct timespec timer;
    int ret;
 
-   timer.tv_sec = time / 1000000;
+   timer.tv_sec = time->sec;
 
-   timer.tv_nsec = (time - (timer.tv_sec*1000000)) * 1000;
+   timer.tv_nsec = time->nsec;
 
    if (pthread_mutex_init (&mutex, NULL) != 0)
    {
@@ -170,10 +163,10 @@ int __po_hi_delay_until (__po_hi_time_t time)
    return (__PO_HI_UNAVAILABLE);
 #elif defined (XENO_NATIVE)
   int ret;
-  ret =  rt_task_sleep_until (rt_timer_ns2tsc (time * 1000));
+  ret =  rt_task_sleep_until (rt_timer_ns2tsc ( (time->sec * 1000000000) +  time->nsec));
   if (ret)
   {
-      __DEBUGMSG ("[TASK] Error in rt_task_sleep_until, ret=%d, time=%llu\n", ret, time);
+      __DEBUGMSG ("[TASK] Error in rt_task_sleep_until, ret=%d\n", ret);
       return (__PO_HI_ERROR_PTHREAD_COND);
   }
   return (__PO_HI_SUCCESS);
@@ -181,3 +174,28 @@ int __po_hi_delay_until (__po_hi_time_t time)
    return (__PO_HI_UNAVAILABLE);
 #endif
 }
+
+int __po_hi_time_is_greater (const __po_hi_time_t* value, const __po_hi_time_t* limit)
+{
+   if (value->sec > limit->sec)
+   {
+      return 1;
+   }
+   if (value->sec == limit->sec)
+   {
+      if (value->nsec > limit->nsec)
+      {
+         return 1;
+      }
+   }
+   return 0;
+}
+
+int __po_hi_time_copy (__po_hi_time_t* dst, const __po_hi_time_t* src)
+{
+   dst->sec = src->sec;
+   dst->nsec = src->nsec;
+   return (__PO_HI_SUCCESS);
+}
+
+

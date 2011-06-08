@@ -94,11 +94,11 @@ int __po_hi_initialize_tasking(void);
  * This function returns SUCCESS if there is no error. Else, 
  * it returns the negative value ERROR_CREATE_TASK.
  */
-int __po_hi_create_periodic_task (__po_hi_task_id      id, 
-                                  __po_hi_time_t       period, 
-                                  __po_hi_priority_t   priority, 
-                                  __po_hi_stack_t      stack_size,
-                                 void*                (*start_routine)(void));
+int __po_hi_create_periodic_task (const __po_hi_task_id      id, 
+                                  const __po_hi_time_t*      period, 
+                                  const __po_hi_priority_t   priority, 
+                                  const __po_hi_stack_t      stack_size,
+                                  void*                (*start_routine)(void));
 
 /*
  * Create a sporadic task. 
@@ -111,11 +111,11 @@ int __po_hi_create_periodic_task (__po_hi_task_id      id,
  * Returns SUCCESS value if there is no error. Else, returns the negative
  * value ERROR_CREATE_TASK
  */
-int __po_hi_create_sporadic_task (__po_hi_task_id      id,
-				  __po_hi_time_t       period, 
-				  __po_hi_priority_t   priority, 
-				  __po_hi_stack_t      stack_size,
-				  void*                (*start_routine)(void));
+int __po_hi_create_sporadic_task (const __po_hi_task_id      id,
+				                      const __po_hi_time_t*      period, 
+                                  const __po_hi_priority_t   priority, 
+                                  const __po_hi_stack_t      stack_size,
+                                  void*                      (*start_routine)(void));
 
 /*
  * Create a generic task
@@ -128,11 +128,11 @@ int __po_hi_create_sporadic_task (__po_hi_task_id      id,
  * Returns SUCCESS value if there is no error. Else, returns the negative
  * value ERROR_CREATE_TASK
  */
-int __po_hi_create_generic_task (__po_hi_task_id    id, 
-                                 __po_hi_time_t     period, 
-                                 __po_hi_priority_t priority, 
-                                 __po_hi_stack_t   stack_size,
-                                 void*              (*start_routine)(void));
+int __po_hi_create_generic_task (const __po_hi_task_id      id, 
+                                 const __po_hi_time_t*      period, 
+                                 const __po_hi_priority_t   priority, 
+                                 const __po_hi_stack_t      stack_size,
+                                 void*                (*start_routine)(void));
 
 /*
  * Wait the end of all tasks.
@@ -155,7 +155,7 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task);
  * Return SUCCESS if there is no error. Else, it returns
  * a negative value : ERROR_CLOCK or ERROR_PTHREAD_COND
  */
- int __po_hi_task_delay_until (__po_hi_time_t time, __po_hi_task_id task);
+ int __po_hi_task_delay_until (__po_hi_time_t* time, __po_hi_task_id task);
 
 /*
  * Computer the next period for a task, according to the period

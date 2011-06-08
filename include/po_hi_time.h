@@ -24,7 +24,11 @@
 #endif
 
 
-typedef __po_hi_uint64_t __po_hi_time_t;
+typedef struct
+{
+   __po_hi_uint32_t     sec;     /* amount of second     */
+   __po_hi_uint32_t     nsec;    /* amount of nanosecond */
+}__po_hi_time_t;
 /*
  * Represent the time in PolyORB-HI.
  *
@@ -35,6 +39,10 @@ typedef __po_hi_uint64_t __po_hi_time_t;
  * The granularity of the time is in microsecond (10^-6)
  */
 
+#define __PO_HI_TIME_TO_US(value) ((value.sec*1000000)+(value.nsec / 1000))
+
+#define __PO_HI_TIME_TO_MS(value) ((value.sec*1000)+(value.nsec / 1000000))
+
 int __po_hi_get_time (__po_hi_time_t* mytime);
 /*
  * Get the current time and store informations
@@ -43,40 +51,51 @@ int __po_hi_get_time (__po_hi_time_t* mytime);
  * (ERROR_CLOCK). Else, returns a positive value.
  */
 
-__po_hi_time_t __po_hi_add_times (__po_hi_time_t left, 
-				  __po_hi_time_t right);
+int __po_hi_add_times (__po_hi_time_t* result,
+                       const __po_hi_time_t* left,
+                       const __po_hi_time_t* right);
 /*
  * Add the two structures given in parameter. The returned
  * value is the result of the operation.
  */
 
-__po_hi_time_t __po_hi_seconds (__po_hi_uint32_t seconds);
+int __po_hi_seconds (__po_hi_time_t* time,
+                     const __po_hi_uint32_t seconds);
 /*
  * Build a __po_hi_time_t value which contains the
  * amount of time (in seconds) represented by the
  * argument seconds.
  */
 
-__po_hi_time_t __po_hi_milliseconds (__po_hi_uint32_t milliseconds);
+int __po_hi_milliseconds  (__po_hi_time_t* time,
+                           const __po_hi_uint32_t milliseconds);
 /*
  * Build a __po_hi_time_t value which contains the
  * amount of time (in milliseconds) represented by the
  * argument milliseconds.
  */
 
-__po_hi_time_t __po_hi_microseconds (__po_hi_uint32_t microseconds);
+int __po_hi_microseconds  (__po_hi_time_t* time, 
+                           const __po_hi_uint32_t microseconds);
 /*
  * Build a __po_hi_time_t value which contains the
  * amount of time (in microseconds) represented by the
  * argument microseconds.
  */
 
-int __po_hi_delay_until (__po_hi_time_t time);
+int __po_hi_delay_until (const __po_hi_time_t* time);
 /*
  * sleep until the time given in argument.
  * Return SUCCESS if there is no error. Else, it returns
  * a negative value : ERROR_CLOCK or ERROR_PTHREAD_COND
  */
+
+int __po_hi_time_copy (__po_hi_time_t* dst, const __po_hi_time_t* src);
+/*
+ * Copy a time value from src to dst.
+ * Returns __PO_HI_SUCCESS if successful.
+ */
+
 
 #ifdef NEED_CLOCK_GETTIME
 #define CLOCK_REALTIME 0
@@ -85,6 +104,14 @@ int clock_gettime(int clk_id, struct timespec *tp);
 /*
  * If the system doesn't support the clock_gettime function, we
  * emulate it. For example, Darwin does not support it
+ */
+
+
+int __po_hi_time_is_greater (const __po_hi_time_t* value, const __po_hi_time_t* limit);
+/*
+ * Indicates if a time value is greater than an other.
+ * Returns 1 if value is greater than limit.
+ * Returns 0 otherwise.
  */
 
 #endif /* __PO_HI_TIME_H__ */

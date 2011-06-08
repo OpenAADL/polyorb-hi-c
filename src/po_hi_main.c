@@ -18,6 +18,7 @@
 #include <po_hi_task.h>
 #include <po_hi_debug.h>
 #include <po_hi_protected.h>
+#include <po_hi_utils.h>
 /* included files from PolyORB-HI-C */
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
@@ -82,6 +83,7 @@ void __po_hi_initialize_add_task ()
 
 int __po_hi_initialize_early ()
 {
+
 #if defined (XENO_POSIX) || defined (XENO_NATIVE)
    /*
     * Once initialization has been done, we avoid ALL 
@@ -189,7 +191,6 @@ int __po_hi_initialize_early ()
   __po_hi_protected_init();
 #endif
 
-
    return (__PO_HI_SUCCESS);
 }
 
@@ -263,6 +264,7 @@ int __po_hi_initialize ()
       }
    }
 #endif
+
   return (__PO_HI_SUCCESS);
 }
 
@@ -296,6 +298,9 @@ int __po_hi_wait_initialization ()
   }
   pthread_cond_broadcast (&cond_init);
   pthread_mutex_unlock (&mutex_init);
+
+   __PO_HI_INSTRUMENTATION_VCD_INIT
+
   return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE) 
   rtems_status_code ret;

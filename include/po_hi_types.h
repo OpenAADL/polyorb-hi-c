@@ -42,11 +42,15 @@ typedef double __po_hi_float64_t;
   typedef int8_t     __po_hi_int8_t;
   typedef int16_t    __po_hi_int16_t;
   typedef int32_t    __po_hi_int32_t;
+#ifndef COMPCERT
   typedef int64_t    __po_hi_int64_t;
+#endif
   typedef uint8_t    __po_hi_uint8_t;
   typedef uint16_t   __po_hi_uint16_t;
   typedef uint32_t   __po_hi_uint32_t;
+#ifndef COMPCERT
   typedef uint64_t   __po_hi_uint64_t;
+#endif
 #else
 
 /*

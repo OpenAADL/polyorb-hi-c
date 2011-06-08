@@ -15,6 +15,7 @@
 #include <po_hi_transport.h>
 #include <po_hi_debug.h>
 #include <po_hi_gqueue.h>
+#include <po_hi_utils.h>
 /* Headers from PolyORB-HI-C */
 
 #include <deployment.h>
@@ -219,6 +220,8 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
                                          __po_hi_request_t* request)
 {
    __po_hi_request_t* ptr;
+   __po_hi_request_t* tmp;
+   __po_hi_uint32_t   size;
 #ifdef RTEMS_PURE
    rtems_status_code ret;
 #endif
@@ -275,11 +278,16 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
          __PO_HI_DEBUG_CRITICAL ("[GQUEUE] QUEUE FULL, task-id=%d, port=%d", id, port);
          return __PO_HI_ERROR_QUEUE_FULL;
       }
+      tmp = (__po_hi_request_t*) &__po_hi_gqueues[id][port];
+      size = __po_hi_gqueues_woffsets[id][port] + __po_hi_gqueues_first[id][port];
 
-      memcpy ((void *)&__po_hi_gqueues[id][port] + ( (__po_hi_gqueues_woffsets[id][port] + __po_hi_gqueues_first[id][port])  * sizeof (*request) ) , request, sizeof (*request));
+      tmp = tmp + size * (sizeof (*request));
+      memcpy (tmp , request, sizeof (*request));
       __po_hi_gqueues_woffsets[id][port] =  (__po_hi_gqueues_woffsets[id][port] + 1 ) % __po_hi_gqueues_sizes[id][port];
 
       __po_hi_gqueues_used_size[id][port]++;
+
+      __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueues_used_size[id][port], id, port); 
 
       __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_woffset[id]] = port;
       __po_hi_gqueues_global_history_woffset[id] = (__po_hi_gqueues_global_history_woffset[id] + 1 ) % __po_hi_gqueues_total_fifo_size[id];
@@ -337,7 +345,10 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
 
    while(__po_hi_gqueues_queue_is_empty[id] == 1)
    {
+
+      __PO_HI_INSTRUMENTATION_VCD_WRITE("0t%d\n", id); 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+
       pthread_cond_wait (&__po_hi_gqueues_conds[id],
             &__po_hi_gqueues_mutexes[id]);
 #elif defined (XENO_NATIVE)
@@ -357,6 +368,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
 
 #endif
 
+      __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", id); 
    }
    *port = __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_offset[id]];
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
@@ -441,7 +453,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
    else
    {
       memcpy (request, 
-             (void *)&__po_hi_gqueues[id][port] + ( __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port] )* sizeof (__po_hi_request_t), 
+             ((__po_hi_request_t *) &__po_hi_gqueues[id][port]) + ( __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port] )* sizeof (__po_hi_request_t), 
             sizeof (__po_hi_request_t));
    }
     
@@ -525,6 +537,8 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
       % __po_hi_gqueues_sizes[id][port];
 
    __po_hi_gqueues_used_size[id][port]--;
+
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueues_used_size[id][port], id, port); 
 
    if (__po_hi_gqueues_used_size[id][port] == 0)
    {

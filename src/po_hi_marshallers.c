@@ -112,6 +112,7 @@ void __po_hi_unmarshall_array (void* value, __po_hi_msg_t* msg,__po_hi_uint32_t 
         *offset = *offset + size; 
 }
 
+#ifndef COMPCERT
 /*
  * __po_hi_bool_t marshallers
  */
@@ -127,6 +128,7 @@ void __po_hi_unmarshall_bool (__po_hi_bool_t* value, __po_hi_msg_t* msg,__po_hi_
   __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_bool_t));
   *offset = *offset + sizeof (__po_hi_bool_t); 
 }
+#endif
 
 /*
  * char marshallers
@@ -332,6 +334,7 @@ void __po_hi_unmarshall_int32 (__po_hi_int32_t* value, __po_hi_msg_t* msg,__po_h
         *offset = *offset + sizeof (__po_hi_int32_t); 
 }
 
+#ifndef COMPCERT
 /*
  * __po_hi_int64_t marshallers
  */
@@ -347,6 +350,7 @@ void __po_hi_unmarshall_int64 (__po_hi_int64_t* value, __po_hi_msg_t* msg,__po_h
         __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_int64_t));
         *offset = *offset + sizeof (__po_hi_int64_t); 
 }
+#endif
 
 
 /*
@@ -428,6 +432,7 @@ void __po_hi_unmarshall_uint32 (__po_hi_uint32_t* value, __po_hi_msg_t* msg,__po
         *offset = *offset + sizeof (__po_hi_uint32_t); 
 }
 
+#ifndef COMPCERT
 /*
  * __po_hi_uint64_t marshallers
  */
@@ -443,3 +448,5 @@ void __po_hi_unmarshall_uint64 (__po_hi_uint64_t* value, __po_hi_msg_t* msg,__po
         __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_uint64_t));
         *offset = *offset + sizeof (__po_hi_uint64_t); 
 }
+#endif
+

@@ -6,6 +6,7 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2007-2008, GET-Telecom Paris.
+ * Copyright (C) 2011, European Space Agency.
  */
 
 #include <po_hi_config.h>
@@ -14,6 +15,8 @@
 #include <po_hi_debug.h>
 #include <po_hi_task.h>
 #include <po_hi_types.h>
+#include <po_hi_utils.h>
+
 #include <deployment.h>
 
 #ifndef __PO_HI_NB_PROTECTED
@@ -93,11 +96,15 @@ int __po_hi_protected_init ()
 
 int __po_hi_protected_lock (__po_hi_protected_t protected_id)
 {
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("1w%d\n", protected_id); 
    if (pthread_mutex_lock (&__po_hi_protected_mutexes[protected_id]) != 0 )
    {
+      __PO_HI_INSTRUMENTATION_VCD_WRITE("0w%d\n", protected_id); 
       __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when lock protected resource %d\n", protected_id);
       return __PO_HI_ERROR_PROTECTED_LOCK;
    }
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("0w%d\n", protected_id); 
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("1l%d\n", protected_id); 
 
    __PO_HI_DEBUG_DEBUG ("[PROTECTED] Successfully lock protected resource %d\n", protected_id);
    return __PO_HI_SUCCESS;
@@ -105,6 +112,8 @@ int __po_hi_protected_lock (__po_hi_protected_t protected_id)
 
 int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
 {
+
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("0l%d\n", protected_id); 
   if (pthread_mutex_unlock (&__po_hi_protected_mutexes[protected_id]) != 0 )
     {
       __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when unlock protected resource %d\n", protected_id);

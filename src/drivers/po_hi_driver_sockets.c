@@ -420,6 +420,8 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
    char               *tmp;
    __po_hi_uint16_t   dev;
    __po_hi_time_t     mytime;
+   __po_hi_time_t     tmptime;
+   __po_hi_time_t     current_time;
    struct sockaddr_in sa;
    struct hostent*    hostinfo;
 
@@ -592,9 +594,11 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
           * remote host
           */
 
-         __po_hi_get_time (&mytime);
+         __po_hi_get_time (&current_time);
+         __po_hi_milliseconds (&tmptime, 500);
+         __po_hi_add_times (&mytime, &current_time, &tmptime);
          __DEBUGMSG ("[DRIVER SOCKETS] Cannot connect on device %d, wait 500ms\n", dev);
-         __po_hi_delay_until (__po_hi_add_times (mytime, __po_hi_milliseconds (500)));
+         __po_hi_delay_until (&mytime);
       }
    }
 

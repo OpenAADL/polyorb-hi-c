@@ -1,14 +1,16 @@
-TARGET_CFLAGS   = -DPOSIX -D_POSIX_SOURCE -D_GNU_SOURCE -DCOMPCERT  
+TARGET_CFLAGS   = -DPOSIX -D_POSIX_SOURCE -D_GNU_SOURCE $(GCC_GENERIC_FLAGS) -D__PO_HI_USE_VCD
 TARGET_LDFLAGS  =  -lpthread -lrt
 SIMULINK_LDFLAGS  = -lm
-CC              = ccomp
-LD              = ccomp
+CC              = gcc
+LD              = ld
 GPROF           = gprof
 
 
 ifdef USE_GPROF
 TARGET_LDFLAGS+=-pg
 endif
+
+
 
 target-clean:
 

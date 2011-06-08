@@ -22,6 +22,7 @@
 #include <po_hi_debug.h>
 #include <po_hi_returns.h>
 #include <po_hi_types.h>
+#include <po_hi_utils.h>
 /* Header files in PolyORB-HI */
 
 #include <deployment.h>	
@@ -94,7 +95,8 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
     {
       return (__PO_HI_ERROR_CLOCK);
     }
-  tasks[task].timer = __po_hi_add_times( mytime, tasks[task].period );
+
+   __po_hi_add_times(&(tasks[task].timer), &mytime, &tasks[task].period );
   
   return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)
@@ -130,11 +132,14 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
 {
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
   int ret;
-  __po_hi_task_delay_until (tasks[task].timer, task);
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("0t%d\n", task); 
+  __po_hi_task_delay_until (&(tasks[task].timer), task);
   if ( (ret = __po_hi_compute_next_period (task)) != 1)
     {
       return (__PO_HI_ERROR_CLOCK);
     }
+
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", task); 
 
   return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)
@@ -172,7 +177,6 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
    {
       return (__PO_HI_ERROR_TASK_PERIOD);
    }
-
    return (__PO_HI_SUCCESS);
 #else
   return (__PO_HI_UNAVAILABLE);
@@ -185,7 +189,7 @@ int __po_hi_initialize_tasking( )
 
   for (i = 0; i < __PO_HI_NB_TASKS; i++)
   {
-     tasks[i].period = 0;
+     __po_hi_seconds (&(tasks[i].period), 0);
      tasks[i].id     = invalid_task_id; 
 #ifdef RTEMS_PURE
       tasks[i].ratemon_period = RTEMS_INVALID_ID;
@@ -337,11 +341,11 @@ RT_TASK __po_hi_xenomai_create_thread (__po_hi_priority_t priority,
 #endif
 
 
-int __po_hi_create_generic_task (__po_hi_task_id    id, 
-                                 __po_hi_time_t     period, 
-                                 __po_hi_priority_t priority, 
-                                 __po_hi_stack_t   stack_size,
-                                 void*              (*start_routine)(void))
+int __po_hi_create_generic_task (const __po_hi_task_id      id, 
+                                 const __po_hi_time_t*      period, 
+                                 const __po_hi_priority_t   priority, 
+                                 const __po_hi_stack_t      stack_size,
+                                 void*                (*start_routine)(void))
 {
   __po_hi_task_t* my_task;
   if (id == -1) 
@@ -367,7 +371,7 @@ int __po_hi_create_generic_task (__po_hi_task_id    id,
   else
     {
       my_task         = &(tasks[id]);
-      my_task->period = period;
+      __po_hi_time_copy (&(my_task->period), period);
       my_task->id     = id;
      
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
@@ -386,11 +390,11 @@ int __po_hi_create_generic_task (__po_hi_task_id    id,
   return (__PO_HI_SUCCESS);
 }
 
-int __po_hi_create_periodic_task (__po_hi_task_id    id, 
-				  __po_hi_time_t     period, 
-				  __po_hi_priority_t priority, 
-				  __po_hi_stack_t    stack_size,
-				  void*              (*start_routine)(void))
+int __po_hi_create_periodic_task (const __po_hi_task_id     id, 
+                                  const __po_hi_time_t*     period, 
+                                  const __po_hi_priority_t  priority, 
+                                  const __po_hi_stack_t     stack_size,
+                                  void*                     (*start_routine)(void))
 {
    if (__po_hi_create_generic_task( id, period , priority , stack_size, start_routine ) != 1)
    {
@@ -411,7 +415,7 @@ int __po_hi_create_periodic_task (__po_hi_task_id    id,
 
    int ret;
 
-   ret = rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW,  tasks[id].period * 1000);
+   ret = rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW,  (tasks[id].period.sec * 1000000000) + tasks[id].period.nsec);
    if (ret != 0)
    {
       __DEBUGMSG ("ERROR when calling rt_task_set_periodic on task %d, ret=%d, period=%lu\n", id, ret, (unsigned long)tasks[id].period);
@@ -427,11 +431,11 @@ int __po_hi_create_periodic_task (__po_hi_task_id    id,
   return (__PO_HI_SUCCESS);
 }
 
-int __po_hi_create_sporadic_task (__po_hi_task_id    id,
-				  __po_hi_time_t     period, 
-				  __po_hi_priority_t priority, 
-				  __po_hi_stack_t    stack_size,
-				  void*              (*start_routine)(void) )
+int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
+                                  const __po_hi_time_t*     period, 
+                                  const __po_hi_priority_t  priority, 
+                                  const __po_hi_stack_t     stack_size,
+                                  void*                     (*start_routine)(void) )
 {
   /*
    * Create generic task which will execute the routine given in the
@@ -446,7 +450,7 @@ int __po_hi_create_sporadic_task (__po_hi_task_id    id,
 #if defined (XENO_NATIVE)
    int ret;
 
-   ret = rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW,  tasks[id].period * 1000);
+   ret = rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW,  tasks[id].period.sec * 1000000000 + tasks[id].period.nsec);
    if (ret != 0)
    {
       __DEBUGMSG ("ERROR when calling rt_task_set_periodic on task %d, ret=%d, period=%lu\n", id, ret, (unsigned long)tasks[id].period);
@@ -462,15 +466,15 @@ int __po_hi_create_sporadic_task (__po_hi_task_id    id,
   return (__PO_HI_SUCCESS);
 }
 
-int __po_hi_task_delay_until (__po_hi_time_t time, __po_hi_task_id task)
+int __po_hi_task_delay_until (__po_hi_time_t* time, __po_hi_task_id task)
 {
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
   struct timespec timer;
   int ret;
 
-  timer.tv_sec = time / 1000000;
+  timer.tv_sec = time->sec;
   
-  timer.tv_nsec = (time - (timer.tv_sec*1000000)) * 1000;
+  timer.tv_nsec = time->nsec;
 
   pthread_mutex_lock (&tasks[task].mutex);
   
@@ -490,7 +494,7 @@ int __po_hi_task_delay_until (__po_hi_time_t time, __po_hi_task_id task)
   return (ret);
 #elif defined (XENO_NATIVE)
   int ret;
-  ret =  rt_task_sleep_until (time * 1000);
+  ret =  rt_task_sleep_until (time->sec * 1000000000 + time->nsec);
   if (ret)
   {
       __DEBUGMSG ("[TASK] Error in rt_task_sleep_until, ret=%d\n", ret);
@@ -516,3 +520,5 @@ void __po_hi_tasks_killall ()
 #endif
     }
 }
+
+
