@@ -37,8 +37,9 @@
 #include <string.h>
 /* Linux-specific files */
 
-int po_hi_c_driver_serial_fd_read;
-int po_hi_c_driver_serial_fd_write;
+int      po_hi_c_driver_serial_fd_read;
+int      po_hi_c_driver_serial_fd_write;
+uint32_t po_hi_c_driver_serial_sending_wait;
 
 #if defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_RECEIVER)
@@ -124,6 +125,8 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
    struct termios             oldtio,newtio;
    __po_hi_c_serial_conf_t*   serialconf;
 
+   po_hi_c_driver_serial_sending_wait = 0;
+
    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init sender\n");
 
    serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
@@ -132,6 +135,12 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
    {
       __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Cannot get the configuration of the device !\n");
       return;
+   }
+
+   if (serialconf->exist.sending_wait == 1)
+   {
+      po_hi_c_driver_serial_sending_wait = (uint32_t) serialconf->sending_wait;
+      __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Set sending delay to %u!\n",po_hi_c_driver_serial_sending_wait);
    }
 
    po_hi_c_driver_serial_fd_write = open (serialconf->devname, O_WRONLY | O_NOCTTY | O_NDELAY);
@@ -229,8 +238,8 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
    }
 
 
-   tcgetattr (po_hi_c_driver_serial_fd_write, &oldtio);  /* save current serial port settings */
-   tcgetattr (po_hi_c_driver_serial_fd_write, &newtio);  /* save current serial port settings */
+   tcgetattr (po_hi_c_driver_serial_fd_read, &oldtio);  /* save current serial port settings */
+   tcgetattr (po_hi_c_driver_serial_fd_read, &newtio);  /* save current serial port settings */
         
    newtio.c_cflag |= CREAD ;
    newtio.c_iflag = IGNPAR | IGNBRK;
@@ -330,7 +339,19 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
 
-   n = write (po_hi_c_driver_serial_fd_write, &msg, __PO_HI_MESSAGES_MAX_SIZE);
+   if (po_hi_c_driver_serial_sending_wait != 0)
+   {
+      for (n = 0 ; n < __PO_HI_MESSAGES_MAX_SIZE ; n++)
+      {
+         write (po_hi_c_driver_serial_fd_write, &(msg.content[n]), 1);
+         usleep (po_hi_c_driver_serial_sending_wait);
+      }
+
+   }
+   else
+   {
+      n = write (po_hi_c_driver_serial_fd_write, &msg, __PO_HI_MESSAGES_MAX_SIZE);
+   }
 
    __PO_HI_DEBUG_DEBUG  ("[LINUX SERIAL] write() returns %d, message sent: 0x", n);
 

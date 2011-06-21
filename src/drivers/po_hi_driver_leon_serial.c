@@ -47,64 +47,31 @@ void __po_hi_c_driver_serial_leon_poller (void)
    int ts;
    int tr;
 
-   unsigned long* swap_pointer;
-   unsigned long swap_value;
-
    __po_hi_msg_t msg;
    __po_hi_request_t request;
 
-   __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] Hello, i'm the serial poller , must read %d bytes!\n", __PO_HI_MESSAGES_MAX_SIZE);
+   __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] Hello, i'm the serial poller , must read %d bytes on %d !\n", __PO_HI_MESSAGES_MAX_SIZE, po_hi_c_driver_leon_serial_fd_read);
 
    __po_hi_msg_reallocate (&msg);
 
-
-   tr = 0; 
-
+   tr = 0;
    while (tr < __PO_HI_MESSAGES_MAX_SIZE)
    {
-      n = read (po_hi_c_driver_leon_serial_fd_read, &(msg.content[tr]), 1); 
-      if (n == -1)
-      {
-         __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Cannot read on serial\n");
-      }
-      if (n == 1)
+      if (read (po_hi_c_driver_leon_serial_fd_read, &(msg.content[tr]), 1) == 1)
       {
          tr++;
       }
    }
 
-#ifdef __PO_HI_DEBUG_INFO
-   __PO_HI_DEBUG_INFO  ("[LEON SERIAL] Message: 0x");
-
-   for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
-   {
-      __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
-   }
-   __PO_HI_DEBUG_INFO ("\n");
-#endif
-   
-
-   if (tr != __PO_HI_MESSAGES_MAX_SIZE)
-   {
-      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Inconsistent received message size (received %d bytes)!\n", n);
-   }
-
-   __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] read() syscall returns in total %d\n", tr);
-
-   msg.length = n;
-   swap_pointer  = (unsigned long*) &msg.content[0];
-   swap_value    = *swap_pointer;
-   *swap_pointer = __po_hi_swap_byte (swap_value);
-
-#ifdef __PO_HI_DEBUG_INFO
-   __PO_HI_DEBUG_INFO ("[LEON SERIAL] Message after swapped port: 0x");
+   msg.length = __PO_HI_MESSAGES_MAX_SIZE;
+  __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] read() syscall returns in total %d, received: ", tr);
+#ifdef __PO_HI_DEBUG_DEBUG
+   __PO_HI_DEBUG_DEBUG("[LEON SERIAL] Message received: 0x");
    for (ts = 0 ; ts < msg.length ; ts++)
    {
-        __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
+        __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
    }
-   __PO_HI_DEBUG_INFO ("\n");
-
-   __PO_HI_DEBUG_INFO ("[LEON SERIAL] Received: %s\n", msg.content);
+   __PO_HI_DEBUG_DEBUG ("\n");
 #endif
 
    __po_hi_unmarshall_request (&request, &msg);
@@ -147,47 +114,29 @@ void __po_hi_c_driver_serial_leon_init_sender (__po_hi_device_id id)
 
    if (po_hi_c_driver_leon_serial_fd_write < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", serialconf->devname);
+      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s for writing\n", serialconf->devname);
    }
    else
    {
-      __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] Device %s successfully opened, fd=%d\n", serialconf->devname, po_hi_c_driver_leon_serial_fd_write);
+      __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] Device %s successfully opened for writing, fd=%d\n", serialconf->devname, po_hi_c_driver_leon_serial_fd_write);
    }
-
-   tcgetattr (po_hi_c_driver_leon_serial_fd_write, &oldtio);  /* save current serial port settings */
-   memset (&newtio, '\0', sizeof(newtio));                /* clear struct for new port settings */
+   tcgetattr (po_hi_c_driver_leon_serial_fd_write, &oldtio); 
+   memset (&newtio, '\0', sizeof(newtio));                
         
-   /* 
-    * BAUDRATE: Set bps rate. You could also use cfsetispeed and cfsetospeed.
-    * CRTSCTS : output hardware flow control (only used if the cable has
-    *           all necessary lines. See sect. 7 of Serial-HOWTO)
-    * CS8     : 8n1 (8bit,no parity,1 stopbit)
-    * CLOCAL  : local connection, no modem contol
-    * CREAD   : enable receiving characters
-    */
+   newtio.c_cflag |= CREAD ;
+   newtio.c_iflag = IGNPAR | IGNBRK;
+   newtio.c_lflag |= ICANON;
+   newtio.c_cc[VMIN]=1;
+   newtio.c_cc[VTIME]=0;
+   newtio.c_cflag |= B38400;
 
-   newtio.c_cflag = CRTSCTS | CS8 | CLOCAL;
-   /* 
-    *  IGNPAR  : ignore bytes with parity errors
-    *  ICRNL   : map CR to NL (otherwise a CR input on the other computer
-    *            will not terminate input) otherwise make device raw 
-    *            (no other input processing)
-    */
-   newtio.c_iflag = IGNPAR | ICRNL;
-         
-   /*
-    * Raw output.
-    */
-   newtio.c_oflag = OCRNL;
-         
-   /*
-    * ICANON  : enable canonical input
-    * disable all echo functionality, and don't send signals to calling program
-   newtio.c_lflag = ICANON;
-    */
-   newtio.c_lflag = ~( ICANON | ECHO | ECHONL | ECHOK | ECHOE | ECHOPRT | ECHOCTL );
-   newtio.c_cc[VMIN] = 5;
-   newtio.c_cc[VTIME] = 20;
+   newtio.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
+         | INLCR | IGNCR | ICRNL | IXON);
+   newtio.c_oflag &= ~OPOST;
+   newtio.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+   newtio.c_cflag &= ~(CSIZE | PARENB);
+   newtio.c_cflag |= CS8;
+
 
 
    if (tcsetattr (po_hi_c_driver_leon_serial_fd_write, TCSANOW, &newtio) == -1)
@@ -195,16 +144,13 @@ void __po_hi_c_driver_serial_leon_init_sender (__po_hi_device_id id)
       __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error in tcsetattr()\n");
    }
 
-   /* 
-    * clean the serial line and activate the settings for the port
-    */
    if (tcflush (po_hi_c_driver_leon_serial_fd_write, TCIOFLUSH) == -1)
    {
       __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error in tcflush()\n");
    }
 
 
-    __PO_HI_DEBUG_INFO ("[LEON SERIAL] End of init\n");
+    __PO_HI_DEBUG_INFO ("[LEON SERIAL] End of sender init\n");
 }
 #endif
 
@@ -232,55 +178,32 @@ void __po_hi_c_driver_serial_leon_init_receiver (__po_hi_device_id id)
       return;
    }
 
-   po_hi_c_driver_leon_serial_fd_read = open (serialconf->devname, O_RDONLY | O_NOCTTY);
+   po_hi_c_driver_leon_serial_fd_read = open (serialconf->devname, O_RDONLY);
 
    if (po_hi_c_driver_leon_serial_fd_read < 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", serialconf->devname);
+      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s for reading\n", serialconf->devname);
    }
    else
    {
-      __PO_HI_DEBUG_INFO ("[LEON SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_leon_serial_fd_read);
+      __PO_HI_DEBUG_INFO ("[LEON SERIAL] Device %s successfully opened for receiving, fd=%d\n", serialconf->devname, po_hi_c_driver_leon_serial_fd_read);
    }
 
    tcgetattr (po_hi_c_driver_leon_serial_fd_read, &oldtio);  /* save current serial port settings */
-   memset (&newtio, '\0', sizeof(newtio));                /* clear struct for new port settings */
-        
-   /* 
-    * BAUDRATE: Set bps rate. You could also use cfsetispeed and cfsetospeed.
-    * CRTSCTS : output hardware flow control (only used if the cable has
-    *           all necessary lines. See sect. 7 of Serial-HOWTO)
-    * CS8     : 8n1 (8bit,no parity,1 stopbit)
-    * CLOCAL  : local connection, no modem contol
-    * CREAD   : enable receiving characters
-    */
+   tcgetattr (po_hi_c_driver_leon_serial_fd_read, &newtio);  /* save current serial port settings */
+   newtio.c_cflag |= CREAD ;
+   newtio.c_iflag = IGNPAR | IGNBRK;
+   newtio.c_lflag |= ICANON;
+   newtio.c_cc[VMIN]=1;
+   newtio.c_cc[VTIME]=0;
+   newtio.c_cflag |= B38400;
+   newtio.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
+         | INLCR | IGNCR | ICRNL | IXON);
+   newtio.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+   newtio.c_cflag &= ~(CSIZE | PARENB);
+   newtio.c_cflag |= CS8;
 
-   newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD;
-         
-   /*
-    *  IGNPAR  : ignore bytes with parity errors
-    *  ICRNL   : map CR to NL (otherwise a CR input on the other computer
-    *            will not terminate input) otherwise make device raw 
-    *            (no other input processing)
-   newtio.c_iflag = IGNPAR | ICRNL;
-    */
-         
-   /*
-    * Raw output.
-    */
-   newtio.c_oflag = 1;
-         
-   /*
-    * ICANON  : enable canonical input
-    * disable all echo functionality, and don't send signals to calling program
-   newtio.c_lflag = ICANON;
-    */
-
-   /* 
-    * Initialize all control characters 
-    * default values can be found in /usr/include/termios.h, and are given
-    * in the comments, but we don't need them here.
-    */
+   newtio.c_cflag |= B38400;
 
    /* 
     * clean the serial line and activate the settings for the port
@@ -295,7 +218,7 @@ void __po_hi_c_driver_serial_leon_init_receiver (__po_hi_device_id id)
       __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error in tcsetattr()\n");
    }
 
-    __PO_HI_DEBUG_INFO ("[LEON SERIAL] End of init\n");
+    __PO_HI_DEBUG_INFO ("[LEON SERIAL] End of receiver init\n");
 }
 #endif
 
@@ -304,106 +227,8 @@ void __po_hi_c_driver_serial_leon_init_receiver (__po_hi_device_id id)
 
 void __po_hi_c_driver_serial_leon_init (__po_hi_device_id id)
 {
-   struct                     termios oldtio,newtio;
-   __po_hi_c_serial_conf_t*   serialconf;
-
-   __PO_HI_DEBUG_INFO ("[LEON SERIAL] Init both sender and receiver\n");
-
-   serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
-
-   if (serialconf == NULL)
-   {
-      __PO_HI_DEBUG_INFO ("[LEON SERIAL] Cannot get the name of the device !\n");
-      return;
-   }
-
-   if (__po_hi_c_driver_serial_common_get_speed (id) != __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400)
-   {
-      __PO_HI_DEBUG_INFO ("[LEON SERIAL] This driver handles only a speed of 38400, exiting initialization !\n");
-      return;
-   }
-
-   po_hi_c_driver_leon_serial_fd_read = po_hi_c_driver_leon_serial_fd_write = open( serialconf->devname, O_RDWR | O_NOCTTY | O_NONBLOCK);
-
-   if (po_hi_c_driver_leon_serial_fd_read < 0)
-   {
-      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error while opening device %s\n", serialconf->devname);
-   }
-   else
-   {
-      __PO_HI_DEBUG_INFO ("[LEON SERIAL] Device successfully opened, fd=%d\n", po_hi_c_driver_leon_serial_fd_read);
-   }
-
-   tcgetattr (po_hi_c_driver_leon_serial_fd_read, &oldtio);  /* save current serial port settings */
-   memset (&newtio, '\0', sizeof(newtio));                /* clear struct for new port settings */
-        
-   /* 
-    * BAUDRATE: Set bps rate. You could also use cfsetispeed and cfsetospeed.
-    * CRTSCTS : output hardware flow control (only used if the cable has
-    *           all necessary lines. See sect. 7 of Serial-HOWTO)
-    * CS8     : 8n1 (8bit,no parity,1 stopbit)
-    * CLOCAL  : local connection, no modem contol
-    * CREAD   : enable receiving characters
-    */
-
-   newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD;
-         
-   /*
-    *  IGNPAR  : ignore bytes with parity errors
-    *  ICRNL   : map CR to NL (otherwise a CR input on the other computer
-    *            will not terminate input) otherwise make device raw 
-    *            (no other input processing)
-    */
-   newtio.c_iflag = IGNPAR | ICRNL;
-         
-   /*
-    * Raw output.
-    */
-   newtio.c_oflag = 1;
-         
-   /*
-    * ICANON  : enable canonical input
-    * disable all echo functionality, and don't send signals to calling program
-    */
-   newtio.c_lflag = ICANON;
-
-   /* 
-    * Initialize all control characters 
-    * default values can be found in /usr/include/termios.h, and are given
-    * in the comments, but we don't need them here.
-    */
-   newtio.c_cc[VINTR]    = 0;     /* Ctrl-c */ 
-   newtio.c_cc[VQUIT]    = 0;     /* Ctrl-\ */
-   newtio.c_cc[VERASE]   = 0;     /* del */
-   newtio.c_cc[VKILL]    = 0;     /* @ */
-   newtio.c_cc[VEOF]     = 4;     /* Ctrl-d */
-   newtio.c_cc[VTIME]    = 0;     /* inter-character timer unused */
-   newtio.c_cc[VMIN]     = 1;     /* blocking read until 1 character arrives */
-   newtio.c_cc[VSWTC]    = 0;     /* '\0' */
-   newtio.c_cc[VSTART]   = 0;     /* Ctrl-q */ 
-   newtio.c_cc[VSTOP]    = 0;     /* Ctrl-s */
-   newtio.c_cc[VSUSP]    = 0;     /* Ctrl-z */
-   newtio.c_cc[VEOL]     = 0;     /* '\0' */
-   newtio.c_cc[VREPRINT] = 0;     /* Ctrl-r */
-   newtio.c_cc[VDISCARD] = 0;     /* Ctrl-u */
-   newtio.c_cc[VWERASE]  = 0;     /* Ctrl-w */
-   newtio.c_cc[VLNEXT]   = 0;     /* Ctrl-v */
-   newtio.c_cc[VEOL2]    = 0;     /* '\0' */
-
-   /* 
-    * clean the serial line and activate the settings for the port
-    */
-   if (tcflush (po_hi_c_driver_leon_serial_fd_read, TCIOFLUSH) == -1)
-   {
-      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error in tcflush()\n");
-   }
-
-   if (tcsetattr (po_hi_c_driver_leon_serial_fd_read, TCSANOW, &newtio) == -1)
-   {
-      __PO_HI_DEBUG_CRITICAL ("[LEON SERIAL] Error in tcsetattr()\n");
-   }
-
-    __PO_HI_DEBUG_INFO ("[LEON SERIAL] End of init\n");
+   __po_hi_c_driver_serial_leon_init_receiver (id);
+   __po_hi_c_driver_serial_leon_init_sender (id);
 }
 #endif
 
@@ -415,8 +240,6 @@ int  __po_hi_c_driver_serial_leon_sender (__po_hi_task_id task_id, __po_hi_port_
 {
    int n;
    int ts;
-   unsigned long* swap_pointer;
-   unsigned long swap_value;
    __po_hi_local_port_t local_port;
    __po_hi_request_t* request;
    __po_hi_msg_t msg;
@@ -434,12 +257,7 @@ int  __po_hi_c_driver_serial_leon_sender (__po_hi_task_id task_id, __po_hi_port_
 
    __po_hi_marshall_request (request, &msg);
 
-   /* Swap only the port (first 32 bytes) */
-   swap_pointer  = (unsigned long*) &msg.content[0];
-   swap_value    = *swap_pointer;
-   *swap_pointer = __po_hi_swap_byte (swap_value);
-
-   n = write (po_hi_c_driver_leon_serial_fd_write, &msg, __PO_HI_MESSAGES_MAX_SIZE);
+   n = write (po_hi_c_driver_leon_serial_fd_write, &(msg.content[0]), __PO_HI_MESSAGES_MAX_SIZE);
 
 #ifdef __PO_HI_DEBUG_INFO
    __PO_HI_DEBUG_INFO  ("[LEON SERIAL] Message sent: 0x");

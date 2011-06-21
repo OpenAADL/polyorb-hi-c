@@ -209,7 +209,7 @@ void __po_hi_gqueue_store_out (__po_hi_task_id id,
 
    request->port = __PO_HI_GQUEUE_OUT_PORT;
    ptr = &__po_hi_gqueues_most_recent_values[id][port];
-   memcpy (ptr, request, sizeof (*request));
+   memcpy (ptr, request, sizeof (__po_hi_request_t));
    __PO_HI_DEBUG_DEBUG ("__po_hi_gqueue_store_out() from task %d on port %d\n", id, port);
 }
 
@@ -278,11 +278,13 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
          __PO_HI_DEBUG_CRITICAL ("[GQUEUE] QUEUE FULL, task-id=%d, port=%d", id, port);
          return __PO_HI_ERROR_QUEUE_FULL;
       }
+
       tmp = (__po_hi_request_t*) &__po_hi_gqueues[id][port];
       size = __po_hi_gqueues_woffsets[id][port] + __po_hi_gqueues_first[id][port];
 
       tmp = tmp + size * (sizeof (*request));
-      memcpy (tmp , request, sizeof (*request));
+
+      memcpy (tmp , request, sizeof (__po_hi_request_t));
       __po_hi_gqueues_woffsets[id][port] =  (__po_hi_gqueues_woffsets[id][port] + 1 ) % __po_hi_gqueues_sizes[id][port];
 
       __po_hi_gqueues_used_size[id][port]++;
@@ -397,9 +399,9 @@ int __po_hi_gqueue_get_count( __po_hi_task_id id, __po_hi_local_port_t port)
    }
 }
 
-int __po_hi_gqueue_get_value( __po_hi_task_id id, 
-      __po_hi_local_port_t port, 
-      __po_hi_request_t* request)
+int __po_hi_gqueue_get_value (__po_hi_task_id      id, 
+                              __po_hi_local_port_t port, 
+                              __po_hi_request_t*   request)
 {
    __po_hi_request_t* ptr;
 #ifdef RTEMS_PURE
@@ -452,9 +454,8 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
    }
    else
    {
-      memcpy (request, 
-             ((__po_hi_request_t *) &__po_hi_gqueues[id][port]) + ( __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port] )* sizeof (__po_hi_request_t), 
-            sizeof (__po_hi_request_t));
+      ptr = ((__po_hi_request_t *) &__po_hi_gqueues[id][port]) +  __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port]; 
+      memcpy (request, ptr, sizeof (__po_hi_request_t));
    }
     
    
