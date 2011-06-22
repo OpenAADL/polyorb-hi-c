@@ -44,8 +44,9 @@ uint32_t po_hi_c_driver_serial_sending_wait;
 #if defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_RECEIVER)
 
-void __po_hi_c_driver_serial_linux_poller (void)
+void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
 {
+   (void) dev_id;
    int n;
    int ts;
 
@@ -341,6 +342,7 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    if (po_hi_c_driver_serial_sending_wait != 0)
    {
+      printf("Wait %u between two sends\n", po_hi_c_driver_serial_sending_wait);
       for (n = 0 ; n < __PO_HI_MESSAGES_MAX_SIZE ; n++)
       {
          write (po_hi_c_driver_serial_fd_write, &(msg.content[n]), 1);

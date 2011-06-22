@@ -71,7 +71,7 @@ void po_hi_c_driver_rasta_spacewire_init_pkt(__po_hi_c_driver_spacewire_pkt_hdr_
 }
 
 
-void __po_hi_c_driver_spacewire_rasta_poller (void)
+void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
 {
    int len;
    int j;

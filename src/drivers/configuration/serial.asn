@@ -15,7 +15,7 @@ Serial-Conf-T ::= SEQUENCE {
    speed          Baudrate-T OPTIONAL,
    parity         Parity-T OPTIONAL,
    bits           INTEGER (7 .. 8) OPTIONAL,
-   sending-wait   INTEGER (0 .. 100000) OPTIONAL,
+   sending-wait   INTEGER (0 .. 9000000) OPTIONAL,
    use-paritybit  BOOLEAN  OPTIONAL
 }
 

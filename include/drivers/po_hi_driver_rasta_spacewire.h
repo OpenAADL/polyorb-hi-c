@@ -3,7 +3,7 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * Copyright (C) 2010, European Space Agency
+ * Copyright (C) 2010-2011, European Space Agency
  */
 
 #include <deployment.h>
@@ -27,7 +27,7 @@ typedef struct {
    unsigned char data[__PO_HI_DRIVER_RASTA_SPACEWIRE_PKTSIZE];
 }__po_hi_c_driver_spacewire_pkt_hdr_t;
 
-void __po_hi_c_driver_spacewire_rasta_poller (void);
+void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id);
 
 void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id);
 

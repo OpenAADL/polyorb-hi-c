@@ -3,7 +3,7 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * Copyright (C) 2010, European Space Agency
+ * Copyright (C) 2010-2011, European Space Agency
  */
 
 #include <deployment.h>
@@ -71,7 +71,7 @@ void* __po_hi_sockets_receiver_task (void);
  * and dispatch it in po-hi-c queues
  */
 
-void* __po_hi_sockets_poller (void);
+void* __po_hi_sockets_poller (const __po_hi_device_id dev_id);
 /*
  * Generic poller for PO-HI-C protocol.
  */

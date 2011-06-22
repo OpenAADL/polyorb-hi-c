@@ -46,9 +46,9 @@ int po_hi_c_driver_rasta_serial_fd_write;
 __po_hi_msg_t        __po_hi_c_driver_rasta_serial_msg;
 __po_hi_request_t    __po_hi_c_driver_rasta_serial_request;
 
-void __po_hi_c_driver_serial_rasta_poller (void)
+void __po_hi_c_driver_serial_rasta_poller (const __po_hi_device_id dev_id)
 {
-
+   (void) dev_id;
    int n;
    int ts;
    uint8_t* ptr;

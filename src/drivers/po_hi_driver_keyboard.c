@@ -26,8 +26,9 @@
 #include <po_hi_debug.h>
 
 
-void __po_hi_driver_generic_keyboard_poller (int* key_pressed)
+void __po_hi_driver_generic_keyboard_poller (const __po_hi_device_id dev_id, int* key_pressed)
 {
+   (void) dev_id;
    int key;
    __DEBUGMSG ("POLL THE KEYBOARD\n");
    key = getch ();

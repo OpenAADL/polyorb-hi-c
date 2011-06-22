@@ -163,8 +163,9 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 }
 
 
-void* __po_hi_sockets_poller (void)
+void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
 {
+   (void) dev_id;
    __DEBUGMSG ("Poller launched, device-id=%d\n", socket_device_id);
    socklen_t          socklen = sizeof (struct sockaddr);
    /* See ACCEPT (2) for details on initial value of socklen */

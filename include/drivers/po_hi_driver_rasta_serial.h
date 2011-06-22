@@ -13,7 +13,7 @@
 
 #ifdef __PO_HI_NEED_DRIVER_SERIAL_RASTA
 
-void __po_hi_c_driver_serial_rasta_poller (void);
+void __po_hi_c_driver_serial_rasta_poller (const __po_hi_device_id dev_id);
 
 void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id);
 

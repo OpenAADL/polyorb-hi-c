@@ -13,7 +13,7 @@
 
 #ifdef __PO_HI_NEED_DRIVER_GENERIC_KEYBOARD
 
-void __po_hi_driver_generic_keyboard_poller (int* key_pressed);
+void __po_hi_driver_generic_keyboard_poller (const __po_hi_device_id dev_id, int* key_pressed);
 
 void __po_hi_driver_generic_keyboard_init (__po_hi_device_id id);
 

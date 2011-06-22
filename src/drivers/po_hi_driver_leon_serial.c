@@ -41,11 +41,13 @@ int po_hi_c_driver_leon_serial_fd_write;
 #if defined (__PO_HI_NEED_DRIVER_SERIAL_LEON) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_RECEIVER)
 
-void __po_hi_c_driver_serial_leon_poller (void)
+void __po_hi_c_driver_serial_leon_poller (const __po_hi_device_id dev_id)
 {
    int n;
    int ts;
    int tr;
+
+   (void) dev_id;
 
    __po_hi_msg_t msg;
    __po_hi_request_t request;
