@@ -14,7 +14,7 @@ all: build-node
 include $(RUNTIME_PATH)/make/Makefile.$(TARGET)
 -include ../../userdefined.mk
 
-build-node: compile-c-files compile-ada-files compile-node
+build-node: compile-c-files compile-ada-files compile-node generate-doc
 
 ################################################################################
 # Configuration
@@ -302,6 +302,11 @@ clean: target-clean
 	if test ! "$(CLEANDIRS)" = "";  then \
 	  rm -rf $(CLEANDIRS); \
 	fi
+
+generate-doc:
+	if [ -d generated-documentation ]; then rm  -rf generated-documentation ; fi
+	if [ -x `which doxygen` ]; then ` which doxygen` doxygen.cfg ; fi
+
 
 ifdef USE_GPROF
 gprof:
