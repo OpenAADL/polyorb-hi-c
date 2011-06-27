@@ -305,7 +305,7 @@ clean: target-clean
 
 generate-doc:
 	if [ -d generated-documentation ]; then rm  -rf generated-documentation ; fi
-	if [ -x `which doxygen` ]; then ` which doxygen` doxygen.cfg ; fi
+	( DOXYBIN=`which doxygen 2>/dev/null` && if [ -x "$$DOXYBIN" ]; then ` which doxygen` doxygen.cfg ; fi ) || exit 0
 
 
 ifdef USE_GPROF
