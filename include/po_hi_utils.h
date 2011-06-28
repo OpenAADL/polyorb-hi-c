@@ -60,11 +60,11 @@ void __po_hi_instrumentation_vcd_init (void);
          st = __PO_HI_TIME_TO_US(__po_hi_vcd_start_time); ct = __PO_HI_TIME_TO_US(__po_hi_vcd_current_time); et = ct - st ; \
          memset (buf, '\0', 1024); \
          size_to_write = sprintf (buf, "#%llu\n", et); \
-         write (__po_hi_vcd_file, buf, size_to_write); printf (buf);\
+         write (__po_hi_vcd_file, buf, size_to_write);\
 \
          memset (buf, '\0', 1024); \
          size_to_write = sprintf (buf, s, ##args); \
-         write (__po_hi_vcd_file, buf, size_to_write); printf(buf);  \
+         write (__po_hi_vcd_file, buf, size_to_write);  \
       }                                                   \
       pthread_mutex_unlock (&__po_hi_vcd_mutex); \
    }
