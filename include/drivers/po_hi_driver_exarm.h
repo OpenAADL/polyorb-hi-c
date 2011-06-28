@@ -22,7 +22,6 @@ int __po_hi_driver_exarm_send (__po_hi_task_id task, __po_hi_port_t port);
  */
 
 void __po_hi_driver_exarm_init (__po_hi_device_id id);
-#endif
 
 #endif
 
