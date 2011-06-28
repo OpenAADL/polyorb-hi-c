@@ -87,7 +87,7 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
          s = sizeof (request->vars);
          for (i = 0 ; i < s ; i+=4)
          {
-            printf("%x", *tmp);
+            __DEBUGMSG("%x", *tmp);
             tmp++;
             fflush (stdout);
          }
