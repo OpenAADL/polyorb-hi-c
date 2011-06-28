@@ -282,9 +282,10 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
       tmp = (__po_hi_request_t*) &__po_hi_gqueues[id][port];
       size = __po_hi_gqueues_woffsets[id][port] + __po_hi_gqueues_first[id][port];
 
-      tmp = tmp + size * (sizeof (*request));
+      tmp = tmp + size;
 
       memcpy (tmp , request, sizeof (__po_hi_request_t));
+
       __po_hi_gqueues_woffsets[id][port] =  (__po_hi_gqueues_woffsets[id][port] + 1 ) % __po_hi_gqueues_sizes[id][port];
 
       __po_hi_gqueues_used_size[id][port]++;
