@@ -70,12 +70,12 @@ void __po_hi_c_driver_serial_rasta_poller (const __po_hi_device_id dev_id)
    int                  n;
    int                  ts;
    uint8_t*             ptr;
-   __po_hi_request_t    __po_hi_c_driver_rasta_serial_request;
-   __po_hi_msg_t        __po_hi_c_driver_rasta_serial_msg;
+   __po_hi_request_t    request;
+   __po_hi_msg_t        msg;
 
    ts = __PO_HI_MESSAGES_MAX_SIZE;
-   ptr = &(__po_hi_c_driver_rasta_serial_msg.content[0]);
-   __po_hi_msg_reallocate (&__po_hi_c_driver_rasta_serial_msg);
+   ptr = &(msg.content[0]);
+   __po_hi_msg_reallocate (&msg);
    while (ts > 0)
    {
       __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Poller waits for incoming message (%d bytes are required)!\n", ts);
@@ -94,19 +94,16 @@ void __po_hi_c_driver_serial_rasta_poller (const __po_hi_device_id dev_id)
       }
    }
 
-   __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Message received by poller: 0x");
-   for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
+   msg.length = __PO_HI_MESSAGES_MAX_SIZE;
+
+   __po_hi_unmarshall_request (&request,
+                               &msg);
+
+   if (request.port > __PO_HI_NB_PORTS)
    {
-      __PO_HI_DEBUG_DEBUG ("%x", __po_hi_c_driver_rasta_serial_msg.content[ts]);
+      __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Invalid port number (%d), will not deliver", request.port);
    }
-   __PO_HI_DEBUG_DEBUG ("\n");
-
-   __po_hi_c_driver_rasta_serial_msg.length = __PO_HI_MESSAGES_MAX_SIZE;
-
-   __po_hi_unmarshall_request (&__po_hi_c_driver_rasta_serial_request,
-                               &__po_hi_c_driver_rasta_serial_msg);
-
-   __po_hi_main_deliver (&__po_hi_c_driver_rasta_serial_request);
+   __po_hi_main_deliver (&request);
 }
 
 extern amba_confarea_type* __po_hi_driver_rasta_common_get_bus ();
@@ -259,17 +256,9 @@ int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const _
    __po_hi_msg_reallocate (&msg);
 
    request->port = destination_port;
-   __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Destination port= %d\n", destination_port);
+   __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Destination port= %d, send through device %d (fd=%d)\n", destination_port, dev_id, po_hi_c_driver_rasta_serial_fd_write[dev_id]);
 
    __po_hi_marshall_request (request, &msg);
-
-   __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Message sent: 0x");
-   for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
-   {
-      __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
-   }
-
-   __PO_HI_DEBUG_DEBUG ("\n");
 
    n = write (po_hi_c_driver_rasta_serial_fd_write[dev_id], &msg, __PO_HI_MESSAGES_MAX_SIZE);
 

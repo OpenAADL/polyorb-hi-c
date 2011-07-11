@@ -289,7 +289,6 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
       __po_hi_gqueues_woffsets[id][port] =  (__po_hi_gqueues_woffsets[id][port] + 1 ) % __po_hi_gqueues_sizes[id][port];
 
       __po_hi_gqueues_used_size[id][port]++;
-
       __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueues_used_size[id][port], id, port); 
 
       __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_woffset[id]] = port;

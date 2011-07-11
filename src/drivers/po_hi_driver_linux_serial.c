@@ -61,14 +61,6 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
    __po_hi_msg_reallocate (&msg);
 
    n = read (po_hi_c_driver_serial_fd_read, &(msg.content[0]), __PO_HI_MESSAGES_MAX_SIZE); 
-
-   __PO_HI_DEBUG_DEBUG  ("[LINUX SERIAL] Message: 0x");
-
-   for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
-   {
-      __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
-   }
-   __PO_HI_DEBUG_DEBUG ("\n");
    
    if (n == -1)
    {
@@ -89,6 +81,15 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] read() returns %d\n", n);
 
+
+
+   __PO_HI_DEBUG_DEBUG  ("[LINUX SERIAL] Message: 0x");
+
+   for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
+   {
+      __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
+   }
+   __PO_HI_DEBUG_DEBUG ("\n");
    swap_pointer  = (unsigned long*) &msg.content[0];
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
