@@ -24,10 +24,35 @@ linux-ttyS0 Serial-Conf-T ::= {
    speed       b38400
 }
 
+
+linux-ttyUSB0 Serial-Conf-T ::= {
+   devname     "/dev/ttyUSB0",
+   speed       b38400
+}
+
+
+linux-ttyUSB1 Serial-Conf-T ::= {
+   devname     "/dev/ttyUSB1",
+   speed       b38400
+}
+
+
+linux-ttyUSB2 Serial-Conf-T ::= {
+   devname     "/dev/ttyUSB2",
+   speed       b38400
+}
+
+
 leon-rasta-apburasta0 Serial-Conf-T ::= {
    devname     "/dev/apburasta0",
    speed       b38400
 }
+
+leon-rasta-apburasta1 Serial-Conf-T ::= {
+   devname     "/dev/apburasta1",
+   speed       b38400
+}
+
 
 END
 
