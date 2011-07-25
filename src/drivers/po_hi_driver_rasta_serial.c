@@ -121,6 +121,8 @@ void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg);
 
 void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 {
+   uint32_t max_size;
+
    __po_hi_c_serial_conf_t* serialconf;
 
    __po_hi_c_driver_rasta_common_init ();
@@ -188,9 +190,14 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BLOCKING, APBUART_BLK_RX | APBUART_BLK_TX | APBUART_BLK_FLUSH);
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd, APBUART_SET_BLOCKING, APBUART_BLK_FLUSH | APBUART_BLK_RX);
   */
+
+   max_size = 1024;
+#ifdef __PO_HI_MESSAGES_MAX_SIZE
+   max_size = 4 * __PO_HI_MESSAGES_MAX_SIZE;
+#endif
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd_read[id], APBUART_SET_BLOCKING, APBUART_BLK_FLUSH | APBUART_BLK_TX );
-  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd_read[id], APBUART_SET_TXFIFO_LEN, 256);  /* Transmitt buffer 64 chars */
-  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd_read[id], APBUART_SET_RXFIFO_LEN, 256); /* Receive buffer 256 chars */
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd_read[id], APBUART_SET_TXFIFO_LEN, max_size);
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd_read[id], APBUART_SET_RXFIFO_LEN, max_size);
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd_read[id], APBUART_SET_ASCII_MODE, 0); /* Make \n go \n\r or \r\n */
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd_read[id], APBUART_CLR_STATS, 0);
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_serial_fd_read[id], APBUART_START, 0);
