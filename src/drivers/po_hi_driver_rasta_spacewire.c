@@ -45,47 +45,27 @@
 
 #define __PO_HI_DRIVER_SPACEWIRE_RASTA_DEVICE "/dev/grspwrasta0"
 
-static unsigned char po_hi_c_driver_spacewire_rxpkt[__PO_HI_DRIVER_RASTA_SPACEWIRE_PKTSIZE * __PO_HI_DRIVER_RASTA_SPACEWIRE_RXPKT_BUF];
-static __po_hi_c_driver_spacewire_pkt_hdr_t po_hi_c_driver_spacewire_txpkts[1];
 
-int po_hi_c_driver_rasta_spacewire_fd;
-
-void po_hi_c_driver_rasta_spacewire_init_pkt(__po_hi_c_driver_spacewire_pkt_hdr_t *p, __po_hi_port_t destination_port)
-{
-   unsigned int dst_node_addr;
-   __po_hi_c_spacewire_conf_t* dst_conf;
-
-   dst_conf = (__po_hi_c_spacewire_conf_t*) __po_hi_get_device_configuration 
-               (__po_hi_get_device_from_port (destination_port));
-
-   dst_node_addr = dst_conf->nodeaddr;
-
-   p->addr = dst_node_addr;
-
-  __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Init packet with destination address address %d !\n", p->addr);
-
-  p->protid = 50;
-  p->dummy = 0x01;
-  p->channel = 0x01;
-  memset (p->data, '\0', __PO_HI_DRIVER_RASTA_SPACEWIRE_PKTSIZE);
-}
-
+int po_hi_c_driver_rasta_spacewire_fd[__PO_HI_NB_DEVICES];
 
 void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
 {
    int len;
    int j;
+   int ts;
 
    __po_hi_msg_t msg;
    __po_hi_request_t request;
 
    __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Hello, i'm the spacewire poller !\n");
 
-   len = read (po_hi_c_driver_rasta_spacewire_fd,
-               &po_hi_c_driver_spacewire_rxpkt[0],
-               __PO_HI_DRIVER_RASTA_SPACEWIRE_PKTSIZE * __PO_HI_DRIVER_RASTA_SPACEWIRE_RXPKT_BUF);
+   __po_hi_msg_reallocate (&msg);
 
-   __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Poller reveived a message !\n");
+   len = read (po_hi_c_driver_rasta_spacewire_fd[dev_id],
+               &msg.content[0],
+               __PO_HI_MESSAGES_MAX_SIZE);
+
+   __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Poller received a message, len=%d\n", len);
    if (len < 0)
    {
       __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Error while reading\n");
@@ -93,18 +73,15 @@ void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
    else
    {
 
-      /* skip first 2bytes (vchan and dummy) */
-      if ( (po_hi_c_driver_spacewire_rxpkt[0]==1) && (po_hi_c_driver_spacewire_rxpkt[1]==1) )
+      __PO_HI_DEBUG_DEBUG ("Message content: |0x");
+      for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
       {
-         j=2; /* strip virtual channel protocol, non-ssspw device */
+         __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
       }
-      else
-      {
-         j=0; /* hardware uses virtual channel protocol, hw already stripped it */
-      }
+      __PO_HI_DEBUG_DEBUG ("|\n");
 
-      memcpy (&msg.content, &po_hi_c_driver_spacewire_rxpkt[j], __PO_HI_MESSAGES_MAX_SIZE + j);
 
+      msg.length = __PO_HI_MESSAGES_MAX_SIZE;
       __po_hi_unmarshall_request (&request, &msg);
 
       __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Destination port: %d\n", request.port);
@@ -124,32 +101,19 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
    unsigned int node_addr;
    __po_hi_c_spacewire_conf_t* drv_conf;
 
-   drv_conf = (__po_hi_c_spacewire_conf_t*) __po_hi_get_device_configuration 
-               (id);
+   drv_conf = (__po_hi_c_spacewire_conf_t*) __po_hi_get_device_configuration (id);
 
    node_addr = drv_conf->nodeaddr;
-
 
    __PO_HI_DEBUG_INFO ("[RASTA SPACEWIRE] Init, node address=%d\n", node_addr);
 
    __po_hi_c_driver_rasta_common_init ();
 
-    /* provide the spacewire driver with AMBA Plug&Play
-     * info so that it can find the GRSPW cores.
-     */
-   /*
-    grspw_rasta_int_reg=__po_hi_rasta_interrrupt_register;
-    if ( grspw_rasta_register(__po_hi_driver_rasta_common_get_bus (),__po_hi_driver_rasta_bar1) ){
-      __PO_HI_DEBUG_CRITICAL ("Failed to register RASTA GRSPW driver\n\r");
-      return;
-    }
-    */
+   __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Open spacewire device %s ...", drv_conf->devname);
 
-   __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Open spacewire device ...");
+   po_hi_c_driver_rasta_spacewire_fd[id] = open (drv_conf->devname, O_RDWR);
 
-   po_hi_c_driver_rasta_spacewire_fd = open (__PO_HI_DRIVER_SPACEWIRE_RASTA_DEVICE, O_RDWR);
-
-   if (po_hi_c_driver_rasta_spacewire_fd < 0)
+   if (po_hi_c_driver_rasta_spacewire_fd[id] < 0)
    {
       __PO_HI_DEBUG_DEBUG (" ERROR !\n");
       return;
@@ -159,25 +123,51 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
 
    __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Configure spacewire device node address = %d ...", node_addr);
 
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd,SPACEWIRE_IOCTRL_SET_COREFREQ,30000); 
-   /* make driver calculate timings from 30MHz spacewire clock */
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd,SPACEWIRE_IOCTRL_SET_NODEADDR, node_addr);
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd,SPACEWIRE_IOCTRL_SET_RXBLOCK,0);
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd,SPACEWIRE_IOCTRL_SET_TXBLOCK,0);
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd,SPACEWIRE_IOCTRL_SET_TXBLOCK_ON_FULL,1);
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd,SPACEWIRE_IOCTRL_SET_RM_PROT_ID,1);
-   /* remove protocol id */
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd,SPACEWIRE_IOCTRL_START,2000);
+/*
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_COREFREQ, 0);                 // Core frequency in KHz (0 = full speed)
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_CLKDIV, 2);                   // Clock division factor
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_RMAPEN, 1);                   // No RMAP
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_NODEADDR, node_addr);         // Not necessary
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_RXBLOCK, 1);                  // Blocking read
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_CHECK_RMAP, 0);               // Do not check RMAP CRC
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_RM_PROT_ID, 0);               // Do not remove protocol id
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_TXBLOCK, 0);                  // Non blocking write
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_TXBLOCK_ON_FULL, 1);          // Blocking write if full
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_PROMISCUOUS, 1);              // Receive from any source
+*/
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_COREFREQ,30000); 
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_NODEADDR, node_addr);
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_RXBLOCK,0);
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_TXBLOCK,0);
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_TXBLOCK_ON_FULL,1);
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_RM_PROT_ID,0);
+
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id], SPACEWIRE_IOCTRL_SET_PROMISCUOUS, 1);              // Receive from any source
+
+
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_START,2000);
+
+   perror ("spw start");
 }
 
 int __po_hi_c_driver_spacewire_rasta_sender (const __po_hi_task_id task_id, const __po_hi_port_t port)
 {
    int len = -1;
    int i;
-   __po_hi_local_port_t local_port;
-   __po_hi_request_t* request;
-   __po_hi_msg_t msg;
-   __po_hi_port_t destination_port;
+   __po_hi_local_port_t    local_port;
+   __po_hi_request_t*      request;
+   __po_hi_msg_t           msg;
+   __po_hi_port_t          destination_port;
+
+   __po_hi_device_id       dev_id;
+
+   dev_id = __po_hi_get_device_from_port (port);
+
+   if (dev_id == invalid_device_id)
+   {
+      __PO_HI_DEBUG_DEBUG ("[RASTA SPW] Invalid device id for sending\n");
+      return __PO_HI_UNAVAILABLE;
+   }
 
    local_port = __po_hi_get_local_port_from_global_port (port);
 
@@ -197,18 +187,7 @@ int __po_hi_c_driver_spacewire_rasta_sender (const __po_hi_task_id task_id, cons
 
    __po_hi_marshall_request (request, &msg);
 
-   __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Send packet destination port = %d ...", destination_port);
-
-   for(i=0; i<1; i++)
-   {
-      po_hi_c_driver_rasta_spacewire_init_pkt (&po_hi_c_driver_spacewire_txpkts[i], destination_port);
-
-      __PO_HI_DEBUG_DEBUG ("destination node = %d ...", po_hi_c_driver_spacewire_txpkts[i].addr);
-   }
-
-   memcpy (po_hi_c_driver_spacewire_txpkts[0].data, &msg, __PO_HI_MESSAGES_MAX_SIZE);
-
-   len = write (po_hi_c_driver_rasta_spacewire_fd, po_hi_c_driver_spacewire_txpkts, __PO_HI_DRIVER_RASTA_SPACEWIRE_PKTSIZE + 4);
+   len = write (po_hi_c_driver_rasta_spacewire_fd[dev_id], msg.content, __PO_HI_MESSAGES_MAX_SIZE);
 
    if (len < 0)
    {

@@ -37,6 +37,7 @@
 #define SPW_SEND_PACKET_SIZE    512
 
 int                  __po_hi_c_driver_usb_brick_fd[__PO_HI_NB_DEVICES];
+int                  __po_hi_c_driver_usb_brick_port[__PO_HI_NB_DEVICES];
 star_device_handle   __po_hi_c_driver_usb_brick_star_device[__PO_HI_NB_DEVICES];
 
 int __po_hi_driver_usbbrick_spw_init  (star_device_handle *phDevice,   /* Pointer to device handler */
@@ -101,7 +102,7 @@ void __po_hi_c_driver_spw_usb_brick_poller (const __po_hi_device_id dev_id)
    __po_hi_msg_t msg;
    __po_hi_request_t request;
 
-   __PO_HI_DEBUG_DEBUG ("[USB-SPW] Hello, i'm the serial poller , must read %d bytes!\n", __PO_HI_MESSAGES_MAX_SIZE);
+   __PO_HI_DEBUG_DEBUG ("[USB-SPW] Hello, i'm the spacewire poller on the brick, must read %d bytes!\n", __PO_HI_MESSAGES_MAX_SIZE);
 
    __po_hi_msg_reallocate (&msg);
 
@@ -177,8 +178,19 @@ void __po_hi_c_driver_spw_usb_brick_poller (const __po_hi_device_id dev_id)
 void __po_hi_c_driver_spw_usb_brick_init (__po_hi_device_id id)
 {
    int i;
+   __po_hi_c_spacewire_conf_t* drv_conf;
+
+   drv_conf = (__po_hi_c_spacewire_conf_t*) __po_hi_get_device_configuration (id);
+
    /* Get the first device connected */
-   __po_hi_c_driver_usb_brick_fd[id] = USBSpaceWire_ListDevices();
+   __po_hi_c_driver_usb_brick_fd[id]   = USBSpaceWire_ListDevices();
+
+   __po_hi_c_driver_usb_brick_port[id] = 1;
+   if (strncmp (drv_conf->devname, "node2", 5) == 0)
+   {
+      __po_hi_c_driver_usb_brick_port[id] = 2;
+   }
+
    for (i = 0; i < 32; i++) 
    {
       if (__po_hi_c_driver_usb_brick_fd[id] == (unsigned long)(1 << i)) 
@@ -242,7 +254,9 @@ int __po_hi_c_driver_spw_usb_brick_sender (const __po_hi_task_id task_id, const 
    swap_pointer  = (unsigned long*) &msg.content[0];
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
-   buf[0] = 1;
+
+   buf[0] = __po_hi_c_driver_usb_brick_port[dev_id];
+
    memcpy (&buf[1], msg.content, __PO_HI_MESSAGES_MAX_SIZE);
    if ((status = USBSpaceWire_SendPacket(__po_hi_c_driver_usb_brick_star_device[dev_id], buf, __PO_HI_MESSAGES_MAX_SIZE + 1, 1, &id)) != TRANSFER_SUCCESS) 
    {
