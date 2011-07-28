@@ -362,8 +362,12 @@ void __po_hi_wait_end_of_instrumentation ()
    #include <unistd.h>
 
    __po_hi_time_t now;
+   __po_hi_time_t ten_secs;
+   __po_hi_time_t time_to_wait;
    __po_hi_get_time (&now);
-   __po_hi_delay_until (__po_hi_add_times (now, __po_hi_seconds (10)));
+   __po_hi_seconds (&ten_secs, 10);
+   __po_hi_add_times (&time_to_wait, &ten_secs, &now);
+   __po_hi_delay_until (&time_to_wait);
 #endif
   __DEBUGMSG ("Call exit()\n");
   __po_hi_tasks_killall ();
