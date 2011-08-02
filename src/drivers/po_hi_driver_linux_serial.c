@@ -228,7 +228,7 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
       return;
    }
 
-   po_hi_c_driver_serial_fd_read = open (serialconf->devname, O_RDONLY | O_NOCTTY | O_NONBLOCK);
+   po_hi_c_driver_serial_fd_read = open (serialconf->devname, O_RDONLY | O_NOCTTY);
 
    if (po_hi_c_driver_serial_fd_read < 0)
    {
