@@ -144,8 +144,10 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
   return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)
    rtems_status_code ret;
-/*   ret = rtems_rate_monotonic_period (&tasks[task].ratemon_period, (rtems_interval)tasks[task].period * ); */
+   ret = rtems_rate_monotonic_period (tasks[task].ratemon_period, (rtems_interval)__PO_HI_TIME_TO_US(tasks[task].period) / _TOD_Microseconds_per_tick); 
+   /*
    ret = rtems_rate_monotonic_period (tasks[task].ratemon_period, tasks[task].period / _TOD_Microseconds_per_tick); 
+   */
 
    switch (ret)
    {

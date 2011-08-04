@@ -59,7 +59,6 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
 #elif defined (RTEMS_PURE)
    rtems_time_of_day    current_time;
 
-   tmp = 0;
    if (rtems_clock_get (RTEMS_CLOCK_GET_TOD, &current_time) != RTEMS_SUCCESSFUL)
    {
       __DEBUGMSG ("Error when trying to get the clock on RTEMS\n");
