@@ -59,17 +59,22 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Hello, i'm the serial poller , must read %d bytes!\n", __PO_HI_MESSAGES_MAX_SIZE);
 
    __po_hi_msg_reallocate (&msg);
-
-   n = read (po_hi_c_driver_serial_fd_read, &(msg.content[0]), __PO_HI_MESSAGES_MAX_SIZE); 
-   
-   if (n == -1)
+   n = 0;
+   while (n < __PO_HI_MESSAGES_MAX_SIZE)
    {
-      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Cannot read on socket !\n");
-      return;
+       if (read (po_hi_c_driver_serial_fd_read, &(msg.content[n]), 1) != 1)
+	{
+	    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Cannot read on socket !\n");
+	    return;
+	}
+
+	n++;
    }
+
 
    if (n == 0)
    {
+    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] n=0 !\n");
       return;
    }
 
@@ -82,13 +87,14 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] read() returns %d\n", n);
 
 
-
+/*
    __PO_HI_DEBUG_DEBUG  ("[LINUX SERIAL] Message: 0x");
 
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
       __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
    }
+*/
    __PO_HI_DEBUG_DEBUG ("\n");
    swap_pointer  = (unsigned long*) &msg.content[0];
    swap_value    = *swap_pointer;
