@@ -201,7 +201,7 @@ int __po_hi_initialize_early ()
  */
 int __po_hi_initialize ()
 {
-#ifdef XM3_RTEMS_MODE
+#if (defined (XM3_RTEMS_MODE) && (__PO_HI_NB_PORTS > 0))
    #include <deployment.h>
    #include <po_hi_types.h>
    #include <po_hi_transport.h>
