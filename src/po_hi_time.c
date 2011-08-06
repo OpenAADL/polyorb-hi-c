@@ -65,7 +65,7 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
    }
 
    mytime->sec  = _TOD_To_seconds (&current_time);
-   mytime->nsec =  current_time.ticks * _TOD_Microseconds_per_tick * 1000;
+   mytime->nsec =  current_time.ticks * rtems_configuration_get_microseconds_per_tick() * 1000;
 
    return (__PO_HI_SUCCESS);
 #elif defined (XENO_NATIVE)
