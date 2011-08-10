@@ -19,6 +19,12 @@
 #define __PO_HI_BIGENDIAN     0
 #define __PO_HI_LITTLEENDIAN  1
 
+typedef struct
+{
+      void (*marshaller)   (void*, void*);
+      void (*unmarshaller) (void*, void*);
+}__po_hi_protocol_conf_t;
+
 #if __PO_HI_NB_PORTS > 0
 
 typedef uint8_t __po_hi_queue_id;
