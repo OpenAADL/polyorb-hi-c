@@ -14,7 +14,7 @@ all: build-node
 include $(RUNTIME_PATH)/make/Makefile.$(TARGET)
 -include ../../userdefined.mk
 
-build-node: compile-c-files compile-ada-files compile-node generate-doc
+build-node: generate-asn1-deployment compile-c-files compile-ada-files compile-node generate-doc
 
 ################################################################################
 # Configuration
@@ -132,15 +132,21 @@ else
 	main.o
 endif
 
-ifdef USE_ASN1_DEPLOYMENT
+ifeq ($(USE_ASN1_DEPLOYMENT), yes)
 generate-asn1-deployment:
-	asn1.exe -c -uPER ../asn1_deployment.asn1
-	for f in real.o asn1_deployment.o asn1crt.o; do \
+	if [ ! -d ../asn-types ]; then mkdir -p ../asn-types ; fi
+	asn1.exe -c -uPER $(ASN_SOURCES) -o ../asn-types
+	for f in real.o asn1crt.o acn.o ber.o xer.o; do \
 	   c_file="`basename $$f .o`.c"; \
-	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f $$c_file || exit 1 ; \
+	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f ../asn-types/$$c_file || exit 1 ; \
+	done
+	for f in $(ASN_SOURCES); do \
+	   c_file="`basename $$f .asn`.c"; \
+	   o_file="`basename $$f .asn`.o"; \
+      if [ -f ../asn-types/$$c_file ]; then $(CC) $(INCLUDE) $(CFLAGS) -c -o $$o_file ../asn-types/$$c_file || exit 1 ; fi \
 	done
 
-GENERATED_OBJS += real.o  asn1_deployment.o asn1crt.o
+GENERATED_OBJS += real.o asn1crt.o xer.o ber.o acn.o $(ASN_OBJS)
 LDFLAGS += -lm
 CFLAGS+=-DPO_HI_USE_ASN1 -I../../
 
