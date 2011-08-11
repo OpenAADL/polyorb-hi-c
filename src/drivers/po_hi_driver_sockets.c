@@ -148,7 +148,18 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 #ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
       case virtual_bus_myprotocol_i:
       {
-         protocol_conf->marshaller(request, &msg);
+         size_to_write = sizeof (int);
+         int datawritten;
+         protocol_conf->marshaller(request, &datawritten, &size_to_write);
+         len = write (nodes[associated_device].socket, &datawritten, size_to_write);
+
+         if (len != size_to_write)
+         {
+            __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
+            close (nodes[associated_device].socket);
+            nodes[associated_device].socket = -1;
+            return __PO_HI_ERROR_TRANSPORT_SEND;		
+         }
          break;
       }
 #endif
@@ -181,21 +192,22 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 
 void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
 {
-   (void) dev_id;
+   (void)                     dev_id;
    __DEBUGMSG ("Poller launched, device-id=%d\n", socket_device_id);
-   socklen_t          socklen = sizeof (struct sockaddr);
+   socklen_t                  socklen = sizeof (struct sockaddr);
    /* See ACCEPT (2) for details on initial value of socklen */
 
-   __po_hi_uint32_t   len;
-   int                sock;
-   int                max_socket;
-   fd_set             selector;
-   struct sockaddr_in sa;
-   __po_hi_device_id  dev;
-   __po_hi_node_t     dev_init;
-   __po_hi_request_t  received_request;
-   __po_hi_msg_t      msg;
-   int                established = 0; 
+   __po_hi_uint32_t           len;
+   int                        sock;
+   int                        max_socket;
+   fd_set                     selector;
+   struct sockaddr_in         sa;
+   __po_hi_device_id          dev;
+   __po_hi_node_t             dev_init;
+   __po_hi_request_t          received_request;
+   __po_hi_msg_t              msg;
+   int                        established = 0; 
+   __po_hi_protocol_conf_t*   protocol_conf;
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
 
@@ -286,6 +298,26 @@ void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
          if ( (rnodes[dev].socket != -1 ) && FD_ISSET(rnodes[dev].socket, &selector))
          {
             __DEBUGMSG ("[DRIVER SOCKETS] Receive message from dev %d\n", dev);
+#ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
+            {
+
+               protocol_conf = __po_hi_transport_get_protocol_configuration (virtual_bus_myprotocol_i);
+
+
+               int datareceived;
+               len = recv (rnodes[dev].socket, &datareceived, sizeof (int), MSG_WAITALL);
+               __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",(int)len);
+               if (len == 0)
+               {
+                  __DEBUGMSG ("[DRIVER SOCKETS] Zero size from device %d\n",dev);
+                  rnodes[dev].socket = -1;
+                  continue;
+               }
+               protocol_conf->unmarshaller (&received_request, &datareceived, len);
+               received_request.port = 1;
+            }
+
+#else
             memset (msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
             len = recv (rnodes[dev].socket, msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
             msg.length = len;
@@ -305,7 +337,7 @@ void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
             }
 
             __po_hi_unmarshall_request (&received_request, &msg);
-
+#endif
 
             __po_hi_main_deliver (&received_request);
          }
@@ -429,7 +461,7 @@ void* __po_hi_sockets_receiver_task (void)
 
 
             protocol_conf = __po_hi_transport_get_protocol_configuration (virtual_bus_myprotocol_i);
-            protocol_conf->unmarshaller (&received_request, &msg);
+            protocol_conf->unmarshaller (&received_request, &msg, len);
 #else
 
             __DEBUGMSG ("Using raw protocol stack\n");
@@ -534,7 +566,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
       __po_hi_initialize_add_task ();
 
       __po_hi_create_generic_task 
-         (-1, 0,__PO_HI_MAX_PRIORITY, 0, __po_hi_sockets_poller);
+         (-1, 0,__PO_HI_MAX_PRIORITY, 0, (void* (*)(void))__po_hi_sockets_poller);
    }
 
    /*
