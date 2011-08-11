@@ -74,23 +74,24 @@ __po_hi_device_id socket_device_id;
 int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
                                  __po_hi_port_t port)
 {
-   int                     len;
-   int                     size_to_write;
-   int                     optval = 0;
-   socklen_t               optlen = 0;
-   __po_hi_device_id       associated_device;
-   __po_hi_local_port_t    local_port;
-   __po_hi_request_t*      request;
-   __po_hi_port_t          destination_port;
-   __po_hi_msg_t           msg;
+   int                        len;
+   int                        size_to_write;
+   int                        optval = 0;
+   socklen_t                  optlen = 0;
+   __po_hi_device_id          associated_device;
+   __po_hi_local_port_t       local_port;
+   __po_hi_request_t*         request;
+   __po_hi_port_t             destination_port;
+   __po_hi_msg_t              msg;
+   __po_hi_protocol_t         protocol_id;
+   __po_hi_protocol_conf_t*   protocol_conf;
 
-   local_port = __po_hi_get_local_port_from_global_port (port);
-
-   request = __po_hi_gqueue_get_most_recent_value (task_id, local_port);
-
-   destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
-
-   associated_device = __po_hi_get_device_from_port (destination_port);
+   local_port              = __po_hi_get_local_port_from_global_port (port);
+   request                 = __po_hi_gqueue_get_most_recent_value (task_id, local_port);
+   destination_port        = __po_hi_gqueue_get_destination (task_id, local_port, 0);
+   associated_device       = __po_hi_get_device_from_port (destination_port);
+   protocol_id             = __po_hi_transport_get_protocol (port, destination_port);
+   protocol_conf           = __po_hi_transport_get_protocol_configuration (protocol_id);
 
    if (request->port == -1)
    {
@@ -141,22 +142,37 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
       nodes[associated_device].socket = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;
    }
-   request->port = destination_port;
-   __po_hi_msg_reallocate (&msg);
-   __po_hi_marshall_request (request, &msg);
+
+   switch (protocol_id)
+   {
+#ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
+      case virtual_bus_myprotocol_i:
+      {
+         protocol_conf->marshaller(request, &msg);
+         break;
+      }
+#endif
+      default: 
+      {
+         request->port = destination_port;
+         __po_hi_msg_reallocate (&msg);
+         __po_hi_marshall_request (request, &msg);
 
 #ifdef __PO_HI_DEBUG
-   __po_hi_messages_debug (&msg);
+         __po_hi_messages_debug (&msg);
 #endif
 
-   len = write (nodes[associated_device].socket, &(msg.content), size_to_write);
+         len = write (nodes[associated_device].socket, &(msg.content), size_to_write);
 
-   if (len != size_to_write)
-   {
-      __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
-      close (nodes[associated_device].socket);
-      nodes[associated_device].socket = -1;
-      return __PO_HI_ERROR_TRANSPORT_SEND;		
+         if (len != size_to_write)
+         {
+            __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
+            close (nodes[associated_device].socket);
+            nodes[associated_device].socket = -1;
+            return __PO_HI_ERROR_TRANSPORT_SEND;		
+         }
+         break;
+      }
    }
 
    return __PO_HI_SUCCESS;
@@ -213,6 +229,7 @@ void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
 
             __PO_HI_SET_SOCKET_TIMEOUT(sock,10);
 
+#ifndef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
             if (read (sock, &dev_init, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
             {
                established = 0;
@@ -220,10 +237,13 @@ void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
             }
             else
             {
+               __DEBUGMSG ("[DRIVER SOCKETS] read device-id %d from socket=%d\n", dev_init, sock);
                established = 1;
             }
+#else
+            established = 1;
+#endif
          }
-         __DEBUGMSG ("[DRIVER SOCKETS] read device-id %d from socket=%d\n", dev_init, sock);
          rnodes[dev].socket = sock;
          if (sock > max_socket )
          {
@@ -304,15 +324,16 @@ void* __po_hi_sockets_receiver_task (void)
    socklen_t          socklen = sizeof (struct sockaddr);
    /* See ACCEPT (2) for details on initial value of socklen */
 
-   __po_hi_uint32_t   len;
-   int                sock;
-   int                max_socket;
-   fd_set             selector;
-   __po_hi_msg_t      msg;
-   __po_hi_node_t     node;
-   __po_hi_node_t     node_init;
-   __po_hi_request_t  received_request;
-   struct sockaddr_in sa;
+   __po_hi_uint32_t           len;
+   int                        sock;
+   int                        max_socket;
+   fd_set                     selector;
+   __po_hi_msg_t              msg;
+   __po_hi_node_t             node;
+   __po_hi_node_t             node_init;
+   __po_hi_request_t          received_request;
+   struct sockaddr_in         sa;
+   __po_hi_protocol_conf_t*   protocol_conf;
 
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
@@ -339,11 +360,15 @@ void* __po_hi_sockets_receiver_task (void)
             __DEBUGMSG ("accept() failed, return=%d\n", sock);
          }
 
+         __DEBUGMSG ("accept() success, return=%d\n", sock);
+
+#ifndef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
          if (read (sock, &node_init, sizeof (__po_hi_node_t)) != sizeof (__po_hi_node_t))
          {
             __DEBUGMSG ("Cannot read node-id for socket %d\n", sock);
             continue;
          }
+#endif
 
          rnodes[node].socket = sock;
          if (sock > max_socket )
@@ -352,9 +377,7 @@ void* __po_hi_sockets_receiver_task (void)
          }	  
       }
    }
-#ifdef __PO_HI_DEBUG
    __DEBUGMSG ("Receiver initialization finished\n");
-#endif
    __po_hi_wait_initialization ();
 
    /*
@@ -390,6 +413,25 @@ void* __po_hi_sockets_receiver_task (void)
             __DEBUGMSG ("Receive message from node %d\n", node);
 #endif
 
+#ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
+
+            __DEBUGMSG ("Using raw protocol stack\n");
+            len = recv (rnodes[node].socket, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+            msg.length = len;
+            if (len != __PO_HI_MESSAGES_MAX_SIZE )
+            {
+               __DEBUGMSG ("ERROR, %u %d", (unsigned int) len, __PO_HI_MESSAGES_MAX_SIZE);
+               close (rnodes[node].socket);
+               rnodes[node].socket = -1;
+               continue;
+            }
+            __DEBUGMSG ("Message delivered");
+
+
+            protocol_conf = __po_hi_transport_get_protocol_configuration (virtual_bus_myprotocol_i);
+            protocol_conf->unmarshaller (&received_request, &msg);
+#else
+
             __DEBUGMSG ("Using raw protocol stack\n");
             len = recv (rnodes[node].socket, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
             msg.length = len;
@@ -403,6 +445,7 @@ void* __po_hi_sockets_receiver_task (void)
             __DEBUGMSG ("Message delivered");
 
             __po_hi_unmarshall_request (&received_request, &msg);
+#endif
 
             __po_hi_main_deliver (&received_request);
 
@@ -569,6 +612,19 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
                         (struct sockaddr*) &sa ,
                         sizeof (struct sockaddr_in));
 
+#ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
+         if (ret == 0)
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, nodes[dev].socket);
+
+            break;
+         }
+         else
+         {
+            __DEBUGMSG ("connect() failed, return=%d\n", ret);
+         }
+
+#else
          if (ret == 0)
          {
 
@@ -584,6 +640,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
          {
             __DEBUGMSG ("connect() failed, return=%d\n", ret);
          }
+#endif
 
          if (close (nodes[dev].socket))
          {
