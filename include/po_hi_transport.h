@@ -21,8 +21,8 @@
 
 typedef struct
 {
-      void (*marshaller)   (void*, void*);
-      void (*unmarshaller) (void*, void*);
+      void (*marshaller)   (void*, void*, int*);
+      void (*unmarshaller) (void*, void*, int);
 }__po_hi_protocol_conf_t;
 
 #if __PO_HI_NB_PORTS > 0
