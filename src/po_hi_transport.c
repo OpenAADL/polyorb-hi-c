@@ -36,13 +36,16 @@ extern __po_hi_request_t*        __po_hi_gqueues_most_recent_values[__PO_HI_NB_T
 extern char*                     __po_hi_port_global_model_names[__PO_HI_NB_PORTS];
 extern char*                     __po_hi_port_global_names[__PO_HI_NB_PORTS];
 extern __po_hi_uint8_t           __po_hi_deployment_endiannesses[__PO_HI_NB_NODES];
-extern __po_hi_protocol_t        __po_hi_ports_protocols[__PO_HI_NB_PORTS][__PO_HI_NB_PORTS];
 extern __po_hi_protocol_conf_t   __po_hi_protocols_configuration[__PO_HI_NB_PROTOCOLS];
 
 #if __PO_HI_NB_DEVICES > 0
 extern __po_hi_device_id         __po_hi_port_to_device[__PO_HI_NB_PORTS];
 extern char*                     __po_hi_devices_naming[__PO_HI_NB_DEVICES];
 extern __po_hi_uint32_t*         __po_hi_devices_configuration_values[__PO_HI_NB_DEVICES];
+#endif
+
+#if __PO_HI_NB_PROTOCOLS > 0
+extern __po_hi_protocol_t        __po_hi_ports_protocols[__PO_HI_NB_PORTS][__PO_HI_NB_PORTS];
 #endif
 
 #ifdef XM3_RTEMS_MODE
@@ -269,6 +272,7 @@ __po_hi_port_kind_t __po_hi_transport_get_port_kind (const __po_hi_port_t portno
 
 }
 
+#if __PO_HI_NB_PROTOCOLS > 0
 __po_hi_protocol_t __po_hi_transport_get_protocol (const __po_hi_port_t src, const __po_hi_port_t dst)
 {
    return (__po_hi_ports_protocols[src][dst]);
@@ -282,6 +286,7 @@ __po_hi_protocol_conf_t*    __po_hi_transport_get_protocol_configuration (const 
    }
    return &(__po_hi_protocols_configuration[p]);
 }
+#endif
 
 #ifdef XM3_RTEMS_MODE
 void __po_hi_transport_xtratum_port_init (const __po_hi_port_t portno, int val)

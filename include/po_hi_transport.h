@@ -19,6 +19,10 @@
 #define __PO_HI_BIGENDIAN     0
 #define __PO_HI_LITTLEENDIAN  1
 
+#ifndef __PO_HI_NB_PROTOCOLS
+#define __PO_HI_NB_PROTOCOLS 0
+#endif
+
 typedef struct
 {
       void (*marshaller)   (void*, void*, int*);
@@ -152,6 +156,7 @@ char*             __po_hi_transport_get_model_name (const __po_hi_port_t portno)
 __po_hi_node_t    __po_hi_transport_get_mynode (void);
 
 
+#if __PO_HI_NB_PROTOCOLS > 0
 /*
  * \fn      __po_hi_transport_get_protocol
  * \brief   Return the protocol identifier that is used between port src and port dst.
@@ -176,6 +181,7 @@ __po_hi_protocol_t         __po_hi_transport_get_protocol (const __po_hi_port_t 
  * will result in returning NULL.
  */
 __po_hi_protocol_conf_t*   __po_hi_transport_get_protocol_configuration (const __po_hi_protocol_t p);
+#endif
 
 
 #ifdef XM3_RTEMS_MODE
