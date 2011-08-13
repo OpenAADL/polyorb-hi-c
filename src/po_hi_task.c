@@ -74,9 +74,16 @@ void __po_hi_wait_for_tasks ()
   ret = rt_task_join (&(tasks[0].xeno_id));
   if (ret != 0)
   {
-      __DEBUGMSG ("Error while calling rt_task_suspend in __po_hi_wait_for_tasks (ret=%d)\n", ret);
+      __PO_HI_DEBUG_DEBUG ("Error while calling rt_task_suspend in __po_hi_wait_for_tasks (ret=%d)\n", ret);
   }
   }
+#endif
+
+#ifdef __PO_HI_DEBUG
+   while (1)
+   {
+      __DEBUGMSG ("Should NEVER be called !!!\n");
+   }
 #endif
 }
 
