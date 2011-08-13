@@ -251,7 +251,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
       __DEBUGMSG ("[GQUEUE] Cannot obtain semaphore in __po_hi_gqueue_store_in()\n");
    }
 
-   __DEBUGMSG ("[GQUEUE] Semaphore got\n");
+   __DEBUGMSG ("[GQUEUE] Semaphore got (id=%d)\n", id);
 #endif
    if (__po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA)
    {
@@ -276,6 +276,8 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
          }
 #endif
          __PO_HI_DEBUG_CRITICAL ("[GQUEUE] QUEUE FULL, task-id=%d, port=%d", id, port);
+
+         __DEBUGMSG ("[GQUEUE] Semaphore released (id=%d)\n", id);
          return __PO_HI_ERROR_QUEUE_FULL;
       }
 
@@ -314,6 +316,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
    {
       __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Cannot release semaphore in __po_hi_gqueue_store_in()\n");
    }
+   __DEBUGMSG ("[GQUEUE] Semaphore released (id=%d)\n", id);
 #endif
 
    return __PO_HI_SUCCESS;
@@ -361,13 +364,16 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
       {
          __DEBUGMSG ("[GQUEUE] Cannot obtain semaphore in __po_hi_gqueue_store_in()\n");
       }
-      rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
+      rtems_task_wake_after (1);
       ret = rtems_semaphore_obtain (__po_hi_gqueues_semaphores[id], RTEMS_WAIT, RTEMS_NO_TIMEOUT);
       if (ret != RTEMS_SUCCESSFUL)
       {
          __DEBUGMSG ("[GQUEUE] Cannot obtain semaphore in __po_hi_gqueue_store_in()\n");
       }
-
+      else
+      {
+         __PO_HI_DEBUG_CRITICAL ("[GQUEUE] semaphore %d obtained\n", id);
+      }
 #endif
 
       __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", id); 
@@ -383,6 +389,8 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
    {
       __DEBUGMSG ("[GQUEUE] Cannot release semaphore in __po_hi_gqueue_store_in()\n");
    }
+
+   __PO_HI_DEBUG_CRITICAL ("[GQUEUE] semaphore %d released\n", id);
 #endif
 
 }
