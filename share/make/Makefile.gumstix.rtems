@@ -1,13 +1,8 @@
 ## This file is a part of PolyORB-HI-C software.
 ## It sets some variables useful to compile generated
-## code to the NDS platform with the RTEMS operating system.
+## code to the Gumstix platform with the RTEMS operating system.
 
 ## To use and compile RTEMS, visit http://www.rtems.com
-
-## This file has been built for RTEMS 4.9.0
-## So, you have to build the cross compiler for RTEMS4.9
-## Basically, it will called arm-rtems4.9
-
 
 MANAGERS = all
 
@@ -20,13 +15,15 @@ TARGET_SOURCES               =
 #TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
 TARGET_TRANSPORT_SOURCES     = 
 
-TARGET_CFLAGS                = -DRTEMS_POSIX -DGUMSTIX_RTEMS  -mstructure-size-boundary=8 -mcpu=xscale -mfpu=vfp -mfloat-abi=soft $(GCC_GENERIC_FLAGS)
-TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
+TARGET_CFLAGS                = -DRTEMS_PURE -DGUMSTIX_RTEMS  -mstructure-size-boundary=8 -mcpu=xscale -mfpu=vfp -mfloat-abi=soft $(GCC_GENERIC_FLAGS)
+TARGET_INCLUDE               = 
 
 LD                           = arm-rtems4.10-ld
 TARGET_LDFLAGS               = 
 			     
 target-clean:
+	rm -f $(BINARY).ralf
+	rm -f flash.img
 
 -include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
 
@@ -45,7 +42,12 @@ endef
 
 target-objects:
 
-
+sim:
+	rm -f flash.img && \
+	dd of=flash.img bs=128k count=128 if=/dev/zero &&  \
+	dd of=flash.img bs=128k conv=notrunc if=$(RUNTIME_PATH)/utils/gumstix-uboot.bin &&  \
+	dd of=flash.img bs=1k conv=notrunc seek=4096 if=$(BINARY)  && \
+	qemu-system-arm -M connex -m 289 -nographic -monitor null -pflash flash.img
 
 define bsp-post-link
 	$(NM) -g -n $@ > $(basename $@).num

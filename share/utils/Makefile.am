@@ -1,4 +1,6 @@
-EXTRA_DIST=$(srcdir)/x86-rtems-boot.img $(srcdir)/xpath
+EXTRA_DIST=$(srcdir)/x86-rtems-boot.img \
+           $(srcdir)/gumstix-uboot.bin \
+           $(srcdir)/xpath
 
 CLEANFILES = *~
 

@@ -27,6 +27,10 @@ LD                           = arm-rtems4.10-ld
 TARGET_LDFLAGS               =  -lrtemsbsp -lc -lm -mthumb-interwork
 			     
 target-clean:
+	rm -f $(BINARY).nds
+
+sim:
+	desmume $(BINARY).nds
 
 -include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
 
