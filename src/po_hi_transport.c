@@ -272,21 +272,28 @@ __po_hi_port_kind_t __po_hi_transport_get_port_kind (const __po_hi_port_t portno
 
 }
 
-#if __PO_HI_NB_PROTOCOLS > 0
 __po_hi_protocol_t __po_hi_transport_get_protocol (const __po_hi_port_t src, const __po_hi_port_t dst)
 {
+#if __PO_HI_NB_PROTOCOLS > 0
    return (__po_hi_ports_protocols[src][dst]);
+#else
+   return invalid_protocol;
+#endif
+
 }
 
 __po_hi_protocol_conf_t*    __po_hi_transport_get_protocol_configuration (const __po_hi_protocol_t p)
 {
+#if __PO_HI_NB_PROTOCOLS > 0
    if (p == invalid_protocol)
    {
       return NULL;
    }
    return &(__po_hi_protocols_configuration[p]);
-}
+#else
+   return NULL;
 #endif
+}
 
 #ifdef XM3_RTEMS_MODE
 void __po_hi_transport_xtratum_port_init (const __po_hi_port_t portno, int val)
