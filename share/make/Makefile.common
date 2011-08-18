@@ -225,7 +225,7 @@ endif
 
 compile-node: $(BINARY)
 
-ifeq ($(TARGET), leon.rtems)
+ifeq ($(TARGET), $(filter $(TARGET), leon.rtems leon.rtems_posix))
 OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
 $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
 	$(make-exe)
