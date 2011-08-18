@@ -11,8 +11,10 @@
 
 MANAGERS = all
 
-CC                           = arm-rtems4.10-gcc
-CPP                          = arm-rtems4.10-g++
+-include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
+
+CC                           = $(CC_FOR_TARGET)
+CPP                          = $(CXX_FOR_TARGET)
 
 GPROF                        = arm-rtems4.10-gprof
 
@@ -20,10 +22,10 @@ TARGET_SOURCES               =
 #TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
 TARGET_TRANSPORT_SOURCES     = 
 
-TARGET_CFLAGS                = -DRTEMS_PURE -DNDS_RTEMS -mstructure-size-boundary=8 -mcpu=arm9tdmi -mfpu=vfp -mfloat-abi=soft $(GCC_GENERIC_FLAGS) -mthumb-interwork
+TARGET_CFLAGS                = -DRTEMS_PURE -DNDS_RTEMS -mstructure-size-boundary=8 -mcpu=arm9tdmi -mfpu=vfp -mfloat-abi=soft $(GCC_GENERIC_FLAGS) -mthumb-interwork -g
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
-LD                           = arm-rtems4.10-ld
+LD                           = $(LD_FOR_TARGET)
 TARGET_LDFLAGS               =  -lrtemsbsp -lc -lm -mthumb-interwork
 			     
 target-clean:
@@ -32,7 +34,6 @@ target-clean:
 sim:
 	desmume $(BINARY).nds
 
--include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
 
 -include $(RTEMS_CUSTOM)
 -include $(PROJECT_ROOT)/make/leaf.cfg
