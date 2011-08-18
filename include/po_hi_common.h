@@ -65,7 +65,9 @@
    #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS   20
    #define CONFIGURE_MAXIMUM_PERIODS                  __PO_HI_NB_TASKS + 2
 
+#ifndef NDS_RTEMS
    int Init ();
+#endif
 
    #define CONFIGURE_EXTRA_TASK_STACKS                (20 * RTEMS_MINIMUM_STACK_SIZE)
    #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
