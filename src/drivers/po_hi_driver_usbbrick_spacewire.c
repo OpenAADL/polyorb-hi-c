@@ -77,7 +77,7 @@ int __po_hi_driver_usbbrick_spw_init  (star_device_handle *phDevice,   /* Pointe
 
         if (CFGSpaceWire_SetAsInterface(*phDevice, 1, 0) != CFG_TRANSFER_SUCCESS) 
         {
-                fprintf(stderr, "Couldn't set the device as an interface.\n");
+           __DEBUGMSG(stderr, "Couldn't set the device as an interface.\n");
         }
 
         /* Setting the speed */
