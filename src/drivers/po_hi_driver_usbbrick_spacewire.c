@@ -135,7 +135,7 @@ void __po_hi_c_driver_spw_usb_brick_poller (const __po_hi_device_id dev_id)
       return;
    }
 
-   __PO_HI_DEBUG_DEBUG ("[USB-SPW] read() returns %d\n", n);
+   __PO_HI_DEBUG_DEBUG ("[USB-SPW] read() on %d returns %d\n", __po_hi_c_driver_usb_brick_star_device[dev_id], n);
 
 
 
@@ -185,10 +185,10 @@ void __po_hi_c_driver_spw_usb_brick_init (__po_hi_device_id id)
    /* Get the first device connected */
    __po_hi_c_driver_usb_brick_fd[id]   = USBSpaceWire_ListDevices();
 
-   __po_hi_c_driver_usb_brick_port[id] = 1;
+   __po_hi_c_driver_usb_brick_port[id] = 0;
    if (strncmp (drv_conf->devname, "node2", 5) == 0)
    {
-      __po_hi_c_driver_usb_brick_port[id] = 2;
+      __po_hi_c_driver_usb_brick_port[id] = 1;
    }
 
    for (i = 0; i < 32; i++) 
@@ -204,7 +204,10 @@ void __po_hi_c_driver_spw_usb_brick_init (__po_hi_device_id id)
    if (__po_hi_driver_usbbrick_spw_init(&__po_hi_c_driver_usb_brick_star_device[id],__po_hi_c_driver_usb_brick_fd[id] , CFG_BRK_CLK_200_MHZ, CFG_BRK_DVDR_2) == -1) 
    {
       __PO_HI_DEBUG_DEBUG ("[USB-BRICK] SpaceWire device initialisation error.\n");
+      return;
    }
+
+   __PO_HI_DEBUG_DEBUG ("[USB-BRICK] SpaceWire device initialisation complete, fd=%d\n", __po_hi_c_driver_usb_brick_fd[id] );
 }
 
 int __po_hi_c_driver_spw_usb_brick_sender (const __po_hi_task_id task_id, const __po_hi_port_t port)
@@ -257,6 +260,8 @@ int __po_hi_c_driver_spw_usb_brick_sender (const __po_hi_task_id task_id, const 
 
    buf[0] = __po_hi_c_driver_usb_brick_port[dev_id];
 
+   __PO_HI_DEBUG_DEBUG ("[USB-SPW] write() send on port %d\n", __po_hi_c_driver_usb_brick_port[dev_id]);
+
    memcpy (&buf[1], msg.content, __PO_HI_MESSAGES_MAX_SIZE);
    if ((status = USBSpaceWire_SendPacket(__po_hi_c_driver_usb_brick_star_device[dev_id], buf, __PO_HI_MESSAGES_MAX_SIZE + 1, 1, &id)) != TRANSFER_SUCCESS) 
    {
@@ -273,7 +278,7 @@ int __po_hi_c_driver_spw_usb_brick_sender (const __po_hi_task_id task_id, const 
 
    USBSpaceWire_FreeSend (__po_hi_c_driver_usb_brick_star_device[dev_id], id);
 
-   __PO_HI_DEBUG_DEBUG ("[USB-SPW] write() returns %d\n", status);
+   __PO_HI_DEBUG_DEBUG ("[USB-SPW] write() using star device %d returns %d\n", __po_hi_c_driver_usb_brick_star_device[dev_id - 1], status);
 
    request->port = __PO_HI_GQUEUE_INVALID_PORT;
 
