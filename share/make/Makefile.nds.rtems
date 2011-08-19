@@ -58,6 +58,7 @@ define bsp-post-link
 	$(OBJCOPY) -O binary $(basename $@) $(basename $@).bin
 	$(NDSTOOL) -c $(basename $@).nds -9 $(basename $@).bin \
 		-7 $(COPROC_ELF_PATH)/coproc.bin
+   chmod a+x $(basename $@).nds
 	rm -f $(basename $@).bin
 endef
 
