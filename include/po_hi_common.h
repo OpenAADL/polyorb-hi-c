@@ -65,7 +65,7 @@
    #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS   20
    #define CONFIGURE_MAXIMUM_PERIODS                  __PO_HI_NB_TASKS + 2
 
-#ifndef NDS_RTEMS
+#if ((! (defined (NDS_RTEMS))) && ( ! ( defined (GUMSTIX_RTEMS))))
    int Init ();
 #endif
 
