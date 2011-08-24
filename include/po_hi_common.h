@@ -54,8 +54,8 @@
 #if defined(RTEMS_PURE)
    #include <rtems.h>
    #include <inttypes.h>
+   #define CONFIGURE_INIT
    #include <bsp.h>
-   #include <rtems/confdefs.h>
 
    #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
@@ -83,7 +83,8 @@
    #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
    #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
    #define CONFIGURE_MAXIMUM_BARRIERS                 1 + __PO_HI_NB_PORTS + 1
-   #define CONFIGURE_INIT
+
+   #include <rtems/confdefs.h>
 #endif  /* RTEMS_PURE */
 
 #if defined (X86_RTEMS) && defined (__PO_HI_USE_TRANSPORT) && __PO_HI_NB_DEVICES > 1
