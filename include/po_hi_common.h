@@ -28,7 +28,7 @@
    #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_NULL_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_TIMER_DRIVER
-   #define CONFIGURE_MAXIMUM_DRIVERS                 10
+   #define CONFIGURE_MAXIMUM_DRIVERS                     10
    #define CONFIGURE_MAXIMUM_POSIX_TIMERS                40
    #define CONFIGURE_MAXIMUM_TIMERS                      40
    #define CONFIGURE_EXECUTIVE_RAM_SIZE                  (512*1024)
@@ -52,15 +52,25 @@
 #endif  /* RTEMS_POSIX */
 
 #if defined(RTEMS_PURE)
+   #include <rtems.h>
+   #include <inttypes.h>
+   #include <bsp.h>
+   #include <rtems/confdefs.h>
+
    #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_NULL_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_TIMER_DRIVER
+   #define CONFIGURE_MAXIMUM_DRIVERS                     10
    #define CONFIGURE_MAXIMUM_TIMERS                   40
+
 #ifndef XM3_RTEMS_MODE
    #define CONFIGURE_EXECUTIVE_RAM_SIZE               (512*1024)
 #endif
+   /*
    #define CONFIGURE_MAXIMUM_SEMAPHORES               __PO_HI_NB_TASKS + (__PO_HI_NB_PORTS + 1) * 2 + __PO_HI_NB_PROTECTED + 1
+   */
+   #define CONFIGURE_MAXIMUM_SEMAPHORES               20
    #define CONFIGURE_MAXIMUM_TASKS                    __PO_HI_NB_TASKS + 2
    #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS   20
    #define CONFIGURE_MAXIMUM_PERIODS                  __PO_HI_NB_TASKS + 2
@@ -74,10 +84,6 @@
    #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
    #define CONFIGURE_MAXIMUM_BARRIERS                 1 + __PO_HI_NB_PORTS + 1
    #define CONFIGURE_INIT
-   #include <rtems.h>
-   #include <inttypes.h>
-   #include <bsp.h>
-   #include <rtems/confdefs.h>
 #endif  /* RTEMS_PURE */
 
 #if defined (X86_RTEMS) && defined (__PO_HI_USE_TRANSPORT) && __PO_HI_NB_DEVICES > 1
