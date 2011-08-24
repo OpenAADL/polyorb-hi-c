@@ -185,7 +185,7 @@ void __po_hi_c_driver_spw_usb_brick_init (__po_hi_device_id id)
    /* Get the first device connected */
    __po_hi_c_driver_usb_brick_fd[id]   = USBSpaceWire_ListDevices();
 
-   __po_hi_c_driver_usb_brick_port[id] = 0;
+   __po_hi_c_driver_usb_brick_port[id] = 1;
    if (strncmp (drv_conf->devname, "node2", 5) == 0)
    {
       __po_hi_c_driver_usb_brick_port[id] = 1;
