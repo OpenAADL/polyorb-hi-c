@@ -266,6 +266,7 @@ int __po_hi_c_driver_spw_usb_brick_sender (const __po_hi_task_id task_id, const 
    if ((status = USBSpaceWire_SendPacket(__po_hi_c_driver_usb_brick_star_device[dev_id], buf, __PO_HI_MESSAGES_MAX_SIZE + 1, 1, &id)) != TRANSFER_SUCCESS) 
    {
       __PO_HI_DEBUG_DEBUG("[USB-SPW] Write error: %d.\n", status);
+      return 0;
    }
 
    __PO_HI_DEBUG_DEBUG ("Sent: |0x");
