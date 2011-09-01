@@ -275,7 +275,7 @@ rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
             __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Cannot release semaphore in __po_hi_gqueue_store_in()\n");
          }
 #endif
-         __PO_HI_DEBUG_CRITICAL ("[GQUEUE] QUEUE FULL, task-id=%d, port=%d", id, port);
+         __PO_HI_DEBUG_CRITICAL ("[GQUEUE] QUEUE FULL, task-id=%d, port=%d\n", id, port);
 
          __DEBUGMSG ("[GQUEUE] Semaphore released (id=%d)\n", id);
          return __PO_HI_ERROR_QUEUE_FULL;
