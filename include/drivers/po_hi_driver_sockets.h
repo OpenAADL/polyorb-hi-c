@@ -11,6 +11,11 @@
 #ifndef __PO_HI_DRIVER_SOCKETS_H__
 #define __PO_HI_DRIVER_SOCKETS_H__
 
+typedef struct
+{
+   int socket;
+} __po_hi_inetnode_t;
+
 
 #if (defined (__PO_HI_NEED_DRIVER_SOCKETS)  \
   || defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
@@ -26,11 +31,6 @@ typedef char*            __po_hi_inetaddr_t;
 
 #define __PO_HI_NOPORT 1
 #define __PO_HI_NOADDR ""
-
-typedef struct
-{
-   int socket;
-} __po_hi_inetnode_t;
 
 extern __po_hi_node_t      __po_hi_mynode;
 
