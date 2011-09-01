@@ -14,6 +14,15 @@
 
 #include <deployment.h>
 
+#if (defined (RTEMS_POSIX) || defined (RTEMS_PURE))
+   #if defined (__PO_HI_NEED_DRIVER_ETH_LEON) || \
+       defined (__PO_HI_NEED_DRIVER_ETH_LEON_SENDER) || \
+       defined (__PO_HI_NEED_DRIVER_ETH_LEON_RECEIVER)
+   #define RTEMS_BSP_NETWORK_DRIVER_ATTACH RTEMS_BSP_NETWORK_DRIVER_ATTACH_SMC91111
+   #endif
+#endif
+
+
 /*
  * Configure RTEMS executive.
  * We have to define the number of tasks inside the executive,
@@ -22,6 +31,7 @@
 #if defined(RTEMS_POSIX)
    #include <rtems.h>
    #include <inttypes.h>
+
    #define CONFIGURE_INIT
    #include <bsp.h>
    #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
@@ -71,9 +81,16 @@
    #define CONFIGURE_MAXIMUM_SEMAPHORES               __PO_HI_NB_TASKS + (__PO_HI_NB_PORTS + 1) * 2 + __PO_HI_NB_PROTECTED + 1
    */
    #define CONFIGURE_MAXIMUM_SEMAPHORES               20
-   #define CONFIGURE_MAXIMUM_TASKS                    __PO_HI_NB_TASKS + 2
+   #define CONFIGURE_MAXIMUM_TASKS                    __PO_HI_NB_TASKS + 5
    #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS   20
-   #define CONFIGURE_MAXIMUM_PERIODS                  __PO_HI_NB_TASKS + 2
+   #define CONFIGURE_MAXIMUM_PERIODS                  __PO_HI_NB_TASKS + 5
+   /*
+    * We put __PO_HI_NB_TASKS + 5 because we may have additional tasks
+    * from the driver. Originally, it was +2 fr th emain thread and a potential
+    * network thread. Since, other drivers take additional tasks and so, we
+    * increase it to 5. We would do a better integration by filtering
+    * the use of each driver.
+    */
 
 #if ((! (defined (NDS_RTEMS))) && ( ! ( defined (GUMSTIX_RTEMS))))
    int Init ();
