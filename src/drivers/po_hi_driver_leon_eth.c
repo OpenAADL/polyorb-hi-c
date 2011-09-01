@@ -15,10 +15,14 @@
     defined (__PO_HI_NEED_DRIVER_ETH_LEON_RECEIVER)
 
 #include <po_hi_debug.h>
+#include <po_hi_task.h>
+#include <po_hi_types.h>
 #include <po_hi_utils.h>
 #include <po_hi_messages.h>
 #include <po_hi_transport.h>
+#include <po_hi_returns.h>
 #include <po_hi_gqueue.h>
+#include <drivers/po_hi_driver_sockets.h>
 #include <drivers/configuration/ip.h>
 /* po-hi-c related files */
 
@@ -28,63 +32,239 @@
 /* generated files */
 
 #include <termios.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <netinet/in.h>
 
-int po_hi_c_driver_leon_eth_fd_read;
-int po_hi_c_driver_leon_eth_fd_write;
+__po_hi_inetnode_t nodes[__PO_HI_NB_DEVICES];
+__po_hi_inetnode_t rnodes[__PO_HI_NB_DEVICES];
+
+__po_hi_device_id leon_eth_device_id;
+
 
 #if defined (__PO_HI_NEED_DRIVER_ETH_LEON) || \
     defined (__PO_HI_NEED_DRIVER_ETH_LEON_RECEIVER)
 
+   #define __PO_HI_SET_SOCKET_TIMEOUT(mysocket,nsec) { struct timeval timeout; \
+                                            timeout.tv_sec = nsec; \
+                                            timeout.tv_usec = 0; \
+                                            setsockopt (mysocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,sizeof (timeout)); }
+
+#define RTEMS_BSP_NETWORK_DRIVER_ATTACH RTEMS_BSP_NETWORK_DRIVER_ATTACH_SMC91111
+#include <bsp.h>
+#include <rtems/rtems_bsdnet.h>
+
+extern void rtems_bsdnet_loopattach();
+static struct rtems_bsdnet_ifconfig loopback_config = {
+   "lo0",            /* name */
+   rtems_bsdnet_loopattach,   /* attach function */
+   NULL,          /* link to next interface */
+
+   "127.0.0.1",         /* IP address */
+   "255.0.0.0",         /* IP net mask */
+};
+
+/*
+ * Default network interface
+ */
+static struct rtems_bsdnet_ifconfig netdriver_config = {
+   RTEMS_BSP_NETWORK_DRIVER_NAME,      /* name */
+   RTEMS_BSP_NETWORK_DRIVER_ATTACH, /* attach function */
+   &loopback_config,    /* link to next interface */
+   "255.255.255.255",       /* IP address */
+   "255.255.255.255",     /* IP net mask */
+   NULL,                           /* Driver supplies hardware address */
+   0           /* Use default driver parameters */
+};
+
+/*
+ * Network configuration
+ */
+struct rtems_bsdnet_config rtems_bsdnet_config = {
+   &netdriver_config,
+   NULL,
+   100,        /* Default network task priority */
+   128*1024,      /* Default mbuf capacity */
+   256*1024,      /* Default mbuf cluster capacity */
+   "rtems_host",     /* Host name */
+   "localnet",    /* Domain name */
+   "255.255.255.255",    /* Gateway */
+   "10.1.1.1",    /* Log host */
+   {"255.255.255.255" }, /* Name server(s) */
+   {"255.155.255.255" }, /* NTP server(s) */
+};
+
+
 void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
 {
-   int n;
-   int ts;
-   int tr;
+   (void)                     dev_id;
+   __DEBUGMSG ("Poller launched, device-id=%d\n", leon_eth_device_id);
+   socklen_t                  socklen = sizeof (struct sockaddr);
+   /* See ACCEPT (2) for details on initial value of socklen */
 
-   (void) dev_id;
+   __po_hi_uint32_t           len;
+   int                        sock;
+   int                        max_socket;
+   fd_set                     selector;
+   struct sockaddr_in         sa;
+   __po_hi_device_id          dev;
+   __po_hi_node_t             dev_init;
+   __po_hi_request_t          received_request;
+   __po_hi_msg_t              msg;
+   int                        established = 0; 
+   __po_hi_protocol_conf_t*   protocol_conf;
 
-   __po_hi_msg_t msg;
-   __po_hi_request_t request;
+   unsigned long* swap_pointer;
+   unsigned long swap_value;
 
-   __PO_HI_DEBUG_DEBUG ("[LEON ETH] Hello, i'm the eth poller , must read %d bytes on %d !\n", __PO_HI_MESSAGES_MAX_SIZE, po_hi_c_driver_leon_eth_fd_read);
 
-   __po_hi_msg_reallocate (&msg);
+   max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
 
-   tr = 0;
-   while (tr < __PO_HI_MESSAGES_MAX_SIZE)
+   /*
+    * We initialize each node socket with -1 value.  This value means
+    * that the socket is not active.
+    */
+   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++)
    {
-      if (read (po_hi_c_driver_leon_eth_fd_read, &(msg.content[tr]), 1) == 1)
+      rnodes[dev].socket = -1;
+   }
+
+   /*
+    * Create a socket for each node that will communicate with us.
+    */
+   for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+   {
+      if (dev != leon_eth_device_id)
       {
-         tr++;
+         __DEBUGMSG ("[DRIVER ETH] Poller waits for connection with device %d\n", dev);
+
+         /*
+         __PO_HI_SET_SOCKET_TIMEOUT(nodes[socket_device_id].socket,5);
+         */
+
+         established = 0;
+
+         while (established == 0)
+         {
+            sock = accept (nodes[leon_eth_device_id].socket, (struct sockaddr*) &sa, &socklen);
+
+            __PO_HI_SET_SOCKET_TIMEOUT(sock,10);
+
+#ifndef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
+            if (read (sock, &dev_init, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
+            {
+               established = 0;
+               __DEBUGMSG ("[DRIVER ETH] Cannot read device-id for device %d, socket=%d\n", dev, sock);
+            }
+            else
+            {
+               __DEBUGMSG ("[DRIVER ETH] read device-id %d from socket=%d\n", dev_init, sock);
+               established = 1;
+            }
+#else
+            established = 1;
+#endif
+         }
+         rnodes[dev].socket = sock;
+         if (sock > max_socket )
+         {
+            max_socket = sock;
+         }	  
       }
    }
+   __DEBUGMSG ("[DRIVER ETH] Poller initialization finished, waiting for other tasks\n");
+   __po_hi_wait_initialization ();
+   __DEBUGMSG ("[DRIVER ETH] Other tasks are initialized, let's start the polling !\n");
 
-   msg.length = __PO_HI_MESSAGES_MAX_SIZE;
-  __PO_HI_DEBUG_DEBUG ("[LEON ETH] read() syscall returns in total %d, received: ", tr);
-#ifdef __PO_HI_DEBUG_DEBUG
-   __PO_HI_DEBUG_DEBUG("[LEON ETH] Message received: 0x");
-   for (ts = 0 ; ts < msg.length ; ts++)
+   /*
+    * Then, listen and receive data on the socket, identify the node
+    * which send the data and put it in its message queue
+    */
+   while (1)
    {
-        __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
-   }
-   __PO_HI_DEBUG_DEBUG ("\n");
+      FD_ZERO( &selector );
+      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+      {
+         if ( (dev != leon_eth_device_id ) && ( rnodes[dev].socket != -1 ) )
+         {
+            FD_SET( rnodes[dev].socket , &selector );
+         }
+      }
+
+      if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
+      {
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("[DRIVER ETH] Error on select for node %d\n", __po_hi_mynode);
+#endif 
+      }
+#ifdef __PO_HI_DEBUG
+      __DEBUGMSG ("[DRIVER ETH] Receive message\n");
 #endif
 
-   __po_hi_unmarshall_request (&request, &msg);
+      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+      {
+         __DEBUGMSG ("[DRIVER ETH] Try to watch if it comes from device %d (socket=%d)\n", dev, rnodes[dev].socket);
+         if ( (rnodes[dev].socket != -1 ) && FD_ISSET(rnodes[dev].socket, &selector))
+         {
+            __DEBUGMSG ("[DRIVER ETH] Receive message from dev %d\n", dev);
+#ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
+            {
 
-   if (request.port > __PO_HI_NB_PORTS)
-   {
-      __PO_HI_DEBUG_WARNING ("[LEON ETH] Invalid port number !\n");
-      return;
-   }
+               protocol_conf = __po_hi_transport_get_protocol_configuration (virtual_bus_myprotocol_i);
 
-   __PO_HI_DEBUG_INFO ("[LEON ETH] Destination port: %d\n", request.port);
-   __po_hi_main_deliver (&request);
+
+               int datareceived;
+               len = recv (rnodes[dev].socket, &datareceived, sizeof (int), MSG_WAITALL);
+               __DEBUGMSG ("[DRIVER ETH] Message received len=%d\n",(int)len);
+               if (len == 0)
+               {
+                  __DEBUGMSG ("[DRIVER ETH] Zero size from device %d\n",dev);
+                  rnodes[dev].socket = -1;
+                  continue;
+               }
+               protocol_conf->unmarshaller (&received_request, &datareceived, len);
+               received_request.port = 1;
+            }
+
+#else
+            memset (msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
+            len = recv (rnodes[dev].socket, msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+            msg.length = len;
+            __DEBUGMSG ("[DRIVER ETH] Message received len=%d\n",(int)len);
+
+#ifdef __PO_HI_DEBUG
+   __po_hi_messages_debug (&msg);
+#endif
+
+
+            if (len == 0)
+            {
+
+               __DEBUGMSG ("[DRIVER ETH] Zero size from device %d\n",dev);
+               rnodes[dev].socket = -1;
+               continue;
+            }
+            swap_pointer  = (unsigned long*) &msg.content[0];
+            swap_value    = *swap_pointer;
+            *swap_pointer = __po_hi_swap_byte (swap_value);
+
+            __po_hi_unmarshall_request (&received_request, &msg);
+
+#endif
+
+            __po_hi_main_deliver (&received_request);
+         }
+      }
+   }  
 }
 #endif
 
@@ -93,6 +273,238 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
 
 void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 {
+   int                i;
+   int                ret;
+   int                reuse;
+   char               *tmp;
+   __po_hi_uint16_t   dev;
+   __po_hi_time_t     mytime;
+   __po_hi_time_t     tmptime;
+   __po_hi_time_t     current_time;
+   struct sockaddr_in sa;
+   struct hostent*    hostinfo;
+
+
+   __po_hi_c_ip_conf_t* ipconf;
+   char ip_addr[16];
+   int ip_port;
+   int node;
+
+   ipconf = (__po_hi_c_ip_conf_t*)__po_hi_get_device_configuration (id);
+
+   netdriver_config.ip_address = ipconf->address;
+
+   if (ipconf->exist.netmask == 1)
+   {
+      netdriver_config.ip_netmask = ipconf->netmask;
+   }
+
+   if (ipconf->exist.gateway == 1)
+   {
+      rtems_bsdnet_config.gateway = ipconf->gateway;
+   }
+
+   if (ipconf->exist.dns == 1)
+   {
+      rtems_bsdnet_config.name_server[0] = ipconf->dns;
+   }
+
+
+  rtems_bsdnet_initialize_network ();
+
+#ifdef __PO_HI_DEBUG
+   rtems_bsdnet_show_if_stats ();
+   rtems_bsdnet_show_inet_routes ();
+   rtems_bsdnet_show_ip_stats ();
+#endif
+
+   leon_eth_device_id = id;
+
+   for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)
+   {
+      nodes[node].socket = -1;
+   }
+
+   ip_port = (int)ipconf->port;
+
+   __DEBUGMSG ("My configuration, addr=%s, port=%lld\n", ipconf->address, ipconf->port );
+
+   /*
+    * If the current node port has a port number, then it has to
+    * listen to other nodes. So, we create a socket, bind it and
+    * listen to other nodes.
+    */
+   if (ip_port != 0)
+   {
+      nodes[id].socket = socket (AF_INET, SOCK_STREAM, 0);
+
+      if (nodes[id].socket == -1 )
+      {
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("Cannot create socket for device %d\n", id);
+#endif
+         return;
+      }
+
+      reuse = 1;
+      setsockopt (nodes[id].socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof (reuse));
+
+      sa.sin_addr.s_addr = htonl (INADDR_ANY);   /* We listen on all adresses */
+      sa.sin_family = AF_INET;                   
+      sa.sin_port = htons (ip_port);   /* Port provided by the generated code */
+
+      if( bind( nodes[id].socket , ( struct sockaddr * ) &sa , sizeof( struct sockaddr_in ) ) < 0 )
+      {
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("Unable to bind socket and port on socket %d\n", nodes[id].socket);
+#endif
+      }
+
+      if( listen( nodes[id].socket , __PO_HI_NB_ENTITIES ) < 0 )
+      {
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("Cannot listen on socket %d\n", nodes[id].socket);
+#endif
+      }
+
+      /* 
+       * Create the thread which receive all data from other
+       * nodes. This thread will execute the function
+       * __po_hi_receiver_task
+       */
+
+      __po_hi_initialize_add_task ();
+
+      __po_hi_create_generic_task 
+         (-1, 0,__PO_HI_MAX_PRIORITY, 0, (void* (*)(void)) __po_hi_c_driver_eth_leon_poller);
+   }
+
+   /*
+    * For each node in the sytem that may communicate with the current
+    * node we create a socket. This socket will be used to send data.
+    */
+   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++ )
+   {
+      if (dev == id)
+      {
+         continue;
+      }
+
+      __DEBUGMSG ("[DRIVER ETH] Will initialize connection with device %d\n", dev);
+
+      memset (ip_addr, '\0', 16);
+      ip_port = 0;
+
+      ipconf = (__po_hi_c_ip_conf_t*) __po_hi_get_device_configuration (dev);
+      ip_port = (int)ipconf->port;
+
+      __DEBUGMSG ("[DRIVER ETH] Configuration for device %d, addr=%s, port=%d\n", dev, ipconf->address, ip_port);
+
+      if (ip_port == 0)
+      {
+         __DEBUGMSG ("[DRIVER ETH] Invalid remote port\n");
+         continue;
+      }
+
+      while (1)
+      {
+         nodes[dev].socket = socket (AF_INET, SOCK_STREAM, 0);
+
+         if (nodes[dev].socket == -1 )
+         {
+            __DEBUGMSG ("[DRIVER ETH] Socket for dev %d is not created\n", dev);
+            return;
+         }
+
+         __DEBUGMSG ("[DRIVER ETH] Socket for dev %d created, value=%d\n", dev, nodes[dev].socket);
+
+         hostinfo = gethostbyname ((char*)ipconf->address);
+
+         if (hostinfo == NULL )
+         {
+            __DEBUGMSG ("[DRIVER ETH] Error while getting host informations for device %d\n", dev);
+         }
+
+         sa.sin_port = htons (ip_port);
+         sa.sin_family = AF_INET;
+
+         /* The following lines are used to copy the
+          * hostinfo->h_length to the sa.sin_addr member. Most
+          * of program use the memcpy to do that, but the
+          * RT-POSIX profile we use forbid the use of this
+          * function.  We use a loop instead to perform the
+          * copy.  So, these lines replace the code :
+          *
+          * memcpy( (char*) &( sa.sin_addr ) , (char*)hostinfo->h_addr , hostinfo->h_length );
+          */
+
+         tmp = (char*) &(sa.sin_addr);
+         for (i=0 ; i<hostinfo->h_length ; i++)
+         {
+            tmp[i] = hostinfo->h_addr[i];
+         }
+
+         /*
+          * We try to connect on the remote host. We try every
+          * second to connect on.
+         __PO_HI_SET_SOCKET_TIMEOUT(nodes[dev].socket,5);
+          */
+
+         ret = connect (nodes[dev].socket, 
+                        (struct sockaddr*) &sa ,
+                        sizeof (struct sockaddr_in));
+
+#ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
+         if (ret == 0)
+         {
+            __DEBUGMSG ("[DRIVER ETH] Connection established with device %d, socket=%d\n", dev, nodes[dev].socket);
+
+            break;
+         }
+         else
+         {
+            __DEBUGMSG ("connect() failed, return=%d\n", ret);
+         }
+
+#else
+         if (ret == 0)
+         {
+
+            __DEBUGMSG ("[DRIVER ETH] Send my id (%d)\n", id);
+            if (write (nodes[dev].socket, &id, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
+            {
+               __DEBUGMSG ("[DRIVER ETH] Device %d cannot send his id\n", id);
+            }
+            __DEBUGMSG ("[DRIVER ETH] Connection established with device %d, socket=%d\n", dev, nodes[dev].socket);
+            break;
+         }
+         else
+         {
+            __DEBUGMSG ("connect() failed, return=%d\n", ret);
+         }
+#endif
+
+         if (close (nodes[dev].socket))
+         {
+            __DEBUGMSG ("[DRIVER ETH] Cannot close socket %d\n", nodes[dev].socket);
+         }
+
+         /*
+          * We wait 500ms each time we try to connect on the
+          * remote host
+          */
+
+         __po_hi_get_time (&current_time);
+         __po_hi_milliseconds (&tmptime, 500);
+         __po_hi_add_times (&mytime, &current_time, &tmptime);
+         __DEBUGMSG ("[DRIVER ETH] Cannot connect on device %d, wait 500ms\n", dev);
+         __po_hi_delay_until (&mytime);
+      }
+   }
+
+
+
+
 }
 #endif
 
@@ -101,38 +513,126 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 
 int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port)
 {
-   int n;
-   int ts;
-   __po_hi_local_port_t local_port;
-   __po_hi_request_t* request;
-   __po_hi_msg_t msg;
-   __po_hi_port_t destination_port;
+   int                        len;
+   int                        size_to_write;
+   int                        optval = 0;
+   socklen_t                  optlen = 0;
 
-   local_port = __po_hi_get_local_port_from_global_port (port);
+   unsigned long* swap_pointer;
+   unsigned long swap_value;
 
-   request = __po_hi_gqueue_get_most_recent_value (task, local_port);
+   __po_hi_device_id          associated_device;
+   __po_hi_local_port_t       local_port;
+   __po_hi_request_t*         request;
+   __po_hi_port_t             destination_port;
+   __po_hi_msg_t              msg;
+   __po_hi_protocol_t         protocol_id;
+   __po_hi_protocol_conf_t*   protocol_conf;
 
-   destination_port     = __po_hi_gqueue_get_destination (task, local_port, 0);
+   local_port              = __po_hi_get_local_port_from_global_port (port);
+   request                 = __po_hi_gqueue_get_most_recent_value (task, local_port);
+   destination_port        = __po_hi_gqueue_get_destination (task, local_port, 0);
+   associated_device       = __po_hi_get_device_from_port (destination_port);
+   protocol_id             = __po_hi_transport_get_protocol (port, destination_port);
+   protocol_conf           = __po_hi_transport_get_protocol_configuration (protocol_id);
 
-   __po_hi_msg_reallocate (&msg);
-
-   request->port = destination_port;
-
-   __po_hi_marshall_request (request, &msg);
-
-   n = write (po_hi_c_driver_leon_eth_fd_write, &(msg.content[0]), __PO_HI_MESSAGES_MAX_SIZE);
-
-#ifdef __PO_HI_DEBUG_INFO
-   __PO_HI_DEBUG_INFO  ("[LEON ETH] Message sent: 0x");
-
-   for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
+   if (request->port == -1)
    {
-      __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
+
+#ifdef __PO_HI_DEBUG
+      __DEBUGMSG (" [DRIVER SOCKETS] No data to write on port %d\n", port);
+#endif
+      return __PO_HI_ERROR_TRANSPORT_SEND;
    }
-   __PO_HI_DEBUG_INFO ("\n");
+
+   if (nodes[associated_device].socket == -1 )
+   {
+#ifdef __PO_HI_DEBUG
+      __DEBUGMSG (" [DRIVER SOCKETS] Invalid socket for port-id %d, device-id %d\n", destination_port, associated_device);
+#endif
+      return __PO_HI_ERROR_TRANSPORT_SEND;		
+   }
+
+   /*
+    * After sending the entity identifier, we send the message which
+    * contains the request.
+    */
+
+   size_to_write = __PO_HI_MESSAGES_MAX_SIZE;
+
+   if (getsockopt (nodes[associated_device].socket, SOL_SOCKET, SO_ERROR, &optval, &optlen) == -1)
+   {
+      __DEBUGMSG (" [error getsockopt() in file %s, line%d ]\n", __FILE__, __LINE__);
+      close (nodes[associated_device].socket);
+      nodes[associated_device].socket = -1;
+      return __PO_HI_ERROR_TRANSPORT_SEND;		
+   }
+
+   if (optval != 0)
+   {
+      __DEBUGMSG (" [error getsockopt() return code in file %s, line%d ]\n", __FILE__, __LINE__);
+      close (nodes[associated_device].socket);
+      nodes[associated_device].socket = -1;
+      return __PO_HI_ERROR_TRANSPORT_SEND;		
+   }
+
+   /* Ignore SIGPIPE to be able to recover from errors instead of crashing the node */
+
+   if (signal (SIGPIPE, SIG_IGN) == SIG_ERR)
+   {
+      __DEBUGMSG (" [error signal() return code in file %s, line%d ]\n", __FILE__, __LINE__);
+      close (nodes[associated_device].socket);
+      nodes[associated_device].socket = -1;
+      return __PO_HI_ERROR_TRANSPORT_SEND;
+   }
+
+   switch (protocol_id)
+   {
+#ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
+      case virtual_bus_myprotocol_i:
+      {
+         size_to_write = sizeof (int);
+         int datawritten;
+         protocol_conf->marshaller(request, &datawritten, &size_to_write);
+         len = write (nodes[associated_device].socket, &datawritten, size_to_write);
+
+         if (len != size_to_write)
+         {
+            __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
+            close (nodes[associated_device].socket);
+            nodes[associated_device].socket = -1;
+            return __PO_HI_ERROR_TRANSPORT_SEND;		
+         }
+         break;
+      }
+#endif
+      default: 
+      {
+         request->port = destination_port;
+         __po_hi_msg_reallocate (&msg);
+         __po_hi_marshall_request (request, &msg);
+
+#ifdef __PO_HI_DEBUG
+         __po_hi_messages_debug (&msg);
 #endif
 
-   return 1;
+         swap_pointer  = (unsigned long*) &msg.content[0];
+         swap_value    = *swap_pointer;
+         *swap_pointer = __po_hi_swap_byte (swap_value);
+         len = write (nodes[associated_device].socket, &(msg.content), size_to_write);
+
+         if (len != size_to_write)
+         {
+            __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
+            close (nodes[associated_device].socket);
+            nodes[associated_device].socket = -1;
+            return __PO_HI_ERROR_TRANSPORT_SEND;		
+         }
+         break;
+      }
+   }
+
+   return __PO_HI_SUCCESS;
 }
 #endif
 
