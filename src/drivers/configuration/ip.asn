@@ -8,6 +8,10 @@ Version-T  ::= ENUMERATED {ipv4,ipv6}
 IP-Conf-T ::= SEQUENCE {
    devname        IA5String (SIZE (1..20)),
    address        IA5String (SIZE (1..40)),
+   broadcast      IA5String (SIZE (1..40)) OPTIONAL,
+   netmask        IA5String (SIZE (1..40)) OPTIONAL,
+   gateway        IA5String (SIZE (1..40)) OPTIONAL,
+   dns            IA5String (SIZE (1..40)) OPTIONAL,
    version        Version-T DEFAULT ipv4,
    port           Port-T
 }
