@@ -182,6 +182,8 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
             nodes[associated_device].socket = -1;
             return __PO_HI_ERROR_TRANSPORT_SEND;		
          }
+
+         request->port = __PO_HI_GQUEUE_INVALID_PORT;
          break;
       }
    }
