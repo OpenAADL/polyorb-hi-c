@@ -44,6 +44,8 @@ uint32_t po_hi_c_driver_serial_sending_wait;
 #if defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_RECEIVER)
 
+__po_hi_request_t __po_hi_c_driver_serial_linux_request;
+__po_hi_msg_t     __po_hi_c_driver_serial_linux_poller_msg;
 void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
 {
    (void) dev_id;
@@ -53,16 +55,14 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
    unsigned long* swap_pointer;
    unsigned long swap_value;
 
-   __po_hi_msg_t msg;
-   __po_hi_request_t request;
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Hello, i'm the serial poller , must read %d bytes!\n", __PO_HI_MESSAGES_MAX_SIZE);
 
-   __po_hi_msg_reallocate (&msg);
+   __po_hi_msg_reallocate (&__po_hi_c_driver_serial_linux_poller_msg);
    n = 0;
    while (n < __PO_HI_MESSAGES_MAX_SIZE)
    {
-       if (read (po_hi_c_driver_serial_fd_read, &(msg.content[n]), 1) != 1)
+       if (read (po_hi_c_driver_serial_fd_read, &(__po_hi_c_driver_serial_linux_poller_msg.content[n]), 1) != 1)
 	{
 	    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Cannot read on socket !\n");
 	    return;
@@ -86,41 +86,31 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] read() returns %d\n", n);
 
-
-/*
-   __PO_HI_DEBUG_DEBUG  ("[LINUX SERIAL] Message: 0x");
-
-   for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
-   {
-      __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
-   }
-*/
-   __PO_HI_DEBUG_DEBUG ("\n");
-   swap_pointer  = (unsigned long*) &msg.content[0];
+   swap_pointer  = (unsigned long*) &__po_hi_c_driver_serial_linux_poller_msg.content[0];
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
 
-   msg.length = n;
+   __po_hi_c_driver_serial_linux_poller_msg.length = n;
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Message after swapped port: 0x");
-   for (ts = 0 ; ts < msg.length ; ts++)
+   for (ts = 0 ; ts < __po_hi_c_driver_serial_linux_poller_msg.length ; ts++)
    {
-        __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
+        __PO_HI_DEBUG_DEBUG ("%x", __po_hi_c_driver_serial_linux_poller_msg.content[ts]);
    }
    __PO_HI_DEBUG_DEBUG ("\n");
 
-   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Received: %s\n", msg.content);
+   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Received: %s\n", __po_hi_c_driver_serial_linux_poller_msg.content);
 
-   __po_hi_unmarshall_request (&request, &msg);
+   __po_hi_unmarshall_request (&__po_hi_c_driver_serial_linux_request, &__po_hi_c_driver_serial_linux_poller_msg);
 
-   if (request.port > __PO_HI_NB_PORTS)
+   if (__po_hi_c_driver_serial_linux_request.port > __PO_HI_NB_PORTS)
    {
       __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Invalid port number !\n");
       return;
    }
 
-   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Destination port: %d\n", request.port);
-   __po_hi_main_deliver (&request);
+   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Destination port: %d\n", __po_hi_c_driver_serial_linux_request.port);
+   __po_hi_main_deliver (&__po_hi_c_driver_serial_linux_request);
 }
 #endif
 
@@ -313,16 +303,17 @@ void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
 #if defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_SENDER)
 
+__po_hi_msg_t __po_hi_c_driver_serial_linux_sender_msg;
+
 int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port_t port)
 {
-   int n;
-   int ts;
-   unsigned long* swap_pointer;
-   unsigned long swap_value;
-   __po_hi_local_port_t local_port;
-   __po_hi_request_t* request;
-   __po_hi_msg_t msg;
-   __po_hi_port_t destination_port;
+   int                     n;
+   int                     ts;
+   unsigned long*          swap_pointer;
+   unsigned long           swap_value;
+   __po_hi_local_port_t    local_port;
+   __po_hi_request_t*      request;
+   __po_hi_port_t          destination_port;
 
    local_port = __po_hi_get_local_port_from_global_port (port);
 
@@ -336,14 +327,14 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
 
-   __po_hi_msg_reallocate (&msg);
+   __po_hi_msg_reallocate (&__po_hi_c_driver_serial_linux_sender_msg);
 
    request->port = destination_port;
 
-   __po_hi_marshall_request (request, &msg);
+   __po_hi_marshall_request (request, &__po_hi_c_driver_serial_linux_sender_msg);
 
    /* Swap only the port (first 32 bytes) */
-   swap_pointer  = (unsigned long*) &msg.content[0];
+   swap_pointer  = (unsigned long*) &__po_hi_c_driver_serial_linux_sender_msg.content[0];
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
 
@@ -352,21 +343,21 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
       printf("Wait %u between two sends\n", po_hi_c_driver_serial_sending_wait);
       for (n = 0 ; n < __PO_HI_MESSAGES_MAX_SIZE ; n++)
       {
-         write (po_hi_c_driver_serial_fd_write, &(msg.content[n]), 1);
+         write (po_hi_c_driver_serial_fd_write, &(__po_hi_c_driver_serial_linux_sender_msg.content[n]), 1);
          usleep (po_hi_c_driver_serial_sending_wait);
       }
 
    }
    else
    {
-      n = write (po_hi_c_driver_serial_fd_write, &msg, __PO_HI_MESSAGES_MAX_SIZE);
+      n = write (po_hi_c_driver_serial_fd_write, &__po_hi_c_driver_serial_linux_sender_msg, __PO_HI_MESSAGES_MAX_SIZE);
    }
 
    __PO_HI_DEBUG_DEBUG  ("[LINUX SERIAL] write() returns %d, message sent: 0x", n);
 
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
-      __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
+      __PO_HI_DEBUG_DEBUG ("%x", __po_hi_c_driver_serial_linux_sender_msg.content[ts]);
    }
    __PO_HI_DEBUG_DEBUG ("\n");
 

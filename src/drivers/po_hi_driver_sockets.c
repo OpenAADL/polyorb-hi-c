@@ -71,6 +71,8 @@ __po_hi_inetnode_t rnodes[__PO_HI_NB_DEVICES];
 
 __po_hi_device_id socket_device_id;
 
+__po_hi_msg_t              __po_hi_driver_sockets_send_msg;
+
 int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
                                  __po_hi_port_t port)
 {
@@ -82,7 +84,6 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    __po_hi_local_port_t       local_port;
    __po_hi_request_t*         request;
    __po_hi_port_t             destination_port;
-   __po_hi_msg_t              msg;
    __po_hi_protocol_t         protocol_id;
    __po_hi_protocol_conf_t*   protocol_conf;
 
@@ -166,14 +167,14 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
       default: 
       {
          request->port = destination_port;
-         __po_hi_msg_reallocate (&msg);
-         __po_hi_marshall_request (request, &msg);
+         __po_hi_msg_reallocate (&__po_hi_driver_sockets_send_msg);
+         __po_hi_marshall_request (request, &__po_hi_driver_sockets_send_msg);
 
 #ifdef __PO_HI_DEBUG
-         __po_hi_messages_debug (&msg);
+         __po_hi_messages_debug (&__po_hi_driver_sockets_send_msg);
 #endif
 
-         len = write (nodes[associated_device].socket, &(msg.content), size_to_write);
+         len = write (nodes[associated_device].socket, &(__po_hi_driver_sockets_send_msg.content), size_to_write);
 
          if (len != size_to_write)
          {
@@ -192,6 +193,9 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 }
 
 
+__po_hi_request_t          __po_hi_sockets_poller_received_request;
+__po_hi_msg_t              __po_hi_sockets_poller_msg;
+
 void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
 {
    (void)                     dev_id;
@@ -206,8 +210,6 @@ void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
    struct sockaddr_in         sa;
    __po_hi_device_id          dev;
    __po_hi_node_t             dev_init;
-   __po_hi_request_t          received_request;
-   __po_hi_msg_t              msg;
    int                        established = 0; 
    __po_hi_protocol_conf_t*   protocol_conf;
 
@@ -315,18 +317,18 @@ void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
                   rnodes[dev].socket = -1;
                   continue;
                }
-               protocol_conf->unmarshaller (&received_request, &datareceived, len);
-               received_request.port = 1;
+               protocol_conf->unmarshaller (&__po_hi_sockets_poller_received_request, &datareceived, len);
+               __po_hi_sockets_poller_received_request.port = 1;
             }
 
 #else
-            memset (msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
-            len = recv (rnodes[dev].socket, msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
-            msg.length = len;
+            memset (__po_hi_sockets_poller_msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
+            len = recv (rnodes[dev].socket, __po_hi_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+            __po_hi_sockets_poller_msg.length = len;
             __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",(int)len);
 
 #ifdef __PO_HI_DEBUG
-   __po_hi_messages_debug (&msg);
+   __po_hi_messages_debug (&__po_hi_sockets_poller_msg);
 #endif
 
 
@@ -338,16 +340,19 @@ void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
                continue;
             }
 
-            __po_hi_unmarshall_request (&received_request, &msg);
+            __po_hi_unmarshall_request (&__po_hi_sockets_poller_received_request, &__po_hi_sockets_poller_msg);
 #endif
 
-            __po_hi_main_deliver (&received_request);
+            __po_hi_main_deliver (&__po_hi_sockets_poller_received_request);
          }
       }
    }  
    return NULL;
 }
 
+
+__po_hi_msg_t              __po_hi_sockets_receiver_task_msg;
+__po_hi_request_t          __po_hi_sockets_receiver_task_received_request;
 
 /*
  * Old receiver code that is based on PolyORB-HI-C for AADLv1
@@ -362,10 +367,8 @@ void* __po_hi_sockets_receiver_task (void)
    int                        sock;
    int                        max_socket;
    fd_set                     selector;
-   __po_hi_msg_t              msg;
    __po_hi_node_t             node;
    __po_hi_node_t             node_init;
-   __po_hi_request_t          received_request;
    struct sockaddr_in         sa;
    __po_hi_protocol_conf_t*   protocol_conf;
 
@@ -450,8 +453,8 @@ void* __po_hi_sockets_receiver_task (void)
 #ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
 
             __DEBUGMSG ("Using raw protocol stack\n");
-            len = recv (rnodes[node].socket, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
-            msg.length = len;
+            len = recv (rnodes[node].socket, &(__po_hi_sockets_receiver_task_msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+            __po_hi_sockets_receiver_task_msg.length = len;
             if (len != __PO_HI_MESSAGES_MAX_SIZE )
             {
                __DEBUGMSG ("ERROR, %u %d", (unsigned int) len, __PO_HI_MESSAGES_MAX_SIZE);
@@ -463,12 +466,12 @@ void* __po_hi_sockets_receiver_task (void)
 
 
             protocol_conf = __po_hi_transport_get_protocol_configuration (virtual_bus_myprotocol_i);
-            protocol_conf->unmarshaller (&received_request, &msg, len);
+            protocol_conf->unmarshaller (&__po_hi_sockets_receiver_task_received_request, &__po_hi_sockets_receiver_task_msg, len);
 #else
 
             __DEBUGMSG ("Using raw protocol stack\n");
-            len = recv (rnodes[node].socket, &(msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
-            msg.length = len;
+            len = recv (rnodes[node].socket, &(__po_hi_sockets_receiver_task_msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+            __po_hi_sockets_receiver_task_msg.length = len;
             if (len != __PO_HI_MESSAGES_MAX_SIZE )
             {
                __DEBUGMSG ("ERROR, %u %d", (unsigned int) len, __PO_HI_MESSAGES_MAX_SIZE);
@@ -478,12 +481,12 @@ void* __po_hi_sockets_receiver_task (void)
             }
             __DEBUGMSG ("Message delivered");
 
-            __po_hi_unmarshall_request (&received_request, &msg);
+            __po_hi_unmarshall_request (&__po_hi_sockets_receiver_task_received_request, &__po_hi_sockets_receiver_task_msg);
 #endif
 
-            __po_hi_main_deliver (&received_request);
+            __po_hi_main_deliver (&__po_hi_sockets_receiver_task_received_request);
 
-            __po_hi_msg_reallocate(&msg);        /* re-initialize the message */
+            __po_hi_msg_reallocate(&__po_hi_sockets_receiver_task_msg);        /* re-initialize the message */
          }
       }
    }  

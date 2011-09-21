@@ -86,6 +86,9 @@ int __po_hi_driver_usbbrick_spw_init  (star_device_handle *phDevice,   /* Pointe
         return 0;
 }
 
+__po_hi_request_t __po_hi_c_driver_spw_usb_brick_request;
+__po_hi_msg_t     __po_hi_c_driver_spw_usb_brick_poller_msg;
+
 void __po_hi_c_driver_spw_usb_brick_poller (const __po_hi_device_id dev_id)
 {
    int n;
@@ -99,14 +102,12 @@ void __po_hi_c_driver_spw_usb_brick_poller (const __po_hi_device_id dev_id)
    USB_SPACEWIRE_EOP_TYPE eop;
    USB_SPACEWIRE_ID id;
 
-   __po_hi_msg_t msg;
-   __po_hi_request_t request;
 
    __PO_HI_DEBUG_DEBUG ("[USB-SPW] Hello, i'm the spacewire poller on the brick, must read %d bytes!\n", __PO_HI_MESSAGES_MAX_SIZE);
 
-   __po_hi_msg_reallocate (&msg);
+   __po_hi_msg_reallocate (&__po_hi_c_driver_spw_usb_brick_poller_msg);
 
-   status = USBSpaceWire_ReadPackets(__po_hi_c_driver_usb_brick_star_device[dev_id], &msg.content[0], __PO_HI_MESSAGES_MAX_SIZE, 1, 1, &props, &id);
+   status = USBSpaceWire_ReadPackets(__po_hi_c_driver_usb_brick_star_device[dev_id], &__po_hi_c_driver_spw_usb_brick_poller_msg.content[0], __PO_HI_MESSAGES_MAX_SIZE, 1, 1, &props, &id);
    if (status != TRANSFER_SUCCESS)
    {
       __PO_HI_DEBUG_DEBUG ("[USB-SPW] Read error, status=%d!\n", status);
@@ -143,34 +144,34 @@ void __po_hi_c_driver_spw_usb_brick_poller (const __po_hi_device_id dev_id)
 
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
-      __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
+      __PO_HI_DEBUG_DEBUG ("%x", __po_hi_c_driver_spw_usb_brick_poller_msg.content[ts]);
    }
    __PO_HI_DEBUG_DEBUG ("\n");
-   swap_pointer  = (unsigned long*) &msg.content[0];
+   swap_pointer  = (unsigned long*) &__po_hi_c_driver_spw_usb_brick_poller_msg.content[0];
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
 
-   msg.length = n;
+   __po_hi_c_driver_spw_usb_brick_poller_msg.length = n;
 
    __PO_HI_DEBUG_DEBUG ("[USB-SPW] Message after swapped port: 0x");
-   for (ts = 0 ; ts < msg.length ; ts++)
+   for (ts = 0 ; ts < __po_hi_c_driver_spw_usb_brick_poller_msg.length ; ts++)
    {
-        __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
+        __PO_HI_DEBUG_DEBUG ("%x", __po_hi_c_driver_spw_usb_brick_poller_msg.content[ts]);
    }
    __PO_HI_DEBUG_DEBUG ("\n");
 
-   __PO_HI_DEBUG_DEBUG ("[USB-SPW] Received: %s\n", msg.content);
+   __PO_HI_DEBUG_DEBUG ("[USB-SPW] Received: %s\n", __po_hi_c_driver_spw_usb_brick_poller_msg.content);
 
-   __po_hi_unmarshall_request (&request, &msg);
+   __po_hi_unmarshall_request (&__po_hi_c_driver_spw_usb_brick_request, &__po_hi_c_driver_spw_usb_brick_poller_msg);
 
-   if (request.port > __PO_HI_NB_PORTS)
+   if (__po_hi_c_driver_spw_usb_brick_request.port > __PO_HI_NB_PORTS)
    {
       __PO_HI_DEBUG_DEBUG ("[USB-SPW] Invalid port number !\n");
       return;
    }
 
-   __PO_HI_DEBUG_DEBUG ("[USB-SPW] Destination port: %d\n", request.port);
-   __po_hi_main_deliver (&request);
+   __PO_HI_DEBUG_DEBUG ("[USB-SPW] Destination port: %d\n", __po_hi_c_driver_spw_usb_brick_request.port);
+   __po_hi_main_deliver (&__po_hi_c_driver_spw_usb_brick_request);
 
 
 }
@@ -210,6 +211,10 @@ void __po_hi_c_driver_spw_usb_brick_init (__po_hi_device_id id)
    __PO_HI_DEBUG_DEBUG ("[USB-BRICK] SpaceWire device initialisation complete, fd=%d\n", __po_hi_c_driver_usb_brick_fd[id] );
 }
 
+
+
+__po_hi_msg_t           __po_hi_c_driver_spw_usb_brick_sender_msg;
+
 int __po_hi_c_driver_spw_usb_brick_sender (const __po_hi_task_id task_id, const __po_hi_port_t port)
 {
    int                     n;
@@ -221,7 +226,6 @@ int __po_hi_c_driver_spw_usb_brick_sender (const __po_hi_task_id task_id, const 
    unsigned long swap_value;
    __po_hi_local_port_t    local_port;
    __po_hi_request_t*      request;
-   __po_hi_msg_t           msg;
    __po_hi_port_t          destination_port;
    __po_hi_device_id       dev_id;
 
@@ -248,13 +252,13 @@ int __po_hi_c_driver_spw_usb_brick_sender (const __po_hi_task_id task_id, const 
 
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
 
-   __po_hi_msg_reallocate (&msg);
+   __po_hi_msg_reallocate (&__po_hi_c_driver_spw_usb_brick_sender_msg);
 
    request->port = destination_port;
    __PO_HI_DEBUG_DEBUG ("[USB-SPW] Destination port= %d, send through device %d (fd=%d)\n", destination_port, dev_id, __po_hi_c_driver_usb_brick_fd[dev_id]);
 
-   __po_hi_marshall_request (request, &msg);
-   swap_pointer  = (unsigned long*) &msg.content[0];
+   __po_hi_marshall_request (request, &__po_hi_c_driver_spw_usb_brick_sender_msg);
+   swap_pointer  = (unsigned long*) &__po_hi_c_driver_spw_usb_brick_sender_msg.content[0];
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
 
@@ -262,7 +266,7 @@ int __po_hi_c_driver_spw_usb_brick_sender (const __po_hi_task_id task_id, const 
 
    __PO_HI_DEBUG_DEBUG ("[USB-SPW] write() send on port %d\n", __po_hi_c_driver_usb_brick_port[dev_id]);
 
-   memcpy (&buf[1], msg.content, __PO_HI_MESSAGES_MAX_SIZE);
+   memcpy (&buf[1], __po_hi_c_driver_spw_usb_brick_sender_msg.content, __PO_HI_MESSAGES_MAX_SIZE);
    if ((status = USBSpaceWire_SendPacket(__po_hi_c_driver_usb_brick_star_device[dev_id], buf, __PO_HI_MESSAGES_MAX_SIZE + 1, 1, &id)) != TRANSFER_SUCCESS) 
    {
       __PO_HI_DEBUG_DEBUG("[USB-SPW] Write error: %d.\n", status);
@@ -272,7 +276,7 @@ int __po_hi_c_driver_spw_usb_brick_sender (const __po_hi_task_id task_id, const 
    __PO_HI_DEBUG_DEBUG ("Sent: |0x");
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
-      __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
+      __PO_HI_DEBUG_DEBUG ("%x", __po_hi_c_driver_spw_usb_brick_sender_msg.content[ts]);
    }
    __PO_HI_DEBUG_DEBUG ("|\n");
 

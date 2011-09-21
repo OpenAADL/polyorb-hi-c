@@ -39,17 +39,15 @@
 
 #define __PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT 4
 
-__po_hi_c_driver_rasta_1553_brm_t po_hi_c_driver_1553_rasta_fd;
+__po_hi_c_driver_rasta_1553_brm_t         po_hi_c_driver_1553_rasta_fd;
+__po_hi_request_t                         po_hi_c_driver_1553_rasta_request;
+__po_hi_msg_t                             __po_hi_c_driver_1553_rasta_terminal_poller_msg;
 
 void __po_hi_c_driver_1553_rasta_terminal_poller (void)
 {
-   int ret;
-   int msglen;
-
-   __po_hi_msg_t msg;
-   __po_hi_request_t request;
-
-   struct rt_msg msgs[__PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT];
+   int            ret;
+   int            msglen;
+   struct rt_msg  msgs[__PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT];
 
    __DEBUGMSG ("[RASTA 1553] Hello, i'm the poller !\n");
 
@@ -82,12 +80,12 @@ void __po_hi_c_driver_1553_rasta_terminal_poller (void)
 
    msglen = (msgs[0].miw >> 11) & 0x1f;
 
-   memcpy (&msg, msgs[0].data, __PO_HI_MESSAGES_MAX_SIZE);
+   memcpy (&__po_hi_c_driver_1553_rasta_terminal_poller_msg, msgs[0].data, __PO_HI_MESSAGES_MAX_SIZE);
    {
 #include <stdio.h>
    printf("received (length=%d): 0x", msglen);
    int i;
-   uint32_t* toto = (uint32_t*) &msg;
+   uint32_t* toto = (uint32_t*) &__po_hi_c_driver_1553_rasta_terminal_poller_msg;
    for (i = 0 ; i < __PO_HI_MESSAGES_MAX_SIZE ; i++)
    {
       printf("%x", toto[i]);
@@ -97,13 +95,15 @@ void __po_hi_c_driver_1553_rasta_terminal_poller (void)
    }
 
 
-   __po_hi_unmarshall_request (&request, &msg);
+   __po_hi_unmarshall_request (&po_hi_c_driver_1553_rasta_request, &__po_hi_c_driver_1553_rasta_terminal_poller_msg);
 
-   __DEBUGMSG ("[RASTA 1553] Destination port: %d\n", request.port);
+   __DEBUGMSG ("[RASTA 1553] Destination port: %d\n", po_hi_c_driver_1553_rasta_request.port);
 
-   __po_hi_main_deliver (&request);
+   __po_hi_main_deliver (&po_hi_c_driver_1553_rasta_request);
 }
 
+
+__po_hi_msg_t __po_hi_c_driver_1553_rasta_sender_terminal_msg;
 int __po_hi_c_driver_1553_rasta_sender_terminal (const __po_hi_task_id task_id, const __po_hi_port_t port)
 {
    int ts;
@@ -112,7 +112,6 @@ int __po_hi_c_driver_1553_rasta_sender_terminal (const __po_hi_task_id task_id, 
 
    __po_hi_local_port_t local_port;
    __po_hi_request_t* request;
-   __po_hi_msg_t msg;
    __po_hi_port_t destination_port;
 
 
@@ -122,13 +121,13 @@ int __po_hi_c_driver_1553_rasta_sender_terminal (const __po_hi_task_id task_id, 
 
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
 
-   __po_hi_msg_reallocate (&msg);
+   __po_hi_msg_reallocate (&__po_hi_c_driver_1553_rasta_sender_terminal_msg);
 
    request->port = destination_port;
 
-   __po_hi_marshall_request (request, &msg);
+   __po_hi_marshall_request (request, &__po_hi_c_driver_1553_rasta_sender_terminal_msg);
 
-   memcpy (msgs[0].data, &msg, __PO_HI_MESSAGES_MAX_SIZE);
+   memcpy (msgs[0].data, &__po_hi_c_driver_1553_rasta_sender_terminal_msg, __PO_HI_MESSAGES_MAX_SIZE);
 
    msgs[0].miw = 0;
    msgs[0].miw |= (__PO_HI_MESSAGES_MAX_SIZE / 8) << 11;
@@ -147,7 +146,7 @@ int __po_hi_c_driver_1553_rasta_sender_terminal (const __po_hi_task_id task_id, 
 
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
-      __DEBUGMSG ("%x", msg.content[ts]);
+      __DEBUGMSG ("%x", __po_hi_c_driver_1553_rasta_sender_terminal_msg.content[ts]);
    }
    __DEBUGMSG ("\n");
 
@@ -155,6 +154,7 @@ int __po_hi_c_driver_1553_rasta_sender_terminal (const __po_hi_task_id task_id, 
 }
 
 
+__po_hi_msg_t __po_hi_c_driver_1553_rasta_sender_controller_msg;
 int __po_hi_c_driver_1553_rasta_sender_controller (const __po_hi_task_id task_id, const __po_hi_port_t port)
 {
    struct bc_msg msgs[2];
@@ -170,7 +170,6 @@ int __po_hi_c_driver_1553_rasta_sender_controller (const __po_hi_task_id task_id
 
    __po_hi_local_port_t local_port;
    __po_hi_request_t* request;
-   __po_hi_msg_t msg;
    __po_hi_port_t destination_port;
 
 
@@ -180,13 +179,13 @@ int __po_hi_c_driver_1553_rasta_sender_controller (const __po_hi_task_id task_id
 
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
 
-   __po_hi_msg_reallocate (&msg);
+   __po_hi_msg_reallocate (&__po_hi_c_driver_1553_rasta_sender_controller_msg);
 
    request->port = destination_port;
 
-   __po_hi_marshall_request (request, &msg);
+   __po_hi_marshall_request (request, &__po_hi_c_driver_1553_rasta_sender_controller_msg);
 
-   memcpy (msgs[0].data, &msg, __PO_HI_MESSAGES_MAX_SIZE);
+   memcpy (msgs[0].data, &__po_hi_c_driver_1553_rasta_sender_controller_msg, __PO_HI_MESSAGES_MAX_SIZE);
 
    /*
    {

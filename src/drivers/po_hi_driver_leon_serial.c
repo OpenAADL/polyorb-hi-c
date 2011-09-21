@@ -41,6 +41,10 @@ int po_hi_c_driver_leon_serial_fd_write;
 #if defined (__PO_HI_NEED_DRIVER_SERIAL_LEON) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_RECEIVER)
 
+
+ __po_hi_request_t  po_hi_c_driver_leon_serial_request;
+ __po_hi_msg_t      po_hi_c_driver_leon_serial_poller_msg;
+
 void __po_hi_c_driver_serial_leon_poller (const __po_hi_device_id dev_id)
 {
    int n;
@@ -49,43 +53,41 @@ void __po_hi_c_driver_serial_leon_poller (const __po_hi_device_id dev_id)
 
    (void) dev_id;
 
-   __po_hi_msg_t msg;
-   __po_hi_request_t request;
 
    __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] Hello, i'm the serial poller , must read %d bytes on %d !\n", __PO_HI_MESSAGES_MAX_SIZE, po_hi_c_driver_leon_serial_fd_read);
 
-   __po_hi_msg_reallocate (&msg);
+   __po_hi_msg_reallocate (&po_hi_c_driver_leon_serial_poller_msg);
 
    tr = 0;
    while (tr < __PO_HI_MESSAGES_MAX_SIZE)
    {
-      if (read (po_hi_c_driver_leon_serial_fd_read, &(msg.content[tr]), 1) == 1)
+      if (read (po_hi_c_driver_leon_serial_fd_read, &(po_hi_c_driver_leon_serial_poller_msg.content[tr]), 1) == 1)
       {
          tr++;
       }
    }
 
-   msg.length = __PO_HI_MESSAGES_MAX_SIZE;
+   po_hi_c_driver_leon_serial_poller_msg.length = __PO_HI_MESSAGES_MAX_SIZE;
   __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] read() syscall returns in total %d, received: ", tr);
 #ifdef __PO_HI_DEBUG_DEBUG
    __PO_HI_DEBUG_DEBUG("[LEON SERIAL] Message received: 0x");
-   for (ts = 0 ; ts < msg.length ; ts++)
+   for (ts = 0 ; ts < po_hi_c_driver_leon_serial_poller_msg.length ; ts++)
    {
-        __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
+        __PO_HI_DEBUG_DEBUG ("%x", po_hi_c_driver_leon_serial_poller_msg.content[ts]);
    }
    __PO_HI_DEBUG_DEBUG ("\n");
 #endif
 
-   __po_hi_unmarshall_request (&request, &msg);
+   __po_hi_unmarshall_request (& po_hi_c_driver_leon_serial_request, &po_hi_c_driver_leon_serial_poller_msg);
 
-   if (request.port > __PO_HI_NB_PORTS)
+   if ( po_hi_c_driver_leon_serial_request.port > __PO_HI_NB_PORTS)
    {
       __PO_HI_DEBUG_WARNING ("[LEON SERIAL] Invalid port number !\n");
       return;
    }
 
-   __PO_HI_DEBUG_INFO ("[LEON SERIAL] Destination port: %d\n", request.port);
-   __po_hi_main_deliver (&request);
+   __PO_HI_DEBUG_INFO ("[LEON SERIAL] Destination port: %d\n",  po_hi_c_driver_leon_serial_request.port);
+   __po_hi_main_deliver (& po_hi_c_driver_leon_serial_request);
 }
 #endif
 
@@ -238,14 +240,15 @@ void __po_hi_c_driver_serial_leon_init (__po_hi_device_id id)
 #if defined (__PO_HI_NEED_DRIVER_SERIAL_LEON) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_SENDER)
 
+
+__po_hi_msg_t __po_hi_c_driver_serial_leon_sender_msg;
 int  __po_hi_c_driver_serial_leon_sender (__po_hi_task_id task_id, __po_hi_port_t port)
 {
    int n;
    int ts;
    __po_hi_local_port_t local_port;
-   __po_hi_request_t* request;
-   __po_hi_msg_t msg;
-   __po_hi_port_t destination_port;
+   __po_hi_request_t*   request;
+   __po_hi_port_t       destination_port;
 
    local_port = __po_hi_get_local_port_from_global_port (port);
 
@@ -253,20 +256,20 @@ int  __po_hi_c_driver_serial_leon_sender (__po_hi_task_id task_id, __po_hi_port_
 
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
 
-   __po_hi_msg_reallocate (&msg);
+   __po_hi_msg_reallocate (&__po_hi_c_driver_serial_leon_sender_msg);
 
    request->port = destination_port;
 
-   __po_hi_marshall_request (request, &msg);
+   __po_hi_marshall_request (request, &__po_hi_c_driver_serial_leon_sender_msg);
 
-   n = write (po_hi_c_driver_leon_serial_fd_write, &(msg.content[0]), __PO_HI_MESSAGES_MAX_SIZE);
+   n = write (po_hi_c_driver_leon_serial_fd_write, &(__po_hi_c_driver_serial_leon_sender_msg.content[0]), __PO_HI_MESSAGES_MAX_SIZE);
 
 #ifdef __PO_HI_DEBUG_INFO
    __PO_HI_DEBUG_INFO  ("[LEON SERIAL] Message sent: 0x");
 
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
    {
-      __PO_HI_DEBUG_INFO ("%x", msg.content[ts]);
+      __PO_HI_DEBUG_INFO ("%x", __po_hi_c_driver_serial_leon_sender_msg.content[ts]);
    }
    __PO_HI_DEBUG_INFO ("\n");
 #endif

@@ -45,8 +45,9 @@
 
 #define __PO_HI_DRIVER_SPACEWIRE_RASTA_DEVICE "/dev/grspwrasta0"
 
-
-int po_hi_c_driver_rasta_spacewire_fd[__PO_HI_NB_DEVICES];
+ __po_hi_request_t   __po_hi_c_driver_spacewire_rasta_request;
+__po_hi_msg_t        __po_hi_c_driver_spacewire_rasta_poller_msg;
+int                  po_hi_c_driver_rasta_spacewire_fd[__PO_HI_NB_DEVICES];
 
 void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
 {
@@ -54,15 +55,13 @@ void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
    int j;
    int ts;
 
-   __po_hi_msg_t msg;
-   __po_hi_request_t request;
 
    __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Hello, i'm the spacewire poller !\n");
 
-   __po_hi_msg_reallocate (&msg);
+   __po_hi_msg_reallocate (&__po_hi_c_driver_spacewire_rasta_poller_msg);
 
    len = read (po_hi_c_driver_rasta_spacewire_fd[dev_id],
-               &msg.content[0],
+               &__po_hi_c_driver_spacewire_rasta_poller_msg.content[0],
                __PO_HI_MESSAGES_MAX_SIZE);
 
    __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Poller received a message, len=%d\n", len);
@@ -76,16 +75,16 @@ void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
       __PO_HI_DEBUG_DEBUG ("Message content: |0x");
       for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++)
       {
-         __PO_HI_DEBUG_DEBUG ("%x", msg.content[ts]);
+         __PO_HI_DEBUG_DEBUG ("%x", __po_hi_c_driver_spacewire_rasta_poller_msg.content[ts]);
       }
       __PO_HI_DEBUG_DEBUG ("|\n");
 
 
-      msg.length = __PO_HI_MESSAGES_MAX_SIZE;
-      __po_hi_unmarshall_request (&request, &msg);
+      __po_hi_c_driver_spacewire_rasta_poller_msg.length = __PO_HI_MESSAGES_MAX_SIZE;
+      __po_hi_unmarshall_request (&__po_hi_c_driver_spacewire_rasta_request, &__po_hi_c_driver_spacewire_rasta_poller_msg);
 
-      __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Destination port: %d\n", request.port);
-      __po_hi_main_deliver (&request);
+      __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Destination port: %d\n", __po_hi_c_driver_spacewire_rasta_request.port);
+      __po_hi_main_deliver (&__po_hi_c_driver_spacewire_rasta_request);
    }
 }
 
@@ -150,13 +149,15 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
    perror ("spw start");
 }
 
+
+__po_hi_msg_t           __po_hi_c_driver_spacewire_rasta_sender_msg;
+
 int __po_hi_c_driver_spacewire_rasta_sender (const __po_hi_task_id task_id, const __po_hi_port_t port)
 {
    int len = -1;
    int i;
    __po_hi_local_port_t    local_port;
    __po_hi_request_t*      request;
-   __po_hi_msg_t           msg;
    __po_hi_port_t          destination_port;
 
    __po_hi_device_id       dev_id;
@@ -181,13 +182,13 @@ int __po_hi_c_driver_spacewire_rasta_sender (const __po_hi_task_id task_id, cons
 
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
 
-   __po_hi_msg_reallocate (&msg);
+   __po_hi_msg_reallocate (&__po_hi_c_driver_spacewire_rasta_sender_msg);
 
    request->port = destination_port;
 
-   __po_hi_marshall_request (request, &msg);
+   __po_hi_marshall_request (request, &__po_hi_c_driver_spacewire_rasta_sender_msg);
 
-   len = write (po_hi_c_driver_rasta_spacewire_fd[dev_id], msg.content, __PO_HI_MESSAGES_MAX_SIZE);
+   len = write (po_hi_c_driver_rasta_spacewire_fd[dev_id], __po_hi_c_driver_spacewire_rasta_sender_msg.content, __PO_HI_MESSAGES_MAX_SIZE);
 
    if (len < 0)
    {
