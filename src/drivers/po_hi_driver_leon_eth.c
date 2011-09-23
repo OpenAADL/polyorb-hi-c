@@ -145,19 +145,24 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
    {
       if (dev != leon_eth_device_id)
       {
-         __DEBUGMSG ("[DRIVER ETH] Poller waits for connection with device %d\n", dev);
 
-         /*
-         __PO_HI_SET_SOCKET_TIMEOUT(nodes[socket_device_id].socket,5);
-         */
+         __PO_HI_SET_SOCKET_TIMEOUT(nodes[leon_eth_device_id].socket,500000);
 
          established = 0;
 
          while (established == 0)
          {
+
+            __DEBUGMSG ("[DRIVER ETH] Poller waits for connection with device %d on socket %d (waiting device %d)\n", dev, nodes[leon_eth_device_id].socket, leon_eth_device_id);
             sock = accept (nodes[leon_eth_device_id].socket, (struct sockaddr*) &sa, &socklen);
 
-            __PO_HI_SET_SOCKET_TIMEOUT(sock,10);
+            if (sock == -1)
+            {
+               __DEBUGMSG ("[DRIVER ETH] accept() error for device %d on device %d (socket=%d)\n", dev, leon_eth_device_id, nodes[leon_eth_device_id].socket);
+               continue;
+            }
+
+            __PO_HI_SET_SOCKET_TIMEOUT(sock,100000);
 
 #ifndef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
             if (read (sock, &dev_init, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
@@ -287,7 +292,7 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 
    __po_hi_c_ip_conf_t* ipconf;
    char ip_addr[16];
-   int ip_port;
+   unsigned short ip_port;
    int node;
 
    ipconf = (__po_hi_c_ip_conf_t*)__po_hi_get_device_configuration (id);
@@ -311,13 +316,13 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 
 
   rtems_bsdnet_initialize_network ();
-
-#ifdef __PO_HI_DEBUG
+/*
+#ifdef __PO_HI_DEBUG_INFO
    rtems_bsdnet_show_if_stats ();
    rtems_bsdnet_show_inet_routes ();
    rtems_bsdnet_show_ip_stats ();
 #endif
-
+*/
    leon_eth_device_id = id;
 
    for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)
@@ -325,9 +330,9 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
       nodes[node].socket = -1;
    }
 
-   ip_port = (int)ipconf->port;
+   ip_port = (unsigned short)ipconf->port;
 
-   __DEBUGMSG ("My configuration, addr=%s, port=%lld\n", ipconf->address, ipconf->port );
+   __DEBUGMSG ("My configuration, addr=%s, port=%d\n", ipconf->address, ip_port);
 
    /*
     * If the current node port has a port number, then it has to
@@ -346,26 +351,23 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
          return;
       }
 
-      reuse = 1;
-      setsockopt (nodes[id].socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof (reuse));
+      __DEBUGMSG ("[DRIVER ETH] Receiving socket for device %d created, value=%d\n", id, nodes[id].socket);
 
       sa.sin_addr.s_addr = htonl (INADDR_ANY);   /* We listen on all adresses */
       sa.sin_family = AF_INET;                   
       sa.sin_port = htons (ip_port);   /* Port provided by the generated code */
 
-      if( bind( nodes[id].socket , ( struct sockaddr * ) &sa , sizeof( struct sockaddr_in ) ) < 0 )
+      if( bind (nodes[id].socket , (struct sockaddr *) &sa , sizeof (struct sockaddr_in) ) == -1 )
       {
-#ifdef __PO_HI_DEBUG
          __DEBUGMSG ("Unable to bind socket and port on socket %d\n", nodes[id].socket);
-#endif
       }
 
-      if( listen( nodes[id].socket , __PO_HI_NB_ENTITIES ) < 0 )
+      if( listen( nodes[id].socket , __PO_HI_NB_ENTITIES ) == -1)
       {
-#ifdef __PO_HI_DEBUG
          __DEBUGMSG ("Cannot listen on socket %d\n", nodes[id].socket);
-#endif
       }
+
+      __DEBUGMSG ("[DRIVER ETH] Receiving socket listen on any address on port %d\n", sa.sin_port);
 
       /* 
        * Create the thread which receive all data from other
@@ -396,7 +398,7 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
       ip_port = 0;
 
       ipconf = (__po_hi_c_ip_conf_t*) __po_hi_get_device_configuration (dev);
-      ip_port = (int)ipconf->port;
+      ip_port = (unsigned short)ipconf->port;
 
       __DEBUGMSG ("[DRIVER ETH] Configuration for device %d, addr=%s, port=%d\n", dev, ipconf->address, ip_port);
 
@@ -425,6 +427,8 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
             __DEBUGMSG ("[DRIVER ETH] Error while getting host informations for device %d\n", dev);
          }
 
+         __DEBUGMSG ("[DRIVER ETH] Got the following information for device %d\n", dev);
+
          sa.sin_port = htons (ip_port);
          sa.sin_family = AF_INET;
 
@@ -435,19 +439,21 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
           * function.  We use a loop instead to perform the
           * copy.  So, these lines replace the code :
           *
-          * memcpy( (char*) &( sa.sin_addr ) , (char*)hostinfo->h_addr , hostinfo->h_length );
+          *
+          *
+          memcpy( (char*) &( sa.sin_addr ) , (char*)hostinfo->h_addr , hostinfo->h_length );
           */
-
          tmp = (char*) &(sa.sin_addr);
          for (i=0 ; i<hostinfo->h_length ; i++)
          {
             tmp[i] = hostinfo->h_addr[i];
          }
 
+         __PO_HI_SET_SOCKET_TIMEOUT(nodes[dev].socket,100000);
+
          /*
           * We try to connect on the remote host. We try every
           * second to connect on.
-         __PO_HI_SET_SOCKET_TIMEOUT(nodes[dev].socket,5);
           */
 
          ret = connect (nodes[dev].socket, 
@@ -470,12 +476,13 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
          if (ret == 0)
          {
 
-            __DEBUGMSG ("[DRIVER ETH] Send my id (%d)\n", id);
-            if (write (nodes[dev].socket, &id, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
+            __DEBUGMSG ("[DRIVER ETH] Send my id (%d) using socket %d (node %d)\n", id, nodes[dev].socket, dev);
+            ret = write (nodes[dev].socket, &id, sizeof (__po_hi_device_id));
+            if (ret != sizeof (__po_hi_device_id))
             {
-               __DEBUGMSG ("[DRIVER ETH] Device %d cannot send his id\n", id);
+               __DEBUGMSG ("[DRIVER ETH] Device %d cannot send his id (ret=%d)\n", id, ret);
             }
-            __DEBUGMSG ("[DRIVER ETH] Connection established with device %d, socket=%d\n", dev, nodes[dev].socket);
+            __DEBUGMSG ("[DRIVER ETH] Connection established with device %d, socket=%d (ret=%d)\n", dev, nodes[dev].socket, ret);
             break;
          }
          else
@@ -502,8 +509,7 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
       }
    }
 
-
-
+   __DEBUGMSG ("[DRIVER ETH] INITIALIZATION DONE\n");
 
 }
 #endif

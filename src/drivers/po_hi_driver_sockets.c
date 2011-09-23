@@ -66,10 +66,10 @@
  * listen socket. This array is used only by the receiver_task
  */
 
-__po_hi_inetnode_t nodes[__PO_HI_NB_DEVICES];
-__po_hi_inetnode_t rnodes[__PO_HI_NB_DEVICES];
+__po_hi_inetnode_t         nodes[__PO_HI_NB_DEVICES];
+__po_hi_inetnode_t         rnodes[__PO_HI_NB_DEVICES];
 
-__po_hi_device_id socket_device_id;
+__po_hi_device_id          socket_device_id;
 
 __po_hi_msg_t              __po_hi_driver_sockets_send_msg;
 
@@ -211,6 +211,7 @@ void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
    __po_hi_device_id          dev;
    __po_hi_node_t             dev_init;
    int                        established = 0; 
+   int                        ret;
    __po_hi_protocol_conf_t*   protocol_conf;
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
@@ -231,25 +232,29 @@ void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
    {
       if (dev != socket_device_id)
       {
-         __DEBUGMSG ("[DRIVER SOCKETS] Poller waits for connection with device %d\n", dev);
-
-         /*
-         __PO_HI_SET_SOCKET_TIMEOUT(nodes[socket_device_id].socket,5);
-         */
 
          established = 0;
 
          while (established == 0)
          {
+            __DEBUGMSG ("[DRIVER SOCKETS] Poller waits for connection with device %d (reading device=%d, socket=%d)\n", dev, socket_device_id, nodes[socket_device_id].socket);
             sock = accept (nodes[socket_device_id].socket, (struct sockaddr*) &sa, &socklen);
 
-            __PO_HI_SET_SOCKET_TIMEOUT(sock,10);
+            if (sock == -1)
+            {
+               continue;
+            }
+
+            __DEBUGMSG ("[DRIVER SOCKETS] accept() passed, waiting for device id %d\n", dev);
 
 #ifndef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
-            if (read (sock, &dev_init, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
+
+            ret = read (sock, &dev_init, sizeof (__po_hi_device_id));
+            if (ret != sizeof (__po_hi_device_id))
             {
                established = 0;
-               __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d\n", dev, sock);
+               perror ("[DRIVER SOCKETS]");
+               __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d, ret=%d\n", dev, sock, ret);
             }
             else
             {
@@ -507,9 +512,8 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
    struct hostent*    hostinfo;
 
 
-   __po_hi_c_ip_conf_t* ipconf;
-   char ip_addr[16];
-   int ip_port;
+   __po_hi_c_ip_conf_t*    ipconf;
+   unsigned short          ip_port;
    int node;
 
    socket_device_id = id;
@@ -522,7 +526,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
    ipconf = (__po_hi_c_ip_conf_t*)__po_hi_get_device_configuration (id);
    ip_port = (int)ipconf->port;
 
-   __DEBUGMSG ("My configuration, addr=%s, port=%lld\n", ipconf->address, ipconf->port );
+   __DEBUGMSG ("My configuration, addr=%s, port=%d\n", ipconf->address, ip_port );
 
    /*
     * If the current node port has a port number, then it has to
@@ -533,6 +537,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
    {
       nodes[id].socket = socket (AF_INET, SOCK_STREAM, 0);
 
+
       if (nodes[id].socket == -1 )
       {
 #ifdef __PO_HI_DEBUG
@@ -541,8 +546,14 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
          return;
       }
 
+      __DEBUGMSG ("Socket created for addr=%s, port=%d, socket value=%d\n", ipconf->address, ip_port, nodes[socket_device_id].socket);
+
       reuse = 1;
-      setsockopt (nodes[id].socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof (reuse));
+
+      if (setsockopt (nodes[id].socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof (reuse)))
+      {
+         __DEBUGMSG ("[DRIVER SOCKETS] Error while making the receiving socket reusable\n");
+      }
 
       sa.sin_addr.s_addr = htonl (INADDR_ANY);   /* We listen on all adresses */
       sa.sin_family = AF_INET;                   
@@ -587,13 +598,12 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
 
       __DEBUGMSG ("[DRIVER SOCKETS] Will initialize connection with device %d\n", dev);
 
-      memset (ip_addr, '\0', 16);
       ip_port = 0;
 
       ipconf = (__po_hi_c_ip_conf_t*) __po_hi_get_device_configuration (dev);
-      ip_port = (int)ipconf->port;
+      ip_port = (unsigned short)ipconf->port;
 
-      __DEBUGMSG ("[DRIVER SOCKETS] Configuration for device %d, addr=%s, port=%d\n", dev, ipconf->address, ip_port);
+      __DEBUGMSG ("[DRIVER SOCKETS] Configuration for device %d, port=%d\n", dev, ip_port);
 
       if (ip_port == 0)
       {
@@ -613,6 +623,8 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
 
          __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d created, value=%d\n", dev, nodes[dev].socket);
 
+         hostinfo = NULL;
+
          hostinfo = gethostbyname ((char*)ipconf->address);
 
          if (hostinfo == NULL )
@@ -630,20 +642,21 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
           * function.  We use a loop instead to perform the
           * copy.  So, these lines replace the code :
           *
+          *
           * memcpy( (char*) &( sa.sin_addr ) , (char*)hostinfo->h_addr , hostinfo->h_length );
           */
-
          tmp = (char*) &(sa.sin_addr);
          for (i=0 ; i<hostinfo->h_length ; i++)
          {
             tmp[i] = hostinfo->h_addr[i];
          }
 
+
          /*
           * We try to connect on the remote host. We try every
           * second to connect on.
-         __PO_HI_SET_SOCKET_TIMEOUT(nodes[dev].socket,5);
           */
+         __PO_HI_SET_SOCKET_TIMEOUT(nodes[dev].socket,500000);
 
          ret = connect (nodes[dev].socket, 
                         (struct sockaddr*) &sa ,
@@ -697,6 +710,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
       }
    }
 
+   __DEBUGMSG ("[DRIVER SOCKETS] INITIALIZATION DONE\n");
 }
 
 #endif
