@@ -35,18 +35,11 @@ typedef char*            __po_hi_inetaddr_t;
 extern __po_hi_node_t      __po_hi_mynode;
 
 
-/* We only need to set the timeout for the NE2000 driver socket.
- * So, this function is used only for this driver.
- */
-#ifdef __PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS
-   #include <sys/time.h>
-   #define __PO_HI_SET_SOCKET_TIMEOUT(mysocket,nsec) { struct timeval timeout; \
-                                            timeout.tv_sec = nsec; \
-                                            timeout.tv_usec = 0; \
-                                            setsockopt (mysocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,sizeof (timeout)); }
-#else
-   #define __PO_HI_SET_SOCKET_TIMEOUT(mysocket,nsec)
-#endif
+#include <sys/time.h>
+#define __PO_HI_SET_SOCKET_TIMEOUT(mysocket,nsec) { struct timeval timeout; \
+                                         timeout.tv_sec = 0; \
+                                         timeout.tv_usec = nsec; \
+                                         setsockopt (mysocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,sizeof (timeout)); }
 
 
 #define __PO_HI_TRANSPORT_SOCKET_NEED_RECEIVER_TASK()  \
