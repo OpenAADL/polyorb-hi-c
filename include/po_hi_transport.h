@@ -155,6 +155,10 @@ char*             __po_hi_transport_get_model_name (const __po_hi_port_t portno)
  */
 __po_hi_node_t    __po_hi_transport_get_mynode (void);
 
+/* \fn      __po_hi_transport_get_node_from_device
+ * \brief   Return the node identifier associated with the device given in parameter.
+ */
+__po_hi_node_t    __po_hi_transport_get_node_from_device (const __po_hi_device_id device);
 
 /*
  * \fn      __po_hi_transport_get_protocol
@@ -167,8 +171,6 @@ __po_hi_node_t    __po_hi_transport_get_mynode (void);
  * invalid_protocol.
  */
 __po_hi_protocol_t         __po_hi_transport_get_protocol (const __po_hi_port_t src, const __po_hi_port_t dst);
-
-
 
 /*
  * \fn      __po_hi_transport_get_protocol_configuration

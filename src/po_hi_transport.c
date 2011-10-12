@@ -39,6 +39,7 @@ extern __po_hi_uint8_t           __po_hi_deployment_endiannesses[__PO_HI_NB_NODE
 extern __po_hi_protocol_conf_t   __po_hi_protocols_configuration[__PO_HI_NB_PROTOCOLS];
 
 #if __PO_HI_NB_DEVICES > 0
+extern __po_hi_port_t            __po_hi_devices_to_nodes[__PO_HI_NB_DEVICES];
 extern __po_hi_device_id         __po_hi_port_to_device[__PO_HI_NB_PORTS];
 extern char*                     __po_hi_devices_naming[__PO_HI_NB_DEVICES];
 extern __po_hi_uint32_t*         __po_hi_devices_configuration_values[__PO_HI_NB_DEVICES];
@@ -208,6 +209,10 @@ __po_hi_uint32_t* __po_hi_get_device_configuration (const __po_hi_device_id dev)
    return __po_hi_devices_configuration_values[dev];
 }
 
+__po_hi_node_t    __po_hi_transport_get_node_from_device (const __po_hi_device_id device)
+{
+   return (__po_hi_devices_to_nodes[device]);
+}
 #endif
 
 
@@ -306,5 +311,6 @@ int __po_hi_transport_xtratum_get_port (const __po_hi_port_t portno)
    return __po_hi_xtratum_port[portno];
 }
 #endif
+
 
 
