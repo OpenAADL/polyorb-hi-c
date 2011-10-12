@@ -132,7 +132,8 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
                                  const __po_hi_time_t*      period, 
                                  const __po_hi_priority_t   priority, 
                                  const __po_hi_stack_t      stack_size,
-                                 void*                (*start_routine)(void));
+                                 void*                      (*start_routine)(void),
+                                 void*                      arg);
 
 /*
  * Wait the end of all tasks.

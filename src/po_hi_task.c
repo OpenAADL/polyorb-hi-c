@@ -219,7 +219,8 @@ int __po_hi_initialize_tasking( )
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
 pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority, 
                                        __po_hi_stack_t    stack_size,
-				       void*              (*start_routine)(void))
+				                           void*              (*start_routine)(void),
+                                       void*              arg)
 {
   int                policy;
   pthread_t          tid;
@@ -250,7 +251,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
   }
 #endif
 
-  if (pthread_create (&tid, &attr, (void* (*)(void*))start_routine, NULL) != 0)
+  if (pthread_create (&tid, &attr, (void* (*)(void*))start_routine, arg) != 0)
     {
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_CREATE);
     }
@@ -310,7 +311,8 @@ int __po_hi_posix_initialize_task (__po_hi_task_t* task)
 #ifdef RTEMS_PURE
 rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority, 
                                       __po_hi_stack_t    stack_size,
-                                      void*              (*start_routine)(void))
+                                      void*              (*start_routine)(void),
+                                      void*              arg)
 {
   rtems_id rid;
    if (rtems_task_create (rtems_build_name( 'T', 'A', nb_tasks, ' ' ), 1, RTEMS_MINIMUM_STACK_SIZE, RTEMS_DEFAULT_MODES, RTEMS_DEFAULT_ATTRIBUTES | RTEMS_FLOATING_POINT, &rid) != RTEMS_SUCCESSFUL)
@@ -331,8 +333,9 @@ rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority,
 
 #ifdef XENO_NATIVE
 RT_TASK __po_hi_xenomai_create_thread (__po_hi_priority_t priority, 
-                                     __po_hi_stack_t    stack_size,
-                                     void*              (*start_routine)(void))
+                                       __po_hi_stack_t    stack_size,
+                                       void*              (*start_routine)(void),
+                                       void*              arg)
 {
    RT_TASK newtask;
 
@@ -354,16 +357,18 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
                                  const __po_hi_time_t*      period, 
                                  const __po_hi_priority_t   priority, 
                                  const __po_hi_stack_t      stack_size,
-                                 void*                (*start_routine)(void))
+                                 void*                      (*start_routine)(void),
+                                 void*                      arg)
 {
   __po_hi_task_t* my_task;
   if (id == -1) 
     {
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-      __po_hi_posix_create_thread (priority, stack_size, start_routine);
+      __po_hi_posix_create_thread (priority, stack_size, start_routine, arg);
       return (__PO_HI_SUCCESS);
 #elif defined (XENO_NATIVE)
       RT_TASK t;
+      (void) arg;
       t = __po_hi_xenomai_create_thread (priority, stack_size, start_routine);
       if (rt_task_start (&(t), (void*)start_routine, NULL))
       {
@@ -371,6 +376,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
       }
       return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)
+      (void) arg;
       __po_hi_rtems_create_thread (priority, stack_size, start_routine);
       return (__PO_HI_SUCCESS);
 #else
@@ -384,12 +390,12 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
       my_task->id     = id;
      
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-      my_task->tid    = __po_hi_posix_create_thread (priority, stack_size, start_routine);
+      my_task->tid    = __po_hi_posix_create_thread (priority, stack_size, start_routine, arg);
       __po_hi_posix_initialize_task (my_task);
 #elif defined (RTEMS_PURE)
-      my_task->rtems_id = __po_hi_rtems_create_thread (priority, stack_size, start_routine);
+      my_task->rtems_id = __po_hi_rtems_create_thread (priority, stack_size, start_routine, arg);
 #elif defined (XENO_NATIVE)
-      my_task->xeno_id = __po_hi_xenomai_create_thread (priority, stack_size, start_routine);
+      my_task->xeno_id = __po_hi_xenomai_create_thread (priority, stack_size, start_routine, arg);
 #else
       return (__PO_HI_UNAVAILABLE);
 #endif
@@ -405,7 +411,7 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
                                   const __po_hi_stack_t     stack_size,
                                   void*                     (*start_routine)(void))
 {
-   if (__po_hi_create_generic_task( id, period , priority , stack_size, start_routine ) != 1)
+   if (__po_hi_create_generic_task( id, period , priority , stack_size, start_routine, NULL) != 1)
    {
       __DEBUGMSG ("ERROR when creating generic task (task id=%d)\n", id);
       return (__PO_HI_ERROR_CREATE_TASK);
@@ -451,7 +457,7 @@ int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
    * last parameter. Typically, a sporadic thread will wait on a
    * mutex.
    */
-  if (__po_hi_create_generic_task( id, period , priority , stack_size, start_routine ) != 1)
+  if (__po_hi_create_generic_task( id, period , priority , stack_size, start_routine, NULL) != 1)
     {
       return (__PO_HI_ERROR_CREATE_TASK);
     }
