@@ -106,7 +106,6 @@ int __po_hi_protected_lock (__po_hi_protected_t protected_id)
    __PO_HI_INSTRUMENTATION_VCD_WRITE("0w%d\n", protected_id); 
    __PO_HI_INSTRUMENTATION_VCD_WRITE("1l%d\n", protected_id); 
 
-   __PO_HI_DEBUG_DEBUG ("[PROTECTED] Successfully lock protected resource %d\n", protected_id);
    return __PO_HI_SUCCESS;
 }
 
@@ -120,7 +119,6 @@ int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
       return __PO_HI_ERROR_PROTECTED_UNLOCK;
     }
 
-  __PO_HI_DEBUG_DEBUG ("[PROTECTED] Successfully unlock protected resource %d\n", protected_id);
   return __PO_HI_SUCCESS;
 }
 #endif /* POSIX or RTEMS_POSIX or XENO_POSIX*/
@@ -221,7 +219,6 @@ int __po_hi_protected_lock (__po_hi_protected_t protected_id)
       return __PO_HI_ERROR_PROTECTED_LOCK;
    }
 
-   __PO_HI_DEBUG_DEBUG ("[PROTECTED] Successfully lock protected resource %d\n", protected_id);
    return __PO_HI_SUCCESS;
 }
 
@@ -233,7 +230,6 @@ int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
       return __PO_HI_ERROR_PROTECTED_UNLOCK;
     }
 
-  __PO_HI_DEBUG_DEBUG ("[PROTECTED] Successfully unlock protected resource %d\n", protected_id);
   return __PO_HI_SUCCESS;
 }
 #endif /* XENO_NATIVE */
