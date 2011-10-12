@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://ocarina.enst.fr
  *
- * Copyright (C) 2010, European Space Agency
+ * Copyright (C) 2010-2011, European Space Agency
  * Copyright (C) 2007-2008, GET-Telecom Paris.
  */
 
@@ -66,12 +66,12 @@
  * listen socket. This array is used only by the receiver_task
  */
 
-__po_hi_inetnode_t         nodes[__PO_HI_NB_DEVICES];
-__po_hi_inetnode_t         rnodes[__PO_HI_NB_DEVICES];
-
-__po_hi_device_id          socket_device_id;
-
-__po_hi_msg_t              __po_hi_driver_sockets_send_msg;
+int                  __po_hi_c_sockets_listen_socket;
+int                  __po_hi_c_sockets_read_sockets[__PO_HI_NB_DEVICES];
+int                  __po_hi_c_sockets_write_sockets[__PO_HI_NB_DEVICES];
+__po_hi_request_t    __po_hi_c_sockets_poller_received_request;
+__po_hi_msg_t        __po_hi_c_sockets_poller_msg;
+__po_hi_msg_t        __po_hi_c_sockets_send_msg;
 
 int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
                                  __po_hi_port_t port)
@@ -80,7 +80,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    int                        size_to_write;
    int                        optval = 0;
    socklen_t                  optlen = 0;
-   __po_hi_device_id          associated_device;
+   __po_hi_device_id          remote_device;
    __po_hi_local_port_t       local_port;
    __po_hi_request_t*         request;
    __po_hi_port_t             destination_port;
@@ -90,10 +90,12 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    local_port              = __po_hi_get_local_port_from_global_port (port);
    request                 = __po_hi_gqueue_get_most_recent_value (task_id, local_port);
    destination_port        = __po_hi_gqueue_get_destination (task_id, local_port, 0);
-   associated_device       = __po_hi_get_device_from_port (destination_port);
+   remote_device       = __po_hi_get_device_from_port (destination_port);
    protocol_id             = __po_hi_transport_get_protocol (port, destination_port);
    protocol_conf           = __po_hi_transport_get_protocol_configuration (protocol_id);
 
+
+   __DEBUGMSG ("[DRIVER SOCKETS] Try to write from task=%d, port=%d, local device=%d, socket=%d\n", task_id, port, local_device, write_socket[associated_device].socket);
    if (request->port == -1)
    {
 
@@ -103,10 +105,10 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
       return __PO_HI_ERROR_TRANSPORT_SEND;
    }
 
-   if (nodes[associated_device].socket == -1 )
+   if (__po_hi_c_sockets_write_sockets[remote_device] == -1 )
    {
 #ifdef __PO_HI_DEBUG
-      __DEBUGMSG (" [DRIVER SOCKETS] Invalid socket for port-id %d, device-id %d\n", destination_port, associated_device);
+      __DEBUGMSG (" [DRIVER SOCKETS] Invalid socket for port-id %d, device-id %d\n", destination_port, local_device);
 #endif
       return __PO_HI_ERROR_TRANSPORT_SEND;		
    }
@@ -118,19 +120,19 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 
    size_to_write = __PO_HI_MESSAGES_MAX_SIZE;
 
-   if (getsockopt (nodes[associated_device].socket, SOL_SOCKET, SO_ERROR, &optval, &optlen) == -1)
+   if (getsockopt (__po_hi_c_sockets_write_sockets[remote_device], SOL_SOCKET, SO_ERROR, &optval, &optlen) == -1)
    {
       __DEBUGMSG (" [error getsockopt() in file %s, line%d ]\n", __FILE__, __LINE__);
-      close (nodes[associated_device].socket);
-      nodes[associated_device].socket = -1;
+      close (__po_hi_c_sockets_write_sockets[remote_device]);
+      __po_hi_c_sockets_write_sockets[remote_device] = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;		
    }
 
    if (optval != 0)
    {
       __DEBUGMSG (" [error getsockopt() return code in file %s, line%d ]\n", __FILE__, __LINE__);
-      close (nodes[associated_device].socket);
-      nodes[associated_device].socket = -1;
+      close (__po_hi_c_sockets_write_sockets[remote_device]);
+      __po_hi_c_sockets_write_sockets[remote_device] = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;		
    }
 
@@ -139,8 +141,8 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    if (signal (SIGPIPE, SIG_IGN) == SIG_ERR)
    {
       __DEBUGMSG (" [error signal() return code in file %s, line%d ]\n", __FILE__, __LINE__);
-      close (nodes[associated_device].socket);
-      nodes[associated_device].socket = -1;
+      close (__po_hi_c_sockets_write_sockets[remote_device]);
+      __po_hi_c_sockets_write_sockets[remote_device] = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;
    }
 
@@ -152,13 +154,13 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
          size_to_write = sizeof (int);
          int datawritten;
          protocol_conf->marshaller(request, &datawritten, &size_to_write);
-         len = write (nodes[associated_device].socket, &datawritten, size_to_write);
+         len = write (__po_hi_c_sockets_write_sockets[remote_device], &datawritten, size_to_write);
 
          if (len != size_to_write)
          {
             __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
-            close (nodes[associated_device].socket);
-            nodes[associated_device].socket = -1;
+            close (__po_hi_c_sockets_write_sockets[remote_device]);
+            __po_hi_c_write_sockets[remote_device] = -1;
             return __PO_HI_ERROR_TRANSPORT_SEND;		
          }
          break;
@@ -167,21 +169,23 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
       default: 
       {
          request->port = destination_port;
-         __po_hi_msg_reallocate (&__po_hi_driver_sockets_send_msg);
-         __po_hi_marshall_request (request, &__po_hi_driver_sockets_send_msg);
+         __po_hi_msg_reallocate (&__po_hi_c_sockets_send_msg);
+         __po_hi_marshall_request (request, &__po_hi_c_sockets_send_msg);
 
 #ifdef __PO_HI_DEBUG
-         __po_hi_messages_debug (&__po_hi_driver_sockets_send_msg);
+         __po_hi_messages_debug (&__po_hi_c_sockets_send_msg[remote_device]);
 #endif
-
-         len = write (nodes[associated_device].socket, &(__po_hi_driver_sockets_send_msg.content), size_to_write);
-
-         if (len != size_to_write)
+         if (__po_hi_c_sockets_write_sockets[remote_device] != -1)
          {
-            __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
-            close (nodes[associated_device].socket);
-            nodes[associated_device].socket = -1;
-            return __PO_HI_ERROR_TRANSPORT_SEND;		
+            len = write (__po_hi_c_sockets_write_sockets[remote_device], &(__po_hi_c_sockets_send_msg.content), size_to_write);
+
+            if (len != size_to_write)
+            {
+               __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
+               close (__po_hi_c_sockets_write_sockets[remote_device]);
+               __po_hi_c_sockets_write_sockets[remote_device] = -1;
+               return __PO_HI_ERROR_TRANSPORT_SEND;		
+            }
          }
 
          request->port = __PO_HI_GQUEUE_INVALID_PORT;
@@ -193,13 +197,9 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 }
 
 
-__po_hi_request_t          __po_hi_sockets_poller_received_request;
-__po_hi_msg_t              __po_hi_sockets_poller_msg;
 
-void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
+void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 {
-   (void)                     dev_id;
-   __DEBUGMSG ("Poller launched, device-id=%d\n", socket_device_id);
    socklen_t                  socklen = sizeof (struct sockaddr);
    /* See ACCEPT (2) for details on initial value of socklen */
 
@@ -212,378 +212,25 @@ void* __po_hi_sockets_poller (const __po_hi_device_id dev_id)
    __po_hi_node_t             dev_init;
    int                        established = 0; 
    int                        ret;
+   unsigned short             ip_port;
    __po_hi_protocol_conf_t*   protocol_conf;
+   __po_hi_c_ip_conf_t*       ipconf;
+   __po_hi_device_id          dev_id;
+   __po_hi_device_id          sent_id;
+   struct hostent*            hostinfo;
+
+   __po_hi_time_t             mytime;
+   __po_hi_time_t             tmptime;
+
+   char                       *tmp;
+   __po_hi_time_t             current_time;
+   int                        i;
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
 
-   /*
-    * We initialize each node socket with -1 value.  This value means
-    * that the socket is not active.
-    */
-   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++)
-   {
-      rnodes[dev].socket = -1;
-   }
+   dev_id = *dev_id_addr;
 
-   /*
-    * Create a socket for each node that will communicate with us.
-    */
-   for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
-   {
-      if (dev != socket_device_id)
-      {
-
-         established = 0;
-
-         while (established == 0)
-         {
-            __DEBUGMSG ("[DRIVER SOCKETS] Poller waits for connection with device %d (reading device=%d, socket=%d)\n", dev, socket_device_id, nodes[socket_device_id].socket);
-            sock = accept (nodes[socket_device_id].socket, (struct sockaddr*) &sa, &socklen);
-
-            if (sock == -1)
-            {
-               continue;
-            }
-
-            __DEBUGMSG ("[DRIVER SOCKETS] accept() passed, waiting for device id %d\n", dev);
-
-#ifndef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
-
-            ret = read (sock, &dev_init, sizeof (__po_hi_device_id));
-            if (ret != sizeof (__po_hi_device_id))
-            {
-               established = 0;
-               perror ("[DRIVER SOCKETS]");
-               __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d, ret=%d\n", dev, sock, ret);
-            }
-            else
-            {
-               __DEBUGMSG ("[DRIVER SOCKETS] read device-id %d from socket=%d\n", dev_init, sock);
-               established = 1;
-            }
-#else
-            established = 1;
-#endif
-         }
-         rnodes[dev].socket = sock;
-         if (sock > max_socket )
-         {
-            max_socket = sock;
-         }	  
-      }
-   }
-   __DEBUGMSG ("[DRIVER SOCKETS] Poller initialization finished, waiting for other tasks\n");
-   __po_hi_wait_initialization ();
-   __DEBUGMSG ("[DRIVER SOCKETS] Other tasks are initialized, let's start the polling !\n");
-
-   /*
-    * Then, listen and receive data on the socket, identify the node
-    * which send the data and put it in its message queue
-    */
-   while (1)
-   {
-      FD_ZERO( &selector );
-      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
-      {
-         if ( (dev != socket_device_id ) && ( rnodes[dev].socket != -1 ) )
-         {
-            FD_SET( rnodes[dev].socket , &selector );
-         }
-      }
-
-      if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
-      {
-#ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("[DRIVER SOCKETS] Error on select for node %d\n", __po_hi_mynode);
-#endif 
-      }
-#ifdef __PO_HI_DEBUG
-      __DEBUGMSG ("[DRIVER SOCKETS] Receive message\n");
-#endif
-
-      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
-      {
-         __DEBUGMSG ("[DRIVER SOCKETS] Try to watch if it comes from device %d (socket=%d)\n", dev, rnodes[dev].socket);
-         if ( (rnodes[dev].socket != -1 ) && FD_ISSET(rnodes[dev].socket, &selector))
-         {
-            __DEBUGMSG ("[DRIVER SOCKETS] Receive message from dev %d\n", dev);
-#ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
-            {
-
-               protocol_conf = __po_hi_transport_get_protocol_configuration (virtual_bus_myprotocol_i);
-
-
-               int datareceived;
-               len = recv (rnodes[dev].socket, &datareceived, sizeof (int), MSG_WAITALL);
-               __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",(int)len);
-               if (len == 0)
-               {
-                  __DEBUGMSG ("[DRIVER SOCKETS] Zero size from device %d\n",dev);
-                  rnodes[dev].socket = -1;
-                  continue;
-               }
-               protocol_conf->unmarshaller (&__po_hi_sockets_poller_received_request, &datareceived, len);
-               __po_hi_sockets_poller_received_request.port = 1;
-            }
-
-#else
-            memset (__po_hi_sockets_poller_msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
-            len = recv (rnodes[dev].socket, __po_hi_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
-            __po_hi_sockets_poller_msg.length = len;
-            __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",(int)len);
-
-#ifdef __PO_HI_DEBUG
-   __po_hi_messages_debug (&__po_hi_sockets_poller_msg);
-#endif
-
-
-            if (len == 0)
-            {
-
-               __DEBUGMSG ("[DRIVER SOCKETS] Zero size from device %d\n",dev);
-               rnodes[dev].socket = -1;
-               continue;
-            }
-
-            __po_hi_unmarshall_request (&__po_hi_sockets_poller_received_request, &__po_hi_sockets_poller_msg);
-#endif
-
-            __po_hi_main_deliver (&__po_hi_sockets_poller_received_request);
-         }
-      }
-   }  
-   return NULL;
-}
-
-
-__po_hi_msg_t              __po_hi_sockets_receiver_task_msg;
-__po_hi_request_t          __po_hi_sockets_receiver_task_received_request;
-
-/*
- * Old receiver code that is based on PolyORB-HI-C for AADLv1
- * Would be considered as deprecated.
- */
-void* __po_hi_sockets_receiver_task (void)
-{
-   socklen_t          socklen = sizeof (struct sockaddr);
-   /* See ACCEPT (2) for details on initial value of socklen */
-
-   __po_hi_uint32_t           len;
-   int                        sock;
-   int                        max_socket;
-   fd_set                     selector;
-   __po_hi_node_t             node;
-   __po_hi_node_t             node_init;
-   struct sockaddr_in         sa;
-   __po_hi_protocol_conf_t*   protocol_conf;
-
-
-   max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
-
-   /*
-    * We initialize each node socket with -1 value.  This value means
-    * that the socket is not active.
-    */
-   for (node = 0 ; node < __PO_HI_NB_NODES ; node++)
-   {
-      rnodes[node].socket = -1;
-   }
-
-   /*
-    * Create a socket for each node that will communicate with us.
-    */
-   for (node = 0; node < __PO_HI_NB_NODES ; node++)
-   {
-      if (node != __po_hi_mynode )
-      {
-         sock = accept (nodes[__po_hi_mynode].socket, (struct sockaddr*) &sa, &socklen);
-         if (sock == -1)
-         {
-            __DEBUGMSG ("accept() failed, return=%d\n", sock);
-         }
-
-         __DEBUGMSG ("accept() success, return=%d\n", sock);
-
-#ifndef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
-         if (read (sock, &node_init, sizeof (__po_hi_node_t)) != sizeof (__po_hi_node_t))
-         {
-            __DEBUGMSG ("Cannot read node-id for socket %d\n", sock);
-            continue;
-         }
-#endif
-
-         rnodes[node].socket = sock;
-         if (sock > max_socket )
-         {
-            max_socket = sock;
-         }	  
-      }
-   }
-   __DEBUGMSG ("Receiver initialization finished\n");
-   __po_hi_wait_initialization ();
-
-   /*
-    * Then, listen and receive data on the socket, identify the node
-    * which send the data and put it in its message queue
-    */
-   while (1)
-   {
-      FD_ZERO( &selector );
-      for (node = 0; node < __PO_HI_NB_NODES ; node++)
-      {
-         if ( (node != __po_hi_mynode ) && ( rnodes[node].socket != -1 ) )
-         {
-            FD_SET( rnodes[node].socket , &selector );
-         }
-      }
-
-      if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
-      {
-#ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("Error on select for node %d\n", __po_hi_mynode);
-#endif 
-      }
-#ifdef __PO_HI_DEBUG
-      __DEBUGMSG ("Receive message\n");
-#endif
-
-      for (node = 0; node < __PO_HI_NB_NODES ; node++)
-      {
-         if ( (rnodes[node].socket != -1 ) && FD_ISSET(rnodes[node].socket, &selector))
-         {
-#ifdef __PO_HI_DEBUG
-            __DEBUGMSG ("Receive message from node %d\n", node);
-#endif
-
-#ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
-
-            __DEBUGMSG ("Using raw protocol stack\n");
-            len = recv (rnodes[node].socket, &(__po_hi_sockets_receiver_task_msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
-            __po_hi_sockets_receiver_task_msg.length = len;
-            if (len != __PO_HI_MESSAGES_MAX_SIZE )
-            {
-               __DEBUGMSG ("ERROR, %u %d", (unsigned int) len, __PO_HI_MESSAGES_MAX_SIZE);
-               close (rnodes[node].socket);
-               rnodes[node].socket = -1;
-               continue;
-            }
-            __DEBUGMSG ("Message delivered");
-
-
-            protocol_conf = __po_hi_transport_get_protocol_configuration (virtual_bus_myprotocol_i);
-            protocol_conf->unmarshaller (&__po_hi_sockets_receiver_task_received_request, &__po_hi_sockets_receiver_task_msg, len);
-#else
-
-            __DEBUGMSG ("Using raw protocol stack\n");
-            len = recv (rnodes[node].socket, &(__po_hi_sockets_receiver_task_msg.content), __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
-            __po_hi_sockets_receiver_task_msg.length = len;
-            if (len != __PO_HI_MESSAGES_MAX_SIZE )
-            {
-               __DEBUGMSG ("ERROR, %u %d", (unsigned int) len, __PO_HI_MESSAGES_MAX_SIZE);
-               close (rnodes[node].socket);
-               rnodes[node].socket = -1;
-               continue;
-            }
-            __DEBUGMSG ("Message delivered");
-
-            __po_hi_unmarshall_request (&__po_hi_sockets_receiver_task_received_request, &__po_hi_sockets_receiver_task_msg);
-#endif
-
-            __po_hi_main_deliver (&__po_hi_sockets_receiver_task_received_request);
-
-            __po_hi_msg_reallocate(&__po_hi_sockets_receiver_task_msg);        /* re-initialize the message */
-         }
-      }
-   }  
-   return NULL;
-}
-
-void __po_hi_driver_sockets_init (__po_hi_device_id id)
-{
-   int                i;
-   int                ret;
-   int                reuse;
-   char               *tmp;
-   __po_hi_uint16_t   dev;
-   __po_hi_time_t     mytime;
-   __po_hi_time_t     tmptime;
-   __po_hi_time_t     current_time;
-   struct sockaddr_in sa;
-   struct hostent*    hostinfo;
-
-
-   __po_hi_c_ip_conf_t*    ipconf;
-   unsigned short          ip_port;
-   int node;
-
-   socket_device_id = id;
-
-   for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)
-   {
-      nodes[node].socket = -1;
-   }
-
-   ipconf = (__po_hi_c_ip_conf_t*)__po_hi_get_device_configuration (id);
-   ip_port = (int)ipconf->port;
-
-   __DEBUGMSG ("My configuration, addr=%s, port=%d\n", ipconf->address, ip_port );
-
-   /*
-    * If the current node port has a port number, then it has to
-    * listen to other nodes. So, we create a socket, bind it and
-    * listen to other nodes.
-    */
-   if (ip_port != 0)
-   {
-      nodes[id].socket = socket (AF_INET, SOCK_STREAM, 0);
-
-
-      if (nodes[id].socket == -1 )
-      {
-#ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("Cannot create socket for device %d\n", id);
-#endif
-         return;
-      }
-
-      __DEBUGMSG ("Socket created for addr=%s, port=%d, socket value=%d\n", ipconf->address, ip_port, nodes[socket_device_id].socket);
-
-      reuse = 1;
-
-      if (setsockopt (nodes[id].socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof (reuse)))
-      {
-         __DEBUGMSG ("[DRIVER SOCKETS] Error while making the receiving socket reusable\n");
-      }
-
-      sa.sin_addr.s_addr = htonl (INADDR_ANY);   /* We listen on all adresses */
-      sa.sin_family = AF_INET;                   
-      sa.sin_port = htons (ip_port);   /* Port provided by the generated code */
-
-      if( bind( nodes[id].socket , ( struct sockaddr * ) &sa , sizeof( struct sockaddr_in ) ) < 0 )
-      {
-#ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("Unable to bind socket and port on socket %d\n", nodes[id].socket);
-#endif
-      }
-
-      if( listen( nodes[id].socket , __PO_HI_NB_ENTITIES ) < 0 )
-      {
-#ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("Cannot listen on socket %d\n", nodes[id].socket);
-#endif
-      }
-
-      /* 
-       * Create the thread which receive all data from other
-       * nodes. This thread will execute the function
-       * __po_hi_receiver_task
-       */
-
-      __po_hi_initialize_add_task ();
-
-      __po_hi_create_generic_task 
-         (-1, 0,__PO_HI_MAX_PRIORITY, 0, (void* (*)(void))__po_hi_sockets_poller);
-   }
+   __DEBUGMSG ("Poller launched, device-id=%d\n", dev_id);
 
    /*
     * For each node in the sytem that may communicate with the current
@@ -591,7 +238,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
     */
    for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++ )
    {
-      if (dev == id)
+      if (dev == dev_id)
       {
          continue;
       }
@@ -613,15 +260,15 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
 
       while (1)
       {
-         nodes[dev].socket = socket (AF_INET, SOCK_STREAM, 0);
+         __po_hi_c_sockets_write_sockets[dev] = socket (AF_INET, SOCK_STREAM, 0);
 
-         if (nodes[dev].socket == -1 )
+         if (__po_hi_c_sockets_write_sockets[dev] == -1 )
          {
             __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d is not created\n", dev);
             return;
          }
 
-         __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d created, value=%d\n", dev, nodes[dev].socket);
+         __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d created, value=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
 
          hostinfo = NULL;
 
@@ -656,16 +303,16 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
           * We try to connect on the remote host. We try every
           * second to connect on.
           */
-         __PO_HI_SET_SOCKET_TIMEOUT(nodes[dev].socket,500000);
+         __PO_HI_SET_SOCKET_TIMEOUT(__po_hi_c_sockets_write_sockets[dev], 500000);
 
-         ret = connect (nodes[dev].socket, 
+         ret = connect (__po_hi_c_sockets_write_sockets[dev], 
                         (struct sockaddr*) &sa ,
                         sizeof (struct sockaddr_in));
 
 #ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
          if (ret == 0)
          {
-            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, nodes[dev].socket);
+            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, write_socket[dev].socket);
 
             break;
          }
@@ -677,13 +324,13 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
 #else
          if (ret == 0)
          {
-
-            __DEBUGMSG ("[DRIVER SOCKETS] Send my id (%d)\n", id);
-            if (write (nodes[dev].socket, &id, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
+            __DEBUGMSG ("[DRIVER SOCKETS] Send my id (%d) to device %d through socket %d\n", dev_id, dev , __po_hi_c_sockets_write_sockets[dev]);
+            sent_id = __po_hi_swap_byte (dev_id);
+            if (write (__po_hi_c_sockets_write_sockets[dev], &sent_id, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
             {
-               __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id\n", id);
+               __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id\n", dev_id);
             }
-            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, nodes[dev].socket);
+            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, write_socket[dev].socket);
             break;
          }
          else
@@ -692,9 +339,9 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
          }
 #endif
 
-         if (close (nodes[dev].socket))
+         if (close (__po_hi_c_sockets_write_sockets[dev]))
          {
-            __DEBUGMSG ("[DRIVER SOCKETS] Cannot close socket %d\n", nodes[dev].socket);
+            __DEBUGMSG ("[DRIVER SOCKETS] Cannot close socket %d\n", nodes[dev_id][dev].socket);
          }
 
          /*
@@ -708,6 +355,214 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
          __DEBUGMSG ("[DRIVER SOCKETS] Cannot connect on device %d, wait 500ms\n", dev);
          __po_hi_delay_until (&mytime);
       }
+   }
+
+
+   /*
+    * Create a socket for each node that will communicate with us.
+    */
+   for (dev = 0; dev < __PO_HI_NB_NODES - 1 ; dev++)
+   {
+         established = 0;
+
+         while (established == 0)
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Poller waits for connection with device %d (reading device=%d, socket=%d)\n", dev, dev_id, nodes[dev_id][dev_id].socket);
+            sock = accept (__po_hi_c_sockets_listen_socket, (struct sockaddr*) &sa, &socklen);
+
+            if (sock == -1)
+            {
+               continue;
+            }
+
+            __DEBUGMSG ("[DRIVER SOCKETS] accept() passed, waiting for device id %d\n", dev);
+
+#ifndef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
+            dev_init = 0;
+            ret = read (sock, &dev_init, sizeof (__po_hi_device_id));
+
+            if (ret != sizeof (__po_hi_device_id))
+            {
+               established = 0;
+               __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d, ret=%d\n", dev, sock, ret);
+            }
+            else
+            {
+               dev_init = __po_hi_swap_byte (dev_init);
+               if (__po_hi_c_sockets_read_sockets[dev_init] != -1)
+               {
+                  established = 0;
+                  __DEBUGMSG ("[DRIVER SOCKETS] Invalid id sent on socket=%d, received device id=%d\n", sock, dev_init);
+               }
+
+               __DEBUGMSG ("[DRIVER SOCKETS] read device-id %d from socket=%d\n", dev_init, sock);
+               established = 1;
+            }
+#else
+            established = 1;
+#endif
+         }
+         __po_hi_c_sockets_read_sockets[dev_init] = sock;
+         if (sock > max_socket )
+         {
+            max_socket = sock;
+         }	  
+   }
+   __DEBUGMSG ("[DRIVER SOCKETS] Poller initialization finished, waiting for other tasks\n");
+   __po_hi_wait_initialization ();
+   __DEBUGMSG ("[DRIVER SOCKETS] Other tasks are initialized, let's start the polling !\n");
+
+   /*
+    * Then, listen and receive data on the socket, identify the node
+    * which send the data and put it in its message queue
+    */
+   while (1)
+   {
+      FD_ZERO( &selector );
+      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+      {
+         if ( (dev != dev_id ) && ( __po_hi_c_sockets_read_sockets[dev] != -1 ) )
+         {
+            FD_SET( __po_hi_c_sockets_read_sockets[dev], &selector );
+         }
+      }
+
+      if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
+      {
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("[DRIVER SOCKETS] Error on select for node %d\n", __po_hi_mynode);
+#endif 
+      }
+#ifdef __PO_HI_DEBUG
+      __DEBUGMSG ("[DRIVER SOCKETS] Receive message\n");
+#endif
+
+      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+      {
+         __DEBUGMSG ("[DRIVER SOCKETS] Try to watch if it comes from device %d (socket=%d)\n", dev, __po_hi_c_sockets_read_sockets[dev]);
+         if ( (__po_hi_c_sockets_read_sockets[dev] != -1 ) && FD_ISSET(__po_hi_c_sockets_read_sockets[dev], &selector))
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Receive message from dev %d\n", dev);
+#ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
+            {
+
+               protocol_conf = __po_hi_transport_get_protocol_configuration (virtual_bus_myprotocol_i);
+
+               int datareceived;
+               len = recv (__po_hi_c_sockets_read_sockets[dev], &datareceived, sizeof (int), MSG_WAITALL);
+               __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",(int)len);
+               if (len == 0)
+               {
+                  __DEBUGMSG ("[DRIVER SOCKETS] Zero size from device %d\n",dev);
+                  __po_hi_c_sockets_read_sockets[dev] = -1;
+                  continue;
+               }
+               protocol_conf->unmarshaller (&__po_hi_c_sockets_poller_received_request, &datareceived, len);
+               __po_hi_sockets_poller_received_request.port = 1;
+            }
+
+#else
+            memset (__po_hi_c_sockets_poller_msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
+            len = recv (__po_hi_c_sockets_read_sockets[dev], __po_hi_c_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+            __po_hi_c_sockets_poller_msg.length = len;
+            __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",(int)len);
+
+#ifdef __PO_HI_DEBUG
+   __po_hi_messages_debug (&__po_hi_c_sockets_poller_msg);
+#endif
+
+
+            if (len == 0)
+            {
+               __DEBUGMSG ("[DRIVER SOCKETS] Zero size from device %d\n",dev);
+               __po_hi_c_sockets_read_sockets[dev] = -1;
+               continue;
+            }
+
+            __po_hi_unmarshall_request (&__po_hi_c_sockets_poller_received_request, &__po_hi_c_sockets_poller_msg);
+#endif
+
+            __po_hi_main_deliver (&__po_hi_c_sockets_poller_received_request);
+         }
+      }
+   }  
+   return NULL;
+}
+
+
+void __po_hi_driver_sockets_init (__po_hi_device_id id)
+{
+   int                     ret;
+   int                     reuse;
+   struct sockaddr_in      sa;
+   unsigned short          ip_port;
+
+   __po_hi_c_ip_conf_t*    ipconf;
+   __po_hi_device_id       node;
+
+   __po_hi_c_sockets_listen_socket = -1;
+
+   for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)
+   {
+      __po_hi_c_sockets_read_sockets[node]   = -1;
+      __po_hi_c_sockets_write_sockets[node]  = -1;
+   }
+
+   ipconf = (__po_hi_c_ip_conf_t*)__po_hi_get_device_configuration (id);
+   ip_port = (int)ipconf->port;
+
+   __DEBUGMSG ("My configuration, addr=%s, port=%d\n", ipconf->address, ip_port );
+
+   /*
+    * If the current node port has a port number, then it has to
+    * listen to other nodes. So, we create a socket, bind it and
+    * listen to other nodes.
+    */
+   if (ip_port != 0)
+   {
+      __po_hi_c_sockets_listen_socket = socket (AF_INET, SOCK_STREAM, 0);
+
+
+      if (__po_hi_c_sockets_listen_socket == -1 )
+      {
+#ifdef __PO_HI_DEBUG
+         __DEBUGMSG ("Cannot create socket for device %d\n", id);
+#endif
+         return;
+      }
+
+      __DEBUGMSG ("Socket created for addr=%s, port=%d, socket value=%d\n", ipconf->address, ip_port, listen_socket[id].socket);
+
+      reuse = 1;
+
+      if (setsockopt (__po_hi_c_sockets_listen_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof (reuse)))
+      {
+         __DEBUGMSG ("[DRIVER SOCKETS] Error while making the receiving socket reusable\n");
+      }
+
+      sa.sin_addr.s_addr = htonl (INADDR_ANY);   /* We listen on all adresses */
+      sa.sin_family = AF_INET;                   
+      sa.sin_port = htons (ip_port);   /* Port provided by the generated code */
+
+      if( bind (__po_hi_c_sockets_listen_socket, ( struct sockaddr * ) &sa , sizeof( struct sockaddr_in ) ) < 0 )
+      {
+         __DEBUGMSG ("Unable to bind socket and port on socket %d\n", listen_socket[id].socket);
+      }
+
+      if( listen (__po_hi_c_sockets_listen_socket, __PO_HI_NB_DEVICES) < 0 )
+      {
+         __DEBUGMSG ("Cannot listen on socket %d\n", __po_hi_c_sockets_listen_socket);
+      }
+
+      /* 
+       * Create the thread which receive all data from other
+       * nodes. This thread will execute the function
+       * __po_hi_receiver_task
+       */
+
+      __po_hi_initialize_add_task ();
+      __po_hi_create_generic_task 
+         (-1, 0,__PO_HI_MAX_PRIORITY, 0, (void* (*)(void))__po_hi_sockets_poller, &id);
    }
 
    __DEBUGMSG ("[DRIVER SOCKETS] INITIALIZATION DONE\n");
