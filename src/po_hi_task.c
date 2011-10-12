@@ -369,7 +369,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
 #elif defined (XENO_NATIVE)
       RT_TASK t;
       (void) arg;
-      t = __po_hi_xenomai_create_thread (priority, stack_size, start_routine);
+      t = __po_hi_xenomai_create_thread (priority, stack_size, start_routine, arg);
       if (rt_task_start (&(t), (void*)start_routine, NULL))
       {
          __DEBUGMSG ("ERROR when starting the task\n");
@@ -377,7 +377,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
       return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)
       (void) arg;
-      __po_hi_rtems_create_thread (priority, stack_size, start_routine);
+      __po_hi_rtems_create_thread (priority, stack_size, start_routine, arg);
       return (__PO_HI_SUCCESS);
 #else
       return (__PO_HI_UNAVAILABLE);

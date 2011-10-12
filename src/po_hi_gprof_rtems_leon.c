@@ -650,7 +650,6 @@ int initialize_serial()
 
 void write_serial(uint8_t vector[] , unsigned int dim)
 {
-   int i;
    write(serialFD , vector , dim);
    /*
    for (i = 0 ; i < dim ; i++)
