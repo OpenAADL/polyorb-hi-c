@@ -64,7 +64,7 @@ void* __po_hi_sockets_receiver_task (void);
  * and dispatch it in po-hi-c queues
  */
 
-void* __po_hi_sockets_poller (const __po_hi_device_id dev_id);
+void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr);
 /*
  * Generic poller for PO-HI-C protocol.
  */
