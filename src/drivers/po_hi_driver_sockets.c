@@ -95,7 +95,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    protocol_conf           = __po_hi_transport_get_protocol_configuration (protocol_id);
 
 
-   __DEBUGMSG ("[DRIVER SOCKETS] Try to write from task=%d, port=%d, local device=%d, socket=%d\n", task_id, port, local_device, write_socket[associated_device].socket);
+   __DEBUGMSG ("[DRIVER SOCKETS] Try to write from task=%d, port=%d, remote device=%d, socket=%d\n", task_id, port, remote_device, __po_hi_c_sockets_write_sockets[remote_device]);
    if (request->port == -1)
    {
 
@@ -108,7 +108,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    if (__po_hi_c_sockets_write_sockets[remote_device] == -1 )
    {
 #ifdef __PO_HI_DEBUG
-      __DEBUGMSG (" [DRIVER SOCKETS] Invalid socket for port-id %d, device-id %d\n", destination_port, local_device);
+      __DEBUGMSG (" [DRIVER SOCKETS] Invalid socket for port-id %d, device-id %d\n", destination_port, remote_device);
 #endif
       return __PO_HI_ERROR_TRANSPORT_SEND;		
    }
@@ -312,7 +312,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 #ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
          if (ret == 0)
          {
-            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, write_socket[dev].socket);
+            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
 
             break;
          }
@@ -330,7 +330,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
             {
                __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id\n", dev_id);
             }
-            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, write_socket[dev].socket);
+            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
             break;
          }
          else
@@ -341,7 +341,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
          if (close (__po_hi_c_sockets_write_sockets[dev]))
          {
-            __DEBUGMSG ("[DRIVER SOCKETS] Cannot close socket %d\n", nodes[dev_id][dev].socket);
+            __DEBUGMSG ("[DRIVER SOCKETS] Cannot close socket %d\n", __po_hi_c_sockets_write_sockets[dev]);
          }
 
          /*
@@ -367,7 +367,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
          while (established == 0)
          {
-            __DEBUGMSG ("[DRIVER SOCKETS] Poller waits for connection with device %d (reading device=%d, socket=%d)\n", dev, dev_id, nodes[dev_id][dev_id].socket);
+            __DEBUGMSG ("[DRIVER SOCKETS] Poller waits for connection with device %d (reading device=%d, socket=%d)\n", dev, dev_id, __po_hi_c_sockets_read_sockets[dev]);
             sock = accept (__po_hi_c_sockets_listen_socket, (struct sockaddr*) &sa, &socklen);
 
             if (sock == -1)
@@ -531,7 +531,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
          return;
       }
 
-      __DEBUGMSG ("Socket created for addr=%s, port=%d, socket value=%d\n", ipconf->address, ip_port, listen_socket[id].socket);
+      __DEBUGMSG ("Socket created for addr=%s, port=%d, socket value=%d\n", ipconf->address, ip_port, __po_hi_c_sockets_listen_socket);
 
       reuse = 1;
 
@@ -546,7 +546,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
 
       if( bind (__po_hi_c_sockets_listen_socket, ( struct sockaddr * ) &sa , sizeof( struct sockaddr_in ) ) < 0 )
       {
-         __DEBUGMSG ("Unable to bind socket and port on socket %d\n", listen_socket[id].socket);
+         __DEBUGMSG ("Unable to bind socket and port on socket %d\n", __po_hi_c_sockets_listen_socket);
       }
 
       if( listen (__po_hi_c_sockets_listen_socket, __PO_HI_NB_DEVICES) < 0 )
