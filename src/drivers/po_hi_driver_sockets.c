@@ -40,6 +40,8 @@
 #include <arpa/inet.h>
 #include <sys/time.h>
 
+#include <stdio.h>
+
 /*
  * This file (po_hi_sockets.c) provides function to handle
  * communication between nodes in PolyORB-HI-C.  We don't use a
@@ -233,132 +235,6 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
    __DEBUGMSG ("Poller launched, device-id=%d\n", dev_id);
 
    /*
-    * For each node in the sytem that may communicate with the current
-    * node we create a socket. This socket will be used to send data.
-    */
-   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++ )
-   {
-      if (dev == dev_id)
-      {
-         continue;
-      }
-
-      __DEBUGMSG ("[DRIVER SOCKETS] Will initialize connection with device %d\n", dev);
-
-      ip_port = 0;
-
-      ipconf = (__po_hi_c_ip_conf_t*) __po_hi_get_device_configuration (dev);
-      ip_port = (unsigned short)ipconf->port;
-
-      __DEBUGMSG ("[DRIVER SOCKETS] Configuration for device %d, port=%d\n", dev, ip_port);
-
-      if (ip_port == 0)
-      {
-         __DEBUGMSG ("[DRIVER SOCKETS] Invalid remote port\n");
-         continue;
-      }
-
-      while (1)
-      {
-         __po_hi_c_sockets_write_sockets[dev] = socket (AF_INET, SOCK_STREAM, 0);
-
-         if (__po_hi_c_sockets_write_sockets[dev] == -1 )
-         {
-            __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d is not created\n", dev);
-            return;
-         }
-
-         __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d created, value=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
-
-         hostinfo = NULL;
-
-         hostinfo = gethostbyname ((char*)ipconf->address);
-
-         if (hostinfo == NULL )
-         {
-            __DEBUGMSG ("[DRIVER SOCKETS] Error while getting host informations for device %d\n", dev);
-         }
-
-         sa.sin_port = htons (ip_port);
-         sa.sin_family = AF_INET;
-
-         /* The following lines are used to copy the
-          * hostinfo->h_length to the sa.sin_addr member. Most
-          * of program use the memcpy to do that, but the
-          * RT-POSIX profile we use forbid the use of this
-          * function.  We use a loop instead to perform the
-          * copy.  So, these lines replace the code :
-          *
-          *
-          * memcpy( (char*) &( sa.sin_addr ) , (char*)hostinfo->h_addr , hostinfo->h_length );
-          */
-         tmp = (char*) &(sa.sin_addr);
-         for (i=0 ; i<hostinfo->h_length ; i++)
-         {
-            tmp[i] = hostinfo->h_addr[i];
-         }
-
-
-         /*
-          * We try to connect on the remote host. We try every
-          * second to connect on.
-          */
-         __PO_HI_SET_SOCKET_TIMEOUT(__po_hi_c_sockets_write_sockets[dev], 500000);
-
-         ret = connect (__po_hi_c_sockets_write_sockets[dev], 
-                        (struct sockaddr*) &sa ,
-                        sizeof (struct sockaddr_in));
-
-#ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
-         if (ret == 0)
-         {
-            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
-
-            break;
-         }
-         else
-         {
-            __DEBUGMSG ("connect() failed, return=%d\n", ret);
-         }
-
-#else
-         if (ret == 0)
-         {
-            __DEBUGMSG ("[DRIVER SOCKETS] Send my id (%d) to device %d through socket %d\n", dev_id, dev , __po_hi_c_sockets_write_sockets[dev]);
-            sent_id = __po_hi_swap_byte (dev_id);
-            if (write (__po_hi_c_sockets_write_sockets[dev], &sent_id, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
-            {
-               __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id\n", dev_id);
-            }
-            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
-            break;
-         }
-         else
-         {
-            __DEBUGMSG ("connect() failed, return=%d\n", ret);
-         }
-#endif
-
-         if (close (__po_hi_c_sockets_write_sockets[dev]))
-         {
-            __DEBUGMSG ("[DRIVER SOCKETS] Cannot close socket %d\n", __po_hi_c_sockets_write_sockets[dev]);
-         }
-
-         /*
-          * We wait 500ms each time we try to connect on the
-          * remote host
-          */
-
-         __po_hi_get_time (&current_time);
-         __po_hi_milliseconds (&tmptime, 500);
-         __po_hi_add_times (&mytime, &current_time, &tmptime);
-         __DEBUGMSG ("[DRIVER SOCKETS] Cannot connect on device %d, wait 500ms\n", dev);
-         __po_hi_delay_until (&mytime);
-      }
-   }
-
-
-   /*
     * Create a socket for each node that will communicate with us.
     */
    for (dev = 0; dev < __PO_HI_NB_NODES - 1 ; dev++)
@@ -490,7 +366,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 }
 
 
-void __po_hi_driver_sockets_init (__po_hi_device_id id)
+void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 {
    int                     ret;
    int                     reuse;
@@ -498,17 +374,29 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
    unsigned short          ip_port;
 
    __po_hi_c_ip_conf_t*    ipconf;
-   __po_hi_device_id       node;
+   __po_hi_device_id       dev;
+
+   __po_hi_device_id          sent_id;
+   struct hostent*            hostinfo;
+
+   __po_hi_time_t             mytime;
+   __po_hi_time_t             tmptime;
+
+   char                       *tmp;
+   __po_hi_time_t             current_time;
+   int                        i;
+
+
 
    __po_hi_c_sockets_listen_socket = -1;
 
-   for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)
+   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++)
    {
-      __po_hi_c_sockets_read_sockets[node]   = -1;
-      __po_hi_c_sockets_write_sockets[node]  = -1;
+      __po_hi_c_sockets_read_sockets[dev]   = -1;
+      __po_hi_c_sockets_write_sockets[dev]  = -1;
    }
 
-   ipconf = (__po_hi_c_ip_conf_t*)__po_hi_get_device_configuration (id);
+   ipconf = (__po_hi_c_ip_conf_t*)__po_hi_get_device_configuration (dev_id);
    ip_port = (int)ipconf->port;
 
    __DEBUGMSG ("My configuration, addr=%s, port=%d\n", ipconf->address, ip_port );
@@ -526,7 +414,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
       if (__po_hi_c_sockets_listen_socket == -1 )
       {
 #ifdef __PO_HI_DEBUG
-         __DEBUGMSG ("Cannot create socket for device %d\n", id);
+         __DEBUGMSG ("Cannot create socket for device %d\n", dev_id);
 #endif
          return;
       }
@@ -562,7 +450,134 @@ void __po_hi_driver_sockets_init (__po_hi_device_id id)
 
       __po_hi_initialize_add_task ();
       __po_hi_create_generic_task 
-         (-1, 0,__PO_HI_MAX_PRIORITY, 0, (void* (*)(void))__po_hi_sockets_poller, &id);
+         (-1, 0,__PO_HI_MAX_PRIORITY, 0, (void* (*)(void))__po_hi_sockets_poller, &dev_id);
+   }
+
+
+   /*
+    * For each node in the sytem that may communicate with the current
+    * node we create a socket. This socket will be used to send data.
+    */
+   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++ )
+   {
+      if (dev == dev_id)
+      {
+         continue;
+      }
+
+      __DEBUGMSG ("[DRIVER SOCKETS] Will initialize connection with device %d\n", dev);
+
+      ip_port = 0;
+
+      ipconf = (__po_hi_c_ip_conf_t*) __po_hi_get_device_configuration (dev);
+      ip_port = (unsigned short)ipconf->port;
+
+      __DEBUGMSG ("[DRIVER SOCKETS] Configuration for device %d, port=%d\n", dev, ip_port);
+
+      if (ip_port == 0)
+      {
+         __DEBUGMSG ("[DRIVER SOCKETS] Invalid remote port\n");
+         continue;
+      }
+
+      while (1)
+      {
+         __po_hi_c_sockets_write_sockets[dev] = socket (AF_INET, SOCK_STREAM, 0);
+
+         if (__po_hi_c_sockets_write_sockets[dev] == -1 )
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d is not created\n", dev);
+            return;
+         }
+
+         __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d created, value=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
+
+         hostinfo = NULL;
+
+         hostinfo = gethostbyname ((char*)ipconf->address);
+
+         if (hostinfo == NULL )
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Error while getting host informations for device %d\n", dev);
+         }
+
+         sa.sin_port = htons (ip_port);
+         sa.sin_family = AF_INET;
+
+         /* The following lines are used to copy the
+          * hostinfo->h_length to the sa.sin_addr member. Most
+          * of program use the memcpy to do that, but the
+          * RT-POSIX profile we use forbid the use of this
+          * function.  We use a loop instead to perform the
+          * copy.  So, these lines replace the code :
+          *
+          *
+          * memcpy( (char*) &( sa.sin_addr ) , (char*)hostinfo->h_addr , hostinfo->h_length );
+          */
+         tmp = (char*) &(sa.sin_addr);
+         for (i=0 ; i<hostinfo->h_length ; i++)
+         {
+            tmp[i] = hostinfo->h_addr[i];
+         }
+
+
+         /*
+          * We try to connect on the remote host. We try every
+          * second to connect on.
+          */
+         __PO_HI_SET_SOCKET_TIMEOUT(__po_hi_c_sockets_write_sockets[dev], 500000);
+         ret = connect (__po_hi_c_sockets_write_sockets[dev], 
+                        (struct sockaddr*) &sa ,
+                        sizeof (struct sockaddr_in));
+
+#ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
+         if (ret == 0)
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
+
+            break;
+         }
+         else
+         {
+            __DEBUGMSG ("connect() failed, return=%d\n", ret);
+         }
+
+#else
+         if (ret == 0)
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Send my id (%d) to device %d through socket %d\n", dev_id, dev , __po_hi_c_sockets_write_sockets[dev]);
+
+            sent_id = __po_hi_swap_byte (dev_id);
+            if (write (__po_hi_c_sockets_write_sockets[dev], &sent_id, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
+            {
+               __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id\n", dev_id);
+            }
+            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
+
+            break;
+         }
+         else
+         {
+            __DEBUGMSG ("connect() failed, return=%d\n", ret);
+         }
+#endif
+
+         if (close (__po_hi_c_sockets_write_sockets[dev]))
+         {
+            __DEBUGMSG ("[DRIVER SOCKETS] Cannot close socket %d\n", __po_hi_c_sockets_write_sockets[dev]);
+         }
+
+         /*
+          * We wait 500ms each time we try to connect on the
+          * remote host
+          */
+
+         __po_hi_get_time (&current_time);
+         __po_hi_milliseconds (&tmptime, 500);
+         __po_hi_add_times (&mytime, &current_time, &tmptime);
+         __DEBUGMSG ("[DRIVER SOCKETS] Cannot connect on device %d, wait 500ms\n", dev);
+         __po_hi_delay_until (&mytime);
+      }
    }
 
    __DEBUGMSG ("[DRIVER SOCKETS] INITIALIZATION DONE\n");
