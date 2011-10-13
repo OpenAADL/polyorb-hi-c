@@ -40,8 +40,6 @@
 #include <arpa/inet.h>
 #include <sys/time.h>
 
-#include <stdio.h>
-
 /*
  * This file (po_hi_sockets.c) provides function to handle
  * communication between nodes in PolyORB-HI-C.  We don't use a
@@ -74,6 +72,7 @@ int                  __po_hi_c_sockets_write_sockets[__PO_HI_NB_DEVICES];
 __po_hi_request_t    __po_hi_c_sockets_poller_received_request;
 __po_hi_msg_t        __po_hi_c_sockets_poller_msg;
 __po_hi_msg_t        __po_hi_c_sockets_send_msg;
+__po_hi_device_id    __po_hi_c_sockets_device_id;
 
 int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
                                  __po_hi_port_t port)
@@ -230,14 +229,14 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
 
-   dev_id = *dev_id_addr;
+   dev_id = __po_hi_c_sockets_device_id;
 
    __DEBUGMSG ("Poller launched, device-id=%d\n", dev_id);
 
    /*
     * Create a socket for each node that will communicate with us.
     */
-   for (dev = 0; dev < __PO_HI_NB_NODES - 1 ; dev++)
+   for (dev = 0; dev < __PO_HI_NB_DEVICES - 1 ; dev++)
    {
          established = 0;
 
@@ -265,11 +264,6 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
             else
             {
                dev_init = __po_hi_swap_byte (dev_init);
-               if (__po_hi_c_sockets_read_sockets[dev_init] != -1)
-               {
-                  established = 0;
-                  __DEBUGMSG ("[DRIVER SOCKETS] Invalid id sent on socket=%d, received device id=%d\n", sock, dev_init);
-               }
 
                __DEBUGMSG ("[DRIVER SOCKETS] read device-id %d from socket=%d\n", dev_init, sock);
                established = 1;
@@ -284,6 +278,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
             max_socket = sock;
          }	  
    }
+
    __DEBUGMSG ("[DRIVER SOCKETS] Poller initialization finished, waiting for other tasks\n");
    __po_hi_wait_initialization ();
    __DEBUGMSG ("[DRIVER SOCKETS] Other tasks are initialized, let's start the polling !\n");
@@ -386,9 +381,9 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
    __po_hi_time_t             current_time;
    int                        i;
 
-
-
    __po_hi_c_sockets_listen_socket = -1;
+
+   __po_hi_c_sockets_device_id     = dev_id;
 
    for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++)
    {
@@ -432,7 +427,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
       sa.sin_family = AF_INET;                   
       sa.sin_port = htons (ip_port);   /* Port provided by the generated code */
 
-      if( bind (__po_hi_c_sockets_listen_socket, ( struct sockaddr * ) &sa , sizeof( struct sockaddr_in ) ) < 0 )
+      if( bind (__po_hi_c_sockets_listen_socket, (struct sockaddr *) &sa , sizeof (struct sockaddr_in) ) < 0 )
       {
          __DEBUGMSG ("Unable to bind socket and port on socket %d\n", __po_hi_c_sockets_listen_socket);
       }
@@ -458,7 +453,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
     * For each node in the sytem that may communicate with the current
     * node we create a socket. This socket will be used to send data.
     */
-   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++ )
+   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++)
    {
       if (dev == dev_id)
       {
@@ -579,7 +574,6 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
          __po_hi_delay_until (&mytime);
       }
    }
-
    __DEBUGMSG ("[DRIVER SOCKETS] INITIALIZATION DONE\n");
 }
 
