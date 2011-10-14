@@ -1,0 +1,85 @@
+--  This model completes the PING example by adding deployment
+--  information.
+--
+--  In this deployment, two nodes are defined, one task per node.
+--
+--  $Id: ping.aadl 401 2007-06-07 15:04:01Z hugues $
+package PING
+public
+  with Software;
+  with Deployment;
+  with ocarina_drivers;
+  with ocarina_processors_leon;
+  with ocarina_buses;
+
+---------
+-- Bus --
+---------
+
+bus Ethernet_Bus
+properties
+  Deployment::Transport_API => BSD_Sockets;
+end Ethernet_Bus;
+
+---------------
+-- Processes --
+---------------
+
+process A
+features
+  Out_Port : out event data port Software::Simple_Type;
+end A;
+
+process implementation A.Impl
+subcomponents
+  Pinger        : thread Software::P.Impl;
+connections
+  port Pinger.Data_Source -> Out_Port;
+end A.Impl;
+
+process B
+features
+  In_Port  : in event data port Software::Simple_Type;
+end B;
+
+process implementation B.Impl
+subcomponents
+  Ping_Me        : thread Software::Q.Impl;
+connections
+  port In_Port -> Ping_Me.Data_Sink;
+end B.Impl;
+
+------------
+-- System --
+------------
+
+system PING
+end PING;
+
+system implementation ping.federated
+subcomponents
+  Node_A : process A.Impl;
+  Node_B : process B.Impl;
+
+  Device_A : device ocarina_drivers::rasta_spacewire.pohic
+    {Source_Text => ("devicesconf-leon-spw.c");};
+  Device_B : device ocarina_drivers::rasta_spacewire.pohic
+    {Source_Text => ("devicesconf-leon-spw.c");};
+
+  CPU_A : processor ocarina_processors_leon::leon.rtems;
+  CPU_B : processor ocarina_processors_leon::leon.rtems;
+  the_bus : bus ocarina_buses::spacewire.generic;
+connections
+  bus access the_bus -> Device_A.spwaccess;
+  bus access the_bus -> Device_B.spwaccess;
+
+  port Node_A.Out_Port -> Node_B.In_Port
+    {Actual_Connection_Binding => (reference (the_bus));};
+properties
+  actual_processor_binding => reference (CPU_A) applies to Node_A;
+  actual_processor_binding => reference (CPU_B) applies to Node_B;
+  actual_processor_binding => (reference (CPU_A)) applies to Device_A;
+  actual_processor_binding => (reference (CPU_B)) applies to Device_B;
+end ping.federated;
+
+end PING;

@@ -2,6 +2,7 @@ package PING
 public
   with Software;
   with Deployment;
+  with ARINC653;
 
   with ocarina_processors_leon;
 
@@ -16,7 +17,7 @@ end A;
 
 process implementation A.Impl
 subcomponents
-  Pinger        : thread Software::P.Impl;
+  Pinger        : thread Software::P.Impl{Deadline => 5000 ms ; Period => 5000 ms;};
 connections
   port Pinger.Data_Source -> Data_Source;
 end A.Impl;
@@ -43,14 +44,14 @@ Mycalls: {
 };
 properties
   Dispatch_Protocol                  => Periodic;
-  Period                             => 100 Ms;
+  Period                             => 5000 Ms;
   Compute_Execution_time             => 0 ms .. 3 ms;
-  Deadline                           => 100 ms;
+  Deadline                           => 5000 ms;
 end xtratum_poller.i;
 
 process implementation B.Impl
 subcomponents
-  Ping_Me        : thread Software::Q.Impl;
+  Ping_Me        : thread Software::Q.Impl {Deadline => 5000 ms ; Period => 5000 ms;};
   poll_port      : thread xtratum_poller.i;
 connections
   port Data_Sink -> Ping_Me.Data_Sink;
@@ -79,6 +80,32 @@ subcomponents
 	segment2 : memory segment.i {Base_Address => 40180000; Byte_Count => 524288;};
 end myram.sdram;
 
+processor leon3
+end leon3;
+
+virtual processor xtratum_partition
+end xtratum_partition;
+
+virtual processor implementation xtratum_partition.generic
+end xtratum_partition.generic;
+
+processor implementation leon3.xtratum
+properties
+   Deployment::Execution_Platform => LEON3_XTRATUM;
+end leon3.xtratum;
+
+processor implementation leon3.xtratum_2partitions extends leon3.xtratum
+subcomponents
+        part1 : virtual processor xtratum_partition.generic
+      { Deployment::Execution_Platform => LEON3_XM3;};
+        part2 : virtual processor xtratum_partition.generic
+      { Deployment::Execution_Platform => LEON3_XM3;};
+properties
+   ARINC653::Partition_Slots => (5000ms, 5000ms);
+   ARINC653::Slots_Allocation => (reference (part1), reference (part2));
+        ARINC653::Module_Major_Frame => 10000ms;
+end leon3.xtratum_2partitions;
+
 ------------
 -- System --
 ------------
@@ -86,13 +113,13 @@ end myram.sdram;
 system PING
 end PING;
 
-system implementation PING.Impl
+system implementation PING.IMA
 subcomponents
   Node_A : process A.Impl;
   Node_B : process B.Impl;
   memst  :  memory myram.stram;
   mem    :  memory myram.sdram;
-  cpu    : processor ocarina_processors_leon::leon3.xtratum_2partitions;
+  cpu    : processor leon3.xtratum_2partitions;
 connections
   port Node_A.Data_Source -> Node_B.Data_Sink;
 properties
@@ -100,6 +127,6 @@ properties
   actual_processor_binding => (reference (cpu.part2)) applies to Node_B;
   actual_memory_binding => (reference (mem.segment1)) applies to Node_A;
   actual_memory_binding => (reference (mem.segment2)) applies to Node_B;
-end PING.Impl;
+end PING.IMA;
 
 end PING;
