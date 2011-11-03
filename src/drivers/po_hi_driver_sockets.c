@@ -161,7 +161,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
          {
             __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
             close (__po_hi_c_sockets_write_sockets[remote_device]);
-            __po_hi_c_write_sockets[remote_device] = -1;
+            __po_hi_c_sockets_write_sockets[remote_device] = -1;
             return __PO_HI_ERROR_TRANSPORT_SEND;		
          }
          break;
@@ -270,6 +270,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
             }
 #else
             established = 1;
+            dev_init = dev;
 #endif
          }
          __po_hi_c_sockets_read_sockets[dev_init] = sock;
@@ -329,7 +330,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
                   continue;
                }
                protocol_conf->unmarshaller (&__po_hi_c_sockets_poller_received_request, &datareceived, len);
-               __po_hi_sockets_poller_received_request.port = 1;
+               __po_hi_c_sockets_poller_received_request.port = 1;
             }
 
 #else
@@ -392,7 +393,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
    }
 
    ipconf = (__po_hi_c_ip_conf_t*)__po_hi_get_device_configuration (dev_id);
-   ip_port = (int)ipconf->port;
+   ip_port = ipconf->port;
 
    __DEBUGMSG ("My configuration, addr=%s, port=%d\n", ipconf->address, ip_port );
 
