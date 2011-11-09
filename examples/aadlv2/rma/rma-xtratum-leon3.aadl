@@ -111,6 +111,9 @@ memory implementation myram.sdram
 subcomponents
 	segment1 : memory segment.i {Base_Address => 40100000; Byte_Count => 524288;};
 	segment2 : memory segment.i {Base_Address => 40180000; Byte_Count => 524288;};
+properties
+   Base_Address => 40000000;
+   Byte_Count   => 4194304;
 end myram.sdram;
 
 
