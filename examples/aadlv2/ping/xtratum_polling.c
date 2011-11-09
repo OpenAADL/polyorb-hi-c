@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <deployment.h>
+#include <po_hi_debug.h>
 #include <po_hi_types.h>
 #include <po_hi_transport.h>
 #include <po_hi_gqueue.h>
@@ -42,7 +43,7 @@ void user_ports_polling ()
                                               sizeof (__po_hi_request_t));
          }
 
-         printf ("[XTRATUM POLLER] Poll port %d, corresponding xtratum port = %d, return=%d\n", portno, __po_hi_transport_xtratum_get_port (portno), ret);
+         __DEBUGMSG ("[XTRATUM POLLER] Poll port %d, corresponding xtratum port = %d, return=%d\n", portno, __po_hi_transport_xtratum_get_port (portno), ret);
 
          if (ret > 0)
          {

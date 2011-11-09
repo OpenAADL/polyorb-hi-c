@@ -17,7 +17,7 @@ end A;
 
 process implementation A.Impl
 subcomponents
-  Pinger        : thread Software::P.Impl{Deadline => 5000 ms ; Period => 5000 ms;};
+  Pinger        : thread Software::P.Impl;
 connections
   port Pinger.Data_Source -> Data_Source;
 end A.Impl;
@@ -44,14 +44,13 @@ Mycalls: {
 };
 properties
   Dispatch_Protocol                  => Periodic;
-  Period                             => 5000 Ms;
-  Compute_Execution_time             => 0 ms .. 3 ms;
-  Deadline                           => 5000 ms;
+  Period                             => 10 Ms;
+  Deadline                           => 10 ms;
 end xtratum_poller.i;
 
 process implementation B.Impl
 subcomponents
-  Ping_Me        : thread Software::Q.Impl {Deadline => 5000 ms ; Period => 5000 ms;};
+  Ping_Me        : thread Software::Q.Impl ;
   poll_port      : thread xtratum_poller.i;
 connections
   port Data_Sink -> Ping_Me.Data_Sink;
@@ -101,9 +100,9 @@ subcomponents
         part2 : virtual processor xtratum_partition.generic
       { Deployment::Execution_Platform => LEON3_XM3;};
 properties
-   ARINC653::Partition_Slots => (5000ms, 5000ms);
+   ARINC653::Partition_Slots => (20ms, 20ms);
    ARINC653::Slots_Allocation => (reference (part1), reference (part2));
-        ARINC653::Module_Major_Frame => 10000ms;
+        ARINC653::Module_Major_Frame => 40ms;
 end leon3.xtratum_2partitions;
 
 ------------
