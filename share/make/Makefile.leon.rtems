@@ -58,6 +58,8 @@ else
 target-objects:
 endif
 
+LINK_LIBS+=-lm
+
 emulate-qemu: $(BINARY)
 	qemu-system-sparc -M at697 -nographic -kernel $(BINARY).exe
 
