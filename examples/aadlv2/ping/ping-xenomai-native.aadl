@@ -81,8 +81,8 @@ subcomponents
   CPU_B : processor the_processor;
   the_bus : bus ocarina_buses::ip.i;
 connections
-  bus access the_bus -> Device_A.thebus;
-  bus access the_bus -> Device_B.thebus;
+  bus access the_bus -> Device_A.link;
+  bus access the_bus -> Device_B.link;
 
   port Node_A.Out_Port -> Node_B.In_Port
     {Actual_Connection_Binding => (reference (the_bus));};
