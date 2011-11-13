@@ -52,8 +52,8 @@ subcomponents
 
   the_bus : bus ocarina_buses::ip.i;
 connections
-  bus access the_bus -> Device_A.thebus;
-  bus access the_bus -> Device_B.thebus;
+  bus access the_bus -> Device_A.link; 
+  bus access the_bus -> Device_B.link;
   port Sunseekerplant.Outputfeedback
   -> Sunseekercontroller.Outputfeedback
     {Actual_Connection_Binding => (reference (the_bus));};
