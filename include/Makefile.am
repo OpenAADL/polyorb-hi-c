@@ -7,6 +7,7 @@ EXTRA_DIST = $(srcdir)/po_hi_common.h \
              $(srcdir)/po_hi_protected.h \
              $(srcdir)/po_hi_returns.h \
              $(srcdir)/po_hi_gqueue.h \
+             $(srcdir)/po_hi_monitor.h \
              $(srcdir)/po_hi_giop.h \
              $(srcdir)/po_hi_utils.h \
              $(srcdir)/po_hi_task.h \
