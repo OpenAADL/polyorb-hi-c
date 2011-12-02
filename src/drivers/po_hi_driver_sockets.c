@@ -21,6 +21,7 @@
 #include <po_hi_debug.h>
 #include <po_hi_types.h>
 #include <po_hi_messages.h>
+#include <po_hi_monitor.h>
 #include <po_hi_returns.h>
 #include <po_hi_main.h>
 #include <po_hi_task.h>
@@ -82,16 +83,19 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    int                        optval = 0;
    socklen_t                  optlen = 0;
    __po_hi_device_id          remote_device;
+   __po_hi_device_id          local_device;
    __po_hi_local_port_t       local_port;
    __po_hi_request_t*         request;
    __po_hi_port_t             destination_port;
    __po_hi_protocol_t         protocol_id;
    __po_hi_protocol_conf_t*   protocol_conf;
+   __po_hi_monitor_status_t   device_status;
 
    local_port              = __po_hi_get_local_port_from_global_port (port);
    request                 = __po_hi_gqueue_get_most_recent_value (task_id, local_port);
    destination_port        = __po_hi_gqueue_get_destination (task_id, local_port, 0);
-   remote_device       = __po_hi_get_device_from_port (destination_port);
+   local_device            = __po_hi_get_device_from_port (port);
+   remote_device           = __po_hi_get_device_from_port (destination_port);
    protocol_id             = __po_hi_transport_get_protocol (port, destination_port);
    protocol_conf           = __po_hi_transport_get_protocol_configuration (protocol_id);
 
@@ -99,12 +103,23 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    __DEBUGMSG ("[DRIVER SOCKETS] Try to write from task=%d, port=%d, remote device=%d, socket=%d\n", task_id, port, remote_device, __po_hi_c_sockets_write_sockets[remote_device]);
    if (request->port == -1)
    {
-
-#ifdef __PO_HI_DEBUG
       __DEBUGMSG (" [DRIVER SOCKETS] No data to write on port %d\n", port);
-#endif
       return __PO_HI_ERROR_TRANSPORT_SEND;
    }
+
+#if __PO_HI_MONITOR_ENABLED
+   if (__po_hi_monitor_get_status_device (local_device, &device_status) != __PO_HI_SUCCESS)
+   {
+      __DEBUGMSG ("[DRIVER SOCKETS] Cannot get the status of device %d\n", local_device);
+      return __PO_HI_ERROR_TRANSPORT_SEND;
+   }
+
+   if (device_status != po_hi_monitor_status_ok)
+   {
+      __DEBUGMSG ("[DRIVER SOCKETS] Device has a problem and is not able to process the request, aborting (device-id=%d, status= %d)\n", local_device, device_status);
+      return __PO_HI_ERROR_TRANSPORT_SEND;
+   }
+#endif
 
    if (__po_hi_c_sockets_write_sockets[remote_device] == -1 )
    {
