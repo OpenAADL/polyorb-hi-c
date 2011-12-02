@@ -15,6 +15,7 @@
 /* Success return code */
 #define __PO_HI_SUCCESS                    1
 #define __PO_HI_UNAVAILABLE                2
+#define __PO_HI_INVALID                    5
 
 /* Errors from the API */
 #define __PO_HI_ERROR_CREATE_TASK         -10
