@@ -3,13 +3,13 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://assert-project.net/tqste
+ * For more informations, please visit http://assert-project.net/taste
  *
  * Copyright (C) 2011, European Space Agency.
  */
 
 /*
- * \file po_hi_monitor.c
+ * \file po_hi_monitor.h
  *
  * \brief Contain the monitoring service functions.
  *
@@ -29,6 +29,20 @@
 #include <deployment.h>
 #include <po_hi_returns.h>
 
+#ifndef __PO_HI_NB_BUSES
+#define __PO_HI_NB_BUSES 0
+#endif
+
+#ifndef __PO_HI_NB_DEVICES
+#define __PO_HI_NB_DEVICES 0
+#endif
+
+#undef __PO_HI_MONITOR_ENABLED
+
+#if ( (__PO_HI_NB_DEVICES > 0) || (__PO_HI_NB_BUSES > 0))
+   #define __PO_HI_MONITOR_ENABLED 1
+#endif
+
 /*
  * \enum __po_hi_monitor_status_t
  *
@@ -38,9 +52,9 @@
 typedef enum
 {
    po_hi_monitor_status_ok             = 0,        /* Working */
-   po_hi_monitor_status_ko,            = 1,        /* Not working for unknown reason */
+   po_hi_monitor_status_ko             = 1,        /* Not working for unknown reason */
    po_hi_monitor_status_unavailable    = 2         /* No longer available, it used to work previously */
-}__po_hi_monitor_status_t;
+} __po_hi_monitor_status_t;
 
 
 /*
@@ -53,8 +67,8 @@ typedef enum
 typedef enum
 {
    po_hi_monitor_failure_unknown       = 0,        /* Unknown failure: something failed but we don't know what */
-   po_hi_monitor_failure_value         = 1,        /* Bad value was sent or received */
-}__po_hi_monitor_failure_t;
+   po_hi_monitor_failure_value         = 1         /* Bad value was sent or received */
+} __po_hi_monitor_failure_t;
 
 
 /*
@@ -131,7 +145,7 @@ int __po_hi_monitor_get_status_bus (const __po_hi_bus_id, __po_hi_monitor_status
  *    - __PO_HI_ERROR_INVALID    - the value of the second argument is
  *                                 invalid.
  */
-int __po_hi_monitor_report_failure_port (const __po_hi_port_t, __po_hi_monitor_failure_t);
+int __po_hi_monitor_report_failure_port (const __po_hi_port_t, const __po_hi_monitor_failure_t);
 
 /*
  * \fn __po_hi_nonitor_report_failure_device 
@@ -156,12 +170,12 @@ int __po_hi_monitor_report_failure_port (const __po_hi_port_t, __po_hi_monitor_f
  *    - __PO_HI_ERROR_INVALID    - the value of the second argument is
  *                                 invalid.
  */
-int __po_hi_monitor_report_failure_device (const __po_hi_device_id, __po_hi_monitor_failure_t);
+int __po_hi_monitor_report_failure_device (const __po_hi_device_id, const __po_hi_monitor_failure_t);
 
 /*
  * \fn __po_hi_nonitor_report_failure_bus 
  *
- * \brief Indicate that the device pointed as first argument fails according to the failure pointed as second argument.
+ * \brief Indicate that the bus pointed as first argument fails according to the failure pointed as second argument.
  *
  * This function reports a failure on the bus indicated
  * as first argument. The second argument is the kind
@@ -182,7 +196,7 @@ int __po_hi_monitor_report_failure_device (const __po_hi_device_id, __po_hi_moni
  *    - __PO_HI_ERROR_INVALID    - the value of the second argument is
  *                                 invalid.
  */
-int __po_hi_monitor_report_failure_port (const __po_hi_port_t, const __po_hi_monitor_failure_t);
+int __po_hi_monitor_report_failure_bus (const __po_hi_bus_id, const __po_hi_monitor_failure_t);
 
 
 /*
@@ -224,5 +238,14 @@ int __po_hi_monitor_recover_device (const __po_hi_device_id);
  */
 int __po_hi_monitor_recover_port (const __po_hi_port_t);
 
+/*
+ * \fn __po_hi_monitor_init
+ *
+ * \brief Initialise the monitoring subsystem.
+ *
+ * This function is called by the main initialisation function of 
+ * PolyORB-HI-C, __po_hi_initialize_early in __po_hi_main.c file
+ */
+void __po_hi_monitor_init (void);
 #endif
 

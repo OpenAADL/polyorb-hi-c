@@ -15,6 +15,7 @@
 #include <po_hi_config.h>
 #include <po_hi_common.h>
 #include <po_hi_returns.h>
+#include <po_hi_monitor.h>
 #include <po_hi_task.h>
 #include <po_hi_debug.h>
 #include <po_hi_protected.h>
@@ -189,6 +190,10 @@ int __po_hi_initialize_early ()
   /* Initialize protected objects */
 #if __PO_HI_NB_PROTECTED > 0
   __po_hi_protected_init();
+#endif
+
+#if __PO_HI_MONITOR_ENABLED == 1
+  __po_hi_monitor_init ();
 #endif
 
    return (__PO_HI_SUCCESS);
