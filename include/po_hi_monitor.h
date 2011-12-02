@@ -1,3 +1,14 @@
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://assert-project.net/tqste
+ *
+ * Copyright (C) 2011, European Space Agency.
+ */
+
+
 #ifndef __PO_HI_MONITOR_H__
 #define __PO_HI_MONITOR_H__
 
@@ -19,9 +30,9 @@ typedef enum
 
 
 /*
- * __po_hi_monitor_get_status_port reports the status of the bus 
- * connected to the port given in parameter. Store the status in the second
- * parameter.
+ * \fn __po_hi_monitor_get_status_port 
+ *
+ * \brief reports the status of the bus connected to the port given in parameter and store it in the second parameter.
  *
  * Returns the following codes:
  *    - __PO_HI_SUCCESS          - if the operation was successful.
@@ -34,8 +45,11 @@ typedef enum
 int __po_hi_monitor_get_status_port (__po_hi_port_t port, __po_hi_monitor_status_t* );
 
 /*
- * __po_hi_monitor_get_status_device reports the status of the bus 
- * connected to the device given in parameter. Store the status in the second
+ * \fn __po_hi_monitor_get_status_device 
+ *
+ * \brief reports the status of the bus connected to the device given in parameter in the second parameter.
+ *
+ * Store the status in the second
  * parameter. The first argument corresponds to the device identifier
  * available in the deployment.h. The value can be either a numeric one or 
  * infered from the AADL model.
@@ -51,8 +65,11 @@ int __po_hi_monitor_get_status_port (__po_hi_port_t port, __po_hi_monitor_status
 int __po_hi_monitor_get_status_device (__po_hi_device_id, __po_hi_monitor_status_t* );
 
 /*
- * __po_hi_monitor_get_status_bus reports the status of the bus 
- * given in parameter. Store the status in the second
+ * \fn __po_hi_monitor_get_status_bus 
+ *
+ * \brief reports the status of the bus given in parameter in the second parameter.
+ *
+ * Store the status in the second
  * parameter. The value can be either a numeric one or 
  * infered from the AADL model. This information is available
  * in the deployment.h generated file.
@@ -68,9 +85,11 @@ int __po_hi_monitor_get_status_device (__po_hi_device_id, __po_hi_monitor_status
 int __po_hi_monitor_get_status_bus (__po_hi_bus_id, __po_hi_monitor_status_t* );
 
 /*
- * __po_hi_nonitor_report_failure reports a failure on the device/bus
- * associated to the port provided as parameter. First parameter
- * is the port bounded to the device/bus, the second argument is the kind
+ * \fn __po_hi_nonitor_report_failure_port
+ *
+ * \brief report a failure on the device/bus associated to the port provided as parameter.
+ *
+ * First parameter is the port bounded to the device/bus, the second argument is the kind
  * of failure to report. Depending on the failure value, the device/bus
  * is put to an invalid mode/state.
  *
@@ -84,7 +103,98 @@ int __po_hi_monitor_get_status_bus (__po_hi_bus_id, __po_hi_monitor_status_t* );
  *    - __PO_HI_ERROR_INVALID    - the value of the second argument is
  *                                 invalid.
  */
-int __po_hi_monitor_report_failure (__po_hi_port_t, __po_hi_monitor_failure_t);
+int __po_hi_monitor_report_failure_port (__po_hi_port_t, __po_hi_monitor_failure_t);
+
+/*
+ * \fn __po_hi_nonitor_report_failure_device 
+ *
+ * \brief reports a failure (second parameter) against a device (first parameter).
+ *
+ * The device is indicated as first parameter. The second argument is the kind
+ * of failure to report. Depending on the failure value, the device/bus
+ * is put to an invalid mode/state.
+ *
+ * Note that the value of the first argument can be found/deduced
+ * from the __po_hi_device_id type definition generated in deployment.h
+ * file.
+ *
+ * If the failure to pass as argument is not known or does not exist,
+ * users can use the po_hi_monitor_failure_unknown value.
+ *
+ * Returns the following codes:
+ *    - __PO_HI_SUCCESS          - if the operation was successful.
+ *    - __PO_HI_UNAVAILABLE      - the device requested is not available or does
+ *                                 not exist.
+ *    - __PO_HI_ERROR_INVALID    - the value of the second argument is
+ *                                 invalid.
+ */
+int __po_hi_monitor_report_failure_device (__po_hi_device_id, __po_hi_monitor_failure_t);
+
+/*
+ * \fn __po_hi_nonitor_report_failure_bus 
+ *
+ * \brief Indicate that the device pointed as first argument fails according to the failure pointed as second argument.
+ *
+ * This function reports a failure on the bus indicated
+ * as first argument. The second argument is the kind
+ * of failure to report. Depending on the failure value, the device/bus
+ * is put to an invalid mode/state.
+ *
+ * If the failure to pass as argument is not known or does not exist,
+ * users can use the po_hi_monitor_failure_unknown value.
+ *
+ * Note that the value of the first argument can be found/deduced
+ * from the __po_hi_bus_id type definition generated in deployment.h
+ * file.
+ *
+ * Returns the following codes:
+ *    - __PO_HI_SUCCESS          - if the operation was successful.
+ *    - __PO_HI_UNAVAILABLE      - the bus requested is not available or does
+ *                                 not exist (invalid first argument).
+ *    - __PO_HI_ERROR_INVALID    - the value of the second argument is
+ *                                 invalid.
+ */
+int __po_hi_monitor_report_failure_port (const __po_hi_port_t, const __po_hi_monitor_failure_t);
+
+
+/*
+ * \fn __po_hi_monitor_recover_bus
+ *
+ * \brief Indicate that the bus pointed as parameter is fully functional
+ *
+ * Returns the following values:
+ *    - __PO_HI_SUCCESS          - if the operation was successful.
+ *    - __PO_HI_UNAVAILABLE      - the bus (argument to be used) is invalid.
+ */
+int __po_hi_monitor_recover_bus (const __po_hi_bus_id);
+
+/*
+ * \fn __po_hi_monitor_recover_device
+ *
+ * \brief Indicate that the device pointed as parameter is fully functional
+ *
+ * Returns the following values:
+ *    - __PO_HI_SUCCESS          - if the operation was successful.
+ *    - __PO_HI_UNAVAILABLE      - the device (argument to be used) is invalid.
+ */
+int __po_hi_monitor_recover_device (const __po_hi_device_id);
+
+
+/*
+ * \fn __po_hi_monitor_recover_port
+ *
+ * \brief Indicate that the bus/device bound to the point pointed as parameter is fully functional
+ *
+ * Returns the following values:
+ *    - __PO_HI_SUCCESS          - if the operation was successful.
+ *    - __PO_HI_UNAVAILABLE      - the port (argument to be used) is invalid.
+ *
+ * if the function returns __PO_HI_UNAVAILABLE, this is because either
+ * the bus bound to the port or its device are not valid. Also,
+ * if the port is not bound to any device/bus (local port, used for
+ * communication on the local node only), it will also report an error.
+ */
+int __po_hi_monitor_recover_port (const __po_hi_port_t);
 
 #endif
 
