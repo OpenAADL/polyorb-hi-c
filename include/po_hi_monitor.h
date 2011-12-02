@@ -8,6 +8,20 @@
  * Copyright (C) 2011, European Space Agency.
  */
 
+/*
+ * \file po_hi_monitor.c
+ *
+ * \brief Contain the monitoring service functions.
+ *
+ * This file contains monitoring function to be used by either
+ * PolyORB-HI-C services or application-level code. It is
+ * useful to report errors related to a device or bus
+ * or recovery of this entities.
+ *
+ * This service was introduced while tailoring/adapting PolyORB-HI-C
+ * to SOIS standard. See http://cwe.ccsds.org/sois/default.aspx
+ * So, most of the service features reflects SOIS requirements.
+ */
 
 #ifndef __PO_HI_MONITOR_H__
 #define __PO_HI_MONITOR_H__
@@ -15,12 +29,26 @@
 #include <deployment.h>
 #include <po_hi_returns.h>
 
+/*
+ * \enum __po_hi_monitor_status_t
+ *
+ * \brief Status code for a bus/device. Indicated wether the 
+ * entity is ok or not.
+ */
 typedef enum
 {
    po_hi_monitor_status_ok             = 0,        /* Working */
    po_hi_monitor_status_ko,            = 1,        /* Not working for unknown reason */
    po_hi_monitor_status_unavailable    = 2         /* No longer available, it used to work previously */
 }__po_hi_monitor_status_t;
+
+
+/*
+ * \enum __po_hi_monitor_failure_t
+ *
+ * \brief Failure description that is used when reporting
+ * a failure of a bus/device.
+ */
 
 typedef enum
 {
@@ -42,7 +70,7 @@ typedef enum
  *                                 second argument is invalid (e.g. NULL
  *                                 pointer).
  */
-int __po_hi_monitor_get_status_port (__po_hi_port_t port, __po_hi_monitor_status_t* );
+int __po_hi_monitor_get_status_port (const __po_hi_port_t port, __po_hi_monitor_status_t* );
 
 /*
  * \fn __po_hi_monitor_get_status_device 
@@ -62,7 +90,7 @@ int __po_hi_monitor_get_status_port (__po_hi_port_t port, __po_hi_monitor_status
  *                                 second argument is invalid (e.g. NULL
  *                                 pointer).
  */
-int __po_hi_monitor_get_status_device (__po_hi_device_id, __po_hi_monitor_status_t* );
+int __po_hi_monitor_get_status_device (const __po_hi_device_id, __po_hi_monitor_status_t* );
 
 /*
  * \fn __po_hi_monitor_get_status_bus 
@@ -82,7 +110,7 @@ int __po_hi_monitor_get_status_device (__po_hi_device_id, __po_hi_monitor_status
  *                                 second argument is invalid (e.g. NULL
  *                                 pointer).
  */
-int __po_hi_monitor_get_status_bus (__po_hi_bus_id, __po_hi_monitor_status_t* );
+int __po_hi_monitor_get_status_bus (const __po_hi_bus_id, __po_hi_monitor_status_t* );
 
 /*
  * \fn __po_hi_nonitor_report_failure_port
@@ -103,7 +131,7 @@ int __po_hi_monitor_get_status_bus (__po_hi_bus_id, __po_hi_monitor_status_t* );
  *    - __PO_HI_ERROR_INVALID    - the value of the second argument is
  *                                 invalid.
  */
-int __po_hi_monitor_report_failure_port (__po_hi_port_t, __po_hi_monitor_failure_t);
+int __po_hi_monitor_report_failure_port (const __po_hi_port_t, __po_hi_monitor_failure_t);
 
 /*
  * \fn __po_hi_nonitor_report_failure_device 
@@ -128,7 +156,7 @@ int __po_hi_monitor_report_failure_port (__po_hi_port_t, __po_hi_monitor_failure
  *    - __PO_HI_ERROR_INVALID    - the value of the second argument is
  *                                 invalid.
  */
-int __po_hi_monitor_report_failure_device (__po_hi_device_id, __po_hi_monitor_failure_t);
+int __po_hi_monitor_report_failure_device (const __po_hi_device_id, __po_hi_monitor_failure_t);
 
 /*
  * \fn __po_hi_nonitor_report_failure_bus 
