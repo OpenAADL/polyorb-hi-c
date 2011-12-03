@@ -70,6 +70,17 @@ typedef enum
    po_hi_monitor_failure_value         = 1         /* Bad value was sent or received */
 } __po_hi_monitor_failure_t;
 
+/*
+ * \fn __po_hi_monitor_init
+ *
+ * \brief Initialise the monitoring subsystem.
+ *
+ * This function is called by the main initialisation function of 
+ * PolyORB-HI-C, __po_hi_initialize_early in __po_hi_main.c file
+ */
+void __po_hi_monitor_init (void);
+
+#ifdef __PO_HI_MONITOR_ENABLED
 
 /*
  * \fn __po_hi_monitor_get_status_port 
@@ -238,14 +249,7 @@ int __po_hi_monitor_recover_device (const __po_hi_device_id);
  */
 int __po_hi_monitor_recover_port (const __po_hi_port_t);
 
-/*
- * \fn __po_hi_monitor_init
- *
- * \brief Initialise the monitoring subsystem.
- *
- * This function is called by the main initialisation function of 
- * PolyORB-HI-C, __po_hi_initialize_early in __po_hi_main.c file
- */
-void __po_hi_monitor_init (void);
+#endif
+
 #endif
 
