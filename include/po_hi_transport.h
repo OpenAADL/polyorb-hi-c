@@ -33,15 +33,40 @@ typedef struct
 
 typedef uint8_t __po_hi_queue_id;
 
-__po_hi_node_t    __po_hi_transport_get_node_from_entity (const __po_hi_entity_t entity);
-/*
- * Returns the node identifier that corresponds to an entity.
+/**
+ * \fn __po_hi_transport_get_n_accessed_buses
+ *
+ * \brief Return the number of buses associated with a device.
+ * If no bus is connected to the device or if the device
+ * is invalid, the function returns 0. Otherwise, a positive value is
+ * returned.
  */
+uint32_t __po_hi_transport_get_n_accessed_buses (const __po_hi_device_id device);
 
-__po_hi_entity_t  __po_hi_get_entity_from_global_port (const __po_hi_port_t port);
-/*
- * Return the entity identifier that own the port in parameters.
+/**
+ * \fn __po_hi_transport_get_accessed_buses
+ *
+ * \brief Return a pointer to an array that contains all buses identifiers
+ * accessed by the device passed as argument. If the argument is an invalid
+ * device-id or if the device does not access any bus, NULL is returned.
+ * The size of the array can be retrieved by the __po_hi_get_n_accessed_buses
+ * function.
  */
+__po_hi_bus_id* __po_hi_transport_get_accessed_buses (const __po_hi_device_id device);
+
+/**
+ * \fn __po_hi_get_node_from_entity
+ *
+ * \brief Returns the node identifier that corresponds to an entity.
+ */
+__po_hi_node_t    __po_hi_transport_get_node_from_entity (const __po_hi_entity_t entity);
+
+/*
+ * \fn __po_hi_get_entity_from_global_port
+ *
+ * \brief Return the entity identifier that own the port in parameters.
+ */
+__po_hi_entity_t  __po_hi_get_entity_from_global_port (const __po_hi_port_t port);
 
 /*
  * \fn            __po_hi_transport_send_default

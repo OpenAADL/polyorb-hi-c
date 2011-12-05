@@ -43,6 +43,8 @@ extern __po_hi_port_t            __po_hi_devices_to_nodes[__PO_HI_NB_DEVICES];
 extern __po_hi_device_id         __po_hi_port_to_device[__PO_HI_NB_PORTS];
 extern char*                     __po_hi_devices_naming[__PO_HI_NB_DEVICES];
 extern __po_hi_uint32_t*         __po_hi_devices_configuration_values[__PO_HI_NB_DEVICES];
+extern __po_hi_uint32_t          __po_hi_devices_nb_accessed_buses[__PO_HI_NB_DEVICES];
+extern __po_hi_bus_id*           __po_hi_devices_accessed_buses[__PO_HI_NB_DEVICES];
 #endif
 
 #if __PO_HI_NB_PROTOCOLS > 0
@@ -190,6 +192,26 @@ __po_hi_uint8_t __po_hi_get_endianness (const __po_hi_node_t node)
 }
 
 #if __PO_HI_NB_DEVICES > 0
+__po_hi_bus_id* __po_hi_transport_get_accessed_buses (const __po_hi_device_id device)
+{
+   if ((device < 0) || (device >= __PO_HI_NB_DEVICES))
+   {
+      return NULL;
+   }
+   return __po_hi_devices_accessed_buses[device];
+}
+
+
+uint32_t __po_hi_transport_get_n_accessed_buses (const __po_hi_device_id device)
+{
+   if ((device < 0) || (device >= __PO_HI_NB_DEVICES))
+   {
+      return 0;
+   }
+   return __po_hi_devices_nb_accessed_buses[device];
+
+}
+
 char* __po_hi_get_device_naming (const __po_hi_device_id dev)
 {
       return __po_hi_devices_naming[dev];
