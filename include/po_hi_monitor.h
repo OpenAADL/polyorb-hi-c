@@ -33,6 +33,10 @@
 #define __PO_HI_NB_BUSES 0
 #endif
 
+#ifndef __PO_HI_MONITOR_NB_FAILURES
+#define __PO_HI_MONITOR_NB_FAILURES 10
+#endif
+
 #ifndef __PO_HI_NB_DEVICES
 #define __PO_HI_NB_DEVICES 0
 #endif
@@ -44,7 +48,7 @@
 #endif
 
 /*
- * \enum __po_hi_monitor_status_t
+ * \enum __po_hi_monitor_status_code_t
  *
  * \brief Status code for a bus/device. Indicated wether the 
  * entity is ok or not.
@@ -54,7 +58,7 @@ typedef enum
    po_hi_monitor_status_ok             = 0,        /* Working */
    po_hi_monitor_status_ko             = 1,        /* Not working for unknown reason */
    po_hi_monitor_status_unavailable    = 2         /* No longer available, it used to work previously */
-} __po_hi_monitor_status_t;
+} __po_hi_monitor_status_code_t;
 
 
 /*
@@ -69,6 +73,20 @@ typedef enum
    po_hi_monitor_failure_unknown       = 0,        /* Unknown failure: something failed but we don't know what */
    po_hi_monitor_failure_value         = 1         /* Bad value was sent or received */
 } __po_hi_monitor_failure_t;
+
+/*
+ * \struct __po_hi_monitor_status_t
+ *
+ * \brief Structure that contains the status of an entity
+ */
+
+typedef struct
+{
+   __po_hi_monitor_status_code_t         status;
+   int                           n_failures;
+   __po_hi_monitor_failure_t*             failures;
+} __po_hi_monitor_status_t;
+
 
 /*
  * \fn __po_hi_monitor_init
@@ -95,7 +113,7 @@ void __po_hi_monitor_init (void);
  *                                 second argument is invalid (e.g. NULL
  *                                 pointer).
  */
-int __po_hi_monitor_get_status_port (const __po_hi_port_t port, __po_hi_monitor_status_t* );
+int __po_hi_monitor_get_status_port (const __po_hi_port_t port, __po_hi_monitor_status_t*);
 
 /*
  * \fn __po_hi_monitor_get_status_device 
@@ -155,6 +173,8 @@ int __po_hi_monitor_get_status_bus (const __po_hi_bus_id, __po_hi_monitor_status
  *                                 not exist.
  *    - __PO_HI_ERROR_INVALID    - the value of the second argument is
  *                                 invalid.
+ *    - __PO_HI_TOOMANY          - The max number of failures that can be
+ *                                 registered was already reached.
  */
 int __po_hi_monitor_report_failure_port (const __po_hi_port_t, const __po_hi_monitor_failure_t);
 
@@ -180,6 +200,8 @@ int __po_hi_monitor_report_failure_port (const __po_hi_port_t, const __po_hi_mon
  *                                 not exist.
  *    - __PO_HI_ERROR_INVALID    - the value of the second argument is
  *                                 invalid.
+ *    - __PO_HI_TOOMANY          - The max number of failures that can be
+ *                                 registered was already reached.
  */
 int __po_hi_monitor_report_failure_device (const __po_hi_device_id, const __po_hi_monitor_failure_t);
 
@@ -206,6 +228,8 @@ int __po_hi_monitor_report_failure_device (const __po_hi_device_id, const __po_h
  *                                 not exist (invalid first argument).
  *    - __PO_HI_ERROR_INVALID    - the value of the second argument is
  *                                 invalid.
+ *    - __PO_HI_TOOMANY          - The max number of failures that can be
+ *                                 registered was already reached.
  */
 int __po_hi_monitor_report_failure_bus (const __po_hi_bus_id, const __po_hi_monitor_failure_t);
 
