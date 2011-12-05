@@ -114,7 +114,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
       return __PO_HI_ERROR_TRANSPORT_SEND;
    }
 
-   if (device_status != po_hi_monitor_status_ok)
+   if (device_status.status != po_hi_monitor_status_ok)
    {
       __DEBUGMSG ("[DRIVER SOCKETS] Device has a problem and is not able to process the request, aborting (device-id=%d, status= %d)\n", local_device, device_status);
       return __PO_HI_ERROR_TRANSPORT_SEND;
