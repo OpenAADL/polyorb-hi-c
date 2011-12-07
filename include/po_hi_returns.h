@@ -46,4 +46,7 @@
 #define __PO_HI_GIOP_INVALID_OPERATION    -180
 #define __PO_HI_GIOP_UNSUPPORTED          -200
 
+#define __PO_HI_ERROR_EXISTS              -80
+#define __PO_HI_ERROR_NOEXISTS            -81
+
 #endif /* __RETURNS_H__ */
