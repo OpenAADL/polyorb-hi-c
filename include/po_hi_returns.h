@@ -18,6 +18,8 @@
 #define __PO_HI_INVALID                    5
 #define __PO_HI_TOOMANY                    6
 
+#define __PO_HI_NOTIMPLEMENTED             8
+
 /* Errors from the API */
 #define __PO_HI_ERROR_CREATE_TASK         -10
 #define __PO_HI_ERROR_TASK_PERIOD         -11
