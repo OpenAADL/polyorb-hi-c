@@ -11,8 +11,12 @@
 #ifndef __PO_HI_STORAGE_H__
 #define __PO_HI_STORAGE_H__
 
-#ifndef __PO_HI_FILENAME_MAXLENGTH
-#define __PO_HI_FILENAME_MAXLENGTH 100
+#include <po_hi_types.h>
+#include <deployment.h>
+#include <request.h>
+
+#ifndef __PO_HI_STORAGE_FILENAME_MAXLENGTH
+#define __PO_HI_STORAGE_FILENAME_MAXLENGTH 100
 #endif
 
 #ifndef __PO_HI_STORAGE_DIRECTORY_MAXFILES
@@ -43,7 +47,7 @@ typedef struct
 typedef struct
 {
    int         dir_id;
-   char        filename[__PO_HI_STORAGE_DIRECTORY_MAXFILES][__PO_HI_FILENAME_MAXLENGTH];
+   char        filename[__PO_HI_STORAGE_DIRECTORY_MAXFILES][__PO_HI_STORAGE_FILENAME_MAXLENGTH];
 } __po_hi_storage_dir_t;
 
 typedef __po_hi_request_t __po_hi_storage_packet_t;
@@ -200,7 +204,7 @@ int __po_hi_storage_file_append (const __po_hi_storage_file_t* file, char* buf, 
  * - __PO_HI_INVALID          : Invalid file (either source or destination)
  * - __PO_HI_ERROR_NOEXISTS   : The source or destination file does not exists
  */
-int __po_hi_storage_file_replace (const __po_hi_storage_file_t* oldfile, const __po_hi_file_t* newfile);
+int __po_hi_storage_file_replace (const __po_hi_storage_file_t* oldfile, const __po_hi_storage_file_t* newfile);
 
 
 /**
