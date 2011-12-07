@@ -1,23 +1,19 @@
 #include <stdio.h>
 #include <po_hi_monitor.h>
 
-int p=0;
 
-void user_do_ping_spg (int *v)
+void user_produce_pkts ()
 {
-  printf ("*** SENDING PING *** %d\n", p);
-  *v=p;
-
-  if ((p % 5) == 0)
-  {
-      __po_hi_monitor_report_failure_device (device_a_device_id, po_hi_monitor_failure_unknown);
-  }
-
-  if ((p % 7) == 0)
-  {
-      __po_hi_monitor_recover_device (device_a_device_id);
-  }
+  static int p = 0;
+  printf ("*** PRODUCE PKT WITH VALUE *** %d\n", p);
   p++;
+  fflush (stdout);
+}
+
+
+void user_do_ping_spg ()
+{
+  printf ("*** SENDING PKT *** \n");
   fflush (stdout);
 }
 

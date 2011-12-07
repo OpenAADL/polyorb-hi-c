@@ -44,6 +44,7 @@ end A;
 process implementation A.Impl
 subcomponents
   Pinger        : thread Software::P.Impl;
+  produce_pkts  : thread software::packet_producer.i;
 connections
   port Pinger.Data_Source -> Out_Port;
 end A.Impl;
