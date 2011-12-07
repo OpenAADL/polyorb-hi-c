@@ -88,6 +88,7 @@ ifeq ($(NEED_TRANSPORT), yes)
 	po_hi_utils.o                             \
 	po_hi_types.o                             \
    po_hi_monitor.o                           \
+   po_hi_storage.o                           \
 	po_hi_gqueue.o                            \
    drivers/po_hi_driver_exarm.o              \
    drivers/po_hi_driver_keyboard.o           \
@@ -125,6 +126,7 @@ else
 	po_hi_utils.o                    \
 	po_hi_protected.o                \
    po_hi_monitor.o                  \
+   po_hi_storage.o                  \
 	po_hi_main.o                     
 
    GENERATED_OBJS =                 \
