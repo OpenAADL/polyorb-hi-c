@@ -24,18 +24,25 @@ end Simple_Type;
 -- Subprograms --
 -----------------
 
+subprogram produce_packet_init_spg
+properties
+  source_language => C;
+  source_name     => "user_produce_pkts_init";
+  source_text     => ("pinger.c");
+end produce_packet_init_spg;
+
 subprogram produce_packet_spg
 properties
   source_language => C;
   source_name     => "user_produce_pkts";
-  source_text     => ("ping.c");
+  source_text     => ("pinger.c");
 end produce_packet_spg;
 
 subprogram Do_Ping_Spg
 properties
   source_language => C;
   source_name     => "user_do_ping_spg";
-  source_text     => ("ping.c");
+  source_text     => ("pinger.c");
 end Do_Ping_Spg;
 
 subprogram Ping_Spg
@@ -44,7 +51,7 @@ features
 properties
   source_language => C;
   source_name     => "user_ping_spg";
-  source_text     => ("ping.c");
+  source_text     => ("pingme.c");
 end Ping_Spg;
 
 
@@ -61,6 +68,7 @@ Mycalls: {
   produce : subprogram produce_packet_spg;
 };
 properties
+  Initialize_Entrypoint              => classifier (software::produce_packet_init_spg);
   Dispatch_Protocol                  => Periodic;
   Period                             => 500 Ms;
   Deadline                           => 500 ms;
