@@ -20,6 +20,8 @@
 
 #define __PO_HI_NOTIMPLEMENTED             8
 
+#define __PO_HI_NOTINITIALIZED             9
+
 /* Errors from the API */
 #define __PO_HI_ERROR_CREATE_TASK         -10
 #define __PO_HI_ERROR_TASK_PERIOD         -11
@@ -40,6 +42,10 @@
 #define __PO_HI_ERROR_PROTECTED_LOCK      -60
 #define __PO_HI_ERROR_PROTECTED_UNLOCK    -61
 #define __PO_HI_ERROR_PROTECTED_CREATE    -62
+
+#define __PO_HI_ERROR_MUTEX_LOCK          -60
+#define __PO_HI_ERROR_MUTEX_UNLOCK        -61
+#define __PO_HI_ERROR_MUTEX_CREATE        -62
 
 /* GIOP error code */
 #define __PO_HI_GIOP_INVALID_SIZE         -100
