@@ -11,6 +11,16 @@
 
 #ifndef __PO_HI_PROTECTED_H__
 #define __PO_HI_PROTECTED_H__
+#include <po_hi_config.h>
+#include <po_hi_returns.h>
+#include <po_hi_debug.h>
+#include <po_hi_task.h>
+#include <po_hi_types.h>
+#include <po_hi_utils.h>
+#include <po_hi_protected.h>
+
+
+
 #include <stdint.h>
 #include <deployment.h>
 
