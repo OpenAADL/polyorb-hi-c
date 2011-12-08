@@ -15,6 +15,19 @@
 #include <deployment.h>
 #include <request.h>
 
+#include <deployment.h>
+/* included files from the generated code */
+
+#include <po_hi_config.h>
+#include <po_hi_common.h>
+#include <po_hi_returns.h>
+#include <po_hi_monitor.h>
+#include <po_hi_task.h>
+#include <po_hi_debug.h>
+#include <po_hi_protected.h>
+#include <po_hi_utils.h>
+
+
 #ifndef __PO_HI_STORAGE_FILENAME_MAXLENGTH
 #define __PO_HI_STORAGE_FILENAME_MAXLENGTH 100
 #endif
@@ -50,11 +63,20 @@ typedef struct
    char        filename[__PO_HI_STORAGE_DIRECTORY_MAXFILES][__PO_HI_STORAGE_FILENAME_MAXLENGTH];
 } __po_hi_storage_dir_t;
 
-typedef __po_hi_request_t __po_hi_storage_packet_t;
+#ifndef __PO_HI_STORAGE_PACKET_SIZE
+#define __PO_HI_STORAGE_PACKET_SIZE sizeof(__po_hi_request_t __po_hi_storage_packet_t)
+#endif
+
+typedef __po_hi_uint8_t __po_hi_storage_packet_t;
 
 typedef struct
 {
-   __po_hi_storage_packet_t packets[__PO_HI_STORAGE_MAX_PACKETS];
+   __po_hi_uint8_t            packets[__PO_HI_STORAGE_PACKET_SIZE * __PO_HI_STORAGE_MAX_PACKETS];    /*< packets contained int he store (structured bytes)  >*/
+   int                        n_packets;                               /*< amount of packets stored in the store                                            >*/
+   int                        capacity;                                /*< actual size of the store, meaning the number of packets it can store             >*/
+   int                        read_off;                                /*< read offset in the buffer in terms of number of packets                          >*/
+   int                        write_off;                               /*< write offset in the buffer in terns of number of packets                         >*/
+   __po_hi_mutex_t            mutex;                                   /*< ensure buffer protection from concurrent accesses                                >*/
 } __po_hi_storage_packet_store_t;
 
 
@@ -415,6 +437,7 @@ int __po_hi_storage_get_cdir (__po_hi_storage_dir_t* current_directory);
  * Upon success, the function returns __PO_HI_SUCCESS.
  * It returns the following potential values:
  *  - __PO_HI_SUCCESS            : successful operation
+ *  - __PO_HI_ERROR_MUTEX_INIT   : error when trying to instantiate locking-related resources
  *  - __PO_HI_TOOMANY            : too many store already created
  */
 int __po_hi_storage_packet_store_new (__po_hi_storage_packet_store_t* store);
@@ -487,6 +510,10 @@ int __po_hi_storage_packet_store_read (__po_hi_storage_packet_store_t* store, __
  *  - __PO_HI_SUCCESS            : successful operation
  *  - __PO_HI_TOOMANY            : the store contains already too many
  *                                 packets, cannot write more packets.
+ *  - __PO_HI_ERROR_MUTEX_LOCK   : error when trying to acquire the mutex
+ *                                 associated with the packet store.
+ *  - __PO_HI_ERROR_MUTEX_UNLOCK : error when trying to release the mutex
+ *                                 associated with the packet store.
  *  - __PO_HI_INVALID            : invalid packet store or packet to write
  *                                 (invalid address)
  */
