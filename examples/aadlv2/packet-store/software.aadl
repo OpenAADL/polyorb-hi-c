@@ -15,9 +15,7 @@ public
 
 data Simple_Type
 properties
-  Type_Source_Name => "custom_int"; 
-  Source_Text => ("ping");
-  Source_Data_Size => 8 Bytes;
+  Data_Model::Data_Representation => integer;
 end Simple_Type;
 
 -----------------
