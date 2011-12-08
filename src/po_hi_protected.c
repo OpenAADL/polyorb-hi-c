@@ -10,12 +10,12 @@
  */
 
 #include <po_hi_config.h>
-#include <po_hi_protected.h>
 #include <po_hi_returns.h>
 #include <po_hi_debug.h>
 #include <po_hi_task.h>
 #include <po_hi_types.h>
 #include <po_hi_utils.h>
+#include <po_hi_protected.h>
 
 #include <deployment.h>
 
@@ -25,10 +25,18 @@
 
 #if __PO_HI_NB_PROTECTED > 0
 
+#ifdef XENO_NATIVE
+#include <native/mutex.h>
+#endif
+
+#ifdef RTEMS_PURE
+#include <rtems.h>
+#endif
+
+
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
 #define __USE_UNIX98 1
 #include <pthread.h>
-#include <po_hi_task.h>
 
 /* Declare only needed mutexes according to the generated
  * declarations. The __PO_HI_NB_PROTECTED is a generated macro that
@@ -52,7 +60,7 @@ int __po_hi_protected_init ()
          __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while initializing mutex attr\n");
       }
 
-#if defined (RTEMS_POSIX) || defined (POSIX)
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
       if (__po_hi_protected_configuration[i] == __PO_HI_PROTECTED_IPCP)
       {
          if (pthread_mutexattr_setprotocol (&__po_hi_protected_mutexes_attr[i], PTHREAD_PRIO_PROTECT) != 0)
@@ -235,4 +243,139 @@ int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
 #endif /* XENO_NATIVE */
 
 #endif /* __PO_HI_NB_PROTECTED > 0 */
+
+
+
+int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t protocol, const int priority)
+{
+   static int nb_mutex = 0;
+
+   if (mutex == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
+   mutex->protocol = __PO_HI_MUTEX_REGULAR;
+   mutex->priority = 0;
+
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
+   if (pthread_mutexattr_init (&mutex->posix_mutexattr) != 0)
+   {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when initializing the mutex\n");
+   }
+
+   switch (protocol)
+   {
+      case __PO_HI_MUTEX_IPCP:
+         {
+            if (pthread_mutexattr_setprotocol (&mutex->posix_mutexattr, PTHREAD_PRIO_PROTECT) != 0)
+            {
+               __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while changing mutex protocol\n");
+            }
+
+            if (priority == 0)
+            {
+               mutex->priority = __PO_HI_MAX_PRIORITY - 1;
+            }
+            else
+            {
+               mutex->priority = priority;
+            }
+
+            if (pthread_mutexattr_setprioceiling (&mutex->posix_mutexattr, mutex->priority) != 0)
+            {
+               __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while changing mutex priority\n");
+            }
+            break;
+         }
+
+      case __PO_HI_PROTECTED_PIP:
+         {
+            if (pthread_mutexattr_setprotocol (&mutex->posix_mutexattr, PTHREAD_PRIO_INHERIT) != 0)
+            {
+               __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while changing mutex protocol\n");
+            }
+            break;
+         }
+   }
+
+    if (pthread_mutex_init (&mutex->posix_mutex, &mutex->posix_mutexattr) != 0)
+    {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while creating mutex\n");
+        return __PO_HI_ERROR_UNKNOWN;
+     }
+#endif
+#ifdef XENO_NATIVE
+      if (rt_mutex_create (&mutex->xeno_mutex, NULL) != 0)
+      {
+         __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while creating mutex\n");
+        return __PO_HI_ERROR_UNKNOWN;
+      }
+   }
+#endif
+#ifdef RTEMS_PURE
+      if (rtems_semaphore_create (rtems_build_name ('P', 'S', 'E' , 'A' + (char) nb_mutex++), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &mutex->rtems_mutex) != RTEMS_SUCCESSFUL)
+      {
+         __DEBUGMSG ("[PROTECTED] Cannot create RTEMS binary semaphore\n");
+         return __PO_HI_ERROR_PROTECTED_CREATE;
+      }
+   }
+#endif
+   return (__PO_HI_SUCCESS);
+}
+
+int __po_hi_mutex_lock (__po_hi_mutex_t* mutex)
+{
+
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
+   if (pthread_mutex_lock (&mutex->posix_mutex) != 0 )
+   {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when trying to lock mutex\n");
+      return __PO_HI_ERROR_MUTEX_LOCK;
+   }
+#endif
+#ifdef RTEMS_PURE
+   if (rtems_semaphore_obtain (mutex->rtems_mutex, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
+   {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when trying to lock mutex\n");
+      return __PO_HI_ERROR_MUTEX_LOCK;
+   }
+#endif
+#ifdef XENO_NATIVE
+   if (rt_mutex_acquire (&mutex->xeno_mutex, TM_INFINITE) != 0 )
+   {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when trying to lock mutex\n");
+      return __PO_HI_ERROR_MUTEX_LOCK;
+   }
+#endif
+   return __PO_HI_SUCCESS;
+}
+
+int __po_hi_mutex_unlock (__po_hi_mutex_t* mutex)
+{
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
+  if (pthread_mutex_unlock (&mutex->posix_mutex) != 0 )
+    {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when trying to unlock mutex\n");
+      return __PO_HI_ERROR_MUTEX_UNLOCK;
+    }
+#endif
+#ifdef RTEMS_PURE
+   if (rtems_semaphore_release (mutex->rtems_mutex) != RTEMS_SUCCESSFUL)
+   {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when trying to unlock mutex\n");
+      return __PO_HI_ERROR_MUTEX_UNLOCK;
+   }
+#endif
+#ifdef XENO_NATIVE
+  if (rt_mutex_release (&mutex->xeno_mutex) != 0 )
+    {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when trying to unlock mutex\n");
+      return __PO_HI_ERROR_MUTEX_UNLOCK;
+    }
+#endif
+
+  return __PO_HI_SUCCESS;
+}
+
 
