@@ -153,20 +153,18 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
      }
 #endif
 #ifdef XENO_NATIVE
-      if (rt_mutex_create (&mutex->xeno_mutex, NULL) != 0)
-      {
-         __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while creating mutex\n");
-        return __PO_HI_ERROR_UNKNOWN;
-      }
-   }
+    if (rt_mutex_create (&mutex->xeno_mutex, NULL) != 0)
+    {
+       __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while creating mutex\n");
+      return __PO_HI_ERROR_UNKNOWN;
+    }
 #endif
 #ifdef RTEMS_PURE
-      if (rtems_semaphore_create (rtems_build_name ('P', 'S', 'E' , 'A' + (char) nb_mutex++), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &mutex->rtems_mutex) != RTEMS_SUCCESSFUL)
-      {
-         __DEBUGMSG ("[PROTECTED] Cannot create RTEMS binary semaphore\n");
-         return __PO_HI_ERROR_PROTECTED_CREATE;
-      }
-   }
+    if (rtems_semaphore_create (rtems_build_name ('P', 'S', 'E' , 'A' + (char) nb_mutex++), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &mutex->rtems_mutex) != RTEMS_SUCCESSFUL)
+    {
+       __DEBUGMSG ("[PROTECTED] Cannot create RTEMS binary semaphore\n");
+       return __PO_HI_ERROR_PROTECTED_CREATE;
+    }
 #endif
    return (__PO_HI_SUCCESS);
 }
