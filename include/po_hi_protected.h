@@ -11,15 +11,6 @@
 
 #ifndef __PO_HI_PROTECTED_H__
 #define __PO_HI_PROTECTED_H__
-#include <po_hi_config.h>
-#include <po_hi_returns.h>
-#include <po_hi_debug.h>
-#include <po_hi_task.h>
-#include <po_hi_types.h>
-#include <po_hi_utils.h>
-#include <po_hi_protected.h>
-
-
 
 #include <stdint.h>
 #include <deployment.h>
@@ -27,6 +18,20 @@
 #define __PO_HI_PROTECTED_TYPE_REGULAR    0
 #define __PO_HI_PROTECTED_TYPE_PIP        1
 #define __PO_HI_PROTECTED_TYPE_PCP        2
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   #include <stdlib.h>
+   #include <stdint.h>
+   #include <time.h>
+   #include <pthread.h>
+#endif
+#if defined (RTEMS_PURE)
+   #include <rtems.h>
+#endif
+#if defined (XENO_NATIVE)
+   #include <native/mutex.h>
+#endif
+
 
 
 typedef enum
@@ -43,6 +48,25 @@ typedef enum
 }__po_hi_protected_protocol_t;
 
 typedef __po_hi_protected_protocol_t __po_hi_mutex_protocol_t;
+
+
+typedef struct
+{
+   __po_hi_mutex_protocol_t   protocol;
+   int                        priority;
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   pthread_mutex_t      posix_mutex;
+   pthread_mutexattr_t  posix_mutexattr;
+#endif
+#if defined (RTEMS_PURE)
+   rtems_id             rtems_mutex;
+#endif
+#if defined (XENO_NATIVE)
+   RT_MUTEX             xeno_mutex;
+#endif
+}__po_hi_mutex_t;
+
+
 
 
 typedef uint8_t __po_hi_protected_t;
@@ -74,29 +98,6 @@ int __po_hi_protected_unlock (__po_hi_protected_t protected_id);
  * \brief Initialize all variables to handle protected objects in PolyORB-HI-C
  */
 int __po_hi_protected_init (void);
-
-
-typedef struct
-{
-#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   #include <stdlib.h>
-   #include <stdint.h>
-   #include <time.h>
-   #include <pthread.h>
-   pthread_mutex_t      posix_mutex;
-   pthread_mutexattr_t  posix_mutexattr;
-#endif
-#ifdef RTEMS_PURE
-   #include <rtems.h>
-   rtems_id             rtems_mutex;
-#endif
-#ifdef XENO_NATIVE
-   #include <native/mutex.h>
-   RT_MUTEX             xeno_mutex;
-#endif
-   __po_hi_mutex_protocol_t   protocol;
-   int                        priority;
-}__po_hi_mutex_t;
 
 
 /**

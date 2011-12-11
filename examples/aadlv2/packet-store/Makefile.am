@@ -1,4 +1,4 @@
-C_FILES = $(srcdir)/ping.c $(srcdir)/ping.h  $(srcdir)/devicesconf.c
+C_FILES = $(srcdir)/pinger.c $(srcdir)/pingme.c $(srcdir)/ping.h  $(srcdir)/devicesconf.c
 AADL_FILES = \
 	$(srcdir)/software.aadl  \
 	$(srcdir)/ping.aadl

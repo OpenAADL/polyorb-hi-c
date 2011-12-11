@@ -50,7 +50,6 @@ extern __po_hi_uint8_t                 __po_hi_protected_priorities[__PO_HI_NB_P
 int __po_hi_protected_init ()
 {
    __po_hi_uint8_t i;
-   __po_hi_uint8_t prio;
 
    for (i = 0 ; i < __PO_HI_NB_PROTECTED ; i++ )
    {
@@ -152,7 +151,7 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
         return __PO_HI_ERROR_UNKNOWN;
      }
 #endif
-#ifdef XENO_NATIVE
+#if defined (XENO_NATIVE)
     if (rt_mutex_create (&mutex->xeno_mutex, NULL) != 0)
     {
        __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while creating mutex\n");
