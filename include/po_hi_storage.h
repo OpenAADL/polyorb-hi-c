@@ -49,17 +49,26 @@
 #define __PO_HI_STORAGE_MAX_PACKET_STORES 100
 #endif
 
-
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 
 typedef struct
 {
    int         file_id;
    char        filename[__PO_HI_STORAGE_FILENAME_MAXLENGTH];
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   int         fd;
+#endif
 } __po_hi_storage_file_t;
 
 typedef struct
 {
    int         dir_id;
+   char        dirname[__PO_HI_STORAGE_FILENAME_MAXLENGTH];
    char        filename[__PO_HI_STORAGE_DIRECTORY_MAXFILES][__PO_HI_STORAGE_FILENAME_MAXLENGTH];
 } __po_hi_storage_dir_t;
 
@@ -105,7 +114,7 @@ typedef struct
  * It returns the following potential values:
  *  - __PO_HI_SUCCESS: successful operation
  *  - __PO_HI_TOOMANY: too may files are open at this time, cannot open more.
- *  - __PO_HI_INVALID: supplied filename is invalid
+ *  - __PO_HI_INVALID: supplied filename is invalid (invalid characters or too long)
  */
 int __po_hi_storage_file_open (const char* filename, __po_hi_storage_file_t*);
 
@@ -122,7 +131,7 @@ int __po_hi_storage_file_open (const char* filename, __po_hi_storage_file_t*);
  * - __PO_HI_ERROR_EXISTS     : File already exists
  * - __PO_HI_INVALID          : Invalid file
  */
-int __po_hi_storage_file_create (const __po_hi_storage_file_t* file);
+int __po_hi_storage_file_create (__po_hi_storage_file_t* file);
 
 /**
  * \fn __po_hi_storage_file_read
@@ -190,7 +199,7 @@ int __po_hi_storage_file_delete (const __po_hi_storage_file_t* file);
  * - __PO_HI_ERROR_EXISTS     : The destination file (second argument) already
  *                              exists.
  */
-int __po_hi_storage_file_rename (const __po_hi_storage_file_t* oldfile,const __po_hi_storage_file_t* newfile);
+int __po_hi_storage_file_rename (const __po_hi_storage_file_t* oldfile, __po_hi_storage_file_t* newfile);
 
 /**
  * \fn __po_hi_storage_file_append

@@ -19,36 +19,275 @@
 
 int __po_hi_storage_file_open (const char* filename, __po_hi_storage_file_t* file)
 {
+   int len;
+   int fd;
+
+   if (file == NULL)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_open: invalid file argument\n");
+      return __PO_HI_INVALID;
+   }
+
+   len = strlen (filename);
+
+   memset (file->filename, 0, __PO_HI_STORAGE_FILENAME_MAXLENGTH);
+
+   if (len >= __PO_HI_STORAGE_FILENAME_MAXLENGTH)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_open: file failed to be opened\n");
+      return __PO_HI_INVALID;
+   }
+
+   strncpy (file->filename, filename, len);
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   /*
+    * If the file already exist, we open it for reading/writing
+    */
+
+   fd = open (filename, O_RDWR);
+
+   if (fd == -1)
+   {
+      __DEBUGMSG ("[STORAGE] Warning, file %s does not exist, continue anyway\n");
+   }
+   else
+   {
+      file->fd = fd;
+   }
+
+   return __PO_HI_SUCCESS;
+#endif
    return __PO_HI_NOTIMPLEMENTED;
 }
 
-int __po_hi_storage_file_create (const __po_hi_storage_file_t* file)
+int __po_hi_storage_file_create (__po_hi_storage_file_t* file)
 {
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   struct stat ss;
+   int fd;
+#endif
+
+   if ((file == NULL) || (file->filename == NULL))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_create: invalid file parameter\n");
+      return __PO_HI_INVALID;
+   }
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   if (stat (file->filename, &ss))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_create: file already exists\n");
+      return __PO_HI_ERROR_EXISTS;
+   }
+
+   /*
+    * We assume the file is not open previously by a call to open().
+    * Otherwise, we assume this is an error.
+    */
+   if (file->fd != -1)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_create: invalid file handle (%d)\n", file->fd);
+      return __PO_HI_INVALID;
+   }
+
+   fd = open (file->filename, O_RDWR, O_CREAT, S_IRWXU | S_IRGRP | S_IROTH);
+
+   if (fd == -1)
+   {
+      __DEBUGMSG ("[STORAGE] Warning, cannot open file %s with create attributes\n");
+      return __PO_HI_INVALID;
+   }
+
+   file->fd = fd;
+
+   return __PO_HI_SUCCESS;
+#endif
    return __PO_HI_NOTIMPLEMENTED;
 }
 
 int __po_hi_storage_file_read (const __po_hi_storage_file_t* file, char* buf, int bufsize)
 {
+   int n;
+
+   if ((file == NULL) || (file->filename == NULL))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_read: invalid file parameter\n");
+      return __PO_HI_INVALID;
+   }
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   if (file->fd == -1)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_read: invalid file handle (%d)\n", file->fd);
+      return __PO_HI_INVALID;
+   }
+
+   n = read (file->fd, buf, bufsize);
+
+   if (n != bufsize)
+   {
+      return __PO_HI_ERROR_UNKNOWN;
+   }
+
+   return __PO_HI_SUCCESS;
+#endif
    return __PO_HI_NOTIMPLEMENTED;
 }
 
 int __po_hi_storage_file_write (const __po_hi_storage_file_t* file, char* buf, int bufsize)
 {
+   int n;
+
+   if ((file == NULL) || (file->filename == NULL))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_write: invalid file parameter\n");
+      return __PO_HI_INVALID;
+   }
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   if (file->fd == -1)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_write: invalid file handle (%d)\n", file->fd);
+      return __PO_HI_INVALID;
+   }
+
+   n = write (file->fd, buf, bufsize);
+
+   if (n != bufsize)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_write: invalid buffer size\n");
+      return __PO_HI_ERROR_UNKNOWN;
+   }
+
+   return __PO_HI_SUCCESS;
+#endif
    return __PO_HI_NOTIMPLEMENTED;
 }
 
 int __po_hi_storage_file_delete (const __po_hi_storage_file_t* file)
 {
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   struct stat ss;
+#endif
+
+   if ((file == NULL) || (file->filename == NULL))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_delete: invalid file parameter\n");
+      return __PO_HI_INVALID;
+   }
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   if (stat (file->filename, &ss) != 0)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_delete: file does not exist\n");
+      return __PO_HI_ERROR_EXISTS;
+   }
+
+   if (file->fd != -1)
+   {
+      if (close (file->fd))
+      {
+         __DEBUGMSG ("[STORAGE] __po_hi_storage_file_delete: error when trying to close the file (fd=%d)\n", file->fd);
+         return __PO_HI_ERROR_UNKNOWN;
+      }
+   }
+
+   if (unlink (file->filename))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_delete: error when trying to delete the file\n");
+      return __PO_HI_ERROR_UNKNOWN;
+   }
+   return __PO_HI_SUCCESS;
+#endif
    return __PO_HI_NOTIMPLEMENTED;
 }
 
-int __po_hi_storage_file_rename (const __po_hi_storage_file_t* oldfile,const __po_hi_storage_file_t* newfile)
+int __po_hi_storage_file_rename (const __po_hi_storage_file_t* oldfile, __po_hi_storage_file_t* newfile)
 {
+   int ret;
+   char buf[100];
+
+   if ((oldfile == NULL) || (oldfile->filename == NULL))
+   {
+      return __PO_HI_INVALID;
+   }
+
+   if ((newfile == NULL) || (newfile->filename == NULL))
+   {
+      return __PO_HI_INVALID;
+   }
+
+   ret = __po_hi_storage_file_create (newfile);
+   if (ret != __PO_HI_SUCCESS)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_rename: error when trying to create the new file (ret=%d)\n", ret);
+      return ret;
+   }
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   if ((newfile->fd == -1) || (oldfile->fd == -1))
+   {
+      return __PO_HI_INVALID;
+   }
+
+   if (lseek (oldfile->fd, 0, SEEK_SET))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_rename: error when trying to set file offset\n");
+      return __PO_HI_ERROR_UNKNOWN;
+   }
+
+   while ( (ret = read (oldfile->fd, buf, 100) ) > 0)
+   {
+      write (newfile->fd, buf, ret);
+   }
+
+   ret = __po_hi_storage_file_delete (oldfile);
+
+   if (ret != __PO_HI_SUCCESS)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_rename: error when trying to delete old file\n");
+      return ret;
+   }
+
+   return __PO_HI_SUCCESS;
+#endif
+
    return __PO_HI_NOTIMPLEMENTED;
 }
 
 int __po_hi_storage_file_append (const __po_hi_storage_file_t* file, char* buf, int bufsize)
 {
+   int ret;
+
+   if ((file == NULL) || (file->filename == NULL))
+   {
+      return __PO_HI_INVALID;
+   }
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   if (file->fd == -1)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_append: file %s does not have an appropriate descriptor\n", file->filename);
+      return __PO_HI_INVALID;
+   }
+
+   if (lseek (file->fd, 0, SEEK_END))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_append: error when trying to set file offset\n");
+      return __PO_HI_ERROR_UNKNOWN;
+   }
+
+   ret = write (file->fd, buf, bufsize);
+
+   if (ret != bufsize)
+   { 
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_append: cannot write %d bytes\n", bufsize);
+      return __PO_HI_ERROR_UNKNOWN;
+   }
+
+   return __PO_HI_SUCCESS;
+#endif
    return __PO_HI_NOTIMPLEMENTED;
 }
 
@@ -73,16 +312,81 @@ int __po_hi_storage_file_unlock (const __po_hi_storage_file_t* file)
 
 int __po_hi_storage_directory_open (const char* dirname, __po_hi_storage_dir_t* dir)
 {
-   return __PO_HI_NOTIMPLEMENTED;
+   int len;
+
+   if (dirname == NULL)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_open: invalid directory parameter\n");
+      return __PO_HI_INVALID;
+   }
+
+   if (dir == NULL)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_open: invalid directory parameter\n");
+      return __PO_HI_INVALID;
+   }
+
+   len = strlen (dirname);
+
+   if (len >= __PO_HI_STORAGE_FILENAME_MAXLENGTH)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_open: name too long\n");
+      return __PO_HI_INVALID;
+   }
+
+   memset (dir->dirname, 0, __PO_HI_STORAGE_FILENAME_MAXLENGTH);
+
+   memcpy (dir->dirname, dirname, len);
+
+   return __PO_HI_SUCCESS;
 }
 
 int __po_hi_storage_directory_create (const __po_hi_storage_dir_t* dir)
 {
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   struct stat ss;
+#endif
+
+   if (dir == NULL)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_create: invalid directory parameter\n");
+      return __PO_HI_INVALID;
+   }
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   if (stat (dir->dirname, &ss))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_create: file already exists\n");
+      return __PO_HI_ERROR_EXISTS;
+   }
+
+   if (mkdir (dir->dirname, S_IRWXU | S_IRGRP | S_IROTH))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_create: mkdir error\n");
+      return __PO_HI_INVALID;
+   }
+   return __PO_HI_SUCCESS;
+#endif
+
    return __PO_HI_NOTIMPLEMENTED;
 }
 
 int __po_hi_storage_directory_delete (const __po_hi_storage_dir_t* dir)
 {
+   if (dir == NULL)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_delete: invalid directory parameter\n");
+      return __PO_HI_INVALID;
+   }
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   if (rmdir (dir->dirname))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_delete: rmdir error\n");
+      return __PO_HI_INVALID;
+   }
+   return __PO_HI_SUCCESS;
+#endif
    return __PO_HI_NOTIMPLEMENTED;
 }
 
@@ -108,11 +412,36 @@ int __po_hi_storage_directory_unlock (const __po_hi_storage_dir_t* dir)
 
 int __po_hi_storage_change_cdir (__po_hi_storage_dir_t* new_current_directory)
 {
+   if ( (new_current_directory == NULL) || (new_current_directory->dirname == NULL))
+   {
+      return __PO_HI_INVALID;
+   }
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   if (chdir (new_current_directory->dirname))
+   {
+      return __PO_HI_ERROR_NOEXISTS;
+   }
+   return __PO_HI_SUCCESS;
+#endif
    return __PO_HI_NOTIMPLEMENTED;
 }
 
 int __po_hi_storage_get_cdir (__po_hi_storage_dir_t* current_directory)
 {
+   if ( (current_directory == NULL) || (current_directory->dirname == NULL))
+   {
+      return __PO_HI_INVALID;
+   }
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   memset (current_directory->dirname, 0, __PO_HI_STORAGE_FILENAME_MAXLENGTH);
+
+   if (getcwd (current_directory->dirname, __PO_HI_STORAGE_FILENAME_MAXLENGTH) == NULL)
+   {
+      return __PO_HI_ERROR_UNKNOWN;
+   }
+   return __PO_HI_SUCCESS;
+#endif
+
    return __PO_HI_NOTIMPLEMENTED;
 }
 
