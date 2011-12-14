@@ -169,6 +169,7 @@ AC_OUTPUT([
 	examples/aadlv2/flight-mgmt/Makefile
 	examples/aadlv2/monitor/Makefile
 	examples/aadlv2/packet-store/Makefile
+	examples/aadlv2/file-store/Makefile
 	examples/aadlv2/rma/Makefile
 	examples/aadlv2/some-types/Makefile
 	examples/aadlv2/some-types-stdint/Makefile
