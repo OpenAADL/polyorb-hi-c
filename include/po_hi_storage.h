@@ -52,6 +52,7 @@
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
 #endif
@@ -68,6 +69,7 @@ typedef struct
 typedef struct
 {
    int         dir_id;
+   int         nb_files;
    char        dirname[__PO_HI_STORAGE_FILENAME_MAXLENGTH];
    char        filename[__PO_HI_STORAGE_DIRECTORY_MAXFILES][__PO_HI_STORAGE_FILENAME_MAXLENGTH];
 } __po_hi_storage_dir_t;
@@ -199,7 +201,7 @@ int __po_hi_storage_file_delete (const __po_hi_storage_file_t* file);
  * - __PO_HI_ERROR_EXISTS     : The destination file (second argument) already
  *                              exists.
  */
-int __po_hi_storage_file_rename (const __po_hi_storage_file_t* oldfile, __po_hi_storage_file_t* newfile);
+int __po_hi_storage_file_rename (const __po_hi_storage_file_t* oldfile, const __po_hi_storage_file_t* newfile);
 
 /**
  * \fn __po_hi_storage_file_append
@@ -351,7 +353,7 @@ int __po_hi_storage_directory_delete (const __po_hi_storage_dir_t*);
  *  - __PO_HI_ERROR_EXISTS       : directory of the second parameter already
  *                                 exist
  */
-int __po_hi_storage_directory_rename (const __po_hi_storage_dir_t* oldname, const __po_hi_storage_dir_t* newname);
+int __po_hi_storage_directory_rename (const __po_hi_storage_dir_t* olddir, const __po_hi_storage_dir_t* newdir);
 
 /**
  * \fn __po_hi_storage_directory_list
@@ -368,7 +370,7 @@ int __po_hi_storage_directory_rename (const __po_hi_storage_dir_t* oldname, cons
  *  - __PO_HI_INVALID            : invalid directory structure
  *  - __PO_HI_ERROR_NOEXISTS     : the directory does not exist.
  */
-int __po_hi_storage_directory_list (const __po_hi_storage_dir_t* dir);
+int __po_hi_storage_directory_list (__po_hi_storage_dir_t* dir);
 
 /**
  * \fn __po_hi_storage_directory_lock

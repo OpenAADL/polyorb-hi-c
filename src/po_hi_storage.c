@@ -203,10 +203,13 @@ int __po_hi_storage_file_delete (const __po_hi_storage_file_t* file)
    return __PO_HI_NOTIMPLEMENTED;
 }
 
-int __po_hi_storage_file_rename (const __po_hi_storage_file_t* oldfile, __po_hi_storage_file_t* newfile)
+int __po_hi_storage_file_rename (const __po_hi_storage_file_t* oldfile, const __po_hi_storage_file_t* newfile)
 {
    int ret;
-   char buf[100];
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   struct stat ss;
+#endif
 
    if ((oldfile == NULL) || (oldfile->filename == NULL))
    {
@@ -218,36 +221,29 @@ int __po_hi_storage_file_rename (const __po_hi_storage_file_t* oldfile, __po_hi_
       return __PO_HI_INVALID;
    }
 
-   ret = __po_hi_storage_file_create (newfile);
-   if (ret != __PO_HI_SUCCESS)
-   {
-      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_rename: error when trying to create the new file (ret=%d)\n", ret);
-      return ret;
-   }
-
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   if ((newfile->fd == -1) || (oldfile->fd == -1))
+   if (stat (newfile->filename, &ss) == 0)
    {
-      return __PO_HI_INVALID;
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_rename: destination file %s already exists\n", newfile->filename);
+      return __PO_HI_ERROR_EXISTS;
    }
 
-   if (lseek (oldfile->fd, 0, SEEK_SET))
+   if (stat (oldfile->filename, &ss))
    {
-      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_rename: error when trying to set file offset\n");
-      return __PO_HI_ERROR_UNKNOWN;
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_rename: source file %s does not exist\n", oldfile->filename);
+      return __PO_HI_ERROR_NOEXISTS;
    }
 
-   while ( (ret = read (oldfile->fd, buf, 100) ) > 0)
+   if (! S_ISREG (ss.st_mode))
    {
-      write (newfile->fd, buf, ret);
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_rename: source file %s is not a regular file\n", oldfile->filename);
+      return __PO_HI_ERROR_NOEXISTS;
    }
 
-   ret = __po_hi_storage_file_delete (oldfile);
-
-   if (ret != __PO_HI_SUCCESS)
+   if (rename (oldfile->filename, newfile->filename))
    {
       __DEBUGMSG ("[STORAGE] __po_hi_storage_file_rename: error when trying to delete old file\n");
-      return ret;
+      return __PO_HI_ERROR_UNKNOWN;
    }
 
    return __PO_HI_SUCCESS;
@@ -338,6 +334,8 @@ int __po_hi_storage_directory_open (const char* dirname, __po_hi_storage_dir_t* 
 
    memcpy (dir->dirname, dirname, len);
 
+   dir->nb_files = 0;
+
    return __PO_HI_SUCCESS;
 }
 
@@ -390,13 +388,111 @@ int __po_hi_storage_directory_delete (const __po_hi_storage_dir_t* dir)
    return __PO_HI_NOTIMPLEMENTED;
 }
 
-int __po_hi_storage_directory_rename (const __po_hi_storage_dir_t* oldname, const __po_hi_storage_dir_t* newname)
+int __po_hi_storage_directory_rename (const __po_hi_storage_dir_t* olddir, const __po_hi_storage_dir_t* newdir)
 {
+   int ret;
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   struct stat ss;
+#endif
+
+   if ((olddir == NULL) || (olddir->dirname == NULL))
+   {
+      return __PO_HI_INVALID;
+   }
+
+   if ((newdir == NULL) || (newdir->dirname == NULL))
+   {
+      return __PO_HI_INVALID;
+   }
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   if (stat (newdir->dirname, &ss) == 0)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_rename: destination directory %s already exists\n", newdir->dirname);
+      return __PO_HI_ERROR_EXISTS;
+   }
+
+   if (stat (olddir->dirname, &ss))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_rename: source directory %s does not exist\n", olddir->dirname);
+      return __PO_HI_ERROR_NOEXISTS;
+   }
+
+   if (! S_ISDIR (ss.st_mode))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_rename: source directory %s is not a directory\n", olddir->dirname);
+      return __PO_HI_ERROR_NOEXISTS;
+   }
+
+   if (rename (olddir->dirname, newdir->dirname))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_rename: error when trying to rename\n");
+      return __PO_HI_ERROR_UNKNOWN;
+   }
+
+   return __PO_HI_SUCCESS;
+#endif
+
    return __PO_HI_NOTIMPLEMENTED;
 }
 
-int __po_hi_storage_directory_list (const __po_hi_storage_dir_t* dir)
+int __po_hi_storage_directory_list (__po_hi_storage_dir_t* dir)
 {
+   int ret;
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   struct stat    ss;
+   struct dirent* ent;
+   DIR*           sdir;
+   int            n;
+   int            len;
+#endif
+
+   if ((dir == NULL) || (dir->dirname == NULL))
+   {
+      return __PO_HI_INVALID;
+   }
+
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   sdir = NULL;
+   sdir = opendir (dir->dirname);
+
+   if (sdir == NULL)
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_list: fail to call opendir on %s\n", dir->dirname);
+      return __PO_HI_ERROR_NOEXISTS;
+   }
+
+   dir->nb_files = 0;
+
+   while ( ( ( ent = readdir (sdir) ) != NULL ) && (dir->nb_files < __PO_HI_STORAGE_DIRECTORY_MAXFILES) )
+   {
+      n = dir->nb_files;
+      len = strlen (ent->d_name);
+      if (len < __PO_HI_STORAGE_FILENAME_MAXLENGTH)
+      {
+         n = dir->nb_files;
+         memset (dir->filename[n], 0, __PO_HI_STORAGE_FILENAME_MAXLENGTH);
+         memcpy (dir->filename[n], ent->d_name, len);
+         dir->nb_files++;
+      }
+      else
+      {
+         __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_list: invalid filename %s\n", ent->d_name);
+      }
+   }
+
+   if (closedir (sdir))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_list: fail to call closedir on %s\n", dir->dirname);
+      return __PO_HI_ERROR_UNKNOWN;
+   }
+   
+   return __PO_HI_SUCCESS;
+#endif
+
    return __PO_HI_NOTIMPLEMENTED;
 }
 
