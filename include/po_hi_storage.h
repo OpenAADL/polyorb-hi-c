@@ -389,6 +389,21 @@ int __po_hi_storage_directory_list (__po_hi_storage_dir_t* dir);
  */
 int __po_hi_storage_directory_lock (const __po_hi_storage_dir_t* dir);
 
+/*
+ * \fn __po_hi_storage_file_close
+ *
+ * \brief Close a file
+ *
+ * Close a file that was previously opened using __po_hi_storage_file_open().
+ *
+ * Upon success, the function returns __PO_HI_SUCCESS.
+ * It returns the following potential values:
+ *  - __PO_HI_SUCCESS            : successful operation
+ *  - __PO_HI_INVALID            : invalid directory structure
+ */
+
+int __po_hi_storage_file_close (__po_hi_storage_file_t* file);
+
 /**
  * \fn __po_hi_storage_directory_unlock
  *

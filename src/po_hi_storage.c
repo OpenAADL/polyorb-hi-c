@@ -8,6 +8,7 @@
  * Copyright (C) 2011, European Space Agency.
  */
 
+#include <po_hi_config.h>
 #include <string.h>
 #include <po_hi_debug.h>
 #include <po_hi_storage.h>
@@ -45,11 +46,11 @@ int __po_hi_storage_file_open (const char* filename, __po_hi_storage_file_t* fil
     * If the file already exist, we open it for reading/writing
     */
 
-   fd = open (filename, O_RDWR);
+   fd = open (filename, O_RDWR | O_SYNC);
 
    if (fd == -1)
    {
-      __DEBUGMSG ("[STORAGE] Warning, file %s does not exist, continue anyway\n");
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_open: warning, file %s does not exist, continue anyway\n", filename);
    }
    else
    {
@@ -60,6 +61,37 @@ int __po_hi_storage_file_open (const char* filename, __po_hi_storage_file_t* fil
 #endif
    return __PO_HI_NOTIMPLEMENTED;
 }
+
+
+int __po_hi_storage_file_close (__po_hi_storage_file_t* file)
+{
+   if ( (file == NULL) || (file->filename == NULL))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_close: invalid file argument\n");
+      return __PO_HI_INVALID;
+   }
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+   if (file->fd == -1)
+   {
+      __DEBUGMSG ("[STORAGE] Warning, file %s does not exist, continue anyway\n", file->filename);
+      return __PO_HI_INVALID;
+   }
+
+   if ( close (file->fd))
+   {
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_close: cannot close file\n", file->filename);
+      return __PO_HI_ERROR_UNKNOWN;
+   }
+
+   file->fd = -1;
+
+   return __PO_HI_SUCCESS;
+#endif
+
+   return __PO_HI_NOTIMPLEMENTED;
+}
+
 
 int __po_hi_storage_file_create (__po_hi_storage_file_t* file)
 {
@@ -75,9 +107,9 @@ int __po_hi_storage_file_create (__po_hi_storage_file_t* file)
    }
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   if (stat (file->filename, &ss))
+   if (stat (file->filename, &ss) == 0)
    {
-      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_create: file already exists\n");
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_create: file %s already exists\n", file->filename);
       return __PO_HI_ERROR_EXISTS;
    }
 
@@ -87,11 +119,10 @@ int __po_hi_storage_file_create (__po_hi_storage_file_t* file)
     */
    if (file->fd != -1)
    {
-      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_create: invalid file handle (%d)\n", file->fd);
-      return __PO_HI_INVALID;
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_create: file already opened (%d)\n", file->fd);
    }
 
-   fd = open (file->filename, O_RDWR, O_CREAT, S_IRWXU | S_IRGRP | S_IROTH);
+   fd = open (file->filename, O_RDWR | O_CREAT | O_SYNC, S_IRWXU | S_IRGRP | S_IROTH);
 
    if (fd == -1)
    {
@@ -100,6 +131,7 @@ int __po_hi_storage_file_create (__po_hi_storage_file_t* file)
    }
 
    file->fd = fd;
+   printf ("File %s created\n", file->filename);
 
    return __PO_HI_SUCCESS;
 #endif
@@ -153,6 +185,11 @@ int __po_hi_storage_file_write (const __po_hi_storage_file_t* file, char* buf, i
    }
 
    n = write (file->fd, buf, bufsize);
+
+   printf ("write size=%d\n", bufsize);
+   printf ("written size=%d\n", n);
+
+   printf ("write fd=%d\n", file->fd);
 
    if (n != bufsize)
    {
