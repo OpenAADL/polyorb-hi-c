@@ -131,7 +131,6 @@ int __po_hi_storage_file_create (__po_hi_storage_file_t* file)
    }
 
    file->fd = fd;
-   printf ("File %s created\n", file->filename);
 
    return __PO_HI_SUCCESS;
 #endif
@@ -185,11 +184,6 @@ int __po_hi_storage_file_write (const __po_hi_storage_file_t* file, char* buf, i
    }
 
    n = write (file->fd, buf, bufsize);
-
-   printf ("write size=%d\n", bufsize);
-   printf ("written size=%d\n", n);
-
-   printf ("write fd=%d\n", file->fd);
 
    if (n != bufsize)
    {
