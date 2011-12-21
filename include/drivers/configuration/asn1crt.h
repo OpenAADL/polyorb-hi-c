@@ -10,17 +10,21 @@ extern "C" {
 #define NULL	0
 #endif
 
+#ifndef TRUE
 #define TRUE	1
-#define FALSE	0
+#endif
 
+#ifndef FALSE
+#define FALSE	0
+#endif
 
 
 #ifndef WORD_SIZE
 #define WORD_SIZE	8
 #endif
 
-typedef long asn1SccSint32;
-typedef unsigned long asn1SccUint32;
+typedef int asn1SccSint32;
+typedef unsigned int asn1SccUint32;
 
 typedef unsigned char byte;
 
@@ -53,6 +57,7 @@ typedef struct {
 	byte* buf;
 	long count;
 	long currentByte;
+	flag EncodeWhiteSpace;
 } ByteStream;
 
 typedef struct {
@@ -266,6 +271,7 @@ flag Xer_DecodeComplexElementEnd(ByteStream* pByteStrm, const char* elementTag, 
 flag Xer_NextEndElementIs(ByteStream* pByteStrm, const char* elementTag);
 flag Xer_NextStartElementIs(ByteStream* pByteStrm, const char* elementTag);
 flag Xer_LA_NextElementTag(ByteStream* pByteStrm, char* elementTag);
+flag LoadXmlFile(const char* fileName, ByteStream* pStrm, int* nBytesLoaded);
 
 
 

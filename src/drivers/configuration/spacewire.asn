@@ -11,6 +11,7 @@ Spacewire-Conf-T ::= SEQUENCE {
 	nodeaddr			Node-Addr-T,
 	corefreq			Core-Frequence-T OPTIONAL,
 	clockdiv			Clock-Division-T OPTIONAL,
+	use-router		BOOLEAN DEFAULT FALSE,
 	remove-prot-id	BOOLEAN OPTIONAL,
 	rxblock			BOOLEAN OPTIONAL,
 	txblock			BOOLEAN OPTIONAL

@@ -48,6 +48,7 @@
  __po_hi_request_t   __po_hi_c_driver_spacewire_rasta_request;
 __po_hi_msg_t        __po_hi_c_driver_spacewire_rasta_poller_msg;
 int                  po_hi_c_driver_rasta_spacewire_fd[__PO_HI_NB_DEVICES];
+char                 __po_hi_c_driver_rasta_spacewire_sndbuf[__PO_HI_MESSAGES_MAX_SIZE + 1];
 
 void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
 {
@@ -145,8 +146,6 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
 
 
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_START,2000);
-
-   perror ("spw start");
 }
 
 
@@ -156,6 +155,10 @@ int __po_hi_c_driver_spacewire_rasta_sender (const __po_hi_task_id task_id, cons
 {
    int len = -1;
    int i;
+
+   __po_hi_c_spacewire_conf_t* sender_conf;
+   __po_hi_c_spacewire_conf_t* receiver_conf;
+
    __po_hi_local_port_t    local_port;
    __po_hi_request_t*      request;
    __po_hi_port_t          destination_port;
@@ -186,10 +189,23 @@ int __po_hi_c_driver_spacewire_rasta_sender (const __po_hi_task_id task_id, cons
 
    request->port = destination_port;
 
+   sender_conf = (__po_hi_c_spacewire_conf_t*) __po_hi_get_device_configuration (dev_id);
+   receiver_conf = (__po_hi_c_spacewire_conf_t*) __po_hi_get_device_configuration (__po_hi_get_device_from_port (destination_port));
+
    __po_hi_marshall_request (request, &__po_hi_c_driver_spacewire_rasta_sender_msg);
 
-   len = write (po_hi_c_driver_rasta_spacewire_fd[dev_id], __po_hi_c_driver_spacewire_rasta_sender_msg.content, __PO_HI_MESSAGES_MAX_SIZE);
-
+   len = -1;
+   if (sender_conf->use_router == TRUE)
+   {
+      __po_hi_c_driver_rasta_spacewire_sndbuf[0] = receiver_conf->nodeaddr;
+      memcpy (&__po_hi_c_driver_rasta_spacewire_sndbuf[1], __po_hi_c_driver_spacewire_rasta_sender_msg.content , __PO_HI_MESSAGES_MAX_SIZE);
+      len = write (po_hi_c_driver_rasta_spacewire_fd[dev_id], __po_hi_c_driver_rasta_spacewire_sndbuf, __PO_HI_MESSAGES_MAX_SIZE + 1);
+   }
+   else
+   {
+      len = write (po_hi_c_driver_rasta_spacewire_fd[dev_id], __po_hi_c_driver_spacewire_rasta_sender_msg.content, __PO_HI_MESSAGES_MAX_SIZE);
+   }
+   
    if (len < 0)
    {
       __PO_HI_DEBUG_DEBUG (" failed !\n");
