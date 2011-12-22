@@ -153,7 +153,7 @@ generate-asn1-deployment:
 
 GENERATED_OBJS += real.o asn1crt.o xer.o ber.o acn.o $(ASN_OBJS)
 LDFLAGS += -lm
-CFLAGS+=-DPO_HI_USE_ASN1 -I../../
+CFLAGS+=-DPO_HI_USE_ASN1 -I../../ -I../asn-types/
 
 else
 generate-asn1-deployment:
