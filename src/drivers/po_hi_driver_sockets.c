@@ -197,6 +197,11 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 
             if (len != size_to_write)
             {
+
+#if __PO_HI_MONITOR_ENABLED
+               __po_hi_monitor_report_failure_device (remote_device, po_hi_monitor_failure_value);
+#endif
+
                __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
                close (__po_hi_c_sockets_write_sockets[remote_device]);
                __po_hi_c_sockets_write_sockets[remote_device] = -1;
