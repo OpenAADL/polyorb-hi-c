@@ -29,6 +29,12 @@ pthread_cond_t cond_init;
 pthread_mutex_t mutex_init;
 #endif
 
+#if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
+#include <rtems.h>
+#include <bsp.h>
+#include <rtems/rtems/clock.h>
+#endif
+
 #ifdef RTEMS_PURE
 rtems_id __po_hi_main_initialization_barrier;
 #endif
@@ -154,7 +160,6 @@ int __po_hi_initialize_early ()
 
 
 #if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
-#include <rtems/rtems/clock.h>
   rtems_status_code ret;
   rtems_time_of_day time;
 
