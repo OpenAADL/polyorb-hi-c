@@ -22,6 +22,7 @@
 #include <po_hi_common.h>
 #include <po_hi_returns.h>
 #include <po_hi_monitor.h>
+#include <po_hi_time.h>
 #include <po_hi_task.h>
 #include <po_hi_debug.h>
 #include <po_hi_protected.h>
