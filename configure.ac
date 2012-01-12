@@ -91,6 +91,9 @@ AC_ARG_ENABLE(debug,
       AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 10, "Warning - information that can show errors but are not so important")
 		;;
 	warning)
+      AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 6, "Warning - Errors that will imply a minor error at run-tine")
+		;;
+	critical)
       AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 4, "Critical - Errors that will imply a fault or a crash")
 		;;
 	*)
