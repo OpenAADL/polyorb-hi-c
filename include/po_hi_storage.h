@@ -19,7 +19,6 @@
 /* included files from the generated code */
 
 #include <po_hi_config.h>
-#include <po_hi_common.h>
 #include <po_hi_returns.h>
 #include <po_hi_monitor.h>
 #include <po_hi_time.h>
