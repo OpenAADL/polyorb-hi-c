@@ -19,6 +19,10 @@
 #include <unistd.h>
 #include <po_hi_returns.h>
 
+#ifdef POSIX
+#include <string.h>
+#endif
+
 #ifdef HAVE_LIBLUA5_1
 #define __PO_HI_USE_LUA
 #else
@@ -29,9 +33,37 @@
 #include <lua5.1/lua.h>
 #include <lua5.1/lualib.h>
 #include <lua5.1/lauxlib.h>
+
+#define __PO_HI_LUA_FUNCTION_NAME_MAX_SIZE 100
+
+typedef struct
+{
+   lua_State*  state;
+   int         nb_args;
+   char        function_name[__PO_HI_LUA_FUNCTION_NAME_MAX_SIZE];
+}__po_hi_lua_context_t;
+#else
+typedef int __po_hi_lua_context_t;
 #endif
 
-int __po_hi_lua_load (const char*, const char*);
+int __po_hi_lua_load (__po_hi_lua_context_t*, const char*);
+
+int __po_hi_lua_init_function_call (__po_hi_lua_context_t*, const char*);
+
+int __po_hi_lua_perform_function_call (__po_hi_lua_context_t*);
+
+int __po_hi_lua_push_number (__po_hi_lua_context_t*, int);
+
+int __po_hi_lua_push_boolean (__po_hi_lua_context_t*, int);
+
+int __po_hi_lua_push_string (__po_hi_lua_context_t*, char*);
+
+int __po_hi_lua_get_number (__po_hi_lua_context_t*, char*, int*);
+
+int __po_hi_lua_get_boolean (__po_hi_lua_context_t*, char*, int*);
+
+int __po_hi_lua_get_string (__po_hi_lua_context_t*, char*, char*);
+
 
 
 #endif
