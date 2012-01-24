@@ -85,6 +85,7 @@ ifeq ($(NEED_TRANSPORT), yes)
 	po_hi_messages.o                          \
 	po_hi_marshallers.o                       \
 	po_hi_giop.o                              \
+	po_hi_lua.o                              \
 	po_hi_utils.o                             \
 	po_hi_types.o                             \
    po_hi_monitor.o                           \
@@ -124,6 +125,7 @@ else
 	po_hi_task.o                     \
 	po_hi_time.o                     \
 	po_hi_utils.o                    \
+	po_hi_lua.o                    \
 	po_hi_protected.o                \
    po_hi_monitor.o                  \
    po_hi_storage.o                  \

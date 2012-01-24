@@ -8,6 +8,7 @@ C_FILES =   $(srcdir)/po_hi_task.c           \
             $(srcdir)/po_hi_monitor.c	      \
 	         $(srcdir)/po_hi_gqueue.c         \
             $(srcdir)/po_hi_giop.c			   \
+            $(srcdir)/po_hi_lua.c			   \
 	         $(srcdir)/po_hi_protected.c   \
 	         $(srcdir)/po_hi_transport.c \
 	         $(srcdir)/po_hi_storage.c \
