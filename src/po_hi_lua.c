@@ -12,7 +12,7 @@
 
 int __po_hi_lua_load (const char* filename, const char* functionname)
 {
-#ifdef TARGET_NATIVE
+#ifdef __PO_HI_USE_LUA
    lua_State * state;
    state = lua_open();
    luaL_openlibs(state);
