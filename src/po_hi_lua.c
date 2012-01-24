@@ -12,6 +12,16 @@
 
 int __po_hi_lua_load (__po_hi_lua_context_t* context, const char* filename)
 {
+   if (context == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
+   if (filename == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
 #ifdef __PO_HI_USE_LUA
    context->state = lua_open();
    luaL_openlibs (context->state);
@@ -25,7 +35,20 @@ int __po_hi_lua_load (__po_hi_lua_context_t* context, const char* filename)
 
 int __po_hi_lua_init_function_call (__po_hi_lua_context_t* ctx, const char* fctname)
 {
-   int len = strlen (fctname);
+   int len; 
+
+   if (ctx == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
+   if (fctname == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
+   len = strlen (fctname);
+
    if ( len >= __PO_HI_LUA_FUNCTION_NAME_MAX_SIZE)
    {
       return __PO_HI_INVALID;
@@ -50,7 +73,13 @@ int __po_hi_lua_init_function_call (__po_hi_lua_context_t* ctx, const char* fctn
 
 int __po_hi_lua_perform_function_call (__po_hi_lua_context_t* ctx)
 {
+   if (ctx == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
    lua_call (ctx->state, ctx->nb_args, 0);
+   return __PO_HI_SUCCESS;
 }
 
 
@@ -59,42 +88,73 @@ int __po_hi_lua_push_number (__po_hi_lua_context_t* ctx, int val)
    ctx->nb_args = ctx->nb_args + 1;
    lua_pushnumber (ctx->state, val);
 
+   return __PO_HI_SUCCESS;
 }
 
 
 int __po_hi_lua_push_boolean (__po_hi_lua_context_t* ctx, int val)
 {
+   if (ctx == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
    ctx->nb_args = ctx->nb_args + 1;
 
    lua_pushboolean (ctx->state, val);
+
+   return __PO_HI_SUCCESS;
 }
 
 
 int __po_hi_lua_push_string (__po_hi_lua_context_t* ctx, char* val)
 {
+   if (ctx == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
    ctx->nb_args = ctx->nb_args + 1;
 
    lua_pushstring (ctx->state, val);
+   return __PO_HI_SUCCESS;
 }
 
 
 int __po_hi_lua_get_number (__po_hi_lua_context_t* ctx, char* varname, int* val)
 {
+   if (ctx == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
    lua_settop (ctx->state,0);
    lua_getglobal (ctx->state,varname);
    *val = lua_tonumber (ctx->state,1);
    lua_pop (ctx->state,1);
-
+   return __PO_HI_SUCCESS;
 }
 
 
 int __po_hi_lua_get_boolean (__po_hi_lua_context_t* ctx, char* varname, int* val)
 {
+   if (ctx == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
+   return __PO_HI_SUCCESS;
 }
 
 
 int __po_hi_lua_get_string (__po_hi_lua_context_t* ctx, char* varname, char* val)
 {
+   if (ctx == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
+   return __PO_HI_SUCCESS;
 }
 
 
