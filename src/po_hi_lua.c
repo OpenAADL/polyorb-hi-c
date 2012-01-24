@@ -9,6 +9,24 @@
  */
 
 #include <po_hi_lua.h>
+#include <po_hi_time.h>
+
+int __po_hi_lua_time_wait (lua_State* state)
+{
+   __po_hi_time_t now;
+   __po_hi_time_t delay;
+   __po_hi_time_t deadline;
+
+   int msec;
+
+   msec = lua_tonumber (state, 1);
+
+   __po_hi_get_time (&now);
+   __po_hi_milliseconds (&delay, msec);
+   __po_hi_add_times (&deadline, &now, &delay);
+   __po_hi_delay_until (&deadline);
+   return 0;
+}
 
 int __po_hi_lua_load (__po_hi_lua_context_t* context, const char* filename)
 {
@@ -24,7 +42,11 @@ int __po_hi_lua_load (__po_hi_lua_context_t* context, const char* filename)
 
 #ifdef __PO_HI_USE_LUA
    context->state = lua_open();
+
    luaL_openlibs (context->state);
+
+   lua_register (context->state, "time_wait", __po_hi_lua_time_wait);
+
    if (luaL_dofile (context->state,filename) != 0)
    {
       return __PO_HI_INVALID;

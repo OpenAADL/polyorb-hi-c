@@ -55,8 +55,8 @@ connections
   parameter P_Spg.Data_Source -> Data_Source;
 properties
   Dispatch_Protocol                  => Periodic;
-  Period                             => 10 Ms;
-  Deadline                           => 10 ms;
+  Period                             => 1000 Ms;
+  Deadline                           => 1000 ms;
   Priority                           => 2;
 end P.Impl;
 

@@ -7,5 +7,6 @@ function do_ping ()
 end
 
 function receive_ping (val)
+   time_wait (4000);
    print ("value : " .. val);
 end
