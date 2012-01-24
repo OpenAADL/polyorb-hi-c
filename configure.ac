@@ -64,6 +64,7 @@ case ${host_os} in
 esac
 
 AC_CHECK_LIB(socket, socket, [NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lsocket"])
+AC_CHECK_LIB(lua5.1, luaL_openlibs, [])
 
 AC_SUBST(NATIVE_CFLAGS)
 AC_SUBST(NATIVE_LDFLAGS)
@@ -168,6 +169,7 @@ AC_OUTPUT([
 	examples/aadlv2/d3.1.3-1/Makefile
 	examples/aadlv2/import/Makefile	
 	examples/aadlv2/ping/Makefile
+	examples/aadlv2/lua/Makefile
 	examples/aadlv2/producer-consumer/Makefile
 	examples/aadlv2/flight-mgmt/Makefile
 	examples/aadlv2/monitor/Makefile
