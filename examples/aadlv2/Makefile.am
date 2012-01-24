@@ -1,5 +1,5 @@
 SUBDIRS = d3.1.3-1 ping rma sunseeker producer-consumer some-types	\
-some-types-stdint flight-mgmt import monitor packet-store file-store
+some-types-stdint flight-mgmt import monitor packet-store file-store lua
 
 SAMPLE_DIR = ${shell $(CYGPATH_U) '$(OCARINA_PREFIX)/examples/ocarina/polyorb-hi-c/aadlv2'}
 
