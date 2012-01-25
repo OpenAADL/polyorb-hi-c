@@ -9,6 +9,7 @@
  */
 
 #include <po_hi_lua.h>
+#include <po_hi_debug.h>
 #include <po_hi_time.h>
 
 
@@ -30,6 +31,20 @@ int __po_hi_lua_time_wait (lua_State* state)
    return 0;
 }
 
+int __po_hi_lua_time_get (lua_State* state)
+{
+   int ret;
+   __po_hi_time_t now;
+
+   __po_hi_get_time (&now);
+
+   ret = now.sec * 1000 + now.nsec / 1000000;
+
+   lua_pushnumber (state, ret);
+   return 1;
+}
+
+
 int __po_hi_lua_load (__po_hi_lua_context_t* context, const char* filename)
 {
    if (context == NULL)
@@ -48,9 +63,11 @@ int __po_hi_lua_load (__po_hi_lua_context_t* context, const char* filename)
    luaL_openlibs (context->state);
 
    lua_register (context->state, "time_wait", __po_hi_lua_time_wait);
+   lua_register (context->state, "time_get", __po_hi_lua_time_get);
 
    if (luaL_dofile (context->state,filename) != 0)
    {
+      __PO_HI_DEBUG_DEBUG ("[LUA] Fail to load LUA file %s !", filename);
       return __PO_HI_INVALID;
    }
 #endif 
@@ -88,7 +105,10 @@ int __po_hi_lua_init_function_call (__po_hi_lua_context_t* ctx, const char* fctn
 
    if (!lua_isfunction(ctx->state,-1))
    {
+      __PO_HI_DEBUG_DEBUG ("[LUA] Function %s does not exists !", fctname);
+
       lua_pop(ctx->state,1);
+
       return __PO_HI_INVALID;
    }
 
