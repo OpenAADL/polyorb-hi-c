@@ -11,6 +11,7 @@
 #include <po_hi_lua.h>
 #include <po_hi_debug.h>
 #include <po_hi_time.h>
+#include <po_hi_types.h>
 
 
 #ifdef __PO_HI_USE_LUA
@@ -31,17 +32,37 @@ int __po_hi_lua_time_wait (lua_State* state)
    return 0;
 }
 
+int __po_hi_lua_time_delay_until (lua_State* state)
+{
+   __po_hi_time_t delay;
+   int sec;
+   int nsec;
+
+   sec = lua_tonumber (state, 1);
+   nsec = lua_tonumber (state, 2);
+
+   delay.sec   = sec;
+   delay.nsec  = nsec;
+
+   __po_hi_delay_until (&delay);
+
+   return 0;
+}
+
+
 int __po_hi_lua_time_get (lua_State* state)
 {
-   int ret;
    __po_hi_time_t now;
 
    __po_hi_get_time (&now);
 
-   ret = now.sec * 1000 + now.nsec / 1000000;
+   __PO_HI_DEBUG_INFO ("[LUA] time_get sec  =%llu\n", now.sec);
+   __PO_HI_DEBUG_INFO ("[LUA] time_get nsec =%llu\n", now.nsec);
 
-   lua_pushnumber (state, ret);
-   return 1;
+   lua_pushnumber (state, now.sec);
+   lua_pushnumber (state, now.nsec);
+
+   return 2;
 }
 
 
@@ -64,6 +85,7 @@ int __po_hi_lua_load (__po_hi_lua_context_t* context, const char* filename)
 
    lua_register (context->state, "time_wait", __po_hi_lua_time_wait);
    lua_register (context->state, "time_get", __po_hi_lua_time_get);
+   lua_register (context->state, "time_delay_until", __po_hi_lua_time_delay_until);
 
    if (luaL_dofile (context->state,filename) != 0)
    {

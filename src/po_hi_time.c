@@ -124,11 +124,13 @@ int __po_hi_delay_until (const __po_hi_time_t* time)
 
    if (pthread_mutex_init (&mutex, NULL) != 0)
    {
+      __PO_HI_DEBUG_INFO ("[TIME] __po_hi_delay_until: cannot initialize mutex\n");
       return (__PO_HI_ERROR_PTHREAD_MUTEX);
    }
 
    if (pthread_cond_init (&cond, NULL) != 0)
    {
+      __PO_HI_DEBUG_INFO ("[TIME] __po_hi_delay_until: cannot initialize cond\n");
       pthread_mutex_destroy (&mutex);
       return (__PO_HI_ERROR_PTHREAD_COND);
    }
@@ -139,6 +141,7 @@ int __po_hi_delay_until (const __po_hi_time_t* time)
 
    if ( (ret != 0) && (ret != ETIMEDOUT))
    {
+      __PO_HI_DEBUG_INFO ("[TIME] __po_hi_delay_until: delay until error\n");
       ret = __PO_HI_ERROR_PTHREAD_COND;
    }
    else
