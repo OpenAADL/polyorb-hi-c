@@ -36,16 +36,12 @@
 #include <lua5.1/lualib.h>
 #include <lua5.1/lauxlib.h>
 
-
 typedef struct
 {
    lua_State*  state;
    int         nb_args;
    char        function_name[__PO_HI_LUA_FUNCTION_NAME_MAX_SIZE];
 }__po_hi_lua_context_t;
-#else
-typedef int __po_hi_lua_context_t;
-#endif
 
 /*!
  * \fn __po_hi_lua_load (__po_hi_lua_context_t*, const char*);
@@ -199,5 +195,20 @@ int __po_hi_lua_get_string (__po_hi_lua_context_t*, char*, char*);
 
 
 
+#else
+typedef int __po_hi_lua_context_t;
+
+#define __po_hi_lua_load(arg1,arg2)
+#define __po_hi_lua_init_function_call(arg1,arg2)
+#define __po_hi_lua_perform_function_call(arg1)
+#define __po_hi_lua_push_number(arg1,arg2)
+#define __po_hi_lua_push_boolean(arg1,arg2)
+#define __po_hi_lua_push_string(arg1,arg2)
+#define __po_hi_lua_get_number(arg1,arg2,arg3)
+#define __po_hi_lua_get_boolean(arg1,arg2,arg3)
+#define __po_hi_lua_get_string(arg1,arg2,arg3)
+
 #endif
+
+#endif /* __PO_HI_LUA_H__ */
 
