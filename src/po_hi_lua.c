@@ -11,6 +11,8 @@
 #include <po_hi_lua.h>
 #include <po_hi_time.h>
 
+
+#ifdef __PO_HI_USE_LUA
 int __po_hi_lua_time_wait (lua_State* state)
 {
    __po_hi_time_t now;
@@ -178,5 +180,7 @@ int __po_hi_lua_get_string (__po_hi_lua_context_t* ctx, char* varname, char* val
 
    return __PO_HI_SUCCESS;
 }
+
+#endif
 
 

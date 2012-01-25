@@ -23,6 +23,8 @@
 #include <string.h>
 #endif
 
+#define __PO_HI_LUA_FUNCTION_NAME_MAX_SIZE 100
+
 #ifdef HAVE_LIBLUA5_1
 #define __PO_HI_USE_LUA
 #else
@@ -34,7 +36,6 @@
 #include <lua5.1/lualib.h>
 #include <lua5.1/lauxlib.h>
 
-#define __PO_HI_LUA_FUNCTION_NAME_MAX_SIZE 100
 
 typedef struct
 {
