@@ -65,19 +65,12 @@ int __po_hi_lua_time_get (lua_State* state)
    return 2;
 }
 
-
-int __po_hi_lua_load (__po_hi_lua_context_t* context, const char* filename)
+int __po_hi_lua_init (__po_hi_lua_context_t* context)
 {
    if (context == NULL)
    {
       return __PO_HI_INVALID;
    }
-
-   if (filename == NULL)
-   {
-      return __PO_HI_INVALID;
-   }
-
 #ifdef __PO_HI_USE_LUA
    context->state = lua_open();
 
@@ -86,7 +79,48 @@ int __po_hi_lua_load (__po_hi_lua_context_t* context, const char* filename)
    lua_register (context->state, "time_wait", __po_hi_lua_time_wait);
    lua_register (context->state, "time_get", __po_hi_lua_time_get);
    lua_register (context->state, "time_delay_until", __po_hi_lua_time_delay_until);
+#endif 
 
+   return __PO_HI_SUCCESS;
+
+}
+
+int __po_hi_lua_load_str (__po_hi_lua_context_t* context, const char* str)
+{
+   if (str == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
+   if (__po_hi_lua_init (context) != __PO_HI_SUCCESS)
+   {
+      return __PO_HI_INVALID;
+   }
+
+#ifdef __PO_HI_USE_LUA
+   if (luaL_dostring (context->state,str) != 0)
+   {
+      __PO_HI_DEBUG_DEBUG ("[LUA] Fail to load LUA file %s !", filename);
+      return __PO_HI_INVALID;
+   }
+#endif 
+   return __PO_HI_SUCCESS;
+}
+
+
+int __po_hi_lua_load (__po_hi_lua_context_t* context, const char* filename)
+{
+   if (filename == NULL)
+   {
+      return __PO_HI_INVALID;
+   }
+
+   if (__po_hi_lua_init (context) != __PO_HI_SUCCESS)
+   {
+      return __PO_HI_INVALID;
+   }
+
+#ifdef __PO_HI_USE_LUA
    if (luaL_dofile (context->state,filename) != 0)
    {
       __PO_HI_DEBUG_DEBUG ("[LUA] Fail to load LUA file %s !", filename);

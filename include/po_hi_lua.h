@@ -45,18 +45,33 @@ typedef struct
 
 /*!
  * \fn __po_hi_lua_load (__po_hi_lua_context_t*, const char*);
- * \brief Load a LUA script and initialize a LUA context
+ * \brief load a lua script and initialize a lua context
  *
- * This function takes the following arguments:
- *   - 1st arg: A LUA context that will contain the execution of the script
- *   - 2nd arg: The name of the script
+ * this function takes the following arguments:
+ *   - 1st arg: a lua context that will contain the execution of the script
+ *   - 2nd arg: the name of the script
  *
- *  It returns the potential values:
- *    - __PO_HI_FAILURE: fails to load the script
- *    - __PO_HI_INVALID: invalid LUA context
- *    - __PO_HI_SUCCESS: successfully load the script
+ *  it returns the potential values:
+ *    - __po_hi_failure: fails to load the script
+ *    - __po_hi_invalid: invalid lua context
+ *    - __po_hi_success: successfully load the script
  */
 int __po_hi_lua_load (__po_hi_lua_context_t*, const char*);
+
+/*!
+ * \fn __po_hi_lua_load (__po_hi_lua_context_t*, const char*);
+ * \brief load a lua script and initialize a lua context
+ *
+ * this function takes the following arguments:
+ *   - 1st arg: a lua context that will contain the execution of the script
+ *   - 2nd arg: the name of the script
+ *
+ *  it returns the potential values:
+ *    - __po_hi_failure: fails to load the script
+ *    - __po_hi_invalid: invalid lua context
+ *    - __po_hi_success: successfully load the script
+ */
+int __po_hi_lua_load_str (__po_hi_lua_context_t*, const char*);
 
 /*!
  * \fn __po_hi_lua_init_function_call (__po_hi_lua_context_t*, const char*);
@@ -199,6 +214,7 @@ int __po_hi_lua_get_string (__po_hi_lua_context_t*, char*, char*);
 typedef int __po_hi_lua_context_t;
 
 #define __po_hi_lua_load(arg1,arg2)
+#define __po_hi_lua_load_str(arg1,arg2)
 #define __po_hi_lua_init_function_call(arg1,arg2)
 #define __po_hi_lua_perform_function_call(arg1)
 #define __po_hi_lua_push_number(arg1,arg2)
