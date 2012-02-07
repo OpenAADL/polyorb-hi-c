@@ -1,1 +1,1 @@
-SUBDIRS = tsim models ocarina cheddar make config utils
+SUBDIRS = tsim models ocarina cheddar make config utils lua

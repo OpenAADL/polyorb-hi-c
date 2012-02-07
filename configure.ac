@@ -188,6 +188,9 @@ AC_OUTPUT([
 	tools/check-symbols/examples/strings/Makefile
 	tools/check-symbols/src/Makefile
 	share/Makefile
+	share/lua/Makefile
+	share/lua/libs/Makefile
+	share/lua/include/Makefile
 	share/cheddar/Makefile
 	share/models/Makefile
 	share/ocarina/Makefile
