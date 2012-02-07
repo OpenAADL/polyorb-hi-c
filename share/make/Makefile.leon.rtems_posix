@@ -29,7 +29,8 @@ TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS $(GCC_GENERIC_FLAGS)
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
 LD                           = sparc-rtems-ld
-TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
+TARGET_LDFLAGS               = -lrtemsbsp -lc -lm 
+EXTERNAL_OBJECTS             += -L$(RUNTIME_PATH)/libs/leon/ -llua -lm
 			     
 target-clean:
 

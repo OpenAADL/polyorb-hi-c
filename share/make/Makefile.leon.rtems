@@ -29,7 +29,8 @@ TARGET_CFLAGS                = -DRTEMS_PURE -DLEON_RTEMS $(GCC_GENERIC_FLAGS)
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
 LD                           = sparc-rtems-ld
-TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
+TARGET_LDFLAGS               = -lrtemsbsp -lc -lm $(RUNTIME_PATH)/libs/leon/liblua.a -lm -L$(RUNTIME_PATH)/libs/leon/ -llua -lm
+EXTERNAL_OBJECTS             += -L$(RUNTIME_PATH)/libs/leon/ -llua -lm
 			     
 target-clean:
 
@@ -40,12 +41,12 @@ target-clean:
 
 define bsp-link-c
    $(LINK.c) $(CPU_CFLAGS) $(AM_CFLAGS) $(AM_LDFLAGS) \
-      -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS)
+      -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS) $(RUNTIME_PATH)/libs/leon/liblua.a -lm -L$(RUNTIME_PATH)/libs/leon/ -llua -lm
 endef
 
 define bsp-link-cxx
    $(LINK.cc) $(CPU_CFLAGS) $(AM_CFLAGS) $(AM_LDFLAGS) \
-      -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS)
+      -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS) $(RUNTIME_PATH)/libs/leon/liblua.a -lm -L$(RUNTIME_PATH)/libs/leon/ -llua -lm
 endef
 
 ifdef USE_GPROF

@@ -290,7 +290,7 @@ endif
 
 ifeq ($(TARGET), $(filter $(TARGET), native bench linux32 linux64 linux32-xenomai-posix linux32-xenomai-native))
 $(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
-	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
+	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
 endif
 
 ifeq ($(TARGET), arm.dslinux)
