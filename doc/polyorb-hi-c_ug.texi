@@ -396,10 +396,15 @@ located at the top of your PATH environment variable.
 Issue @code{./configure}. The @code{configure} script can take several
 options: issue @code{./configure --help} to have a quick overview of
 them. For examples. @code{./configure --enable-debug} will configure
-the software to be built with all debug options (mainly additional output).  At the end of the
+the software to be built with all debug options (mainly additional output).  
+Also @code{./configure --enable-lua} will enable the LUA scripting engine
+within PolyORB-HI-C. At the end of the
 configuration process, a file with all parameters is created
 (@file{include/po_hi_config.h}. If this file is not created, the
 compilation is not possible.
+
+For having all the configuration options, you can invoke the @code{configure}
+script with the @code{--help} switch : @code{./configure --help}.
 
 @item Issue @code{make && make install}
 @end itemize
