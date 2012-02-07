@@ -32,9 +32,9 @@
 #endif
 
 #ifdef __PO_HI_USE_LUA
-#include <lua5.1/lua.h>
-#include <lua5.1/lualib.h>
-#include <lua5.1/lauxlib.h>
+#include <lua/lua.h>
+#include <lua/lualib.h>
+#include <lua/lauxlib.h>
 
 typedef struct
 {

@@ -72,7 +72,7 @@ int __po_hi_lua_init (__po_hi_lua_context_t* context)
       return __PO_HI_INVALID;
    }
 #ifdef __PO_HI_USE_LUA
-   context->state = lua_open();
+   context->state = luaL_newstate();
 
    luaL_openlibs (context->state);
 
