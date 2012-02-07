@@ -25,12 +25,6 @@
 
 #define __PO_HI_LUA_FUNCTION_NAME_MAX_SIZE 100
 
-#ifdef HAVE_LIBLUA5_1
-#define __PO_HI_USE_LUA
-#else
-#undef __PO_HI_USE_LUA
-#endif
-
 #ifdef __PO_HI_USE_LUA
 #include <lua/lua.h>
 #include <lua/lualib.h>
@@ -224,7 +218,7 @@ typedef int __po_hi_lua_context_t;
 #define __po_hi_lua_get_boolean(arg1,arg2,arg3)
 #define __po_hi_lua_get_string(arg1,arg2,arg3)
 
-#endif
+#endif /* ifdef __PO_HI_USE_LUA */
 
 #endif /* __PO_HI_LUA_H__ */
 
