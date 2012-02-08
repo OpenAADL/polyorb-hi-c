@@ -1,7 +1,9 @@
 AUTOMAKE_OPTIONS = no-dependencies
 
 H_FILES =   $(srcdir)/lua.h           \
+            $(srcdir)/lua.hpp           \
             $(srcdir)/lualib.h           \
+            $(srcdir)/luaconf.h           \
 	         $(srcdir)/lauxlib.h
 
 hsrc = ${shell $(CYGPATH_U) '$(OCARINA_RUNTIME)/polyorb-hi-c/include'}
