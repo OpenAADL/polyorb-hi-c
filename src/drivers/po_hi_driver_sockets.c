@@ -233,19 +233,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
    __po_hi_node_t             dev_init;
    int                        established = 0; 
    int                        ret;
-   unsigned short             ip_port;
-   __po_hi_protocol_conf_t*   protocol_conf;
-   __po_hi_c_ip_conf_t*       ipconf;
    __po_hi_device_id          dev_id;
-   __po_hi_device_id          sent_id;
-   struct hostent*            hostinfo;
-
-   __po_hi_time_t             mytime;
-   __po_hi_time_t             tmptime;
-
-   char                       *tmp;
-   __po_hi_time_t             current_time;
-   int                        i;
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
 
