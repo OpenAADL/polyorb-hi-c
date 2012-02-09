@@ -8,6 +8,8 @@ TARGET_CFLAGS   = `xeno-config --skin posix --cflags` -DXENO_POSIX -D_POSIX_SOUR
 TARGET_LDFLAGS  = `xeno-config --skin posix --ldflags` -m32
 endif
 
+TARGET_LDFLAGS  += -L$(RUNTIME_PATH)/libs/linux32/ -llua -lm
+
 SIMULINK_LDFLAGS  = -lm
 CC              = gcc
 LD              = ld
