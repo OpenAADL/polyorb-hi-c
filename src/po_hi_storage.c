@@ -236,8 +236,6 @@ int __po_hi_storage_file_delete (const __po_hi_storage_file_t* file)
 
 int __po_hi_storage_file_rename (const __po_hi_storage_file_t* oldfile, const __po_hi_storage_file_t* newfile)
 {
-   int ret;
-
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    struct stat ss;
 #endif
@@ -421,8 +419,6 @@ int __po_hi_storage_directory_delete (const __po_hi_storage_dir_t* dir)
 
 int __po_hi_storage_directory_rename (const __po_hi_storage_dir_t* olddir, const __po_hi_storage_dir_t* newdir)
 {
-   int ret;
-
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    struct stat ss;
 #endif
@@ -470,10 +466,7 @@ int __po_hi_storage_directory_rename (const __po_hi_storage_dir_t* olddir, const
 
 int __po_hi_storage_directory_list (__po_hi_storage_dir_t* dir)
 {
-   int ret;
-
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   struct stat    ss;
    struct dirent* ent;
    DIR*           sdir;
    int            n;
