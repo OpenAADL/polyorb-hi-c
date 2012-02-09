@@ -94,7 +94,9 @@ int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
 
 int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t protocol, const int priority)
 {
+#ifdef RTEMS_PURE
    static int nb_mutex = 0;
+#endif
 
    if (mutex == NULL)
    {
@@ -143,6 +145,10 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
             }
             break;
          }
+     default:
+	{
+	    break;
+	}
    }
 
     if (pthread_mutex_init (&mutex->posix_mutex, &mutex->posix_mutexattr) != 0)
