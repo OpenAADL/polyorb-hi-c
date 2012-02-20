@@ -60,13 +60,22 @@ __po_hi_device_id leon_eth_device_id;
                                             setsockopt (mysocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,sizeof (timeout)); }
 
 #define RTEMS_BSP_NETWORK_DRIVER_ATTACH RTEMS_BSP_NETWORK_DRIVER_ATTACH_SMC91111
+
+#define RTEMS_BSP_NETWORK_DRIVER_NAME "open_eth1"
+
 #include <bsp.h>
 #include <rtems/rtems_bsdnet.h>
 
 extern void rtems_bsdnet_loopattach();
+extern void rtems_bsdnet_initialize_loop();
+
 static struct rtems_bsdnet_ifconfig loopback_config = {
    "lo0",            /* name */
+#ifdef RTEMS48
    rtems_bsdnet_loopattach,   /* attach function */
+#else
+   rtems_bsdnet_initialize_loop,
+#endif
    NULL,          /* link to next interface */
 
    "127.0.0.1",         /* IP address */
@@ -79,7 +88,11 @@ static struct rtems_bsdnet_ifconfig loopback_config = {
 static struct rtems_bsdnet_ifconfig netdriver_config = {
    RTEMS_BSP_NETWORK_DRIVER_NAME,      /* name */
    RTEMS_BSP_NETWORK_DRIVER_ATTACH, /* attach function */
-   &loopback_config,    /* link to next interface */
+#ifdef RTEMS48
+   loopback_config,
+#else
+   0,    /* link to next interface */
+#endif
    "255.255.255.255",       /* IP address */
    "255.255.255.255",     /* IP net mask */
    NULL,                           /* Driver supplies hardware address */
@@ -92,7 +105,11 @@ static struct rtems_bsdnet_ifconfig netdriver_config = {
 struct rtems_bsdnet_config rtems_bsdnet_config = {
    &netdriver_config,
    NULL,
+#ifdef RTEMS48
    100,        /* Default network task priority */
+#else
+   150,
+#endif
    128*1024,      /* Default mbuf capacity */
    256*1024,      /* Default mbuf cluster capacity */
    "rtems_host",     /* Host name */
@@ -316,13 +333,14 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 
 
   rtems_bsdnet_initialize_network ();
-/*
+  /*
 #ifdef __PO_HI_DEBUG_INFO
    rtems_bsdnet_show_if_stats ();
    rtems_bsdnet_show_inet_routes ();
    rtems_bsdnet_show_ip_stats ();
 #endif
 */
+
    leon_eth_device_id = id;
 
    for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)
