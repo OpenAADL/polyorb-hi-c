@@ -22,6 +22,7 @@ MANAGERS = all
 
 CC                           = $(CC_FOR_TARGET)
 CPP                          = $(CXX_FOR_TARGET)
+LD                           = $(LD_FOR_TARGET)
 GPROF                        = sparc-rtems-gprof
 
 TARGET_SOURCES               = 
@@ -32,7 +33,6 @@ TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS $(GCC_GENERIC_FLAGS) $
 
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
-LD                           = sparc-rtems-ld
 TARGET_LDFLAGS               = -lrtemsbsp -lc -lm 
 EXTERNAL_OBJECTS             += -L$(RUNTIME_PATH)/libs/leon/ -llua -lm
 
