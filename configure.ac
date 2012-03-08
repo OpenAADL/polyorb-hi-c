@@ -56,6 +56,11 @@ case ${host_os} in
 	*solaris*10*)
 		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lrt"
 		;;
+	*freebsd*)
+		NATIVE_CFLAGS="${NATIVE_CFLAGS} -D_GNU_SOURCE"
+		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lrt"
+		SIMULINK_LDFLAGS="-lm"
+		;;
 	*)
 		NATIVE_CFLAGS="${NATIVE_CFLAGS} -D_POSIX_SOURCE -D_GNU_SOURCE"
 		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lrt"
