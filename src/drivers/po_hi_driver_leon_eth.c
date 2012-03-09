@@ -66,8 +66,11 @@ __po_hi_device_id leon_eth_device_id;
 #include <bsp.h>
 #include <rtems/rtems_bsdnet.h>
 
+#ifdef RTEMS48
 extern void rtems_bsdnet_loopattach();
+#else
 extern void rtems_bsdnet_initialize_loop();
+#endif
 
 static struct rtems_bsdnet_ifconfig loopback_config = {
    "lo0",            /* name */
@@ -88,11 +91,14 @@ static struct rtems_bsdnet_ifconfig loopback_config = {
 static struct rtems_bsdnet_ifconfig netdriver_config = {
    RTEMS_BSP_NETWORK_DRIVER_NAME,      /* name */
    RTEMS_BSP_NETWORK_DRIVER_ATTACH, /* attach function */
+   0, /* link to next interface */
+   /*
 #ifdef RTEMS48
    loopback_config,
 #else
-   0,    /* link to next interface */
+   0,    
 #endif
+   */
    "255.255.255.255",       /* IP address */
    "255.255.255.255",     /* IP net mask */
    NULL,                           /* Driver supplies hardware address */
