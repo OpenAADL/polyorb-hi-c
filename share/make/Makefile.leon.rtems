@@ -35,24 +35,19 @@ TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 TARGET_LDFLAGS               = -lrtemsbsp -lc -lm $(RUNTIME_PATH)/libs/leon/liblua.a -lm -L$(RUNTIME_PATH)/libs/leon/ -llua -lm
 EXTERNAL_OBJECTS             += -L$(RUNTIME_PATH)/libs/leon/ -llua -lm
 
-RTEMS410=$(shell grep VERSION $$RTEMS_MAKEFILE_PATH_LEON/lib/include/rtems/score/cpuopts.h|grep 4.10)
-RTEMS411=$(shell grep VERSION $$RTEMS_MAKEFILE_PATH_LEON/lib/include/rtems/score/cpuopts.h|grep 4.11)
-RTEMS48=$(shell grep VERSION $$RTEMS_MAKEFILE_PATH_LEON/lib/include/rtems/score/cpuopts.h|grep 4.8)
-
-ifneq ($(RTEMS48),)
-   TARGET_CFLAGS                +=  -DRTEMS_VERSION=48
+ifeq ($(RTEMS_API),4.8)
+   TARGET_CFLAGS                +=  -DRTEMS48
 endif
 
-ifneq ($(RTEMS411),)
-   TARGET_CFLAGS                +=  -DRTEMS_VERSION=411
+ifeq ($(RTEMS_API),4.11)
+   TARGET_CFLAGS                +=  -DRTEMS411
 endif
 
-ifneq ($(RTEMS410),)
-   TARGET_CFLAGS                +=  -DRTEMS_VERSION=410
+ifeq ($(RTEMS_API),4.10)
+   TARGET_CFLAGS                +=  -DRTEMS410
 endif
 
-
-			     
+   
 target-clean:
 
 ifdef USE_GPROF
