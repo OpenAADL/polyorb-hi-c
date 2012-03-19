@@ -4,7 +4,7 @@
 
 ## To use and compile RTEMS, visit http://www.rtems.com
 
-## This file has been built for RTEMS 4.8.0
+## This file has been built for a generic RTEMS integration
 
 
 include $(RTEMS_MAKEFILE_PATH)/Makefile.inc

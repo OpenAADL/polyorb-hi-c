@@ -93,11 +93,9 @@
     * the use of each driver.
     */
 
-#if ((! (defined (NDS_RTEMS))) && ( ! ( defined (GUMSTIX_RTEMS))))
-   int Init ();
-#endif
-
+/*
    #define CONFIGURE_EXTRA_TASK_STACKS                (20 * RTEMS_MINIMUM_STACK_SIZE)
+*/
    #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
    #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
    #define CONFIGURE_MAXIMUM_BARRIERS                 1 + __PO_HI_NB_PORTS + 1
