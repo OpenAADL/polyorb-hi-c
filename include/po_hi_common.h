@@ -93,6 +93,10 @@
     * the use of each driver.
     */
 
+#ifdef RTEMS48
+   int Init ();
+#endif
+
 /*
    #define CONFIGURE_EXTRA_TASK_STACKS                (20 * RTEMS_MINIMUM_STACK_SIZE)
 */
