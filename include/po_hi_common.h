@@ -93,7 +93,7 @@
     * the use of each driver.
     */
 
-#ifdef RTEMS48
+#ifndef RTEMS411
    int Init ();
 #endif
 
