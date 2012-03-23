@@ -36,6 +36,10 @@ TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 TARGET_LDFLAGS               = -lrtemsbsp -lc -lm 
 EXTERNAL_OBJECTS             += -L$(RUNTIME_PATH)/libs/leon/ -llua -lm
 
+ifndef RTEMS_API
+   TARGET_CFLAGS                +=  -DRTEMS48
+endif
+
 ifeq ($(RTEMS_API),4.8)
    TARGET_CFLAGS                +=  -DRTEMS48
 endif
