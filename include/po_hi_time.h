@@ -114,4 +114,13 @@ int __po_hi_time_is_greater (const __po_hi_time_t* value, const __po_hi_time_t* 
  * Returns 0 otherwise.
  */
 
+#include <errno.h>
+#ifndef ETIMEDOUT
+#define ETIMEDOUT 60
+#endif
+/*
+ * Ensure that ETIMEDOUT is defined
+ * Workaround for bug #286
+ */
+
 #endif /* __PO_HI_TIME_H__ */
