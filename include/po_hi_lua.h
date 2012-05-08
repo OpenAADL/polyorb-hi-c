@@ -205,19 +205,8 @@ int __po_hi_lua_get_string (__po_hi_lua_context_t*, char*, char*);
 
 
 #else
+#include <po_hi_debug.h>
 typedef int __po_hi_lua_context_t;
-
-#define __po_hi_lua_load(arg1,arg2)
-#define __po_hi_lua_load_str(arg1,arg2)
-#define __po_hi_lua_init_function_call(arg1,arg2)
-#define __po_hi_lua_perform_function_call(arg1)
-#define __po_hi_lua_push_number(arg1,arg2)
-#define __po_hi_lua_push_boolean(arg1,arg2)
-#define __po_hi_lua_push_string(arg1,arg2)
-#define __po_hi_lua_get_number(arg1,arg2,arg3)
-#define __po_hi_lua_get_boolean(arg1,arg2,arg3)
-#define __po_hi_lua_get_string(arg1,arg2,arg3)
-
 #endif /* ifdef __PO_HI_USE_LUA */
 
 #endif /* __PO_HI_LUA_H__ */

@@ -257,6 +257,72 @@ int __po_hi_lua_get_string (__po_hi_lua_context_t* ctx, char* varname, char* val
    return __PO_HI_SUCCESS;
 }
 
+#else
+
+/*
+ * Stub functions when LUA is not enabled
+ */
+
+int __po_hi_lua_load(arg1,arg2)
+{
+   __PO_HI_DEBUG_INFO ("[%s:%d] LUA not implemented\n", __FILE__, __LINE__); 
+   return __PO_HI_UNAVAILABLE;
+}
+
+int __po_hi_lua_load_str(arg1,arg2)
+{
+   __PO_HI_DEBUG_INFO ("[%s:%d] LUA not implemented\n", __FILE__, __LINE__); 
+   return __PO_HI_UNAVAILABLE;
+}
+
+int __po_hi_lua_init_function_call(arg1,arg2)
+{
+   __PO_HI_DEBUG_INFO ("[%s:%d] LUA not implemented\n", __FILE__, __LINE__); 
+   return __PO_HI_UNAVAILABLE;
+}
+
+int __po_hi_lua_perform_function_call(arg1)
+{
+   __PO_HI_DEBUG_INFO ("[%s:%d] LUA not implemented\n", __FILE__, __LINE__); 
+   return __PO_HI_UNAVAILABLE;
+}
+
+int __po_hi_lua_push_number(arg1,arg2)
+{
+   __PO_HI_DEBUG_INFO ("[%s:%d] LUA not implemented\n", __FILE__, __LINE__); 
+   return __PO_HI_UNAVAILABLE;
+}
+
+int __po_hi_lua_push_boolean(arg1,arg2)
+{
+   __PO_HI_DEBUG_INFO ("[%s:%d] LUA not implemented\n", __FILE__, __LINE__); 
+   return __PO_HI_UNAVAILABLE;
+}
+
+int __po_hi_lua_push_string(arg1,arg2)
+{
+   __PO_HI_DEBUG_INFO ("[%s:%d] LUA not implemented\n", __FILE__, __LINE__); 
+   return __PO_HI_UNAVAILABLE;
+}
+
+int __po_hi_lua_get_number(arg1,arg2,arg3)
+{
+   __PO_HI_DEBUG_INFO ("[%s:%d] LUA not implemented\n", __FILE__, __LINE__); 
+   return __PO_HI_UNAVAILABLE;
+}
+
+int __po_hi_lua_get_boolean(arg1,arg2,arg3)
+{
+   __PO_HI_DEBUG_INFO ("[%s:%d] LUA not implemented\n", __FILE__, __LINE__); 
+   return __PO_HI_UNAVAILABLE;
+}
+
+int __po_hi_lua_get_string(arg1,arg2,arg3)
+{
+   __PO_HI_DEBUG_INFO ("[%s:%d] LUA not implemented\n", __FILE__, __LINE__); 
+   return __PO_HI_UNAVAILABLE;
+}
+
 #endif
 
 
