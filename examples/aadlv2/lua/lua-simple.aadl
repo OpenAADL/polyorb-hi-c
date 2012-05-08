@@ -58,7 +58,7 @@ end Task.impl_2;
 
 processor cpurm
 properties
-  Deployment::Execution_Platform => native;
+  Deployment::Execution_Platform => linux32;
 end cpurm;
 
 processor implementation cpurm.impl
