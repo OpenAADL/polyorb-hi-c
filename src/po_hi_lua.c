@@ -100,7 +100,7 @@ int __po_hi_lua_load_str (__po_hi_lua_context_t* context, const char* str)
 #ifdef __PO_HI_USE_LUA
    if (luaL_dostring (context->state,str) != 0)
    {
-      __PO_HI_DEBUG_DEBUG ("[LUA] Fail to load LUA file %s !", filename);
+      __PO_HI_DEBUG_DEBUG ("[LUA] Fail to load LUA str %s !", str);
       return __PO_HI_INVALID;
    }
 #endif 
