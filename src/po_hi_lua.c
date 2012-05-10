@@ -15,6 +15,8 @@
 
 
 #ifdef __PO_HI_USE_LUA
+
+#include <string.h>
 int __po_hi_lua_time_wait (lua_State* state)
 {
    __po_hi_time_t now;
