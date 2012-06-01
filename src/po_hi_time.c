@@ -22,6 +22,13 @@
 #include <bsp.h>
 #endif 
 
+
+#if defined (_WIN32)
+#include <tchar.h>
+#include <windows.h>
+#endif
+
+
 #if defined (POSIX) && defined (NEED_CLOCK_GETTIME)
 #include <sys/time.h>
 int clock_gettime(int clk_id, struct timespec *tp)
@@ -41,6 +48,32 @@ int clock_gettime(int clk_id, struct timespec *tp)
 }
 #endif
 
+#if defined(_WIN32)
+#define WINDOWS_TICK 10000000
+#define SEC_TO_UNIX_EPOCH 11644473600LL
+
+unsigned __po_hi_windows_tick_to_unix_seconds(long long win_ticks)
+{
+     return (unsigned)(win_ticks / WINDOWS_TICK - SEC_TO_UNIX_EPOCH);
+}
+
+
+LARGE_INTEGER __po_hi_unix_seconds_to_windows_tick(unsigned sec, unsigned nsec)
+{
+   LARGE_INTEGER ret;
+   LARGE_INTEGER nsectoadd;
+   ret.QuadPart = sec + SEC_TO_UNIX_EPOCH;
+   ret.QuadPart = ret.QuadPart * WINDOWS_TICK;
+
+   nsectoadd.QuadPart = nsec / 100;
+
+   ret.QuadPart =  ret.QuadPart + nsectoadd.QuadPart;
+   return ret;
+}
+
+#endif
+
+
 
 int __po_hi_get_time (__po_hi_time_t* mytime)
 {
@@ -54,6 +87,21 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
    
    mytime->sec    = ts.tv_sec;
    mytime->nsec   = ts.tv_nsec;
+
+   return (__PO_HI_SUCCESS);
+#elif defined (_WIN32)
+   SYSTEMTIME st;
+   FILETIME ft;
+   LARGE_INTEGER ularge;
+
+   GetSystemTime(&st);
+   SystemTimeToFileTime(&st,&ft);
+   ularge.LowPart=ft.dwLowDateTime;
+   ularge.HighPart=ft.dwHighDateTime;
+
+   mytime->sec = __po_hi_windows_tick_to_unix_seconds (ularge.QuadPart);
+   mytime->nsec = ularge.QuadPart % 10000000;
+   mytime->nsec *= 100;
 
    return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)

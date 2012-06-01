@@ -5,12 +5,17 @@
  *
  * For more informations, please visit http://ocarina.enst.fr
  *
- * Copyright (C) 2007-2011, European Space Agency (ESA).
+ * Copyright (C) 2007-2012, European Space Agency (ESA).
  */
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
 #include <pthread.h>
 #include <sched.h>
+#endif
+
+#if defined (_WIN32)
+#include <tchar.h>
+#include <windows.h>
 #endif
 
 #include <errno.h>
@@ -42,6 +47,9 @@ typedef struct
                                            POSIX library */
   pthread_mutex_t     mutex;
   pthread_cond_t      cond;
+#elif defined (_WIN32)
+  __po_hi_time_t      timer;
+  DWORD               tid;
 #elif defined (RTEMS_PURE)
   rtems_id            ratemon_period;
   rtems_id            rtems_id;
@@ -56,6 +64,10 @@ typedef struct
 __po_hi_task_t tasks[__PO_HI_NB_TASKS];
 /* Array which contains all tasks informations */
 
+#if defined (_WIN32)
+HANDLE  __po_hi_tasks_array[__PO_HI_NB_TASKS];
+#endif
+
 void __po_hi_wait_for_tasks ()
 {
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
@@ -67,6 +79,8 @@ void __po_hi_wait_for_tasks ()
     }
 #elif defined (RTEMS_PURE)
   rtems_task_suspend(RTEMS_SELF);
+#elif defined (_WIN32)
+  WaitForMultipleObjects (__PO_HI_NB_TASKS, __po_hi_tasks_array, TRUE, INFINITE);
 #elif defined (XENO_NATIVE)
   int ret;
   while (1)
@@ -94,8 +108,7 @@ void __po_hi_wait_for_tasks ()
  */
 int __po_hi_compute_next_period (__po_hi_task_id task)
 {
-
-#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX) || defined (_WIN32)
   __po_hi_time_t mytime;
 
   if (__po_hi_get_time (&mytime) != __PO_HI_SUCCESS)
@@ -147,6 +160,15 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
     }
 
    __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", task); 
+
+  return (__PO_HI_SUCCESS);
+#elif defined (_WIN32)
+  int ret;
+  __po_hi_task_delay_until (&(tasks[task].timer), task);
+  if ( (ret = __po_hi_compute_next_period (task)) != 1)
+    {
+      return (__PO_HI_ERROR_CLOCK);
+    }
 
   return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)
@@ -307,6 +329,23 @@ int __po_hi_posix_initialize_task (__po_hi_task_t* task)
 
 #endif /* POSIX || RTEMS_POSIX */
 
+#if defined (_WIN32)
+DWORD __po_hi_win32_create_thread (__po_hi_task_id    id,
+                                   __po_hi_priority_t priority, 
+                                   __po_hi_stack_t    stack_size,
+                                   void*              (*start_routine)(void),
+                                   void*              arg)
+{
+   DWORD tid;
+   HANDLE h;
+   h = CreateThread (NULL, 0, start_routine, NULL, 0, &tid);
+   __po_hi_tasks_array[id] = h;
+   return tid;
+}
+#endif
+
+
+
 
 #ifdef RTEMS_PURE
 rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority, 
@@ -366,6 +405,9 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
       __po_hi_posix_create_thread (priority, stack_size, start_routine, arg);
       return (__PO_HI_SUCCESS);
+#elif defined (_WIN32)
+      __po_hi_win32_create_thread (id, priority, stack_size, start_routine, arg);
+      return (__PO_HI_SUCCESS);
 #elif defined (XENO_NATIVE)
       RT_TASK t;
       (void) arg;
@@ -394,6 +436,8 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
       __po_hi_posix_initialize_task (my_task);
 #elif defined (RTEMS_PURE)
       my_task->rtems_id = __po_hi_rtems_create_thread (priority, stack_size, start_routine, arg);
+#elif defined (_WIN32)
+      my_task->tid = __po_hi_win32_create_thread (id, priority, stack_size, start_routine, arg);
 #elif defined (XENO_NATIVE)
       my_task->xeno_id = __po_hi_xenomai_create_thread (priority, stack_size, start_routine, arg);
 #else
@@ -507,6 +551,31 @@ int __po_hi_task_delay_until (__po_hi_time_t* time, __po_hi_task_id task)
   pthread_mutex_unlock (&tasks[task].mutex);
 
   return (ret);
+#elif defined (_WIN32)
+   HANDLE hTimer = NULL;
+   LARGE_INTEGER ularge;
+
+   hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
+   ularge = __po_hi_unix_seconds_to_windows_tick (time->sec, time->nsec);
+
+    if (!SetWaitableTimer(hTimer, &ularge, 0, NULL, NULL, 0))
+    {
+        __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] SetWaitableTimer failed (%d)\n", GetLastError());
+        return 2;
+    }
+
+    if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
+    {
+        __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] WaitForSingleObject failed (%d)\n", GetLastError());
+    }
+
+    if (CloseHandle(hTimer) != TRUE)
+    {
+        __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] CloseHandle failed (%d)\n", GetLastError());
+    }
+
+
+  return __PO_HI_SUCCESS;
 #elif defined (XENO_NATIVE)
   int ret;
   ret =  rt_task_sleep_until (time->sec * 1000000000 + time->nsec);

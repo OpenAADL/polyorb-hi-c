@@ -23,6 +23,16 @@
    #define __PO_HI_MAIN_ARGS int argc , char *argv[] , char **arge
    #define __PO_HI_MAIN_RETURN EXIT_SUCCESS
    #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
+#elif defined(_WIN32)
+   #include <tchar.h>
+   #include <windows.h>
+   #include <stdlib.h>
+   #include <stdio.h>
+   #define __PO_HI_MAIN_NAME _tmain
+   #define __PO_HI_MAIN_TYPE int
+   #define __PO_HI_MAIN_ARGS 
+   #define __PO_HI_MAIN_RETURN EXIT_SUCCESS
+   #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
 #elif defined (XENO_NATIVE)
    #include <native/task.h>
    #include <native/timer.h>
@@ -55,6 +65,13 @@
    #define __PO_HI_MAX_PRIORITY sched_get_priority_max(SCHED_FIFO)
    #define __PO_HI_MIN_PRIORITY sched_get_priority_min(SCHED_FIFO)
    #define __PO_HI_DEFAULT_PRIORITY ((sched_get_priority_min(SCHED_FIFO) + sched_get_priority_max(SCHED_FIFO))/2)
+#elif defined(_WIN32)
+   #include <inttypes.h>
+   #include <po_hi_time.h>
+   #define __PO_HI_DEFAULT_PRIORITY 0
+   #define __PO_HI_MAX_PRIORITY 2
+   #define __PO_HI_MIN_PRIORITY 0
+
 #elif defined(RTEMS_PURE)
    #include <rtems.h>
    #include <inttypes.h>

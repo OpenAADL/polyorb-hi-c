@@ -6,7 +6,7 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2007-2008, GET-Telecom Paris.
- * Copyright (C) 2011, European Space Agency.
+ * Copyright (C) 2011-2012, European Space Agency.
  */
 
 #ifndef __PO_HI_TIME_H__
@@ -21,6 +21,19 @@
 #ifdef XENO_NATIVE
 #include <native/timer.h>
 #include <native/task.h>
+#endif
+
+
+#ifdef _WIN32
+#include <tchar.h>
+#include <windows.h>
+
+/*
+ * Win32 helper functions to convert __po_hi_time_t to a representation
+ * that would be suitable for Windows.
+ */
+unsigned __po_hi_windows_tick_to_unix_seconds(long long win_ticks);
+LARGE_INTEGER __po_hi_unix_seconds_to_windows_tick(unsigned sec, unsigned nsec);
 #endif
 
 
