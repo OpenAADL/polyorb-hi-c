@@ -39,6 +39,11 @@ pthread_mutex_t mutex_init;
 rtems_id __po_hi_main_initialization_barrier;
 #endif
 
+#ifdef _WIN32
+CRITICAL_SECTION __po_hi_main_initialization_critical_section;
+HANDLE           __po_hi_main_initialization_event;
+#endif
+
 #if defined (XENO_NATIVE)
 #include <native/cond.h>
 #include <native/mutex.h>
@@ -189,6 +194,11 @@ int __po_hi_initialize_early ()
   }
 #endif
 
+#ifdef _WIN32
+   __po_hi_main_initialization_event = CreateEvent (NULL, FALSE, FALSE, NULL);
+   InitializeCriticalSection (&__po_hi_main_initialization_critical_section);
+#endif
+
   __po_hi_initialize_tasking ();
 
   /* Initialize protected objects */
@@ -311,6 +321,24 @@ int __po_hi_wait_initialization ()
    __PO_HI_INSTRUMENTATION_VCD_INIT
 
   return (__PO_HI_SUCCESS);
+#elif defined (_WIN32)
+   EnterCriticalSection (&__po_hi_main_initialization_critical_section);
+
+  __po_hi_initialized_tasks++;
+
+  __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
+ 
+  while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init)
+  {
+      LeaveCriticalSection (&__po_hi_main_initialization_critical_section);
+      WaitForSingleObject (__po_hi_main_initialization_event, INFINITE); 
+      EnterCriticalSection (&__po_hi_main_initialization_critical_section);
+  }
+
+  SetEvent (__po_hi_main_initialization_event);
+  LeaveCriticalSection (&__po_hi_main_initialization_critical_section);
+  return (__PO_HI_SUCCESS);
+
 #elif defined (RTEMS_PURE) 
   rtems_status_code ret;
 
