@@ -262,9 +262,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 
    __DEBUGMSG ("[GQUEUE] Semaphore got (id=%d)\n", id);
 #elif defined (_WIN32)
-   printf ("%s:%d enter critical section 1\n", __FILE__, __LINE__);
        EnterCriticalSection(&__po_hi_gqueues_cs[id]);
-   printf ("%s:%d enter critical section 2\n", __FILE__, __LINE__);
 #endif
    if (__po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA)
    {
@@ -288,9 +286,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
             __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Cannot release semaphore in __po_hi_gqueue_store_in()\n");
          }
 #elif defined (_WIN32)
-   printf ("%s:%d leave critical section\n", __FILE__, __LINE__);
        LeaveCriticalSection(&__po_hi_gqueues_cs[id]);
-   printf ("%s:%d leave critical section\n", __FILE__, __LINE__);
 #endif
          __PO_HI_DEBUG_CRITICAL ("[GQUEUE] QUEUE FULL, task-id=%d, port=%d\n", id, port);
 
@@ -328,13 +324,11 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
    rt_mutex_release (&__po_hi_gqueues_mutexes[id]);
    rt_cond_broadcast (&__po_hi_gqueues_conds[id]);
 #elif defined (_WIN32)
-   printf ("%s:%d leave critical section\n", __FILE__, __LINE__);
    LeaveCriticalSection(&__po_hi_gqueues_cs[id]);
    if (! SetEvent(__po_hi_gqueues_events[id]) ) 
    {
       __DEBUGMSG("SetEvent failed (%d)\n", GetLastError());
    }
-   printf ("%s:%d leave critical section\n", __FILE__, __LINE__);
 #elif defined (RTEMS_PURE)
    ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
    if (ret != RTEMS_SUCCESSFUL)
