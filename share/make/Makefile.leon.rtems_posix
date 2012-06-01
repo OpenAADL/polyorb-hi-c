@@ -34,10 +34,10 @@ TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS $(GCC_GENERIC_FLAGS) $
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
 TARGET_LDFLAGS               = -lrtemsbsp -lc -lm 
-EXTERNAL_OBJECTS             += -L$(RUNTIME_PATH)/libs/leon/ -llua -lm
 
 ifndef RTEMS_API
    TARGET_CFLAGS                +=  -DRTEMS48
+   TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.8/ -llua -lm
 endif
 
 ifeq ($(RTEMS_API),4.8)
@@ -46,6 +46,7 @@ endif
 
 ifeq ($(RTEMS_API),4.11)
    TARGET_CFLAGS                +=  -DRTEMS411
+   TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.11/ -llua -lm
 endif
 
 ifeq ($(RTEMS_API),4.10)

@@ -12,6 +12,7 @@ EXTRA_DIST=$(srcdir)/Makefile.common \
 			  $(srcdir)/Makefile.linux32-xenomai-native \
 			  $(srcdir)/Makefile.linux32-xenomai-posix \
 			  $(srcdir)/Makefile.linux64 \
+			  $(srcdir)/Makefile.win32 \
 			  $(srcdir)/Makefile.x86.rtems \
 			  $(srcdir)/Makefile.x86.rtems_posix \
 			  $(srcdir)/Makefile.x86.linuxtaste \

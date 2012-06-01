@@ -85,7 +85,6 @@ ifeq ($(NEED_TRANSPORT), yes)
 	po_hi_messages.o                          \
 	po_hi_marshallers.o                       \
 	po_hi_giop.o                              \
-	po_hi_lua.o                              \
 	po_hi_utils.o                             \
 	po_hi_types.o                             \
    po_hi_monitor.o                           \
@@ -125,7 +124,6 @@ else
 	po_hi_task.o                     \
 	po_hi_time.o                     \
 	po_hi_utils.o                    \
-	po_hi_lua.o                    \
 	po_hi_protected.o                \
    po_hi_monitor.o                  \
    po_hi_storage.o                  \
@@ -137,6 +135,11 @@ else
 	deployment.o                     \
 	types.o                          \
 	main.o
+endif
+
+
+ifeq ($(TARGET), $(filter $(TARGET), linux32 linux64 linux32-xenomai-posix linux32-xenomai-native))
+PO_HI_OBJS += po_hi_lua.o  
 endif
 
 ifeq ($(USE_ASN1_DEPLOYMENT), yes)
@@ -288,9 +291,14 @@ $(BINARY): generate-asn1-deployment target-objects compile-po-hi $(GENERATED_OBJ
 	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
 endif
 
-ifeq ($(TARGET), $(filter $(TARGET), native bench linux32 linux64 linux32-xenomai-posix linux32-xenomai-native))
+ifeq ($(TARGET), $(filter $(TARGET), win32 native bench linux32 linux64 linux32-xenomai-posix linux32-xenomai-native))
+ifeq ($(TARGET), win32)
+EXE=$(BINARY).exe
+else
+EXE=$(BINARY)
+endif
 $(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
-	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
+	$(CC) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
 endif
 
 ifeq ($(TARGET), arm.dslinux)
