@@ -6,7 +6,7 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2007-2009, GET-Telecom Paris.
- * Copyright (C) 2011, European Space Agency.
+ * Copyright (C) 2011-2012, European Space Agency.
  */
 
 #ifndef __PO_HI_PROTECTED_H__
@@ -25,11 +25,17 @@
    #include <time.h>
    #include <pthread.h>
 #endif
+
 #if defined (RTEMS_PURE)
    #include <rtems.h>
 #endif
+
 #if defined (XENO_NATIVE)
    #include <native/mutex.h>
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
 #endif
 
 
@@ -63,6 +69,9 @@ typedef struct
 #endif
 #if defined (XENO_NATIVE)
    RT_MUTEX             xeno_mutex;
+#endif
+#if defined (_WIN32)
+   HANDLE               win32_mutex;
 #endif
 }__po_hi_mutex_t;
 

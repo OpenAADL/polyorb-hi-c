@@ -6,7 +6,7 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2007-2008, GET-Telecom Paris.
- * Copyright (C) 2011, European Space Agency.
+ * Copyright (C) 2011-2012, European Space Agency.
  */
 
 #include <po_hi_config.h>
@@ -171,6 +171,14 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
        return __PO_HI_ERROR_PROTECTED_CREATE;
     }
 #endif
+#ifdef _WIN32
+    mutex->win32_mutex = CreateMutex (NULL, FALSE, NULL);
+    if (mutex->win32_mutex == NULL)
+    {
+       __DEBUGMSG ("[PROTECTED] Cannot create WIN32 mutex\n");
+       return __PO_HI_ERROR_PROTECTED_CREATE;
+    }
+#endif
    return (__PO_HI_SUCCESS);
 }
 
@@ -198,6 +206,22 @@ int __po_hi_mutex_lock (__po_hi_mutex_t* mutex)
       return __PO_HI_ERROR_MUTEX_LOCK;
    }
 #endif
+#ifdef _WIN32
+   DWORD status;
+   status = WaitForSingleObject( mutex->win32_mutex, INFINITE);
+
+   if (status == WAIT_ABANDONED)
+   {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Lock failed (abandon)\n");
+      return __PO_HI_ERROR_MUTEX_LOCK;
+   }
+   if (status == WAIT_FAILED)
+   {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Lock failed (failure)\n");
+      return __PO_HI_ERROR_MUTEX_LOCK;
+   }
+
+#endif
    return __PO_HI_SUCCESS;
 }
 
@@ -224,7 +248,13 @@ int __po_hi_mutex_unlock (__po_hi_mutex_t* mutex)
       return __PO_HI_ERROR_MUTEX_UNLOCK;
     }
 #endif
-
+#ifdef _WIN32
+   if (ReleaseMutex (mutex->win32_mutex) == 0)
+   {
+      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Release failed\n");
+      return __PO_HI_ERROR_MUTEX_UNLOCK;
+   }
+#endif
   return __PO_HI_SUCCESS;
 }
 
