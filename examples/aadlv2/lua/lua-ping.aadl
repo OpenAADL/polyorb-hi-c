@@ -92,7 +92,7 @@ public
 
 processor the_processor
 properties
-  Deployment::Execution_Platform => native;
+  Deployment::Execution_Platform => linux32;
 end the_processor;
 
 processor implementation the_processor.Impl
