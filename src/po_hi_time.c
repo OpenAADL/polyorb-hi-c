@@ -220,6 +220,34 @@ int __po_hi_delay_until (const __po_hi_time_t* time)
       return (__PO_HI_ERROR_PTHREAD_COND);
   }
   return (__PO_HI_SUCCESS);
+#elif defined (_WIN32)
+   HANDLE hTimer = NULL;
+   LARGE_INTEGER ularge;
+
+   hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
+   ularge = __po_hi_unix_seconds_to_windows_tick (time->sec, time->nsec);
+
+    if (!SetWaitableTimer(hTimer, &ularge, 0, NULL, NULL, 0))
+    {
+        __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] SetWaitableTimer failed (%d)\n", GetLastError());
+        return 2;
+    }
+
+    if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
+    {
+        __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] WaitForSingleObject failed (%d)\n", GetLastError());
+    }
+
+    if (CloseHandle(hTimer) != TRUE)
+    {
+        __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] CloseHandle failed (%d)\n", GetLastError());
+    }
+
+    printf ("wait completed\n");
+
+
+  return __PO_HI_SUCCESS;
+
 #else
    return (__PO_HI_UNAVAILABLE);
 #endif
