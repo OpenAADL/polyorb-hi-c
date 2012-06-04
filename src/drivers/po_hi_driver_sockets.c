@@ -5,17 +5,23 @@
  *
  * For more informations, please visit http://ocarina.enst.fr
  *
- * Copyright (C) 2010-2011, European Space Agency
+ * Copyright (C) 2010-2012, European Space Agency
  * Copyright (C) 2007-2008, GET-Telecom Paris.
  */
 
 #include <deployment.h>
 #include <marshallers.h>
 
+
 #if (defined (__PO_HI_NEED_DRIVER_SOCKETS) || \
      defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
 
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
+
 #include <po_hi_config.h>
+#include <po_hi_utils.h>
 #include <po_hi_task.h>
 #include <po_hi_transport.h>
 #include <po_hi_debug.h>
@@ -33,6 +39,7 @@
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>
+#ifndef _WIN32
 #include <netdb.h>
 #include <sys/types.h>
 #include <sys/select.h>
@@ -40,6 +47,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/time.h>
+#endif
 
 /*
  * This file (po_hi_sockets.c) provides function to handle
@@ -80,8 +88,13 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 {
    int                        len;
    int                        size_to_write;
+#ifndef _WIN32
    int                        optval = 0;
    socklen_t                  optlen = 0;
+#else
+   char FAR                   optval = 0;
+   int FAR                    optlen = 0;
+#endif
    __po_hi_device_id          remote_device;
    __po_hi_device_id          local_device;
    __po_hi_local_port_t       local_port;
@@ -152,7 +165,11 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
       return __PO_HI_ERROR_TRANSPORT_SEND;		
    }
 
-   /* Ignore SIGPIPE to be able to recover from errors instead of crashing the node */
+#ifndef _WIN32
+   /* 
+    * Ignore SIGPIPE to be able to recover from 
+    * errors instead of crashing the node 
+    */
 
    if (signal (SIGPIPE, SIG_IGN) == SIG_ERR)
    {
@@ -161,6 +178,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
       __po_hi_c_sockets_write_sockets[remote_device] = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;
    }
+#endif
 
    switch (protocol_id)
    {
@@ -221,7 +239,11 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 
 void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 {
-   socklen_t                  socklen = sizeof (struct sockaddr);
+#ifdef _WIN32
+   int                        socklen;
+#else
+   socklen_t                  socklen;
+#endif
    /* See ACCEPT (2) for details on initial value of socklen */
 
    __po_hi_uint32_t           len;
@@ -234,6 +256,8 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
    int                        established = 0; 
    int                        ret;
    __po_hi_device_id          dev_id;
+
+   socklen = sizeof (struct sockaddr);
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
 
@@ -373,7 +397,11 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 {
    int                     ret;
+#ifdef _WIN32
+   char FAR                reuse;
+#else
    int                     reuse;
+#endif
    struct sockaddr_in      sa;
    unsigned short          ip_port;
 

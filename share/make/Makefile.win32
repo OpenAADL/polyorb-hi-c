@@ -9,6 +9,10 @@ ifdef USE_GPROF
 TARGET_LDFLAGS+=-pg
 endif
 
+ifeq ($(NEED_TRANSPORT),yes)
+TARGET_LDFLAGS+=-lwsock32
+endif
+
 target-clean:
 
 target-objects:
