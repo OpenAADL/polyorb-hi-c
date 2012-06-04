@@ -188,7 +188,11 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
          size_to_write = sizeof (int);
          int datawritten;
          protocol_conf->marshaller(request, &datawritten, &size_to_write);
+#ifdef _WIN32
+         len = send (__po_hi_c_sockets_write_sockets[remote_device], &datawritten, size_to_write, 0);
+#else
          len = write (__po_hi_c_sockets_write_sockets[remote_device], &datawritten, size_to_write);
+#endif
 
          if (len != size_to_write)
          {
@@ -211,7 +215,12 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 #endif
          if (__po_hi_c_sockets_write_sockets[remote_device] != -1)
          {
+
+#ifdef _WIN32
+            len = send (__po_hi_c_sockets_write_sockets[remote_device], (char*) &(__po_hi_c_sockets_send_msg.content), size_to_write, 0);
+#else
             len = write (__po_hi_c_sockets_write_sockets[remote_device], &(__po_hi_c_sockets_send_msg.content), size_to_write);
+#endif
 
             if (len != size_to_write)
             {
@@ -246,7 +255,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 #endif
    /* See ACCEPT (2) for details on initial value of socklen */
 
-   __po_hi_uint32_t           len;
+   int                        len;
    int                        sock;
    int                        max_socket;
    fd_set                     selector;
@@ -286,12 +295,16 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
 #ifndef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
             dev_init = 0;
+#ifdef _WIN32
+            ret = recv (sock, (char*) &dev_init, sizeof (__po_hi_device_id), 0);
+#else
             ret = read (sock, &dev_init, sizeof (__po_hi_device_id));
+#endif
 
             if (ret != sizeof (__po_hi_device_id))
             {
                established = 0;
-               __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d, ret=%d\n", dev, sock, ret);
+               __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d, ret=%d, read size=%d, expected size=%d\n", dev, sock, ret, ret, sizeof (__po_hi_device_id));
             }
             else
             {
@@ -327,6 +340,8 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
       {
          if ( (dev != dev_id ) && ( __po_hi_c_sockets_read_sockets[dev] != -1 ) )
          {
+
+            __DEBUGMSG ("[DRIVER SOCKETS] Add socket %d to the selector\n", __po_hi_c_sockets_read_sockets[dev]);
             FD_SET( __po_hi_c_sockets_read_sockets[dev], &selector );
          }
       }
@@ -367,7 +382,14 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
 #else
             memset (__po_hi_c_sockets_poller_msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
+
+
+#ifdef _WIN32
+            len = recv (__po_hi_c_sockets_read_sockets[dev], __po_hi_c_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, 0);
+#else
             len = recv (__po_hi_c_sockets_read_sockets[dev], __po_hi_c_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+#endif
+
             __po_hi_c_sockets_poller_msg.length = len;
             __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",(int)len);
 
@@ -376,16 +398,15 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 #endif
 
 
-            if (len == 0)
+            if (len <= 0)
             {
-               __DEBUGMSG ("[DRIVER SOCKETS] Zero size from device %d\n",dev);
+               __DEBUGMSG ("[DRIVER SOCKETS] Invalid size (%d) from device %d\n",len, dev);
                __po_hi_c_sockets_read_sockets[dev] = -1;
                continue;
             }
 
             __po_hi_unmarshall_request (&__po_hi_c_sockets_poller_received_request, &__po_hi_c_sockets_poller_msg);
 #endif
-
             __po_hi_main_deliver (&__po_hi_c_sockets_poller_received_request);
          }
       }
@@ -580,13 +601,21 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
             __DEBUGMSG ("[DRIVER SOCKETS] Send my id (%d) to device %d through socket %d\n", dev_id, dev , __po_hi_c_sockets_write_sockets[dev]);
 
             sent_id = __po_hi_swap_byte (dev_id);
-            if (write (__po_hi_c_sockets_write_sockets[dev], &sent_id, sizeof (__po_hi_device_id)) != sizeof (__po_hi_device_id))
+#ifdef _WIN32
+            ret = send (__po_hi_c_sockets_write_sockets[dev], (char*) &sent_id, sizeof (__po_hi_device_id), 0);
+#else
+            ret = write (__po_hi_c_sockets_write_sockets[dev], &sent_id, sizeof (__po_hi_device_id));
+#endif
+            if (ret != sizeof (__po_hi_device_id))
             {
-               __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id\n", dev_id);
+               __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id, expected size=%d, return value=%d\n", dev_id, sizeof (__po_hi_device_id), ret);
             }
-            __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
+            else
+            {
+               __DEBUGMSG ("[DRIVER SOCKETS] Connection established with device %d, socket=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
 
-            break;
+               break;
+            }
          }
          else
          {
