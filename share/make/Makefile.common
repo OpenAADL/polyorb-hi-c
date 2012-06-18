@@ -62,7 +62,7 @@ INCLUDE=-I. -I$(RUNTIME_PATH)/include/
 endif
 
 ifdef USER_SOURCES_DIRS
-INCLUDE+=-I$(USER_SOURCES_DIRS) 
+INCLUDE+=$(shell for v in $(USER_SOURCES_DIRS); do echo -I$$v ; done )
 endif
 
 INCLUDE+=$(USER_INCLUDE)
