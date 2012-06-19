@@ -5,7 +5,7 @@ CC                = gcc
 LD                = ld
 GPROF             = gprof
 
-USE_USB_BRICK=$(shell grep __PO_HI_NEED_DRIVER_SPACEWIRE_USB_BRICK deployment.h|wc -l)
+USE_USB_BRICK=$(shell grep __PO_HI_NEED_DRIVER_SPACEWIRE_USB_BRICK deployment.h 2>/dev/null|wc -l)
 
 ifdef USE_GPROF
 TARGET_LDFLAGS+=-pg
