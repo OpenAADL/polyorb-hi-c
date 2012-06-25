@@ -192,6 +192,60 @@ __po_hi_uint8_t __po_hi_get_endianness (const __po_hi_node_t node)
 }
 
 #if __PO_HI_NB_DEVICES > 0
+int __po_hi_transport_associate_port_bus (const __po_hi_port_t port, const __po_hi_bus_id bus)
+{
+   __po_hi_device_id current_device;
+   __po_hi_node_t    current_node;
+   __po_hi_bus_id*   tmp_buses;
+   __po_hi_uint32_t  tmp_n_buses;
+   __po_hi_uint32_t  tmp;
+   __po_hi_node_t    tmp_node;
+   __po_hi_device_id tmp_device;
+
+   if (port > __PO_HI_NB_PORTS)
+   {
+      return 0;
+   }
+
+   current_device = __po_hi_get_device_from_port (port);
+
+   if (current_device == invalid_device_id)
+   {
+      return 0;
+   }
+
+   current_node = __po_hi_transport_get_node_from_device (current_device);
+
+   for (tmp_device=0 ; tmp_device < __PO_HI_NB_DEVICES ; tmp_device++)
+   {
+      if (tmp_device == current_device)
+      {
+         continue;
+      }
+
+      tmp_buses      = __po_hi_transport_get_accessed_buses (tmp_device);
+      tmp_n_buses    = __po_hi_transport_get_n_accessed_buses (tmp_device);
+      tmp_node       = __po_hi_transport_get_node_from_device (tmp_device);
+
+      if (tmp_node != current_node)
+      {
+         continue;
+      }
+
+      for (tmp = 0 ; tmp < tmp_n_buses ; tmp++)
+      {
+         if (tmp_buses[tmp] == bus)
+         {
+
+            __po_hi_port_to_device[port] = tmp_device;
+            return 1;
+         }
+      }
+   }
+   return 0;
+}
+
+
 int __po_hi_transport_share_bus (const __po_hi_device_id first, const __po_hi_device_id second)
 {
    __po_hi_uint32_t i;
