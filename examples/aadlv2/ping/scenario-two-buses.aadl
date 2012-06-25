@@ -1,0 +1,18 @@
+system ping
+properties
+  Ocarina_Config::Timeout_Property     => 4000ms;
+  Ocarina_Config::Use_Components_Library => true;
+  Ocarina_Config::AADL_Files           => 
+    ("ping-two-buses.aadl" , "software.aadl");
+  Ocarina_Config::Generator            => polyorb_hi_c;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::ARINC653_Properties),
+     value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::Cheddar_Properties));
+  Ocarina_Config::AADL_Version         => AADLv2;
+end ping;
+
+system implementation ping.impl
+end  ping.impl;
+
