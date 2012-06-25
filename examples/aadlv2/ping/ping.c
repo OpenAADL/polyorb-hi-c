@@ -4,6 +4,17 @@ int p=0;
 
 void user_do_ping_spg (int *v)
 {
+#ifdef MULTIPLE_BUSES
+#include <deployment.h>
+   if ( ( p % 2 ) == 0)
+   {
+      __po_hi_transport_associate_port_bus (ping_me_global_data_sink, bus_first_bus);
+   }
+   else
+   {
+      __po_hi_transport_associate_port_bus (ping_me_global_data_sink, bus_second_bus);
+   }
+#endif
   printf ("*** SENDING PING *** %d\n", p);
   *v=p;
   p++;
