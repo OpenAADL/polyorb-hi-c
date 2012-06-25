@@ -83,6 +83,8 @@ __po_hi_msg_t        __po_hi_c_sockets_poller_msg;
 __po_hi_msg_t        __po_hi_c_sockets_send_msg;
 __po_hi_device_id    __po_hi_c_sockets_device_id;
 
+int      __po_hi_c_sockets_array_init_done = 0;
+
 int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
                                  __po_hi_port_t port)
 {
@@ -113,7 +115,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    protocol_conf           = __po_hi_transport_get_protocol_configuration (protocol_id);
 
 
-   __DEBUGMSG ("[DRIVER SOCKETS] Try to write from task=%d, port=%d, remote device=%d, socket=%d\n", task_id, port, remote_device, __po_hi_c_sockets_write_sockets[remote_device]);
+   __DEBUGMSG ("[DRIVER SOCKETS] Try to write from task=%d, port=%d, local_device=%d, remote device=%d, socket=%d\n", task_id, port, local_device, remote_device, __po_hi_c_sockets_write_sockets[remote_device]);
    if (request->port == -1)
    {
       __DEBUGMSG (" [DRIVER SOCKETS] No data to write on port %d\n", port);
@@ -265,6 +267,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
    int                        established = 0; 
    int                        ret;
    __po_hi_device_id          dev_id;
+   __po_hi_uint32_t           n_connected;
 
    socklen = sizeof (struct sockaddr);
 
@@ -274,10 +277,23 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
    __DEBUGMSG ("Poller launched, device-id=%d\n", dev_id);
 
+   n_connected = 0;
+   for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
+   {
+      if (__po_hi_transport_share_bus (dev, dev_id) == 0)
+      {
+         n_connected++;
+      }
+   }
+
+
+   __DEBUGMSG ("Number of devices that share the bus=%d\n", n_connected);
+
+
    /*
     * Create a socket for each node that will communicate with us.
     */
-   for (dev = 0; dev < __PO_HI_NB_DEVICES - 1 ; dev++)
+   for (dev = 0; dev < n_connected - 1; dev++)
    {
          established = 0;
 
@@ -443,10 +459,15 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
    __po_hi_c_sockets_device_id     = dev_id;
 
-   for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++)
+   if (__po_hi_c_sockets_array_init_done == 0)
    {
-      __po_hi_c_sockets_read_sockets[dev]   = -1;
-      __po_hi_c_sockets_write_sockets[dev]  = -1;
+      for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++)
+      {
+         __po_hi_c_sockets_read_sockets[dev]   = -1;
+         __po_hi_c_sockets_write_sockets[dev]  = -1;
+      }
+
+      __po_hi_c_sockets_array_init_done = 1;
    }
 
    ipconf = (__po_hi_c_ip_conf_t*)__po_hi_get_device_configuration (dev_id);
@@ -515,6 +536,12 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
    {
       if (dev == dev_id)
       {
+         continue;
+      }
+
+      if (__po_hi_transport_share_bus (dev, dev_id) == 0)
+      {
+         __DEBUGMSG ("[DRIVER SOCKETS] Device %d and device %d does not share the same bus, skip connecting them\n", dev, dev_id);
          continue;
       }
 
