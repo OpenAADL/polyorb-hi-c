@@ -192,6 +192,36 @@ __po_hi_uint8_t __po_hi_get_endianness (const __po_hi_node_t node)
 }
 
 #if __PO_HI_NB_DEVICES > 0
+int __po_hi_transport_share_bus (const __po_hi_device_id first, const __po_hi_device_id second)
+{
+   __po_hi_uint32_t i;
+   __po_hi_uint32_t j;
+   __po_hi_uint32_t first_n_buses;
+   __po_hi_uint32_t second_n_buses;
+
+   __po_hi_bus_id* first_buses;
+   __po_hi_bus_id* second_buses;
+
+   first_buses       = __po_hi_transport_get_accessed_buses (first);
+   second_buses      = __po_hi_transport_get_accessed_buses (second);
+
+   first_n_buses     = __po_hi_transport_get_n_accessed_buses (first);
+   second_n_buses    = __po_hi_transport_get_n_accessed_buses (second);
+
+   for (i = 0 ; i < first_n_buses ; i++)
+   {
+      for (j = 0 ; j < second_n_buses ; j++)
+      {
+         if (first_buses[i] == second_buses[j])
+         {
+            return 1;
+         }
+      }
+   }
+   return 0;
+}
+
+
 __po_hi_bus_id* __po_hi_transport_get_accessed_buses (const __po_hi_device_id device)
 {
    if ((device < 0) || (device >= __PO_HI_NB_DEVICES))

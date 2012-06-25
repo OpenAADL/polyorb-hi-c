@@ -54,6 +54,14 @@ uint32_t __po_hi_transport_get_n_accessed_buses (const __po_hi_device_id device)
  */
 __po_hi_bus_id* __po_hi_transport_get_accessed_buses (const __po_hi_device_id device);
 
+
+/**
+ * \fn __po_hi_transport_share_bus
+ *
+ * \brief Returns 1 if two devices share a common bus, 0 otherwise.
+ */
+int __po_hi_transport_share_bus (const __po_hi_device_id, const __po_hi_device_id);
+
 /**
  * \fn __po_hi_get_node_from_entity
  *
