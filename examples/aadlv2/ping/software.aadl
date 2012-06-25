@@ -62,8 +62,8 @@ connections
 properties
   Recover_Entrypoint_Source_Text     => "recover";
   Dispatch_Protocol                  => Periodic;
-  Period                             => 10 Ms;
-  Deadline                           => 10 ms;
+  Period                             => 2000 Ms;
+  Deadline                           => 2000 ms;
   Priority                           => 2;
 end P.Impl;
 
