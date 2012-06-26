@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://ocarina.enst.fr
  *
- * Copyright (C) 2010, European Space Agency (ESA).
+ * Copyright (C) 2010-2012, European Space Agency (ESA).
  */
 
 #include <drivers/po_hi_driver_linux_serial.h>
@@ -126,6 +126,8 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
    po_hi_c_driver_serial_sending_wait = 0;
 
    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init sender\n");
+
+   __po_hi_transport_set_sending_func (id, __po_hi_c_driver_serial_linux_sender);
 
    serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
 

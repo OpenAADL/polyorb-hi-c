@@ -3,7 +3,7 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * Copyright (C) 2011, European Space Agency
+ * Copyright (C) 2011-2012, European Space Agency
  */
 
 #include <deployment.h>
@@ -185,6 +185,9 @@ void __po_hi_c_driver_spw_usb_brick_init (__po_hi_device_id id)
 
    /* Get the first device connected */
    __po_hi_c_driver_usb_brick_fd[id]   = USBSpaceWire_ListDevices();
+
+
+   __po_hi_transport_set_sending_func (id, __po_hi_c_driver_spw_usb_brick_sender);
 
    __po_hi_c_driver_usb_brick_port[id] = 1;
    if (strncmp (drv_conf->devname, "node2", 5) == 0)

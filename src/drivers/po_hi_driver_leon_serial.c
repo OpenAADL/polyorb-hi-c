@@ -108,6 +108,8 @@ void __po_hi_c_driver_serial_leon_init_sender (__po_hi_device_id id)
       return;
    }
 
+   __po_hi_transport_set_sending_func (id, __po_hi_c_driver_serial_leon_sender);
+
    if (__po_hi_c_driver_serial_common_get_speed (id) != __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400)
    {
       __PO_HI_DEBUG_INFO ("[LEON SERIAL] This driver handles only a speed of 38400, exiting initialization !\n");
@@ -169,6 +171,7 @@ void __po_hi_c_driver_serial_leon_init_receiver (__po_hi_device_id id)
    __PO_HI_DEBUG_INFO ("[LEON SERIAL] Init receiver\n");
 
    serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
+
 
    if (serialconf == NULL)
    {

@@ -3,7 +3,7 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * Copyright (C) 2010-2011, European Space Agency
+ * Copyright (C) 2010-2012, European Space Agency
  */
 
 /*! \file po_hi_driver_rasta_serial.c
@@ -134,6 +134,8 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
       __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Cannot get the name of the device !\n");
       return;
    }
+
+   __po_hi_transport_set_sending_func (id, __po_hi_c_driver_serial_rasta_sender);
 
     /* provide the spacewire driver with AMBA Plug&Play
      * info so that it can find the GRSPW cores.

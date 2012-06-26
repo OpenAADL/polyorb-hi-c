@@ -349,6 +349,9 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 
    leon_eth_device_id = id;
 
+
+   __po_hi_transport_set_sending_func (leon_eth_device_id, __po_hi_c_driver_eth_leon_sender);
+
    for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)
    {
       nodes[node].socket = -1;
