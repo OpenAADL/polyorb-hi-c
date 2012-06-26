@@ -470,6 +470,9 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
       __po_hi_c_sockets_array_init_done = 1;
    }
 
+
+   __po_hi_transport_set_sending_func (dev_id, __po_hi_driver_sockets_send);
+
    ipconf = (__po_hi_c_ip_conf_t*)__po_hi_get_device_configuration (dev_id);
    ip_port = ipconf->port;
 

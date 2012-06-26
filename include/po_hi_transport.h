@@ -6,7 +6,7 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2007-2008, GET-Telecom Paris.
- * Copyright (C) 2010, European Space Agency.
+ * Copyright (C) 2010-2012, European Space Agency.
  */
 
 #ifndef __PO_HI_TRANSPORT__
@@ -29,7 +29,10 @@ typedef struct
       void (*unmarshaller) (void*, void*, int);
 }__po_hi_protocol_conf_t;
 
+
 #if __PO_HI_NB_PORTS > 0
+
+typedef int (*__po_hi_transport_sending_func)(__po_hi_task_id, __po_hi_port_t);
 
 typedef uint8_t __po_hi_queue_id;
 
@@ -80,7 +83,10 @@ __po_hi_entity_t  __po_hi_get_entity_from_global_port (const __po_hi_port_t port
  * \fn            __po_hi_transport_send_default
  * \brief         Default transport layer function.
  */
-int               __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port);
+int               __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port);
+
+#define __po_hi_transport_send_default __po_hi_transport_send
+#define __po_hi_send_output            __po_hi_transport_send
 
 
 /*
@@ -119,6 +125,7 @@ __po_hi_uint8_t  __po_hi_get_endianness (const __po_hi_node_t node);
  * value invalid_device_id.
  */
 __po_hi_device_id __po_hi_get_device_from_port (const __po_hi_port_t port);
+
 
 char* __po_hi_get_device_naming (const __po_hi_device_id dev);
 
@@ -230,10 +237,72 @@ __po_hi_protocol_t         __po_hi_transport_get_protocol (const __po_hi_port_t 
 __po_hi_protocol_conf_t*   __po_hi_transport_get_protocol_configuration (const __po_hi_protocol_t p);
 
 
+/*
+ * \fn      __po_hi_transport_set_sending_func
+ * \brief   Set the sending function to be called to send data using a particular device.
+ *
+ *
+ * The first argument is device that would be used to send the data while the
+ * second is the function that would be called.
+ *
+ * The function returns __PO_HI_SUCCESS when the new calling function
+ * is successfully set. Otherwise, returns __PO_HI_UNAVAILABLE.
+ */
+int __po_hi_transport_set_sending_func (const __po_hi_device_id device, const __po_hi_transport_sending_func func);
+
+/*
+ * \fn      __po_hi_transport_call_sending_func_by_device
+ * \brief   Call the sending function to send data from a port associated to a
+ *          task.
+ *
+ * First argument is the device that would be used to send the data. The second
+ * argument is the task that is sending the data while th third argument
+ * is the port identifier that contain the data to be sent.
+ *
+ * The function returns  __PO_HI_UNAVAILABLE is no sending function
+ * has been set for this device or if the device identifier is invalid.
+ * Otherwise, it returns the value returned by the sending function
+ * associated to the device.
+ */
+int __po_hi_transport_call_sending_func_by_device (const __po_hi_device_id, __po_hi_task_id, __po_hi_port_t);
+
+/*
+ * \fn      __po_hi_transport_call_sending_func
+ * \brief   Call the sending function to send data from a port associated to a
+ *          task. The function to call is retrieved using the port.
+ *
+ * First argument is the task that is sending the data. The second
+ * is the port associated with the task and the device. The device
+ * to call is deduced from the port.
+ * 
+ * The function returns  __PO_HI_UNAVAILABLE is no sending function
+ * has been set for this device or if the device identifier is invalid.
+ * Otherwise, it returns the value returned by the sending function
+ * associated to the device.
+ */
+int __po_hi_transport_call_sending_func_by_port (__po_hi_task_id, __po_hi_port_t);
+
+
+
+/*
+ * \fn      __po_hi_transport_get_sending_func
+ * \brief   Get the sending function to be called to send data using a device
+ *
+ *
+ * The first argument is device that would be used to send the data.
+ * Returns NULL if the device identifier is incorrect or no function
+ * has been set.
+ */
+
+__po_hi_transport_sending_func __po_hi_transport_get_sending_func (const __po_hi_device_id device);
+
+
 #ifdef XM3_RTEMS_MODE
 void __po_hi_transport_xtratum_port_init (const __po_hi_port_t portno, int val);
 int __po_hi_transport_xtratum_get_port (const __po_hi_port_t portno);
 #endif
+
+
 
 #endif /* __PO_HI_NB_PORTS > 0 */
 

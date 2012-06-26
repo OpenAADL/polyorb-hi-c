@@ -6,7 +6,7 @@
  * For more informations, please visit http://ocarina.enst.fr
  *
  * Copyright (C) 2007-2008, GET-Telecom Paris.
- * Copyright (C) 2010, European Space Agency.
+ * Copyright (C) 2010-2012, European Space Agency.
  */
 
 #include <po_hi_config.h>
@@ -39,12 +39,14 @@ extern __po_hi_uint8_t           __po_hi_deployment_endiannesses[__PO_HI_NB_NODE
 extern __po_hi_protocol_conf_t   __po_hi_protocols_configuration[__PO_HI_NB_PROTOCOLS];
 
 #if __PO_HI_NB_DEVICES > 0
-extern __po_hi_port_t            __po_hi_devices_to_nodes[__PO_HI_NB_DEVICES];
-extern __po_hi_device_id         __po_hi_port_to_device[__PO_HI_NB_PORTS];
-extern char*                     __po_hi_devices_naming[__PO_HI_NB_DEVICES];
-extern __po_hi_uint32_t*         __po_hi_devices_configuration_values[__PO_HI_NB_DEVICES];
-extern __po_hi_uint32_t          __po_hi_devices_nb_accessed_buses[__PO_HI_NB_DEVICES];
-extern __po_hi_bus_id*           __po_hi_devices_accessed_buses[__PO_HI_NB_DEVICES];
+__po_hi_transport_sending_func            __po_hi_transport_devices_sending_funcs[__PO_HI_NB_DEVICES];
+extern __po_hi_port_t                     __po_hi_devices_to_nodes[__PO_HI_NB_DEVICES];
+extern __po_hi_port_t                     __po_hi_devices_to_nodes[__PO_HI_NB_DEVICES];
+extern __po_hi_device_id                  __po_hi_port_to_device[__PO_HI_NB_PORTS];
+extern char*                              __po_hi_devices_naming[__PO_HI_NB_DEVICES];
+extern __po_hi_uint32_t*                  __po_hi_devices_configuration_values[__PO_HI_NB_DEVICES];
+extern __po_hi_uint32_t                   __po_hi_devices_nb_accessed_buses[__PO_HI_NB_DEVICES];
+extern __po_hi_bus_id*                    __po_hi_devices_accessed_buses[__PO_HI_NB_DEVICES];
 #endif
 
 #if __PO_HI_NB_PROTOCOLS > 0
@@ -61,7 +63,7 @@ int                           __po_hi_xtratum_port[__PO_HI_NB_PORTS];
 #endif
 
 
-int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
+int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 {
    __po_hi_msg_t         msg;
    __po_hi_request_t*    request;
@@ -117,7 +119,13 @@ int __po_hi_transport_send_default (__po_hi_task_id id, __po_hi_port_t port)
             __PO_HI_DEBUG_DEBUG (" [deliver locally]\n");
             __po_hi_main_deliver (request);
       }
-#ifdef XM3_RTEMS_MODE
+#ifndef XM3_RTEMS_MODE
+      else
+      {
+            __PO_HI_DEBUG_DEBUG (" [deliver remotely]\n");
+            __po_hi_transport_call_sending_func_by_port (id, port);
+      }
+#else /* for XTratuM */
       else
       {
          __po_hi_port_kind_t pkind = __po_hi_transport_get_port_kind (port);
@@ -192,6 +200,52 @@ __po_hi_uint8_t __po_hi_get_endianness (const __po_hi_node_t node)
 }
 
 #if __PO_HI_NB_DEVICES > 0
+int __po_hi_transport_call_sending_func_by_port (__po_hi_task_id task_id, __po_hi_port_t port)
+{
+   __po_hi_device_id device =__po_hi_get_device_from_port (port);
+
+   __PO_HI_DEBUG_DEBUG ("[TRANSPORT] Calling function for device %d\n", device);
+   if (device != invalid_device_id)
+   {
+      return __po_hi_transport_call_sending_func_by_device (device, task_id, port);
+   }
+   return __PO_HI_UNAVAILABLE;
+}
+
+int __po_hi_transport_call_sending_func_by_device (const __po_hi_device_id device, __po_hi_task_id task_id, __po_hi_port_t port)
+{
+   __po_hi_transport_sending_func send_func;
+   send_func = __po_hi_transport_get_sending_func (device);
+
+   if (send_func == NULL)
+   {
+      return __PO_HI_UNAVAILABLE;
+   }
+   return send_func (task_id, port);
+}
+
+
+__po_hi_transport_sending_func __po_hi_transport_get_sending_func (const __po_hi_device_id device)
+{
+   if (device > __PO_HI_NB_DEVICES)
+   {
+      return NULL;
+   }
+
+   return __po_hi_transport_devices_sending_funcs[device];
+}
+
+int __po_hi_transport_set_sending_func (const __po_hi_device_id device, const __po_hi_transport_sending_func func)
+{
+   if (device > __PO_HI_NB_DEVICES)
+   {
+      return __PO_HI_UNAVAILABLE;
+   }
+
+   __po_hi_transport_devices_sending_funcs[device] = func;
+}
+
+
 int __po_hi_transport_associate_port_bus (const __po_hi_port_t port, const __po_hi_bus_id bus)
 {
    __po_hi_device_id current_device;
