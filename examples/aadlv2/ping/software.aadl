@@ -65,6 +65,7 @@ properties
   Period                             => 2000 Ms;
   Deadline                           => 2000 ms;
   Priority                           => 2;
+  Dispatch_Offset                    => 500 Ms;
 end P.Impl;
 
 thread Q
