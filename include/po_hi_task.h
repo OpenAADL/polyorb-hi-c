@@ -187,5 +187,10 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task);
   */
 void __po_hi_tasks_killall (void);
 
+ /*
+  * Wait a given amount of time.
+  */
+void __po_hi_task_wait_offset (const __po_hi_time_t* time);
+
 
 #endif /* __PO_HI_TASK_H__ */ 

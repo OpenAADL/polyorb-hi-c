@@ -490,6 +490,11 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
   return (__PO_HI_SUCCESS);
 }
 
+void __po_hi_task_wait_offset (const __po_hi_time_t* time)
+{
+   return;
+}
+
 int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
                                   const __po_hi_time_t*     period, 
                                   const __po_hi_priority_t  priority, 
