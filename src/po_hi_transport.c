@@ -373,7 +373,12 @@ __po_hi_node_t    __po_hi_transport_get_node_from_device (const __po_hi_device_i
 {
    return (__po_hi_devices_to_nodes[device]);
 }
-#endif
+#else
+int __po_hi_transport_call_sending_func_by_port (__po_hi_task_id task_id, __po_hi_port_t port)
+{
+   return __PO_HI_UNAVAILABLE;
+}
+#endif /* __PO_HI_NB_DEVICES > 0 */
 
 
 char* __po_hi_transport_get_model_name (const __po_hi_port_t portno)
