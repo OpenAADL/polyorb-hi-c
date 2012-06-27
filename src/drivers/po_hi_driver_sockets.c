@@ -280,7 +280,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
    n_connected = 0;
    for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
    {
-      if (__po_hi_transport_share_bus (dev, dev_id) == 0)
+      if (__po_hi_transport_share_bus (dev, dev_id) == 1)
       {
          n_connected++;
       }
