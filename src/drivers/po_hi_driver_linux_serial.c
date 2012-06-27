@@ -342,7 +342,6 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    if (po_hi_c_driver_serial_sending_wait != 0)
    {
-      printf("Wait %u between two sends\n", po_hi_c_driver_serial_sending_wait);
       for (n = 0 ; n < __PO_HI_MESSAGES_MAX_SIZE ; n++)
       {
          write (po_hi_c_driver_serial_fd_write, &(__po_hi_c_driver_serial_linux_sender_msg.content[n]), 1);

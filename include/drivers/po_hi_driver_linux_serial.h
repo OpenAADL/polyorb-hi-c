@@ -13,7 +13,8 @@
 #ifndef __PO_HI_DRIVER_LINUX_SERIAL_H__
 #define __PO_HI_DRIVER_LINUX_SERIAL_H__
 
-#ifdef __PO_HI_NEED_DRIVER_SERIAL_LINUX
+#if defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX) || \
+    defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_SENDER)
 
 void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id);
 
