@@ -477,7 +477,7 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
    ret = rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW,  (tasks[id].period.sec * 1000000000) + tasks[id].period.nsec);
    if (ret != 0)
    {
-      __DEBUGMSG ("ERROR when calling rt_task_set_periodic on task %d, ret=%d, period=%lu\n", id, ret, (unsigned long)tasks[id].period);
+      __DEBUGMSG ("ERROR when calling rt_task_set_periodic on task %d, ret=%d\n", id, ret);
       return (__PO_HI_ERROR_CLOCK);
    }
 
@@ -517,7 +517,7 @@ int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
    ret = rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW,  tasks[id].period.sec * 1000000000 + tasks[id].period.nsec);
    if (ret != 0)
    {
-      __DEBUGMSG ("ERROR when calling rt_task_set_periodic on task %d, ret=%d, period=%lu\n", id, ret, (unsigned long)tasks[id].period);
+      __DEBUGMSG ("ERROR when calling rt_task_set_periodic on task %d, ret=%d\n", id, ret);
       return (__PO_HI_ERROR_CLOCK);
    }
 
