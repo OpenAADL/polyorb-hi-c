@@ -22,6 +22,7 @@
 #include <po_hi_transport.h>
 #include <po_hi_returns.h>
 #include <po_hi_gqueue.h>
+#include <drivers/po_hi_driver_leon_eth.h>
 #include <drivers/po_hi_driver_sockets.h>
 #include <drivers/configuration/ip.h>
 /* po-hi-c related files */
