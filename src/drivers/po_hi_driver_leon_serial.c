@@ -20,6 +20,7 @@
 #include <po_hi_transport.h>
 #include <po_hi_gqueue.h>
 #include <drivers/po_hi_driver_serial_common.h>
+#include <drivers/po_hi_driver_leon_serial.h>
 #include <drivers/configuration/serial.h>
 /* po-hi-c related files */
 
