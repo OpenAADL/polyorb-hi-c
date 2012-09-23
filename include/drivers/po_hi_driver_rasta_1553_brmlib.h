@@ -1,3 +1,13 @@
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://assert-project.net/taste
+ *
+ * Copyright (C) 2012 ESA & ISAE.
+ */
+
 #ifndef __PO_HI_DRIVER_RASTA_1553_BRM_LIB_H__
 #define __PO_HI_DRIVER_RASTA_1553_BRM_LIB_H__
 

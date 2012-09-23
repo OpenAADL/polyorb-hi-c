@@ -1,3 +1,13 @@
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://assert-project.net/taste
+ *
+ * Copyright (C) 2012 ESA & ISAE.
+ */
+
 #include <deployment.h>
 
 #ifdef __PO_HI_NEED_DRIVER_EXARM_NI_6071E_ANALOG
@@ -110,4 +120,3 @@ void __po_hi_c_driver_exarm_ni_6071e_analog_poller
 }
 
 #endif
-

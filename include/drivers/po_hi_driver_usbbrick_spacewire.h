@@ -3,7 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * Copyright (C) 2011, European Space Agency
+ * For more informations, please visit http://assert-project.net/taste
+ *
+ * Copyright (C) 2011-2012 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -969,6 +971,5 @@ SPACEWIREUSB_API U32 SPW_USB_API_CC USBSpaceWire_TC_GetClockFrequency(
 
 
 #endif	/* SPACEWIRE_USB_API_H */
-
 
 

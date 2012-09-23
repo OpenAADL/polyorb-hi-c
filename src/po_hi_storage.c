@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://assert-project.net/taste
  *
- * Copyright (C) 2011, European Space Agency.
+ * Copyright (C) 2011-2012 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -745,5 +745,4 @@ int __po_hi_storage_packet_store_status (__po_hi_storage_packet_store_t* store, 
    }
    return __PO_HI_SUCCESS;
 }
-
 

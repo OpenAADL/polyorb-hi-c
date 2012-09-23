@@ -3,7 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * Copyright (C) 2010, European Space Agency
+ * For more informations, please visit http://assert-project.net/taste
+ *
+ * Copyright (C) 2010-2012 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -24,4 +26,3 @@ int __po_hi_driver_exarm_send (__po_hi_task_id task, __po_hi_port_t port);
 void __po_hi_driver_exarm_init (__po_hi_device_id id);
 
 #endif
-

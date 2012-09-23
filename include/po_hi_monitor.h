@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://assert-project.net/taste
  *
- * Copyright (C) 2011, European Space Agency.
+ * Copyright (C) 2011-2012 ESA & ISAE.
  */
 
 /*
@@ -276,4 +276,3 @@ int __po_hi_monitor_recover_port (const __po_hi_port_t);
 #endif
 
 #endif
-

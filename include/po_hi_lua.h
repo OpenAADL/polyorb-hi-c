@@ -3,9 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://www.assert-online.net/taste
+ * For more informations, please visit http://assert-project.net/taste
  *
- * Copyright (C) 2012, European Space Agency (ESA)
+ * Copyright (C) 2012 ESA & ISAE.
  */
 
 
@@ -210,4 +210,3 @@ typedef int __po_hi_lua_context_t;
 #endif /* ifdef __PO_HI_USE_LUA */
 
 #endif /* __PO_HI_LUA_H__ */
-

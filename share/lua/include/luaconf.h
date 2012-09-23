@@ -1,4 +1,14 @@
 /*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://assert-project.net/taste
+ *
+ * Copyright (C) 2012 ESA & ISAE.
+ */
+
+/*
 ** $Id: luaconf.h,v 1.170 2011/12/06 16:58:36 roberto Exp $
 ** Configuration file for Lua
 ** See Copyright Notice in lua.h
@@ -526,4 +536,3 @@
 
 
 #endif
-

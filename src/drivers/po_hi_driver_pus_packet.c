@@ -3,9 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://ocarina.enst.fr
+ * For more informations, please visit http://assert-project.net/taste
  *
- * Copyright (C) 2010, European Space Agency
+ * Copyright (C) 2010-2012 ESA & ISAE.
  */
 
 
@@ -38,4 +38,3 @@ __po_hi_driver_pus_packet_error_t __po_hi_driver_pus_packet_check (__po_hi_drive
 
    return __PO_HI_DRIVER_PUS_PACKET_ERROR_NO_ERROR;
 }
-

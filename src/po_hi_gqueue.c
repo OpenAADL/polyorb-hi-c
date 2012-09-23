@@ -3,9 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://ocarina.enst.fr
+ * For more informations, please visit http://assert-project.net/taste
  *
- * Copyright (C) 2010-2012, European Space Agency (ESA).
+ * Copyright (C) 2010-2012 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -635,5 +635,4 @@ __po_hi_port_t __po_hi_gqueue_get_destination (const __po_hi_task_id task_id, co
 {
       return (__po_hi_gqueues_destinations[task_id][local_port][destination_number]);
 }
-
 

@@ -3,7 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * Copyright (C) 2010, European Space Agency
+ * For more informations, please visit http://assert-project.net/taste
+ *
+ * Copyright (C) 2010-2012 ESA & ISAE.
  */
 
 
@@ -447,6 +449,5 @@ void __po_hi_c_driver_1553_rasta_init_controller (__po_hi_device_id id)
 
 
 #endif
-
 
 

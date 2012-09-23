@@ -1,4 +1,14 @@
 /*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://assert-project.net/taste
+ *
+ * Copyright (C) 2012 ESA & ISAE.
+ */
+
+/*
 ** $Id: lua.h,v 1.282 2011/11/29 15:55:08 roberto Exp $
 ** Lua - A Scripting Language
 ** Lua.org, PUC-Rio, Brazil (http://www.lua.org)

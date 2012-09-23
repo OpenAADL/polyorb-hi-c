@@ -3,7 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * Copyright (C) 2010, European Space Agency
+ * For more informations, please visit http://assert-project.net/taste
+ *
+ * Copyright (C) 2010-2012 ESA & ISAE.
  */
 
 /*
@@ -576,4 +578,3 @@ void __po_hi_c_driver_rasta_1553_print_bm_msg(int i, struct bm_msg *msg)
 }
 
 #endif
-

@@ -3,7 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * Copyright (C) 2010-2012, European Space Agency
+ * For more informations, please visit http://assert-project.net/taste
+ *
+ * Copyright (C) 2010-2012 ESA & ISAE.
  */
 
 /*! \file po_hi_driver_rasta_serial.c
@@ -281,4 +283,3 @@ int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const _
 }
 
 #endif
-

@@ -3,10 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://ocarina.enst.fr
+ * For more informations, please visit http://assert-project.net/taste
  *
- * Copyright (C) 2007-2008, GET-Telecom Paris.
- * Copyright (C) 2011-2012, European Space Agency.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2012 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -257,5 +256,4 @@ int __po_hi_mutex_unlock (__po_hi_mutex_t* mutex)
 #endif
   return __PO_HI_SUCCESS;
 }
-
 
