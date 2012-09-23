@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---               Copyright (C) 2006-2008, GET-Telecom Paris.                --
+--    Copyright (C) 2006-2009 Telecom ParisTech, 2010-2012 ESA & ISAE.      --
 --                                                                          --
 -- PolyORB HI is free software; you  can  redistribute  it and/or modify it --
 -- under terms of the GNU General Public License as published by the Free   --
@@ -26,7 +26,8 @@
 -- however invalidate  any other reasons why  the executable file  might be --
 -- covered by the  GNU Public License.                                      --
 --                                                                          --
---                PolyORB HI is maintained by GET Telecom Paris             --
+--                PolyORB-HI is maintained by the TASTE project             --
+--                      (taste-users@lists.tuxfamily.org)                   --
 --                                                                          --
 ------------------------------------------------------------------------------
 
@@ -55,10 +56,8 @@ procedure Headers_PO_HI is
      " * middleware written for generated code from AADL models." & ASCII.LF &
      " * You should use it with the Ocarina toolsuite." & ASCII.LF &
      " *" & ASCII.LF &
-     " * For more informations, please visit http://ocarina.enst.fr" & ASCII.LF &
-     " *" & ASCII.LF &
-     "@COPYRIGHT@" &
-     " */" & ASCII.LF;
+     " * For more informations, please visit http://assert-project.net/taste"
+     & ASCII.LF & " *" & ASCII.LF & "@COPYRIGHT@" & " */" & ASCII.LF;
 
    -------------------------
    -- Utility subprograms --
@@ -94,8 +93,19 @@ procedure Headers_PO_HI is
       if First_Year = Last_Year then
          Last := Range_Image'First + 3;
       end if;
-      return "Copyright (C) " & Range_Image (Range_Image'First .. Last)
-        & ", European Space Agency (ESA).";
+      if First_Year < 2009 then
+         return "Copyright (C) " &
+           Image (First_Year) & "-2009 Telecom ParisTech, "
+           & "2010-" & Image (last_year) & " ESA & ISAE.";
+      elsif First_Year = 2009 then
+         return "Copyright (C) " &
+           Image (First_Year) & " Telecom ParisTech, "
+           & "2010-" & Image (last_year) & " ESA & ISAE.";
+
+      else
+         return "Copyright (C) " & Range_Image (Range_Image'First .. Last)
+           & " ESA & ISAE.";
+      end if;
    end Copyright_Line;
 
    -----------------
@@ -226,6 +236,7 @@ procedure Headers_PO_HI is
       Outf : File_Type;
 
       In_Header : Boolean := True;
+      Got_Copyright : Boolean := False;
       Buf : Unbounded_String;
 
       Basename : constant String := Base_Name (Filename);
@@ -250,13 +261,20 @@ procedure Headers_PO_HI is
 
             if In_Header then
                Match (Copyright_Matcher, Line (1 .. Last), Copyright_Matches);
-               if Copyright_Matches (0) /= No_Match then
+               if (not Got_Copyright)
+                 and then Copyright_Matches (0) /= No_Match
+               then
                   First_Copyright_Year :=
                     Year_Number'Value (Line (Copyright_Matches (1).First
                                           .. Copyright_Matches (1).Last));
+                  Got_Copyright := True;
                end if;
             end if;
          end loop;
+
+         if not Got_Copyright then
+            Reset (F);
+         end if;
 
          if Add_Header then
             Output_Header (Outf);
