@@ -59,6 +59,7 @@ target-clean:
 ifdef USE_GPROF
 TARGET_LDFLAGS+=-Wl,--wrap,Clock_isr -pg
 EXTERNAL_OBJECTS+=po_hi_gprof_rtems_leon.o
+TARGET_INCLUDE+=-I$(RTEMS_MAKEFILE_PATH)/lib/include/
 
 target-objects:
 	$(CC) $(INCLUDE) $(TARGET_INCLUDE) -D__PO_HI_USE_GPROF -Wall -c -o po_hi_gprof_rtems_leon.o $(RUNTIME_PATH)/src/po_hi_gprof_rtems_leon.c
