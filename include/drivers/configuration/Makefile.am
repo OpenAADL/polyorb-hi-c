@@ -17,5 +17,5 @@ uninstall-local:
 	rm -rf $(DESTDIR)$(hsrc)
 
 
-CLEANFILES = *~ $(EXTRA_DIST)
+CLEANFILES = *~
 

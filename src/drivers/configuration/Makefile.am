@@ -71,4 +71,4 @@ uninstall-local:
 
 EXTRA_DIST = $(C_FILES) $(ASN_FILES)
 
-CLEANFILES = *~ $(C_FILES)
+CLEANFILES = *~
