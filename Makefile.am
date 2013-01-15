@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = no-dependencies
 CLEANFILES = config-stamp svn-commit*.tmp* *~
-SUBDIRS = src support tools share include
+SUBDIRS = src support tools share include @DOC_DIR@
 DIST_SUBDIRS = $(SUBDIRS) examples
 
 check-local:: examples
