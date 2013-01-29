@@ -1,11 +1,6 @@
 # This is a part of PolyORB-HI-C distribution, a minimal
 # middleware written for generated code from AADL models.
 # You should use it with the Ocarina toolsuite.
-#
-# For more informations, please visit http://ocarina.enst.fr
-#
-# Copyright (C) 2010-2011, European Space Agency (ESA).
-#
 
 GCC_GENERIC_CFLAGS=-Wall -g
 
@@ -14,7 +9,7 @@ all: build-node
 include $(RUNTIME_PATH)/make/Makefile.$(TARGET)
 -include ../../userdefined.mk
 
-build-node: generate-asn1-deployment compile-c-files compile-ada-files compile-node generate-doc
+build-node: compile-node generate-doc
 
 ################################################################################
 # Configuration
@@ -37,8 +32,6 @@ ifneq ($(USER_LD),)
 LD=$(USER_LD)
 endif
 
-
-GCC=$(CC)
 CFLAGS=$(USER_CFLAGS) $(TARGET_CFLAGS)
 CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
 LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS)
@@ -127,7 +120,7 @@ else
 	po_hi_protected.o                \
    po_hi_monitor.o                  \
    po_hi_storage.o                  \
-	po_hi_main.o                     
+	po_hi_main.o
 
    GENERATED_OBJS =                 \
 	activity.o                       \
@@ -139,7 +132,7 @@ endif
 
 
 ifeq ($(TARGET), $(filter $(TARGET), linux32 linux64 linux32-xenomai-posix linux32-xenomai-native))
-PO_HI_OBJS += po_hi_lua.o  
+PO_HI_OBJS += po_hi_lua.o
 endif
 
 ifeq ($(USE_ASN1_DEPLOYMENT), yes)
@@ -178,7 +171,7 @@ ifdef SIMULINK_DIR
               -I$(SIMULINK_DIRECTORY)/extern/include \
               -I$(SIMULINK_DIRECTORY)/rtw/c/src \
               -I$(SIMULINK_DIRECTORY)/rtw/c/src/ext_mode/common \
-              -I$(SIMULINK_DIRECTORY)/rtw/c/libsrc 
+              -I$(SIMULINK_DIRECTORY)/rtw/c/libsrc
    CFLAGS += -DRT -DUSE_RTMODEL -DMODEL=$(SIMULINK_NODE) -DRT -DNUMST=2 -DTID01EQ=1 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO
    LDFLAGS += $(SIMULINK_LDFLAGS)
 endif
@@ -192,24 +185,12 @@ ifdef SCADE_DIR
 endif
 
 ################################################################################
-# General RTEMS stuff
-
-check-rtems:
-	if [ ! -d $$RTEMS_MAKEFILE_PATH/make ]; then \
-		echo "Please define the RTEMS_MAKEFILE_PATH variable [currently set to \"$(RTEMS_MAKEFILE_PATH)\"]" && exit 2 ; \
-	fi
-
-
-################################################################################
 # General LINUXTASTE stuff
 check-linuxtaste:
 	if [ ! -d $$LINUXTASTE_PATH/output/staging ]; then \
 		echo "Please define the LINUXTASTE_PATH variable" ; \
       echo "It should point to the directory where the distro was built" && exit 2 ; \
 	fi
-
-
-
 
 ################################################################################
 # General compilation rules
@@ -236,21 +217,26 @@ endif
 compile-node: $(BINARY)
 
 ifeq ($(TARGET), $(filter $(TARGET), leon3-scoc3 leon.rtems leon.rtems_posix))
-OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
-$(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
-	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) $(CFLAGS)
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
+$(BINARY):
+	@if [ ! -d $$RTEMS_MAKEFILE_PATH/make ]; then \
+		echo "Please define the RTEMS_MAKEFILE_PATH variable, exiting" ; \
+	else \
+		$(MAKE) generate-asn1-deployment compile-c-files compile-ada-files target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) ; \
+		$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) $(CFLAGS) ; \
+	fi
 endif
 
 ifeq ($(TARGET), leon3-xm3)
 $(BINARY):
-OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
 $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
 	$(make-exe)
 endif
 
 
 ifeq ($(TARGET), $(filter $(TARGET), x86.rtems x86.rtems_posix))
-OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
 $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
 	$(make-exe)
 	cp $(BINARY) binary
@@ -271,46 +257,69 @@ endif #NEED_TRANSPORT
 endif #TARGET=x86qemu
 
 ifeq ($(TARGET), nds.rtems)
-OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
 $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
-	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
+	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
 endif
 
 
 ifeq ($(TARGET), gumstix.rtems)
-OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS) 
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
 $(BINARY): generate-asn1-deployment target-objects check-rtems compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
 	$(make-exe)
 endif
 
 ifeq ($(TARGET), compcert)
-$(BINARY): generate-asn1-deployment target-objects compile-po-hi $(GENERATED_OBJS) $(TARGET_OBJECTS)
-	for v in $(USER_OBJS); do mv ../../$$v . ; done
-	mkdir -p drivers
-	for v in $(PO_HI_OBJS); do mv $(RUNTIME_PATH)/src/$$v $$v ; done
-	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
+$(BINARY):
+	@if [ ! -f ccomp ]; then \
+		echo "Compcert not installed, exiting" ; \
+	else \
+		$(MAKE) generate-asn1-deployment compile-c-files compile-ada-files target-objects compile-po-hi $(GENERATED_OBJS) $(TARGET_OBJECTS); \
+		for v in $(USER_OBJS); do mv ../../$$v . ; done ; \
+ 		mkdir -p drivers; \
+		for v in $(PO_HI_OBJS); do mv $(RUNTIME_PATH)/src/$$v $$v ; done; \
+		$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS); \
+	fi
 endif
 
-ifeq ($(TARGET), $(filter $(TARGET), win32 native bench linux32 linux64 linux32-xenomai-posix linux32-xenomai-native))
-ifeq ($(TARGET), win32)
-EXE=$(BINARY).exe
-else
+ifeq ($(TARGET), $(filter $(TARGET), native bench linux32 linux64))
 EXE=$(BINARY)
+$(BINARY):
+	$(MAKE) generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
+	$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
 endif
-$(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
-	$(CC) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
+
+ifeq ($(TARGET), $(filter $(TARGET), win32))
+EXE=$(BINARY).exe
+$(BINARY):
+	@if [ ! -f i686-w64-mingw32-gcc: ]; then \
+		echo "Windows compiler is not installed in your system, exiting" ; \
+	else \
+		$(MAKE) generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS) ; \
+		$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) ; \
+	fi
+endif
+
+ifeq ($(TARGET), $(filter $(TARGET), linux32-xenomai-posix linux32-xenomai-native))
+EXE=$(BINARY)
+$(BINARY):
+	@if [ ! -f xeno-config ]; then \
+		echo "Xenomai is not installed in your system, exiting" ; \
+	else \
+		$(MAKE) generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS) ; \
+		$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) ; \
+	fi
 endif
 
 ifeq ($(TARGET), arm.dslinux)
 $(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
-	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
+	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
 endif
 
 ifeq ($(TARGET), x86.linuxtaste)
 $(BINARY): check-linuxtaste generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
-	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) 
+	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
 endif
-
 
 %.o: %.cpp
 	$(CPP) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
@@ -319,15 +328,15 @@ endif
 	$(CC) $(INCLUDE) $(CFLAGS) -c -o $@ $<
 
 clean: target-clean
-	@-rm -f *~ *.o *.al temp.* *.metrix $(BINARY) $(BINARY).bin $(BINARY).bt $(BINARY).num $(BINARY).nxe
+	@-rm -f *~ *.o *.al temp.* *.metrix $(BINARY) $(BINARY).bin $(BINARY).bt $(BINARY).num $(BINARY).nxe b~*.* *.ali
 	@-rm -rf drivers
 	if test ! "$(CLEANDIRS)" = "";  then \
 	  rm -rf $(CLEANDIRS); \
 	fi
 
 generate-doc:
-	if [ -d generated-documentation ]; then rm  -rf generated-documentation ; fi
-	( DOXYBIN=`which doxygen 2>/dev/null` && if [ -x "$$DOXYBIN" ]; then ` which doxygen` doxygen.cfg ; fi ) || exit 0
+	@if [ -d generated-documentation ]; then rm  -rf generated-documentation ; fi
+	@( DOXYBIN=`which doxygen 2>/dev/null` && if [ -x "$$DOXYBIN" ]; then ` which doxygen` doxygen.cfg ; fi ) || exit 0
 
 
 ifdef USE_GPROF
