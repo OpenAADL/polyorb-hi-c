@@ -7,9 +7,9 @@
 ## This file has been built for a generit RTEMS integration
 
 
-include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
-include $(RTEMS_CUSTOM)
-include $(PROJECT_ROOT)/make/leaf.cfg
+-include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
+-include $(RTEMS_CUSTOM)
+-include $(PROJECT_ROOT)/make/leaf.cfg
 
 
 define bsp-post-link
@@ -25,9 +25,9 @@ CPP                          = $(CXX_FOR_TARGET)
 LD                           = $(LD_FOR_TARGET)
 GPROF                        = sparc-rtems-gprof
 
-TARGET_SOURCES               = 
+TARGET_SOURCES               =
 #TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
-TARGET_TRANSPORT_SOURCES     = 
+TARGET_TRANSPORT_SOURCES     =
 
 TARGET_CFLAGS                = -DRTEMS_PURE -DLEON_RTEMS $(GCC_GENERIC_FLAGS)  $(CPU_FLAGS) $(AM_FLAGS) $(GCCSPECS)
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
@@ -53,7 +53,7 @@ ifeq ($(RTEMS_API),4.10)
    TARGET_CFLAGS                +=  -DRTEMS410
 endif
 
-   
+
 target-clean:
 
 ifdef USE_GPROF
@@ -71,5 +71,3 @@ LINK_LIBS+=-lm
 
 emulate-qemu: $(BINARY)
 	qemu-system-sparc -M at697 -nographic -kernel $(BINARY).exe
-
-
