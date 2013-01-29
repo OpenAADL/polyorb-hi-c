@@ -24,6 +24,7 @@ po_hi_doc_dir = ${shell $(CYGPATH_U) '$(OCARINA_PREFIX)/share/doc/ocarina'}
 
 install-data-local:
 	$(MAKE) -C examples DESTDIR="$(DESTDIR)" install
+	$(INSTALL) -d $(DESTDIR)$(po_hi_doc_dir)
 	$(INSTALL_DATA) $(srcdir)/ChangeLog $(DESTDIR)$(po_hi_doc_dir)/ChangeLog_polyorb_hi_c
 
 uninstall-local:
@@ -35,3 +36,7 @@ release:
 	mkdir release/
 	$(MAKE) dist
 	cp -f $(DIST_ARCHIVES) release/$(DIST_ARCHIVES)
+
+# We disable checking of the distclean rule, it is a nuisance
+distcleancheck:
+	@:
