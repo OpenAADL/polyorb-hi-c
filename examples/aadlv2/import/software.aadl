@@ -31,6 +31,13 @@ properties
   source_text => ("ping.adb");
 end Do_Ping_Spg;
 
+subprogram Hello
+properties
+  source_language => CPP;
+  source_name     => "hello";
+  source_text     => ("import_cpp.cpp");
+end Hello;
+
 subprogram Ping_Spg
 features
   Data_Sink : in parameter Simple_Type;
@@ -39,6 +46,21 @@ properties
   source_name     => "ping_spg";
   source_text     => ("import.c");
 end Ping_Spg;
+
+subprogram Ping_Wrapper
+features
+  Data_Sink : in parameter Simple_Type;
+end Ping_Wrapper;
+
+subprogram implementation Ping_Wrapper.Impl
+calls
+Mycalls: {
+  CPP_Spg : subprogram Hello;
+  P_Spg : subprogram Ping_Spg;
+};
+connections
+  parameter Data_Sink -> P_Spg.Data_Sink;
+end Ping_Wrapper.Impl;
 
 -------------
 -- Threads --
@@ -50,7 +72,7 @@ features
 end P;
 
 thread implementation P.Impl
-calls 
+calls
 Mycall : {
   P_Spg : subprogram Do_Ping_Spg;
 };
@@ -70,9 +92,9 @@ features
 end Q;
 
 thread implementation Q.Impl
-calls 
+calls
 Mycall : {
-  Q_Spg : subprogram Ping_Spg;
+  Q_Spg : subprogram Ping_Wrapper;
 };
 connections
   parameter Data_Sink -> Q_Spg.Data_Sink;
