@@ -8,9 +8,11 @@ AADL_FILES = $(srcdir)/rma.aadl \
 
 SCENARIO_FILES =  $(srcdir)/scenario.aadl \
                   $(srcdir)/scenario-compcert.aadl \
-                  $(srcdir)/scenario-bench.aadl \
                   $(srcdir)/scenario-xenomai-native.aadl \
                   $(srcdir)/scenario-xenomai-posix.aadl
+
+# remove target, linux specific
+#                  $(srcdir)/scenario-bench.aadl
 
 include $(srcdir)/../../Makefile.common
 
