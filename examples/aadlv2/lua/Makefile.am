@@ -3,9 +3,11 @@ AADL_FILES = \
 	$(srcdir)/lua-ping.aadl \
 	$(srcdir)/lua-simple.aadl
 
+if HAS_LUA
 SCENARIO_FILES = \
 	$(srcdir)/scenario.aadl \
-	$(srcdir)/scenario-ping.aadl 
+	$(srcdir)/scenario-ping.aadl
+endif
 
 include $(srcdir)/../../Makefile.common
 

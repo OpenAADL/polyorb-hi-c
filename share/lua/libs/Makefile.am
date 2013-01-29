@@ -1,8 +1,7 @@
 AUTOMAKE_OPTIONS = no-dependencies
 
-LIBS_FILES =   $(srcdir)/liblua-linux64.a           \
-               $(srcdir)/liblua-linux32.a           \
-	            $(srcdir)/liblua-leon.a
+LIBS_FILES = $(srcdir)/liblua-linux64.a $(srcdir)/liblua-linux32.a	\
+               $(srcdir)/liblua-leon.a $(srcdir)/liblua-leon-rtems48.a
 
 libdest = ${shell $(CYGPATH_U) '$(OCARINA_RUNTIME)/polyorb-hi-c/libs'}
 

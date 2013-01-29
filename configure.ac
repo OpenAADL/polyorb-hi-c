@@ -110,9 +110,17 @@ AC_ARG_ENABLE(giop,
   [  --enable-giop           Use the GIOP protocol],
   [ AC_DEFINE([__PO_HI_USE_GIOP], [], ["Enable the GIOP protocol"])])
 
+HAS_LUA_=
+
 AC_ARG_ENABLE(lua,
   [  --enable-lua            Use the LUA script engine],
-  [ AC_DEFINE([__PO_HI_USE_LUA], [], ["Enable the LUA script engine"])])
+  [ AC_DEFINE([__PO_HI_USE_LUA], [], ["Enable the LUA script engine"])
+if [[ "$enableval" = "yes" ]]; then
+        HAS_LUA_=true
+fi])
+
+AC_SUBST(HAS_LUA_)
+AM_CONDITIONAL(HAS_LUA, [test ! "x$HAS_LUA_" = "x"])
 
 ############################################
 # Set the value corresponding to cygpath -u
@@ -158,14 +166,14 @@ dnl may, one day, be edited automatically to remove
 dnl some entries.
 
 AC_OUTPUT([
-	Makefile 
-	doc/Makefile 
-	src/Makefile 
-	src/drivers/Makefile 
-	src/drivers/configuration/Makefile 
-	include/Makefile 
-	include/drivers/Makefile 
-	include/drivers/configuration/Makefile 
+	Makefile
+	doc/Makefile
+	src/Makefile
+	src/drivers/Makefile
+	src/drivers/configuration/Makefile
+	include/Makefile
+	include/drivers/Makefile
+	include/drivers/configuration/Makefile
 	examples/Makefile
 	examples/aadlv1/Makefile
 	examples/aadlv1/d3.1.3-1/Makefile
@@ -175,7 +183,7 @@ AC_OUTPUT([
 	examples/aadlv1/sunseeker/Makefile
 	examples/aadlv2/Makefile
 	examples/aadlv2/d3.1.3-1/Makefile
-	examples/aadlv2/import/Makefile	
+	examples/aadlv2/import/Makefile
 	examples/aadlv2/ping/Makefile
 	examples/aadlv2/lua/Makefile
 	examples/aadlv2/producer-consumer/Makefile
@@ -187,7 +195,7 @@ AC_OUTPUT([
 	examples/aadlv2/some-types/Makefile
 	examples/aadlv2/some-types-stdint/Makefile
 	examples/aadlv2/sunseeker/Makefile
-	tools/Makefile 
+	tools/Makefile
 	tools/check-symbols/Makefile
 	tools/check-symbols/examples/Makefile
 	tools/check-symbols/examples/malloc/Makefile
