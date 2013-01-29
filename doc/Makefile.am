@@ -55,7 +55,7 @@ polyorb_hi_c_ug_TEXINFOS = $(GUIDE_TEXIFILES)
 
 SUFFIXES = .c .h .aadl .texi .sed .pdf .html
 
-all-local: $(GUIDE_TEXIFILES) $(GUIDE).html $(GUIDE).pdf 
+all-local: $(GUIDE_TEXIFILES) $(GUIDE).html $(GUIDE).pdf
 
 ###############################################################################
 # The target below are active only in developper mode. In package
@@ -82,8 +82,8 @@ $(AADL_MODELS):
 	done
 
 ###############################################################################
-# The target below are used to build all elements of the documentation        
-# Targets to build a bibliography from BibTex files   
+# The target below are used to build all elements of the documentation
+# Targets to build a bibliography from BibTex files
 
 polyorb-hi_ug_ref.texi: polyorb-hi_ug_ref.bbl
 	@sed -e 's/~/ /g' \
@@ -141,12 +141,12 @@ install-data-local: all
 	$(INSTALL) -d  $(DESTDIR)$(po_hi_doc_dir)
 	$(INSTALL) -d  $(DESTDIR)$(po_hi_doc_dir)/$(GUIDE).html
 	$(INSTALL) -d  $(DESTDIR)$(po_hi_doc_dir)/$(GUIDE).html/fig
-	if [ -r $(GUIDE).pdf ]; then \
-	  $(INSTALL_DATA) $(GUIDE).pdf  $(DESTDIR)$(po_hi_doc_dir); \
-	  for f in $(GUIDE).html/*.html; do \
+	if [ -r $(builddir)/$(GUIDE).pdf ]; then \
+	  $(INSTALL_DATA) $(builddir)/$(GUIDE).pdf  $(DESTDIR)$(po_hi_doc_dir); \
+	  for f in $(builddir)/$(GUIDE).html/*.html; do \
             $(INSTALL_DATA) $$f  $(DESTDIR)$(po_hi_doc_dir)/$(GUIDE).html; \
           done; \
-	  for f in $(GUIDE).html/fig/*.png; do \
+	  for f in $(builddir)/$(GUIDE).html/fig/*.png; do \
             $(INSTALL_DATA) $$f  $(DESTDIR)$(po_hi_doc_dir)/$(GUIDE).html/fig; \
           done; \
 	else \
@@ -164,7 +164,7 @@ uninstall-local:
 	rm -rf $(DESTDIR)$(po_hi_doc_dir)/$(GUIDE).html
 
 clean-local:
-	@-rm -f *.aux *.log *.dvi *.bbl *.blg *~ *.bak *.toc 
+	@-rm -f *.aux *.log *.dvi *.bbl *.blg *~ *.bak *.toc
 	@-rm -f ${SRC_CODE} ${DOC_CODE} ${AADL_MODELS}
 	@-rm -f *.sed ${GUIDE_TEXIFILES}
 
@@ -242,7 +242,7 @@ aadl.sed-stamp:
 	touch aadl.sed-stamp
 
 dist-hook: all
-	cp -r $(srcdir)/$(GUIDE).html $(srcdir)/$(GUIDE).pdf $(distdir)
+	cp -r $(builddir)/$(GUIDE).html $(builddir)/$(GUIDE).pdf $(distdir)
 
 debug-makefile:
 	@echo "C_CODE = $(C_CODE)"
