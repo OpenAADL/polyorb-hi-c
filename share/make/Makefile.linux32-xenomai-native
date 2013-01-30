@@ -12,7 +12,7 @@ TARGET_LDFLAGS += -L$(RUNTIME_PATH)/libs/linux32/ -llua -lm
 
 SIMULINK_LDFLAGS  = -lm
 CC              = gcc
-LD              = ld
+LD              = gcc
 GPROF           = gprof
 
 

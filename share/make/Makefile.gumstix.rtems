@@ -11,16 +11,16 @@ CPP                          = arm-rtems4.10-g++
 
 GPROF                        = arm-rtems4.10-gprof
 
-TARGET_SOURCES               = 
+TARGET_SOURCES               =
 #TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
-TARGET_TRANSPORT_SOURCES     = 
+TARGET_TRANSPORT_SOURCES     =
 
 TARGET_CFLAGS                = -DRTEMS_PURE -DGUMSTIX_RTEMS  -mstructure-size-boundary=8 -mcpu=xscale -mfpu=vfp -mfloat-abi=soft $(GCC_GENERIC_FLAGS)
-TARGET_INCLUDE               = 
+TARGET_INCLUDE               =
 
-LD                           = arm-rtems4.10-ld
-TARGET_LDFLAGS               = 
-			     
+LD                           = arm-rtems4.10-gcc
+TARGET_LDFLAGS               =
+
 target-clean:
 	rm -f $(BINARY).ralf
 	rm -f flash.img
@@ -54,5 +54,3 @@ define bsp-post-link
 	$(SIZE) $@
    cp $@ $(basename $@).ralf
 endef
-
-

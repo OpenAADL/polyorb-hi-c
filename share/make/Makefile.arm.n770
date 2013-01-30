@@ -9,7 +9,7 @@
 CC              = arm-linux-gcc
 CPP             = arm-linux-g++
 TARGET_CFLAGS   = -DPOSIX=1 $(GCC_GENERIC_FLAGS)
-LD              = arm-linux-ld
+LD              = arm-linux-gcc
 TARGET_LDFLAGS  = -lpthread -lrt
 
 target-clean:
