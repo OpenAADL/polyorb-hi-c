@@ -11,6 +11,12 @@ include $(RUNTIME_PATH)/make/Makefile.$(TARGET)
 
 build-node: compile-node generate-doc
 
+
+ifneq ($(USE_CPP_LINKER),)
+LD=$(LD_CPP)
+endif
+
+
 ################################################################################
 # Configuration
 #
@@ -222,7 +228,7 @@ $(BINARY):
 	@if [ ! -d $$RTEMS_MAKEFILE_PATH/make ]; then \
 		echo "Please define the RTEMS_MAKEFILE_PATH variable, exiting" ; \
 	else \
-		$(MAKE) generate-asn1-deployment compile-c-files compile-ada-files target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) ; \
+		$(MAKE) generate-asn1-deployment compile-c-files compile-cpp-files compile-ada-files target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) ; \
 		$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) $(CFLAGS) ; \
 	fi
 endif
@@ -274,7 +280,7 @@ $(BINARY):
 	@if [ ! -f ccomp ]; then \
 		echo "Compcert not installed, exiting" ; \
 	else \
-		$(MAKE) generate-asn1-deployment compile-c-files compile-ada-files target-objects compile-po-hi $(GENERATED_OBJS) $(TARGET_OBJECTS); \
+		$(MAKE) generate-asn1-deployment compile-c-files compile-cpp-files compile-ada-files target-objects compile-po-hi $(GENERATED_OBJS) $(TARGET_OBJECTS); \
 		for v in $(USER_OBJS); do mv ../../$$v . ; done ; \
  		mkdir -p drivers; \
 		for v in $(PO_HI_OBJS); do mv $(RUNTIME_PATH)/src/$$v $$v ; done; \
@@ -285,7 +291,7 @@ endif
 ifeq ($(TARGET), $(filter $(TARGET), native bench linux32 linux64))
 EXE=$(BINARY)
 $(BINARY):
-	$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
+	$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-cpp-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
 	$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
 endif
 
