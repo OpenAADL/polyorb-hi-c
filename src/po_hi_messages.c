@@ -14,6 +14,7 @@
 
 /* Headers from PolyORB-HI-C */
 
+#include <xlocale.h>
 #include <string.h>
 
 /* Headers from the executive */

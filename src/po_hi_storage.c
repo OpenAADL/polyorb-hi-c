@@ -9,6 +9,7 @@
  */
 
 #include <po_hi_config.h>
+#include <xlocale.h>
 #include <string.h>
 #include <po_hi_debug.h>
 #include <po_hi_storage.h>

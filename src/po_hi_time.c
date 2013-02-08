@@ -8,6 +8,7 @@
  * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2012 ESA & ISAE.
  */
 
+#include <xlocale.h>
 #include <time.h>
 #include <errno.h>
 

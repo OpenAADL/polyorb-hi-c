@@ -9,6 +9,7 @@
  */
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
+#include <xlocale.h>
 #include <pthread.h>
 #include <sched.h>
 #endif

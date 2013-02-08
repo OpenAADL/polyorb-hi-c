@@ -14,6 +14,7 @@
 #include <po_hi_types.h>
 
 #ifndef HAVE_CLOCK_GETTIME
+#include <xlocale.h>
 #include <time.h>
 #endif
 
