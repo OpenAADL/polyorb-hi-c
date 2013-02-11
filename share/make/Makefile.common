@@ -9,7 +9,7 @@ all: build-node
 include $(RUNTIME_PATH)/make/Makefile.$(TARGET)
 -include ../../userdefined.mk
 
-build-node: compile-node generate-doc
+build-node: compile-node #generate-doc
 
 
 ifneq ($(USE_CPP_LINKER),)
