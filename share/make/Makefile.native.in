@@ -4,7 +4,7 @@ SIMULINK_LDFLAGS  = @SIMULINK_LDFLAGS@
 CC              = gcc
 LD              = gcc
 GPROF           = gprof
-
+LD_CPP = g++
 
 ifdef USE_GPROF
 TARGET_LDFLAGS+=-pg
