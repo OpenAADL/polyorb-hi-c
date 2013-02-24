@@ -14,71 +14,48 @@
 #include <po_hi_debug.h>
 /* Header files in PolyORB-HI */
 
-#include <deployment.h>	
+#include <deployment.h>
 /* Header files from generated code */
 
 #include <stdlib.h>
-
-int __po_hi_simulate_wcet (const __po_hi_time_t* time1, const __po_hi_time_t* time2)
-{
-#if defined (POSIX) || defined (RTEMS_POSIX)
-   __po_hi_time_t tmp;
-   __po_hi_time_t limit;
-   __po_hi_get_time(&tmp);
-   __po_hi_add_times (&limit, &tmp, time2);
-   while (1)
-   {
-      __po_hi_get_time (&tmp);
-      if (__po_hi_time_is_greater (&tmp, &limit))
-      {
-         return 0;
-      }
-   }
-   return 0;
-#else
-   __DEBUGMSG ("WCET simulation not handled at this time\n");
-#endif
-   return 0;
-}
-
 
 int __po_hi_compute_miss (__po_hi_uint8_t rate)
 {
    int v;
    v = rand () % 100;
-   
+
    if (v <= rate)
    {
       return 0;
    }
-   
+
    return 1;
 }
 
 
 unsigned long __po_hi_swap_byte (unsigned long value)
 {
-   union u {unsigned long vi; unsigned char c[sizeof(unsigned long)];}; 
+   union u {unsigned long vi; unsigned char c[sizeof(unsigned long)];};
    union v {unsigned long ni; unsigned char d[sizeof(unsigned long)];};
-   union u un; 
-   union v vn; 
+   union u un;
+   union v vn;
    un.vi = value;
-   vn.d[0]=un.c[3]; 
-   vn.d[1]=un.c[2]; 
-   vn.d[2]=un.c[1]; 
-   vn.d[3]=un.c[0]; 
-   return (vn.ni); 
+   vn.d[0]=un.c[3];
+   vn.d[1]=un.c[2];
+   vn.d[2]=un.c[1];
+   vn.d[3]=un.c[0];
+   return (vn.ni);
 }
 
 #ifdef __PO_HI_USE_VCD
-#include <stdio.h> 
-#include <unistd.h> 
-#include <stdlib.h> 
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
-#include <sys/types.h> 
-#include <sys/stat.h> 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <pthread.h>
-#include <fcntl.h> 
+#include <fcntl.h>
 #include <time.h>
 
 #include <po_hi_returns.h>
@@ -217,7 +194,7 @@ void __po_hi_instrumentation_vcd_init ()
       }
       else
       {
-         __DEBUGMSG("[POHIC-INSTRUMENTATION] Could not create file !\n");     
+         __DEBUGMSG("[POHIC-INSTRUMENTATION] Could not create file !\n");
       }
    }
 }

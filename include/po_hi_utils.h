@@ -15,12 +15,6 @@
 #include <po_hi_types.h>
 
 /*
- * Simulate the WCET of the task. It enters an infinite loop during a
- * random period chosen from the first and second argument.
- */
-int __po_hi_simulate_wcet (const __po_hi_time_t* time1, const __po_hi_time_t* time2);
-
-/*
  * Take a rate as argument, returns the probability that we meet this rate.
  */
 int __po_hi_compute_miss (__po_hi_uint8_t rate);
@@ -74,4 +68,4 @@ void __po_hi_instrumentation_vcd_init (void);
 
 
 
-#endif /* __PO_HI_UTILS_H__ */ 
+#endif /* __PO_HI_UTILS_H__ */
