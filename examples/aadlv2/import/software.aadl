@@ -94,7 +94,7 @@ end Q;
 thread implementation Q.Impl
 calls
 Mycall : {
-  Q_Spg : subprogram Ping_Wrapper;
+  Q_Spg : subprogram Ping_Wrapper.impl;
 };
 connections
   parameter Data_Sink -> Q_Spg.Data_Sink;
