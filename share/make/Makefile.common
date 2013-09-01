@@ -13,7 +13,7 @@ ifneq ($(USE_CPP_LINKER),)
 LD=$(LD_CPP)
 endif
 
-build-node: compile-node generate-doc
+build-node: compile-node 
 
 ################################################################################
 # Configuration
@@ -223,10 +223,9 @@ compile-node: $(BINARY)
 ifeq ($(TARGET), $(filter $(TARGET), leon3-scoc3 leon.rtems leon.rtems_posix))
 OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
 $(BINARY):
-	@if [ ! -d $$RTEMS_MAKEFILE_PATH/make ]; then \
+	if [  x"$$RTEMS_MAKEFILE_PATH"=x"" ]; then \
 		echo "Please define the RTEMS_MAKEFILE_PATH variable, exiting" ; \
 	else \
-
 		$(MAKE) generate-asn1-deployment compile-c-files compile-cpp-files compile-ada-files target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) ; \
 		$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) $(CFLAGS) ; \
 	fi
