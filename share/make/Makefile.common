@@ -292,7 +292,7 @@ endif
 ifeq ($(TARGET), $(filter $(TARGET), win32))
 EXE=$(BINARY).exe
 $(BINARY):
-	@if [ x"$(which i686-w64-mingw32-gcc)"=x ]; then \
+	@if [ x"$(which i686-w64-mingw32-gcc)" = x ]; then \
 		echo "Windows compiler is not installed in your system, exiting" ; \
 	else \
 		$(MAKE) generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS) ; \
