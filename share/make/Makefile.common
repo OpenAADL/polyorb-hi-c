@@ -303,7 +303,7 @@ endif
 ifeq ($(TARGET), $(filter $(TARGET), linux32-xenomai-posix linux32-xenomai-native))
 EXE=$(BINARY)
 $(BINARY):
-	@if [ ! -f xeno-config ]; then \
+	@if [ x"$(which xeno-config)" = x ]; then \
 		echo "Xenomai is not installed in your system, exiting" ; \
 	else \
 		$(MAKE) generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS) ; \
