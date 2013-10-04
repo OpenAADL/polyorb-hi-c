@@ -14,7 +14,10 @@
 
 /* Headers from PolyORB-HI-C */
 
+#if defined (__CYGWIN__) || defined (__MINGW32__)
+#else
 #include <xlocale.h>
+#endif
 #include <string.h>
 
 /* Headers from the executive */

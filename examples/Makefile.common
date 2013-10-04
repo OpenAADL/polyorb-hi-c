@@ -42,7 +42,7 @@ scenarios:
 scenario:
 	$(MAKE) clean
 	@echo "*********  SCENARIO_FILE = $(SCENARIO_FILE)  *********";
-	ocarina -b -x '${shell $(CYGPATH_W) $(SCENARIO_FILE)}';
+	ocarina$(EXEEXT) -b -x '${shell $(CYGPATH_W) $(SCENARIO_FILE)}';
 
 ############################################################################
 # Code generation and execution from AADL
@@ -56,7 +56,7 @@ scenarios-check:
 
 scenario-check:
 	@echo "*********  SCENARIO_FILE = $(SCENARIO_FILE)  *********";
-	ocarina -b -e -x '${shell $(CYGPATH_W) $(SCENARIO_FILE)}';
+	ocarina$(EXEEXT) -b -e -x '${shell $(CYGPATH_W) $(SCENARIO_FILE)}';
 
 
 ############################################################################

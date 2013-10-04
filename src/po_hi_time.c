@@ -8,7 +8,11 @@
  * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2012 ESA & ISAE.
  */
 
+#if defined (__CYGWIN__) || defined (__MINGW32__)
+#else
 #include <xlocale.h>
+#endif
+
 #include <time.h>
 #include <errno.h>
 
@@ -259,9 +263,6 @@ int __po_hi_delay_until (const __po_hi_time_t* time)
     {
         __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] CloseHandle failed (%d)\n", GetLastError());
     }
-
-    printf ("wait completed\n");
-
 
   return __PO_HI_SUCCESS;
 

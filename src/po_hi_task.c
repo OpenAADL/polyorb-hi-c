@@ -9,7 +9,11 @@
  */
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
+#if defined (__CYGWIN__) || defined (__MINGW32__)
+#else
 #include <xlocale.h>
+#endif
+
 #include <pthread.h>
 #include <sched.h>
 #endif
@@ -44,8 +48,12 @@ typedef struct
   __po_hi_time_t      period;
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
   __po_hi_time_t      timer;
+#if defined (_WIN32)
+  DWORD tid;
+#else
   pthread_t           tid;              /* The pthread_t type used by the
                                            POSIX library */
+#endif
   pthread_mutex_t     mutex;
   pthread_cond_t      cond;
 #elif defined (_WIN32)
@@ -339,7 +347,7 @@ DWORD __po_hi_win32_create_thread (__po_hi_task_id    id,
 {
    DWORD tid;
    HANDLE h;
-   h = CreateThread (NULL, 0, start_routine, NULL, 0, &tid);
+   h = CreateThread (NULL, 0, (LPTHREAD_START_ROUTINE) start_routine, NULL, 0, &tid);
    __po_hi_tasks_array[id] = h;
    return tid;
 }

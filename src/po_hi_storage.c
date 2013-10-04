@@ -8,9 +8,13 @@
  * Copyright (C) 2011-2012 ESA & ISAE.
  */
 
-#include <po_hi_config.h>
+#if defined (__CYGWIN__) || defined (__MINGW32__)
+#else
 #include <xlocale.h>
+#endif
 #include <string.h>
+
+#include <po_hi_config.h>
 #include <po_hi_debug.h>
 #include <po_hi_storage.h>
 #include <po_hi_returns.h>

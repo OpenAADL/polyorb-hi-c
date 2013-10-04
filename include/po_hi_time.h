@@ -14,7 +14,11 @@
 #include <po_hi_types.h>
 
 #ifndef HAVE_CLOCK_GETTIME
+#if defined (__CYGWIN__) || defined (__MINGW32__)
+#else
 #include <xlocale.h>
+#endif
+
 #include <time.h>
 #endif
 

@@ -52,14 +52,14 @@ ifeq ($(NEED_TRANSPORT),yes)
 CFLAGS+=-D__PO_HI_USE_TRANSPORT
 endif
 
+INCLUDE=-I. -I"${shell $(CYGPATH_W) "${RUNTIME_PATH}/include"}"
+
 ifdef TARGET_INCLUDE
-INCLUDE=-I. -I$(RUNTIME_PATH)/include/ $(TARGET_INCLUDE)
-else
-INCLUDE=-I. -I$(RUNTIME_PATH)/include/
+INCLUDE += $(TARGET_INCLUDE)
 endif
 
 ifdef USER_SOURCES_DIRS
-INCLUDE+=$(shell for v in $(USER_SOURCES_DIRS); do echo -I$$v ; done )
+INCLUDE+=$(USER_SOURCES_DIRS)
 endif
 
 INCLUDE+=$(USER_INCLUDE)
@@ -348,3 +348,4 @@ gprof:
 	./$(BINARY)
 	gprof ./$(BINARY) > gprof.out
 endif
+
