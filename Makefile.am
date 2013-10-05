@@ -1,3 +1,5 @@
+ACLOCAL_AMFLAGS = -I support
+
 AUTOMAKE_OPTIONS = no-dependencies
 CLEANFILES = config-stamp svn-commit*.tmp* *~
 SUBDIRS = src support tools share include @DOC_DIR@
