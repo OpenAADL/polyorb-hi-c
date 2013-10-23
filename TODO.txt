@@ -1,0 +1,58 @@
+* General remarks
+
+  - consider only the POSIX non-distributed case (look at compilation
+   macros)
+  - prepare Makefile.am to have a prove-local task (assigned to
+    C. Garion)
+
+* Mocks
+
+  Some mocks have to be defined, as the runtime needs some "real"
+  tasks :
+
+  - activity.h: mock the __po_hi_main_deliver function (this function
+    should normally dispatch messages)
+  - deployment.h: tables to dispatch the messages (lot of work, useful
+    for the queue, find the minimal abstraction)
+  - marshallers.h: mock the __po_hi_marshall_request and
+    __po_hi_unmarshall_request functions
+  - naming.h: not needed in the non-distributed case
+  - request.h: requests exchanged with the system, cf. deployment.h
+  - subprograms.h and types.h: links with user code
+
+* Specification and proofs
+
+  Files to be proved (difficulty increasing):
+
+  - po_hi_types.h: copy_array (trivial), replace memcpy?
+  - po_hi_utils.h: swap_byte (trivial), ignore VCD
+  - po_hi_time.h: more complex, write specifications for basic
+    functions, find bugs
+  - po_hi_marshallers.h: conversion functions, to be proved in the
+    standard cas, not GIOP.
+  - po_hi_messages.h -> messages management, to be proved. replace
+    memcpy by copy_array of po_hi_types ? Then stategy to find to
+    prove using memcpy.
+  - po_hi_main.h: use pre/post to guarantee causal order of
+    calls. This compilation unit defines functions for a synchronized
+    start of the system.
+  - po_hi_protected.h: mutex management, to be proved.
+  - po_hi_task.h: link to concurrency library, to be proved.
+  - po_hi_gqueue.h: queue management, to be proved at the end. Replace
+    memcpy.
+  - po_hi_transport.h: commnications between tasks, to be proved.
+
+  More generally, the following questions should be answered:
+
+  - what strategy to use for system calls?
+  - replace for instance pthread_cond_wait by a nanosleep variant
+  - avoid dynamic allocation of a mutex/cv pair
+
+  Files not to be proved:
+
+  - po_hi_giop.h: not used
+  - po_hi_lua.h: not used
+  - po_hi_monitor.h: error management, to be ignored in a first
+    approach
+  - po_hi_simulink.h: not used
+  - po_hi_storage.h: not used
