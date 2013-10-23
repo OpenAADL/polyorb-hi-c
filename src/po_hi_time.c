@@ -82,8 +82,6 @@ LARGE_INTEGER __po_hi_unix_seconds_to_windows_tick(unsigned sec, unsigned nsec)
 
 #endif
 
-
-
 int __po_hi_get_time (__po_hi_time_t* mytime)
 {
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)

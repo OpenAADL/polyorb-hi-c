@@ -31,5 +31,3 @@ install-data-local:
 
 uninstall-local:
 	rm -rf $(DESTDIR)$(hsrc)
-
-
