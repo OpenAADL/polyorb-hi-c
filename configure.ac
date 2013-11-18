@@ -61,7 +61,7 @@ case ${host_os} in
 		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lrt"
 		SIMULINK_LDFLAGS="-lm"
 		;;
-	*cygwin*)	
+	*cygwin*)
 		NATIVE_CFLAGS="${NATIVE_CFLAGS} -D_GNU_SOURCE"
 		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lwsock32"
 		SIMULINK_LDFLAGS="-lm"
@@ -155,6 +155,26 @@ fi],
 
 AC_SUBST(DOC_DIR)
 
+###########################################
+# Proof of PolyORB/HI-C
+###########################################
+
+AC_CHECK_PROGS(ALT-ERGO, alt-ergo)
+AC_CHECK_PROGS(FRAMA-C, frama-c)
+AC_CHECK_PROGS(WHY, why)
+AC_CHECK_PROGS(WHY3, why3)
+
+PROOF=
+
+AC_ARG_ENABLE(proof,
+        [AS_HELP_STRING([--enable-proof],
+        [Prove the PolyORB/HI-C runtime [default=no]])],
+        [if [[ "$enableval" = "yes" ]]; then
+            PROOF=yes
+         fi],
+        []
+)
+
 ###############################################################
 # Force the installation prefix to be equal to the Ocarina one
 ###############################################################
@@ -225,5 +245,3 @@ AC_OUTPUT([
 	share/config/gumstix-rtems/Makefile
 	support/Makefile
 ])
-
-
