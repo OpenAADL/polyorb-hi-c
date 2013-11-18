@@ -1,0 +1,11 @@
+The PolyORB/HI-C runtime can be proved using deductive methods. To do
+so, install the following softwares:
+
+  - OPAM, an OCaml package manager (see http://opam.ocamlpro.com/)
+  - Alt-Ergo, Frama-C and Why/Why3 using opam with the following
+    command:
+
+    opam install alt-ergo frama-c why
+
+You can then prove the PolyORB/HI-C runtime using the prove target in
+the Makefile.
