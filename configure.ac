@@ -194,7 +194,7 @@ AC_ARG_ENABLE(proof,
 )
 
 AC_SUBST(HAS_PROOF_)
-AM_CONDITIONAL(HAS_PROOF, [test "$HAS_PROOF_" = "true"])
+AM_CONDITIONAL(HAS_PROOF, [test "x$HAS_PROOF_" = "xtrue"])
 
 ###############################################################
 # Force the installation prefix to be equal to the Ocarina one
