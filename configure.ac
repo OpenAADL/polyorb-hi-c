@@ -159,21 +159,34 @@ AC_SUBST(DOC_DIR)
 # Proof of PolyORB/HI-C
 ###########################################
 
-AC_CHECK_PROGS(ALT_ERGO, alt-ergo)
-AC_CHECK_PROGS(FRAMA_C, frama-c)
-AC_CHECK_PROGS(WHY, why)
-AC_CHECK_PROGS(WHY3, why3)
+AC_CHECK_PROGS([ALT_ERGO], [alt-ergo], [:])
+AC_CHECK_PROGS([FRAMA_C],  [frama-c],  [:])
+AC_CHECK_PROGS([WHY],      [why],      [:])
+AC_CHECK_PROGS([WHY3],     [why3],     [:])
 
-PROOF=
+PROOF_=
+
+AC_DEFUN([EXISTS_PROG_PROOF],
+        [if [[ "$1" = : ]]; then
+          AC_MSG_ERROR([You need $2 to prove PolyORB/HI-C. Please read README.proof])
+         fi]
+        )
 
 AC_ARG_ENABLE(proof,
         [AS_HELP_STRING([--enable-proof],
         [Prove the PolyORB/HI-C runtime (default=no)])],
+        [EXISTS_PROG_PROOF($ALT_ERGO, alt-ergo)]
+        [EXISTS_PROG_PROOF($FRAMA_C, frama-c)]
+        [EXISTS_PROG_PROOF($WHY, why)]
+        [EXISTS_PROG_PROOF($WHY3, why3)]
         [if [[ "$enableval" = "yes" ]]; then
-            PROOF=yes
+            PROOF_=true
          fi],
         []
 )
+
+AC_SUBST(PROOF_)
+AM_CONDITIONAL(HAS_PROOF, [test "x$HAS_PROOF_" = "true"])
 
 ###############################################################
 # Force the installation prefix to be equal to the Ocarina one
