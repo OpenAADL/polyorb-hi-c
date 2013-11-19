@@ -176,9 +176,13 @@ AC_ARG_ENABLE(proof,
         [AS_HELP_STRING([--enable-proof],
         [Prove the PolyORB/HI-C runtime (default=no)])],
         [EXISTS_PROG_PROOF($ALT_ERGO, alt-ergo)]
+        [AC_SUBST([ALT_ERGO])]
         [EXISTS_PROG_PROOF($FRAMA_C, frama-c)]
+        [AC_SUBST([FRAMA_C])]
         [EXISTS_PROG_PROOF($WHY, why)]
+        [AC_SUBST([WHY])]
         [EXISTS_PROG_PROOF($WHY3, why3)]
+        [AC_SUBST([WHY3])]
         [if [[ "$enableval" = "yes" ]]; then
             PROOF_=true
          fi],
