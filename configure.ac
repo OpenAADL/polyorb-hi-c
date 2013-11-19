@@ -159,8 +159,8 @@ AC_SUBST(DOC_DIR)
 # Proof of PolyORB/HI-C
 ###########################################
 
-AC_CHECK_PROGS(ALT-ERGO, alt-ergo)
-AC_CHECK_PROGS(FRAMA-C, frama-c)
+AC_CHECK_PROGS(ALT_ERGO, alt-ergo)
+AC_CHECK_PROGS(FRAMA_C, frama-c)
 AC_CHECK_PROGS(WHY, why)
 AC_CHECK_PROGS(WHY3, why3)
 
@@ -168,7 +168,7 @@ PROOF=
 
 AC_ARG_ENABLE(proof,
         [AS_HELP_STRING([--enable-proof],
-        [Prove the PolyORB/HI-C runtime [default=no]])],
+        [Prove the PolyORB/HI-C runtime (default=no)])],
         [if [[ "$enableval" = "yes" ]]; then
             PROOF=yes
          fi],
