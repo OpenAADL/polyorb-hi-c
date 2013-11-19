@@ -158,6 +158,11 @@ AC_SUBST(DOC_DIR)
 ###########################################
 # Proof of PolyORB/HI-C
 ###########################################
+AC_CHECK_PROGS([ALT_ERGO], [alt-ergo], [:])
+AC_CHECK_PROGS([FRAMA_C],  [frama-c],  [:])
+AC_CHECK_PROGS([CPP_4_7],  [cpp-4.7],  [:])
+AC_CHECK_PROGS([WHY],      [why],      [:])
+AC_CHECK_PROGS([WHY3],     [why3],     [:])
 
 HAS_PROOF_=
 
@@ -171,19 +176,14 @@ AC_ARG_ENABLE(proof,
         [AS_HELP_STRING([--enable-proof],
         [Prove the PolyORB/HI-C runtime (default=no)])],
         [AC_MSG_NOTICE(Checking if needed programs are available for proving PolyORB/HI-C)]
-        [AC_CHECK_PROGS([ALT_ERGO], [alt-ergo], [:])]
         [EXISTS_PROG_PROOF($ALT_ERGO, alt-ergo)]
         [AC_SUBST([ALT_ERGO])]
-        [AC_CHECK_PROGS([FRAMA_C],  [frama-c],  [:])]
         [EXISTS_PROG_PROOF($FRAMA_C, frama-c)]
         [AC_SUBST([FRAMA_C])]
-        [AC_CHECK_PROGS([CPP_4_7],      [cpp-4.7],      [:])]
         [EXISTS_PROG_PROOF($CPP_4_7, cpp-4.7)]
         [AC_SUBST([CPP_4_7])]
-        [AC_CHECK_PROGS([WHY],      [why],      [:])]
         [EXISTS_PROG_PROOF($WHY, why)]
         [AC_SUBST([WHY])]
-        [AC_CHECK_PROGS([WHY3],     [why3],     [:])]
         [EXISTS_PROG_PROOF($WHY3, why3)]
         [AC_SUBST([WHY3])]
         [if [[ "$enableval" = "yes" ]]; then
