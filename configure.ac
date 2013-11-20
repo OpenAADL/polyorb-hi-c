@@ -181,7 +181,7 @@ AC_ARG_ENABLE(proof,
         [EXISTS_PROG_PROOF($FRAMA_C, frama-c)]
         [AC_SUBST([FRAMA_C])]
         [EXISTS_PROG_PROOF($CPP_PROOF, a cpp version < 4.8)]
-        [AC_SUBST([CPP_4_7])]
+        [AC_SUBST([CPP_PROOF])]
         [EXISTS_PROG_PROOF($WHY, why)]
         [AC_SUBST([WHY])]
         [EXISTS_PROG_PROOF($WHY3, why3)]
