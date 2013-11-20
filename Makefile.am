@@ -50,7 +50,7 @@ FILES_TO_PROVE =  po_hi_types.c po_hi_utils.c po_hi_time.c po_hi_marshallers.c \
 		  po_hi_messages.c po_hi_protected.c po_hi_task.c po_hi_gqueue.c \
 		  po_hi_transport.c po_hi_main.c
 _FILES_TO_PROVE = $(patsubst %,$(SRCDIR_PROOF)/%,$(FILES_TO_PROVE))
-CPP_PROOF = -cpp-command="$(CPP_4_7) -C -E -I./include -I./include-proof -I./doc/code"
+CPP_PROOF = -cpp-command="$(CPP_PROOF) -C -E -I./include -I./include-proof -I./doc/code"
 WP_ARGS = -wp -wp-prover alt-ergo
 WP_ARGS_INTERACTIVE = -wp -wp-prover why3ide
 JESSIE_ARGS = -jessie -jessie-atp alt-ergo

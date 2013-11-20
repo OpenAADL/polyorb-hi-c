@@ -160,7 +160,7 @@ AC_SUBST(DOC_DIR)
 ###########################################
 AC_CHECK_PROGS([ALT_ERGO], [alt-ergo], [:])
 AC_CHECK_PROGS([FRAMA_C],  [frama-c],  [:])
-AC_CHECK_PROGS([CPP_4_7],  [cpp-4.7],  [:])
+AC_CHECK_PROGS([CPP_PROOF],  [cpp-4.7 cpp-4.6 cpp-4.5 cpp-4.4],  [:])
 AC_CHECK_PROGS([WHY],      [why],      [:])
 AC_CHECK_PROGS([WHY3],     [why3],     [:])
 
@@ -180,7 +180,7 @@ AC_ARG_ENABLE(proof,
         [AC_SUBST([ALT_ERGO])]
         [EXISTS_PROG_PROOF($FRAMA_C, frama-c)]
         [AC_SUBST([FRAMA_C])]
-        [EXISTS_PROG_PROOF($CPP_4_7, cpp-4.7)]
+        [EXISTS_PROG_PROOF($CPP_PROOF, a cpp version < 4.8)]
         [AC_SUBST([CPP_4_7])]
         [EXISTS_PROG_PROOF($WHY, why)]
         [AC_SUBST([WHY])]
