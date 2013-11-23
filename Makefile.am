@@ -46,7 +46,7 @@ distcleancheck:
 # Conditional targets and variables for proof of the runtime
 if HAS_PROOF
 SRCDIR_PROOF = ./src
-FILES_TO_PROVE =  po_hi_types.c po_hi_utils.c po_hi_time.c po_hi_marshallers.c \
+FILES_TO_PROVE =  po_hi_utils.c po_hi_time.c po_hi_marshallers.c \
 		  po_hi_messages.c po_hi_protected.c po_hi_task.c po_hi_gqueue.c \
 		  po_hi_transport.c po_hi_main.c
 _FILES_TO_PROVE = $(patsubst %,$(SRCDIR_PROOF)/%,$(FILES_TO_PROVE))
