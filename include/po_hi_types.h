@@ -104,6 +104,18 @@ typedef enum
    __PO_HI_INVALID_PORT_KIND                 = 50
 }__po_hi_port_kind_t;
 
+/*@
+		behavior rien:
+			assumes size < 1;
+			assigns \nothing;
+		behavior copie:
+			assumes size >=1;
+			requires \forall int i; 0 <= i <= size-1 ==> (dst+i) != \null && (src+i) != \null;
+			ensures \forall int i; 0 <= i <= size-1 ==> *((const char*) (dst+i)) == *((char*) (src+i));
+			assigns *((char*) (dst));
+		complete behaviors rien, copie;
+		disjoint behaviors rien, copie;
+*/
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size);
 
 #endif /* __PO_HI_TYPES_H_ */
