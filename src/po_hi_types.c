@@ -18,8 +18,7 @@
 /* Header files from generated code */
 
 #include <string.h>
-
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size)
 {
-   memcpy (dst, src, size);
+  memcpy (dst, src, size);
 }
