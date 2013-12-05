@@ -53,7 +53,7 @@ typedef struct
  * is the epoch (time since 1970), on other systems, it can be the
  * number of elapsed ticks since the beginning of the program.
  *
- * The granularity of the time is in nanosecond (10^-6)
+ * The granularity of the time is in microsecond (10^-6)
  */
 
 #define __PO_HI_TIME_TO_US(value) ((value.sec*1000000)+(value.nsec / 1000))

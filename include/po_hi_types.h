@@ -105,16 +105,16 @@ typedef enum
 }__po_hi_port_kind_t;
 
 /*@
-		behavior rien:
+		behavior nothing:
 			assumes size < 1;
 			assigns \nothing;
-		behavior copie:
+		behavior copy:
 			assumes size >=1;
 			requires \forall int i; 0 <= i <= size-1 ==> (dst+i) != \null && (src+i) != \null;
 			ensures \forall int i; 0 <= i <= size-1 ==> *((const char*) (dst+i)) == *((char*) (src+i));
 			assigns *((char*) (dst));
-		complete behaviors rien, copie;
-		disjoint behaviors rien, copie;
+		complete behaviors nothing, copy;
+		disjoint behaviors nothing, copy;
 */
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size);
 
