@@ -89,6 +89,7 @@
 
 #include <po_hi_types.h>
 #include <deployment.h>
+#include <stddef.h>
 
 typedef __po_hi_uint16_t __po_hi_priority_t;
 typedef size_t __po_hi_stack_t;
