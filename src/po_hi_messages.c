@@ -60,13 +60,16 @@
 //	dest->length = src->length;
 //}
 
-/* @
-	requires length >=0;
-	requires \forall int i; 0 <= i < length ==> (data+i) != \null && (msg->content + msg->length + i) != \null;
+/*@
+	requires length >= 0;
+
 
 	assigns msg->content[msg->length..msg->length+length-1];
 
 	ensures msg->length == \old(msg)->length + length;
+ */
+ /*
+    requires \forall int i; 0 <= i < length ==> (data+i) != \null && (msg->content + msg->length + i) != \null;
 	ensures \forall int i; 0 <= i < length ==> *(msg->content + msg->length - length + i) == *((__po_hi_uint8_t*) (data+i));
  */
 void __po_hi_msg_append_data (__po_hi_msg_t* msg, void* data, __po_hi_uint32_t length)
