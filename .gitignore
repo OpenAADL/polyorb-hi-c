@@ -1,3 +1,7 @@
+*~
+examples/
+Makefile
+*jessie*
 Makefile.in
 aclocal.m4
 autom4te.cache/
@@ -106,3 +110,8 @@ tools/check-symbols/examples/Makefile.in
 tools/check-symbols/examples/malloc/Makefile.in
 tools/check-symbols/examples/strings/Makefile.in
 tools/check-symbols/src/Makefile.in
+/include/stamp-h1
+/share/make/Makefile.native
+/support/compile
+/config.log
+/config.status
