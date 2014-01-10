@@ -108,12 +108,12 @@ typedef enum
   @   assumes size < 1;
   @   assigns \nothing;
   @ behavior nominal_mode_of_copying:
-  @   assumes size >=1;
+  @   assumes size >= 1;
   @   requires \forall int i; 0 <= i <= size-1 ==> (dst+i) != \null && (src+i) != \null;
   @   ensures \forall int i; 0 <= i <= size-1 ==> *((const char*) (dst+i)) == *((char*) (src+i));
   @   assigns *((char*) (dst));
-  @   complete behaviors nothing_to_be_copied, nominal_mode_of_copying;
-  @   disjoint behaviors nothing_to_be_copied, nominal_mode_of_copying;
+  @   complete behaviors;
+  @   disjoint behaviors;
   @*/
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size);
 
