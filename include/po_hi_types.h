@@ -104,16 +104,11 @@ typedef enum
    __PO_HI_INVALID_PORT_KIND                 = 50
 }__po_hi_port_kind_t;
 
-/*@ behavior nothing_to_be_copied:
-  @   assumes size < 1;
-  @   assigns \nothing;
-  @ behavior nominal_mode_of_copying:
-  @   assumes size >= 1;
-  @   requires \forall int i; 0 <= i <= size-1 ==> (dst+i) != \null && (src+i) != \null;
-  @   ensures \forall int i; 0 <= i <= size-1 ==> *((const char*) (dst+i)) == *((char*) (src+i));
-  @   assigns *((char*) (dst));
-  @   complete behaviors;
-  @   disjoint behaviors;
+/*@ requires \valid(((char *) dst)+(0..size-1)) &&
+  @          \valid(((char *) src)+(0..size-1));
+  @ requires \separated(((char *) dst)+(0..size-1), ((char *) src)+(0..size-1));
+  @ assigns ((char *) dst)[0..size-1] \from ((char *) src)[0..size-1];
+  @ ensures \forall int i; 0 <= i < size ==> *((char*) (dst+i)) == *((char*) (src+i));
   @*/
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size);
 
