@@ -64,6 +64,15 @@ void __po_hi_find_alignment (__po_hi_uint8_t align, __po_hi_msg_t* msg, __po_hi_
 /*
  * Operations Marshallers
  */
+
+/*@	requires \valid(msg);
+	requires \valid(msg->content+(0..(msg->length + sizeof(__po_hi_port_t))));
+
+ 	assigns (msg->content+(msg->length..msg->length + sizeof(__po_hi_port_t) - 1));
+
+ 	ensures msg->length == \old(msg->length) + sizeof(__po_hi_port_t);
+ 	ensures ((__po_hi_port_t *) msg->content)[\old(msg->length)] == value;
+ */
 void __po_hi_marshall_port (__po_hi_port_t value, __po_hi_msg_t* msg)
 {
         __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_port_t));

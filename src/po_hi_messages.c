@@ -27,50 +27,52 @@
 #endif
 
 
-//void __po_hi_msg_reallocate (__po_hi_msg_t* message)
-//{
-//  message->length = 0;
-//  message->flags = 0;
-//  memset (message->content, 0, __PO_HI_MESSAGES_MAX_SIZE);
-//}
-//
-//void __po_hi_msg_write (__po_hi_msg_t*  msg, void* data, __po_hi_uint32_t len)
-//{
-//  __po_hi_copy_array  (msg->content, data, len);
-//  msg->length = len;
-//}
-//
-//void __po_hi_msg_read (__po_hi_msg_t*  msg,
-//		       void*           data,
-//		       __po_hi_uint32_t len)
-//{
-//  __po_hi_copy_array  (data, msg->content, len);
-//  msg->length -= len;
-//}
-//
-//int __po_hi_msg_length (__po_hi_msg_t* msg)
-//{
-//  return (msg->length);
-//}
-//
-//
-//void __po_hi_msg_copy (__po_hi_msg_t* dest, __po_hi_msg_t* src)
-//{
-//	__po_hi_copy_array  (dest->content, src->content, __PO_HI_MESSAGES_MAX_SIZE);
-//	dest->length = src->length;
-//}
+void __po_hi_msg_reallocate (__po_hi_msg_t* message)
+{
+  message->length = 0;
+  message->flags = 0;
+  memset (message->content, 0, __PO_HI_MESSAGES_MAX_SIZE);
+}
 
-/*@
-	requires length >= 0;
+void __po_hi_msg_write (__po_hi_msg_t*  msg, void* data, __po_hi_uint32_t len)
+{
+  __po_hi_copy_array  (msg->content, data, len);
+  msg->length = len;
+}
+
+void __po_hi_msg_read (__po_hi_msg_t*  msg,
+		       void*           data,
+		       __po_hi_uint32_t len)
+{
+  __po_hi_copy_array  (data, msg->content, len);
+  msg->length -= len;
+}
+
+int __po_hi_msg_length (__po_hi_msg_t* msg)
+{
+  return (msg->length);
+}
 
 
-	assigns msg->content[msg->length..msg->length+length-1];
+void __po_hi_msg_copy (__po_hi_msg_t* dest, __po_hi_msg_t* src)
+{
+	__po_hi_copy_array  (dest->content, src->content, __PO_HI_MESSAGES_MAX_SIZE);
+	dest->length = src->length;
+}
 
-	ensures msg->length == \old(msg)->length + length;
- */
- /*
-    requires \forall int i; 0 <= i < length ==> (data+i) != \null && (msg->content + msg->length + i) != \null;
-	ensures \forall int i; 0 <= i < length ==> *(msg->content + msg->length - length + i) == *((__po_hi_uint8_t*) (data+i));
+/*@ requires length >= 0;
+	requires msg->length >= 0;
+	requires \valid(msg);
+	requires \valid(msg->content+(msg->length..(msg->length + length - 1)));
+	requires \valid_read(((char *)data)+(0..(length - 1)));
+	requires \separated(msg->content+(msg->length..(msg->length + length - 1)), ((char *)data)+(0..(length - 1)));
+
+	assigns (msg->content)[msg->length..(msg->length + length - 1)];
+	assigns msg->length;
+
+	ensures \forall int i; 0 <= i < length ==>
+		msg->content[\old(msg->length) + i] == ((__po_hi_uint8_t*) data)[i];
+	ensures msg->length == \old(msg->length) + length;
  */
 void __po_hi_msg_append_data (__po_hi_msg_t* msg, void* data, __po_hi_uint32_t length)
 {
@@ -78,17 +80,31 @@ void __po_hi_msg_append_data (__po_hi_msg_t* msg, void* data, __po_hi_uint32_t l
 	msg->length = msg->length + length;
 }
 
-//void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source)
-//{
-//        __po_hi_copy_array  (&(dest->content[dest->length]), source->content, source->length);
-//        dest->length = dest->length + source->length;
-//}
-//
-//void __po_hi_msg_get_data (void* dest, __po_hi_msg_t* source, __po_hi_uint32_t index, __po_hi_uint32_t size)
-//{
-//        __po_hi_copy_array  (dest, &(source->content[index]), size);
-//}
-//
+void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source)
+{
+        __po_hi_copy_array  (&(dest->content[dest->length]), source->content, source->length);
+        dest->length = dest->length + source->length;
+}
+
+/*@ requires size >= 0;
+	requires 0 <= index;
+	requires index + size < source->length;
+	requires source->length < 2000000;
+	requires \valid_read(source);
+	requires \valid(((char *) dest)+(0..(size-1))) && \valid_read(source->content+(index..(index+size-1)));
+	requires \separated(((char *)dest)+(0..size-1),((char *)source->content)+(index..(index+size-1)));
+
+	assigns ((char *) dest)[0..(size - 1)];
+
+	ensures \forall int i; 0 <= i < size ==>
+		((char *) dest)[i] == source->content[index + i];
+ */
+void __po_hi_msg_get_data (void* dest, __po_hi_msg_t* source, __po_hi_uint32_t index, __po_hi_uint32_t size)
+{
+	//@ assert &(source->content[index]) == source->content + index;
+	__po_hi_copy_array (dest, source->content, size);
+}
+
 //void __po_hi_msg_move (__po_hi_msg_t* msg, __po_hi_uint32_t length)
 //{
 //   __po_hi_uint32_t tmp;
