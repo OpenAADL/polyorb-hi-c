@@ -4,6 +4,7 @@ Makefile
 *jessie*
 Makefile.in
 aclocal.m4
+scratch/
 autom4te.cache/
 configure
 doc/Makefile
