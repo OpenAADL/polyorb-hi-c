@@ -60,21 +60,7 @@ void __po_hi_msg_copy (__po_hi_msg_t* dest, __po_hi_msg_t* src)
 	dest->length = src->length;
 }
 
-/*@ requires length >= 0;
-	requires msg->length >= 0;
-	requires \valid(msg);
-	requires \valid(msg->content+(msg->length..(msg->length + length - 1)));
-	requires \valid_read(((char *)data)+(0..(length - 1)));
-	requires \separated(msg->content+(msg->length..(msg->length + length - 1)), ((char *)data)+(0..(length - 1)));
-
-	assigns (msg->content)[msg->length..(msg->length + length - 1)];
-	assigns msg->length;
-
-	ensures \forall int i; 0 <= i < length ==>
-		msg->content[\old(msg->length) + i] == ((__po_hi_uint8_t*) data)[i];
-	ensures msg->length == \old(msg->length) + length;
- */
-void __po_hi_msg_append_data (__po_hi_msg_t* msg, void* data, __po_hi_uint32_t length)
+void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi_uint32_t length)
 {
 	__po_hi_copy_array (msg->content + msg->length, data, length);
 	msg->length = msg->length + length;
@@ -86,34 +72,20 @@ void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source)
         dest->length = dest->length + source->length;
 }
 
-/*@ requires size >= 0;
-	requires 0 <= index;
-	requires index + size < source->length;
-	requires source->length < 2000000;
-	requires \valid_read(source);
-	requires \valid(((char *) dest)+(0..(size-1))) && \valid_read(source->content+(index..(index+size-1)));
-	requires \separated(((char *)dest)+(0..size-1),((char *)source->content)+(index..(index+size-1)));
-
-	assigns ((char *) dest)[0..(size - 1)];
-
-	ensures \forall int i; 0 <= i < size ==>
-		((char *) dest)[i] == source->content[index + i];
- */
-void __po_hi_msg_get_data (void* dest, __po_hi_msg_t* source, __po_hi_uint32_t index, __po_hi_uint32_t size)
+void __po_hi_msg_get_data (__po_hi_uint8_t* dest, __po_hi_msg_t* source, __po_hi_uint32_t index, __po_hi_uint32_t size)
 {
-	//@ assert &(source->content[index]) == source->content + index;
-	__po_hi_copy_array (dest, source->content, size);
+	__po_hi_copy_array (dest, source->content + index, size);
 }
 
-//void __po_hi_msg_move (__po_hi_msg_t* msg, __po_hi_uint32_t length)
-//{
-//   __po_hi_uint32_t tmp;
-//   for (tmp=length; tmp < msg->length ; tmp++)
-//   {
-//      msg->content[tmp-length] = msg->content[tmp];
-//   }
-//   msg->length = msg->length - length;
-//}
+void __po_hi_msg_move (__po_hi_msg_t* msg, __po_hi_uint32_t length)
+{
+   __po_hi_uint32_t tmp;
+   for (tmp=length; tmp < msg->length ; tmp++)
+   {
+      msg->content[tmp-length] = msg->content[tmp];
+   }
+   msg->length = msg->length - length;
+}
 
 #ifdef __PO_HI_USE_GIOP
 int __po_hi_msg_should_swap (__po_hi_msg_t* msg)

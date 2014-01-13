@@ -70,7 +70,19 @@ void __po_hi_msg_copy (__po_hi_msg_t* dest,
  * whereas the second argument is the message source
  */
 
-void __po_hi_msg_append_data (__po_hi_msg_t* msg, void* data, __po_hi_uint32_t length);
+/*@ requires \valid(msg);
+  @ requires \valid(msg->content+(msg->length..msg->length + length - 1));
+  @	requires \valid_read(data+(0..(length - 1)));
+  @	requires \separated(msg->content+(msg->length..msg->length + length - 1), data+(0..(length - 1)));
+  @ requires \separated(msg->content+(msg->length..msg->length + length - 1), &(msg->length));
+  @ requires \separated(data+(0..(length - 1)), &(msg->length));
+  @	assigns (msg->content+msg->length)[0..(length - 1)] \from data[0..(length - 1)];
+  @	assigns msg->length;
+  @ ensures \forall int i; 0 <= i < \old(msg->length) ==> *(msg->content + i) == \old(*(msg->content + i));
+  @	ensures \forall int i; 0 <= i < length ==> *(msg->content + \old(msg->length) + i) == *(data + i);
+  @ ensures msg->length == \old(msg->length) + length;
+  @*/
+void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi_uint32_t length);
 /*
  * Append data to a message. The first argument is the message which
  * will contain all the data. The second argument is a pointer to the
@@ -85,7 +97,13 @@ void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source);
  * the source of the data.
  */
 
-void __po_hi_msg_get_data (void* dest, __po_hi_msg_t* source,
+/*@	requires index >= 0;
+  @ requires \valid(dest+(0..(size-1))) && \valid_read(source->content+(index..(index+size-1)));
+  @ requires \separated(dest+(0..size-1),(source->content)+(index..(index+size-1)));
+  @ assigns dest[0..(size - 1)] \from source->content[index..(index+size-1)];
+  @ ensures \forall int i; 0 <= i < size ==> *(dest+i) == *(source->content + index + i);
+  @*/
+void __po_hi_msg_get_data (__po_hi_uint8_t* dest, __po_hi_msg_t* source,
                            __po_hi_uint32_t index,
                            __po_hi_uint32_t size);
 /*
