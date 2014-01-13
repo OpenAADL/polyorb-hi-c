@@ -20,6 +20,15 @@
 int __po_hi_compute_miss (__po_hi_uint8_t rate);
 
 
+// define a reverse function on arrays
+/*@ axiomatic swap_byte {
+  @   logic char[] swap(char *array, int n)
+  @     reads array[0..];
+  @   axiom reverse: \forall char *array; \forall int n; \forall integer i;
+  @                  (n >= 0) ==> (0 <= i < n) ==> swap(array, n)[i] == array[n - i];
+  @ }
+  @*/
+
 unsigned long __po_hi_swap_byte (unsigned long value);
 
 #ifdef __PO_HI_USE_VCD
