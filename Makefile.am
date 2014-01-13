@@ -62,7 +62,7 @@ proof-wp:
 	$(FRAMA_C) $(WP_ARGS) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 
 proof-wp-report:
-	$(FRAMA_C) $(WP_ARGS) $(CPP_PROOF_OPT) $(_WP_FILTER) $(_FILES_TO_PROVE) -then -report
+	$(FRAMA_C) $(WP_ARGS) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE) -then -report
 
 proof-wp-interactive:
 	$(FRAMA_C) $(WP_ARGS_INTERACTIVE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
