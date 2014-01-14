@@ -30,9 +30,9 @@
 
 typedef struct
 {
-  __po_hi_uint8_t   content[__PO_HI_MESSAGES_MAX_SIZE]; /* Content of the message */
   __po_hi_uint32_t  length;
   __po_hi_uint8_t   flags;
+  __po_hi_uint8_t   content[__PO_HI_MESSAGES_MAX_SIZE]; /* Content of the message */
 } __po_hi_msg_t;
 
 
@@ -71,15 +71,15 @@ void __po_hi_msg_copy (__po_hi_msg_t* dest,
  */
 
 /*@ requires \valid(msg);
-  @ requires \valid(msg->content+(msg->length..msg->length + length - 1));
-  @	requires \valid_read(data+(0..(length - 1)));
+  @ requires \valid(msg->content+(msg->length..(msg->length + length - 1)));
+  @	requires \valid(data+(0..(length - 1)));
   @	requires \separated(msg->content+(msg->length..msg->length + length - 1), data+(0..(length - 1)));
   @ requires \separated(msg->content+(msg->length..msg->length + length - 1), &(msg->length));
   @ requires \separated(data+(0..(length - 1)), &(msg->length));
-  @	assigns (msg->content+msg->length)[0..(length - 1)] \from data[0..(length - 1)];
+  @	assigns msg->content[msg->length..(msg->length + length - 1)] \from data[0..(length - 1)];
   @	assigns msg->length;
-  @ ensures \forall int i; 0 <= i < \old(msg->length) ==> *(msg->content + i) == \old(*(msg->content + i));
-  @	ensures \forall int i; 0 <= i < length ==> *(msg->content + \old(msg->length) + i) == *(data + i);
+  @ ensures \forall unsigned int i; 0 <= i < \old(msg->length) ==> msg->content[i] == \old(msg->content[i]);
+  @	ensures \forall unsigned int i; 0 <= i < length ==> msg->content[\old(msg->length) + i] == *(data + i);
   @ ensures msg->length == \old(msg->length) + length;
   @*/
 void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi_uint32_t length);

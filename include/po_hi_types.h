@@ -115,7 +115,7 @@ typedef enum
   @          \valid_read(src+(0..size-1));
   @ requires \separated(dst+(0..size-1), src+(0..size-1));
   @ assigns dst[0..size-1] \from src[0..size-1];
-  @ ensures \forall int i; 0 <= i < size ==> *(dst+i) == *(src+i);
+  @ ensures \forall unsigned int i; 0 <= i < size ==> *(dst+i) == *(src+i);
   @*/
 void __po_hi_copy_array (__po_hi_uint8_t* dst, __po_hi_uint8_t* src, __po_hi_uint32_t size);
 //void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size);
