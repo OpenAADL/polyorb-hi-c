@@ -33,12 +33,6 @@ int __po_hi_compute_miss (__po_hi_uint8_t rate)
    return 1;
 }
 
-/*@ assigns \nothing;
-  @ ensures \result == ((value & 0x000000ff) << 24) +
-  @                    ((value & 0x0000ff00) << 8)  +
-  @                    ((value & 0x00ff0000) >> 8)  +
-  @                    ((value & 0xff000000) >> 24);
-  @*/
 unsigned long __po_hi_swap_byte (unsigned long value)
 {
    union u {unsigned long vi; unsigned char c[sizeof(unsigned long)];};
