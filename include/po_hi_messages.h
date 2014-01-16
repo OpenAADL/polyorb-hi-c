@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://assert-project.net/taste
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2012 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
  */
 
 #ifndef __PO_HI_MESSAGES_H_
@@ -14,7 +14,7 @@
 #include <po_hi_config.h>
 #include <po_hi_types.h>
 
-#include <request.h>  
+#include <request.h>
 /* This file may not be generated. However, using messages implies
    using request. */
 
@@ -37,26 +37,18 @@ typedef struct
 
 
 void __po_hi_msg_reallocate (__po_hi_msg_t* message);
-/* 
- * Reset the message given in parameter 
+/*
+ * Reset the message given in parameter
  */
 
-void __po_hi_msg_write (__po_hi_msg_t*  msg, 
-			void*           data, 
+void __po_hi_msg_write (__po_hi_msg_t*  msg,
+			void*           data,
 			__po_hi_uint32_t len);
 /*
  * Write the data at the beginning of the specified message.  Length
  * of the data are specified by the parameter len
  */
 
-void __po_hi_msg_read (__po_hi_msg_t*  msg, 
-		       void*           data, 
-		       __po_hi_uint32_t len);
-/*
- * Read the data in the specified message. The data are taken from the
- * message and copied into the variable data.  Length of the data are
- * specified by the parameter len
- */
 
 int __po_hi_msg_length (__po_hi_msg_t* msg);
 /*

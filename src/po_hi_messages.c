@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://assert-project.net/taste
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2012 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -34,22 +34,13 @@ void __po_hi_msg_reallocate (__po_hi_msg_t* message)
   memset (message->content, 0, __PO_HI_MESSAGES_MAX_SIZE);
 }
 
-void __po_hi_msg_write (__po_hi_msg_t*  msg, 
-			void*           data, 
+void __po_hi_msg_write (__po_hi_msg_t*  msg,
+			void*           data,
 			__po_hi_uint32_t len)
 {
   memcpy (msg->content, data, len);
   msg->length = len;
 }
-
-void __po_hi_msg_read (__po_hi_msg_t*  msg, 
-		       void*           data, 
-		       __po_hi_uint32_t len)
-{
-  memcpy (data, msg->content, len);
-  msg->length -= len;
-}
-
 int __po_hi_msg_length (__po_hi_msg_t* msg)
 {
   return (msg->length);
@@ -59,8 +50,8 @@ int __po_hi_msg_length (__po_hi_msg_t* msg)
 void __po_hi_msg_copy (__po_hi_msg_t* dest,
 		       __po_hi_msg_t* src)
 {
-  memcpy (dest->content, 
-	  src->content, 
+  memcpy (dest->content,
+	  src->content,
 	  __PO_HI_MESSAGES_MAX_SIZE);
   dest->length = src->length;
 }
@@ -137,7 +128,7 @@ void __po_hi_messages_debug (__po_hi_msg_t* msg)
 
    for (i = 0 ; i < 50 ; i++)
      Hexa[i] = ' ';
-   
+
    for (i = 0 ; i < 17 ; i++)
      ASCII[i] = ' ';
 
