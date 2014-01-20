@@ -5,6 +5,7 @@ Makefile
 Makefile.in
 aclocal.m4
 scratch/
+goals/
 include/po_hi_config.h
 autom4te.cache/
 configure
