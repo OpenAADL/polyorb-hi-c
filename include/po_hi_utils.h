@@ -21,19 +21,19 @@ int __po_hi_compute_miss (__po_hi_uint8_t rate);
 
 
 // define a reverse function on arrays
-/*@ axiomatic swap_byte {
-  @   logic char[] swap(char *array, int n)
-  @     reads array[0..];
-  @   axiom reverse: \forall char *array; \forall int n; \forall integer i;
-  @                  (n >= 0) ==> (0 <= i < n) ==> swap(array, n)[i] == array[n - i];
-  @ }
-  @*/
+/* /\*@ axiomatic swap_byte { */
+/*   @   logic char[] swap(char *array, int n) */
+/*   @     reads array[0..]; */
+/*   @   axiom reverse: \forall char *array; \forall int n; \forall integer i; */
+/*   @                  (n >= 0) ==> (0 <= i < n) ==> swap(array, n)[i] == array[n - i]; */
+/*   @ } */
+/*   @*\/ */
 
 /*@ assigns \nothing;
-  @ ensures \result == ((value & 0x000000ff) << 24) +
-  @                    ((value & 0x0000ff00) << 8)  +
-  @                    ((value & 0x00ff0000) >> 8)  +
-  @                    ((value & 0xff000000) >> 24);
+  @ ensures \result == (((unsigned long) ((value & 0x000000ff) << 24)) |
+  @                     ((unsigned long) ((value & 0x0000ff00) << 8))  |
+  @                     ((value & 0x00ff0000) >> 8)                    |
+  @                     ((value & 0xff000000) >> 24));
   @*/
 unsigned long __po_hi_swap_byte (unsigned long value);
 
