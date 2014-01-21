@@ -20,10 +20,10 @@
 int __po_hi_compute_miss (__po_hi_uint8_t rate);
 
 /*@ assigns \nothing;
-  @ ensures \result == (((value % 256) * 16777216) |
-  @                     ((value % 65280) * 64)     |
-  @                     ((value % 16711680) / 64)  |
-  @                     ((value % 4278190080) / 16777216));
+  @ ensures \result == (((value % 256) * 16777216)      |
+  @                     (((value / 256) % 256) * 65536) |
+  @                     (((value / 65536) % 256) * 256) |
+  @                     (value / 16777216));
   @*/
 unsigned long __po_hi_swap_byte (unsigned long value);
 

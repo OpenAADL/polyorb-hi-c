@@ -38,9 +38,9 @@ unsigned long __po_hi_swap_byte (unsigned long value)
     unsigned long v = 0;
 
     v |= (value % 256) * 16777216;
-    v |= (value % 65280) * 64;
-    v |= (value % 16711680) / 64;
-    v |= (value % 4278190080) / 16777216;
+    v |= ((value / 256) % 256) * 65536;
+    v |= ((value / 65536) % 256) * 256;
+    v |= (value / 16777216);
 
     return v;
 }
