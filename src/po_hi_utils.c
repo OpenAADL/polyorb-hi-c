@@ -12,6 +12,7 @@
 #include <po_hi_time.h>
 #include <po_hi_types.h>
 #include <po_hi_debug.h>
+#include <po_hi_utils.h>
 /* Header files in PolyORB-HI */
 
 #include <deployment.h>
@@ -34,18 +35,14 @@ int __po_hi_compute_miss (__po_hi_uint8_t rate)
 
 unsigned long __po_hi_swap_byte (unsigned long value)
 {
-   union u {unsigned long vi; unsigned char c[sizeof(unsigned long)];};
-   union v {unsigned long ni; unsigned char d[sizeof(unsigned long)];};
-   union u un;
-   union v vn;
-   
-   un.vi = value;
-   vn.d[0]=un.c[3];
-   vn.d[1]=un.c[2];
-   vn.d[2]=un.c[1];
-   vn.d[3]=un.c[0];
-   
-   return (vn.ni);
+    unsigned long v = 0;
+
+    v |= (value % 256) * 16777216;
+    v |= ((value / 256) % 256) * 65536;
+    v |= ((value / 65536) % 256) * 256;
+    v |= (value / 16777216);
+
+    return v;
 }
 
 #ifdef __PO_HI_USE_VCD
@@ -200,4 +197,3 @@ void __po_hi_instrumentation_vcd_init ()
    }
 }
 #endif
-
