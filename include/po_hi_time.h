@@ -60,7 +60,19 @@ typedef struct
 
 #define __PO_HI_TIME_TO_MS(value) ((value.sec*1000)+(value.nsec / 1000000))
 
+/*
+ * For the ACSL specification, this function always returns
+ * __PO_HI_UNAVAILABLE as we do not enable POSIX, RTEMS or XENO
+ * option. TBD later!
+ *
+ * Must include po_hi_results.h to be able to use __PO_HI_UNAVAILABLE
+ * in specification, but does not seem to be possible... TBD
+ */
+/*@
+  @ ensures \result == 2;
+  @*/
 int __po_hi_get_time (__po_hi_time_t* mytime);
+
 /*
  * Get the current time and store informations
  * in the structure mytime.
@@ -92,7 +104,7 @@ int __po_hi_milliseconds  (__po_hi_time_t* time,
  * argument milliseconds.
  */
 
-int __po_hi_microseconds  (__po_hi_time_t* time, 
+int __po_hi_microseconds  (__po_hi_time_t* time,
                            const __po_hi_uint32_t microseconds);
 /*
  * Build a __po_hi_time_t value which contains the
