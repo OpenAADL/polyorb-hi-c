@@ -62,14 +62,13 @@ typedef struct
 
 /*
  * For the ACSL specification, this function always returns
- * __PO_HI_UNAVAILABLE as we do not enable POSIX, RTEMS or XENO
- * option. TBD later!
+ * __PO_HI_SUCCESS as we do force POSIX.
  *
- * Must include po_hi_results.h to be able to use __PO_HI_UNAVAILABLE
+ * Must include po_hi_returns.h to be able to use __PO_HI_SUCCESS
  * in specification, but does not seem to be possible... TBD
  */
 /*@
-  @ ensures \result == 2;
+  @ ensures \result == 1 || \result == -15;
   @*/
 int __po_hi_get_time (__po_hi_time_t* mytime);
 
