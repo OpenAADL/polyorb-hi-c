@@ -346,6 +346,9 @@ extern int clock_getres (clockid_t __clock_id, struct timespec *__res) __THROW;
 /*@ requires \valid(__tp);
   @ assigns *__tp;
   @ ensures \result == 0;
+  @ ensures \valid(__tp);
+  @ ensures __tp->tv_nsec < 1000000000 && __tp->tv_nsec >= 0;
+  @ ensures __tp->tv_sec >= 0;
   @*/
 extern int clock_gettime (clockid_t __clock_id, struct timespec *__tp) __THROW;
 

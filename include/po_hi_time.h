@@ -64,23 +64,24 @@ typedef struct
 #define __PO_HI_TIME_TO_MS(value) ((value.sec*1000)+(value.nsec / 1000000))
 
 /*
+ * Get the current time and store informations
+ * in the structure mytime.
+ * If there is an error, returns a negative value
+ * (ERROR_CLOCK). Else, returns a positive value.
+ *
  * For the ACSL specification, this function always returns
  * __PO_HI_SUCCESS as we do force POSIX.
  *
  * Must include po_hi_returns.h to be able to use __PO_HI_SUCCESS
  * in specification, but does not seem to be possible... TBD
  */
-/*@
-  @ ensures \result == 1 || \result == -15;
+/*@ requires \valid(mytime);
+  @ assigns *mytime;
+  @ ensures mytime->nsec < 1000000000;
+  @ ensures \result == 1;
   @*/
 int __po_hi_get_time (__po_hi_time_t* mytime);
 
-/*
- * Get the current time and store informations
- * in the structure mytime.
- * If there is an error, returns a negative value
- * (ERROR_CLOCK). Else, returns a positive value.
- */
 
 int __po_hi_add_times (__po_hi_time_t* result,
                        const __po_hi_time_t* left,

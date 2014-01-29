@@ -109,11 +109,20 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
    if (clock_gettime (CLOCK_REALTIME, &ts)!=0)
    {
       return (__PO_HI_ERROR_CLOCK);
+
+      // normally this statement is unreachable with our specification
+      // of clock_gettime
+      //@ assert \false;
    }
 #endif
-
+   //@ assert ts.tv_nsec < 1000000000;
+   //@ assert ts.tv_nsec >= 0;
+   //@ assert ts.tv_sec >= 0;
    mytime->sec    = ts.tv_sec;
+   //@ assert ts.tv_sec >= 0;
    mytime->nsec   = ts.tv_nsec;
+   //@ assert ts.tv_nsec >= 0;
+   //@ assert ts.tv_nsec < 1000000000;
 
    return (__PO_HI_SUCCESS);
 #elif defined (_WIN32)
