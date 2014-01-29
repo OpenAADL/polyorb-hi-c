@@ -40,12 +40,6 @@ unsigned __po_hi_windows_tick_to_unix_seconds(long long win_ticks);
 LARGE_INTEGER __po_hi_unix_seconds_to_windows_tick(unsigned sec, unsigned nsec);
 #endif
 
-
-typedef struct
-{
-   __po_hi_uint32_t     sec;     /* amount of second     */
-   __po_hi_uint32_t     nsec;    /* amount of nanosecond */
-}__po_hi_time_t;
 /*
  * Represent the time in PolyORB-HI.
  *
@@ -55,6 +49,15 @@ typedef struct
  *
  * The granularity of the time is in microsecond (10^-6)
  */
+typedef struct
+{
+   __po_hi_uint32_t     sec;     /* amount of second     */
+   __po_hi_uint32_t     nsec;    /* amount of nanosecond */
+}__po_hi_time_t;
+
+/*@
+  @ type invariant time_structure_not_overflow(__po_hi_time_t t) = t.nsec < 1000000000;
+  @*/
 
 #define __PO_HI_TIME_TO_US(value) ((value.sec*1000000)+(value.nsec / 1000))
 
