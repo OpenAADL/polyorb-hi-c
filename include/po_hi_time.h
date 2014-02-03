@@ -55,6 +55,16 @@ typedef struct
    __po_hi_uint32_t     nsec;    /* amount of nanosecond */
 }__po_hi_time_t;
 
+/*
+ * An ACSL predicate to verify invariant on _po_hi_time_t.
+ */
+
+/*@
+  @ predicate is_time_struct_correct(__po_hi_time_t *mytime) =
+  @   mytime->sec >=0 &&
+  @   mytime->nsec >=0 && mytime->nsec < 1000000000;
+  @*/
+
 #define __PO_HI_TIME_TO_US(value) ((value.sec*1000000)+(value.nsec / 1000))
 
 #define __PO_HI_TIME_TO_MS(value) ((value.sec*1000)+(value.nsec / 1000000))
@@ -85,10 +95,7 @@ int clock_gettime (clockid_t __clock_id, struct timespec *__tp);
  * in specification, but does not seem to be possible... TBD
  */
 /*@ requires \valid(mytime);
-  @ assigns mytime->sec;
-  @ assigns mytime->nsec;
-  @ ensures mytime->sec >=0;
-  @ ensures mytime->nsec >=0 && mytime->nsec < 1000000000;
+  @ ensures is_time_struct_correct(mytime);
   @ ensures \result == 1;
   @*/
 int __po_hi_get_time (__po_hi_time_t* mytime);
