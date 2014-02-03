@@ -68,6 +68,25 @@ int __po_hi_get_time (__po_hi_time_t* mytime);
  * (ERROR_CLOCK). Else, returns a positive value.
  */
 
+/*@ requires \valid(result) &&
+						 \valid(left)   &&
+						 \valid(right);
+		requires left->sec + right->sec + 1 <= 4294967295;
+		requires left->nsec + right->nsec <= 4294967295;
+		requires result != left && result != right;
+		ensures \result == 1;
+		assigns result->sec, result->nsec;
+		behavior more_than_1s_in_nsec:
+			assumes left->nsec + right->nsec > 1000000000;
+			ensures result->sec == left->sec + right->sec + 1;
+			ensures result->nsec == left->nsec + right->nsec - 1000000000;
+		behavior equal_or_less_than_1s_in_nsec:
+			assumes left->nsec + right->nsec <= 1000000000;
+			ensures result->sec == left->sec + right->sec;
+			ensures result->nsec == left->nsec + right->nsec;
+		complete behaviors more_than_1s_in_nsec, equal_or_less_than_1s_in_nsec;
+		disjoint behaviors more_than_1s_in_nsec, equal_or_less_than_1s_in_nsec;
+*/
 int __po_hi_add_times (__po_hi_time_t* result,
                        const __po_hi_time_t* left,
                        const __po_hi_time_t* right);
@@ -76,6 +95,12 @@ int __po_hi_add_times (__po_hi_time_t* result,
  * value is the result of the operation.
  */
 
+/*@ requires \valid(time);
+		ensures time->sec == seconds;
+		ensures time->nsec == 0;
+		ensures \result == 1;
+		assigns time->sec, time->nsec;
+*/
 int __po_hi_seconds (__po_hi_time_t* time,
                      const __po_hi_uint32_t seconds);
 /*
@@ -84,6 +109,12 @@ int __po_hi_seconds (__po_hi_time_t* time,
  * argument seconds.
  */
 
+/*@ requires \valid(time);
+		ensures time->sec == milliseconds / 1000;
+		ensures time->nsec == (milliseconds - (time->sec * 1000)) * 1000000;
+		ensures \result == 1;
+		assigns time->sec, time->nsec;
+*/
 int __po_hi_milliseconds  (__po_hi_time_t* time,
                            const __po_hi_uint32_t milliseconds);
 /*
@@ -92,6 +123,12 @@ int __po_hi_milliseconds  (__po_hi_time_t* time,
  * argument milliseconds.
  */
 
+/*@ requires \valid(time);
+		ensures time->sec == microseconds / 1000000;
+		ensures time->nsec == (microseconds - (time->sec * 1000000)) * 1000;
+		ensures \result == 1;
+		assigns time->sec, time->nsec;
+*/
 int __po_hi_microseconds  (__po_hi_time_t* time, 
                            const __po_hi_uint32_t microseconds);
 /*
@@ -100,6 +137,7 @@ int __po_hi_microseconds  (__po_hi_time_t* time,
  * argument microseconds.
  */
 
+
 int __po_hi_delay_until (const __po_hi_time_t* time);
 /*
  * sleep until the time given in argument.
@@ -107,6 +145,13 @@ int __po_hi_delay_until (const __po_hi_time_t* time);
  * a negative value : ERROR_CLOCK or ERROR_PTHREAD_COND
  */
 
+/*@ requires \valid(dst) && \valid(src);
+  	requires \separated(dst, src);
+  	requires src->nsec <= 1000000000;
+		ensures dst->sec == src->sec;
+		ensures dst->nsec == src->nsec;
+		assigns dst->sec, dst->nsec;
+*/
 int __po_hi_time_copy (__po_hi_time_t* dst, const __po_hi_time_t* src);
 /*
  * Copy a time value from src to dst.
@@ -123,7 +168,30 @@ int clock_gettime(int clk_id, struct timespec *tp);
  * emulate it. For example, Darwin does not support it
  */
 
-
+/*@ requires \valid(value) &&
+						 \valid(limit);
+		assigns \nothing;
+		behavior value_sec_higher_than_limit_sec:
+			assumes value->sec > limit->sec;
+			ensures \result == 1;
+		behavior value_sec_equal_to_limit_sec_and_value_nsec_higher_than_limit_nsec:
+			assumes value->sec == limit->sec && value->nsec > limit->nsec;
+			ensures \result == 1;
+		behavior value_sec_equal_to_limit_sec_and_value_nsec_lower_than_limit_nsec:
+			assumes value->sec == limit->sec && value->nsec <= limit->nsec;
+			ensures \result == 0;
+		behavior value_sec_lower_than_limit_sec:
+			assumes value->sec < limit->sec;
+			ensures \result == 0;
+		complete behaviors value_sec_higher_than_limit_sec,
+											 value_sec_equal_to_limit_sec_and_value_nsec_higher_than_limit_nsec,
+											 value_sec_equal_to_limit_sec_and_value_nsec_lower_than_limit_nsec,
+											 value_sec_lower_than_limit_sec;
+		disjoint behaviors value_sec_higher_than_limit_sec,
+											 value_sec_equal_to_limit_sec_and_value_nsec_higher_than_limit_nsec,
+											 value_sec_equal_to_limit_sec_and_value_nsec_lower_than_limit_nsec,
+											 value_sec_lower_than_limit_sec;
+*/
 int __po_hi_time_is_greater (const __po_hi_time_t* value, const __po_hi_time_t* limit);
 /*
  * Indicates if a time value is greater than an other.
