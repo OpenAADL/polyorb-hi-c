@@ -95,6 +95,8 @@ int clock_gettime (clockid_t __clock_id, struct timespec *__tp);
  * in specification, but does not seem to be possible... TBD
  */
 /*@ requires \valid(mytime);
+  @ assigns mytime->sec;
+  @ assigns mytime->nsec;
   @ ensures is_time_struct_correct(mytime);
   @ ensures \result == 1;
   @*/

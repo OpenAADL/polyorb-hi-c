@@ -349,7 +349,7 @@ extern int clock_getres (clockid_t __clock_id, struct timespec *__res) __THROW;
  *    __po_hi_time_t struct that is used to contain seconds and
  *    nanoseconds
  */
-/*@ allocates __tp;
+/*@ requires \valid(__tp);
   @ assigns __tp->tv_sec;
   @ assigns __tp->tv_nsec;
   @ ensures \result == 0;

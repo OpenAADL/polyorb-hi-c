@@ -95,7 +95,7 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
     //@ ghost time_struct_to_be_initialized=mytime;
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   struct timespec *ts;
+    struct timespec *ts = malloc(sizeof(struct timespec));
 
 
 #ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
@@ -110,7 +110,7 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
 #else
    if (clock_gettime (CLOCK_REALTIME, ts)!=0)
    {
-      return (__PO_HI_ERROR_CLOCK);
+       return (__PO_HI_ERROR_CLOCK);
 
       // normally this statement is unreachable with our specification
       // of clock_gettime
@@ -119,6 +119,8 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
 #endif
    mytime->sec    = ts->tv_sec;
    mytime->nsec   = ts->tv_nsec;
+
+   free(ts);
 
    return (__PO_HI_SUCCESS);
 #elif defined (_WIN32)
