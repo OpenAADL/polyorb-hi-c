@@ -40,12 +40,6 @@ unsigned __po_hi_windows_tick_to_unix_seconds(long long win_ticks);
 LARGE_INTEGER __po_hi_unix_seconds_to_windows_tick(unsigned sec, unsigned nsec);
 #endif
 
-
-typedef struct
-{
-   __po_hi_uint32_t     sec;     /* amount of second     */
-   __po_hi_uint32_t     nsec;    /* amount of nanosecond */
-}__po_hi_time_t;
 /*
  * Represent the time in PolyORB-HI.
  *
@@ -55,18 +49,56 @@ typedef struct
  *
  * The granularity of the time is in microsecond (10^-6)
  */
+typedef struct
+{
+   __po_hi_uint32_t     sec;     /* amount of second     */
+   __po_hi_uint32_t     nsec;    /* amount of nanosecond */
+}__po_hi_time_t;
+
+/*
+ * An ACSL predicate to verify invariant on _po_hi_time_t.
+ */
+
+/*@
+  @ predicate is_time_struct_correct(__po_hi_time_t *mytime) =
+  @   mytime->sec >=0 &&
+  @   mytime->nsec >=0 && mytime->nsec < 1000000000;
+  @*/
 
 #define __PO_HI_TIME_TO_US(value) ((value.sec*1000000)+(value.nsec / 1000))
 
 #define __PO_HI_TIME_TO_MS(value) ((value.sec*1000)+(value.nsec / 1000000))
 
-int __po_hi_get_time (__po_hi_time_t* mytime);
+/*
+ * Add specification for clock_gettime ensuring that the timespec
+ * structure used in clock_gettime does not overlap with a ghost field
+ * representing the __po_hi_time_t * parameter of __po_hi_get_time.
+ */
+//@ ghost __po_hi_time_t *time_struct_to_be_initialized;
+
+/*@
+  @ ensures \separated(time_struct_to_be_initialized, __tp);
+  @*/
+int clock_gettime (clockid_t __clock_id, struct timespec *__tp);
+
 /*
  * Get the current time and store informations
  * in the structure mytime.
  * If there is an error, returns a negative value
  * (ERROR_CLOCK). Else, returns a positive value.
+ *
+ * For the ACSL specification, this function always returns
+ * __PO_HI_SUCCESS as we do force POSIX. The specification also
+ * precises the possible values for sec and nsec fields.
+ *
+ * Must include po_hi_returns.h to be able to use __PO_HI_SUCCESS
+ * in specification, but does not seem to be possible... TBD
  */
+/*@ requires \valid(mytime);
+  @ ensures is_time_struct_correct(mytime);
+  @ ensures \result == 1;
+  @*/
+int __po_hi_get_time (__po_hi_time_t* mytime);
 
 /*@ requires \valid(result) &&
 						 \valid(left)   &&
@@ -129,8 +161,7 @@ int __po_hi_milliseconds  (__po_hi_time_t* time,
 		ensures \result == 1;
 		assigns time->sec, time->nsec;
 */
-int __po_hi_microseconds  (__po_hi_time_t* time, 
-                           const __po_hi_uint32_t microseconds);
+int __po_hi_microseconds  (__po_hi_time_t* time, const __po_hi_uint32_t microseconds);
 /*
  * Build a __po_hi_time_t value which contains the
  * amount of time (in microseconds) represented by the
