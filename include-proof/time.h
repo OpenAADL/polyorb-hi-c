@@ -340,11 +340,18 @@ extern int clock_getres (clockid_t __clock_id, struct timespec *__res) __THROW;
 
 /* Get current value of clock CLOCK_ID and store it in TP.
  *
- * Add an trivial ACSL specification saying that calling clock_gettime
- * always succeeds...
+ * Add an ACSL specification saying that:
+ *  - calling clock_gettime always succeeds
+ *  - clock_gettime allocates __tp and __tp is valid
+ *  - value of __tp field are correct
+ *  - a ghost variable time_struct_to_be_initialized is used to
+ *    specify that __tp allocation does not overlap on the
+ *    __po_hi_time_t struct that is used to contain seconds and
+ *    nanoseconds
  */
-/*@ requires \valid(__tp);
-  @ assigns *__tp;
+/*@ allocates __tp;
+  @ assigns __tp->tv_sec;
+  @ assigns __tp->tv_nsec;
   @ ensures \result == 0;
   @ ensures \valid(__tp);
   @ ensures __tp->tv_nsec < 1000000000 && __tp->tv_nsec >= 0;

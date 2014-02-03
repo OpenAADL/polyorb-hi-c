@@ -88,12 +88,14 @@ LARGE_INTEGER __po_hi_unix_seconds_to_windows_tick(unsigned sec, unsigned nsec)
 
 #endif
 
-
-
 int __po_hi_get_time (__po_hi_time_t* mytime)
 {
+    // use ghost variable to be separate mytime from the ts timespec
+    // pointer used in POSIX when calling clock_gettime.
+    //@ ghost time_struct_to_be_initialized=mytime;
+
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   struct timespec ts;
+   struct timespec *ts;
 
 
 #ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
@@ -102,11 +104,11 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
    clock_get_time(cclock, &mts);
    mach_port_deallocate(mach_task_self(), cclock);
-   ts.tv_sec = mts.tv_sec;
-   ts.tv_nsec = mts.tv_nsec;
+   ts->tv_sec = mts.tv_sec;
+   ts->tv_nsec = mts.tv_nsec;
 
 #else
-   if (clock_gettime (CLOCK_REALTIME, &ts)!=0)
+   if (clock_gettime (CLOCK_REALTIME, ts)!=0)
    {
       return (__PO_HI_ERROR_CLOCK);
 
@@ -115,14 +117,8 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
       //@ assert \false;
    }
 #endif
-   //@ assert ts.tv_nsec < 1000000000;
-   //@ assert ts.tv_nsec >= 0;
-   //@ assert ts.tv_sec >= 0;
-   mytime->sec    = ts.tv_sec;
-   //@ assert ts.tv_sec >= 0;
-   mytime->nsec   = ts.tv_nsec;
-   //@ assert ts.tv_nsec >= 0;
-   //@ assert ts.tv_nsec < 1000000000;
+   mytime->sec    = ts->tv_sec;
+   mytime->nsec   = ts->tv_nsec;
 
    return (__PO_HI_SUCCESS);
 #elif defined (_WIN32)

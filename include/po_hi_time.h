@@ -55,13 +55,21 @@ typedef struct
    __po_hi_uint32_t     nsec;    /* amount of nanosecond */
 }__po_hi_time_t;
 
-/*@
-  @ type invariant time_structure_not_overflow(__po_hi_time_t t) = t.nsec < 1000000000;
-  @*/
-
 #define __PO_HI_TIME_TO_US(value) ((value.sec*1000000)+(value.nsec / 1000))
 
 #define __PO_HI_TIME_TO_MS(value) ((value.sec*1000)+(value.nsec / 1000000))
+
+/*
+ * Add specification for clock_gettime ensuring that the timespec
+ * structure used in clock_gettime does not overlap with a ghost field
+ * representing the __po_hi_time_t * parameter of __po_hi_get_time.
+ */
+//@ ghost __po_hi_time_t *time_struct_to_be_initialized;
+
+/*@
+  @ ensures \separated(time_struct_to_be_initialized, __tp);
+  @*/
+int clock_gettime (clockid_t __clock_id, struct timespec *__tp);
 
 /*
  * Get the current time and store informations
@@ -70,18 +78,20 @@ typedef struct
  * (ERROR_CLOCK). Else, returns a positive value.
  *
  * For the ACSL specification, this function always returns
- * __PO_HI_SUCCESS as we do force POSIX.
+ * __PO_HI_SUCCESS as we do force POSIX. The specification also
+ * precises the possible values for sec and nsec fields.
  *
  * Must include po_hi_returns.h to be able to use __PO_HI_SUCCESS
  * in specification, but does not seem to be possible... TBD
  */
 /*@ requires \valid(mytime);
-  @ assigns *mytime;
-  @ ensures mytime->nsec < 1000000000;
+  @ assigns mytime->sec;
+  @ assigns mytime->nsec;
+  @ ensures mytime->sec >=0;
+  @ ensures mytime->nsec >=0 && mytime->nsec < 1000000000;
   @ ensures \result == 1;
   @*/
 int __po_hi_get_time (__po_hi_time_t* mytime);
-
 
 int __po_hi_add_times (__po_hi_time_t* result,
                        const __po_hi_time_t* left,
