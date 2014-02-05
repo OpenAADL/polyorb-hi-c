@@ -50,6 +50,7 @@ FILES_TO_PROVE =  po_hi_utils.c po_hi_time.c po_hi_marshallers.c \
 		  po_hi_messages.c po_hi_protected.c po_hi_task.c po_hi_gqueue.c \
 		  po_hi_transport.c po_hi_main.c
 _FILES_TO_PROVE = $(patsubst %,$(SRCDIR_PROOF)/%,$(FILES_TO_PROVE))
+FRAMA_C_LIBC_SHARE = `$(FRAMA_C) -print-share-path`/libc
 CPP_PROOF_OPT = -cpp-command="$(CPP_PROOF) -C -E -I./include -I./include-proof -I./doc/code"
 WP_ARGS = -wp -wp-rte -wp-timeout 60 -wp-prover alt-ergo
 WP_ARGS_INTERACTIVE = -wp -wp-rte -wp-timeout 60 -wp-prover why3ide
