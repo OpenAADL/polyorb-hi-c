@@ -12,10 +12,11 @@
 
 #include <po_hi_types.h>
 
-/* including po_hi_returns.h to be able to use constants in
- * specifications
+/* including po_hi_returns.h and po_hi_types.h to be able to use
+ * constants in specifications
  */
 #include <po_hi_returns.h>
+#include <po_hi_types.h>
 
 #ifndef HAVE_CLOCK_GETTIME
 #if defined (__CYGWIN__) || defined (__MINGW32__)
