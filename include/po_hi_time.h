@@ -7,11 +7,15 @@
  *
  * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2012 ESA & ISAE.
  */
-
 #ifndef __PO_HI_TIME_H__
 #define __PO_HI_TIME_H__
 
 #include <po_hi_types.h>
+
+/* including po_hi_returns.h to be able to use constants in
+ * specifications
+ */
+#include <po_hi_returns.h>
 
 #ifndef HAVE_CLOCK_GETTIME
 #if defined (__CYGWIN__) || defined (__MINGW32__)
@@ -58,11 +62,10 @@ typedef struct
 /*
  * An ACSL predicate to verify invariant on _po_hi_time_t.
  */
-
 /*@
   @ predicate is_time_struct_correct(__po_hi_time_t *mytime) =
-  @   mytime->sec >=0 &&
-  @   mytime->nsec >=0 && mytime->nsec < 1000000000;
+  @   mytime->sec >= 0 &&
+  @   mytime->nsec >= 0 && mytime->nsec < 1000000000;
   @*/
 
 #define __PO_HI_TIME_TO_US(value) ((value.sec*1000000)+(value.nsec / 1000))
@@ -70,14 +73,17 @@ typedef struct
 #define __PO_HI_TIME_TO_MS(value) ((value.sec*1000)+(value.nsec / 1000000))
 
 /*
+ * <ugly hack warning>
  * Add specification for clock_gettime ensuring that the timespec
  * structure used in clock_gettime does not overlap with a ghost field
  * representing the __po_hi_time_t * parameter of __po_hi_get_time.
+ * </ugly hack warning>
  */
 //@ ghost __po_hi_time_t *time_struct_to_be_initialized;
 
-/*@
+/*@ ensures \valid(time_struct_to_be_initialized);
   @ ensures \separated(time_struct_to_be_initialized, __tp);
+  @ ensures time_struct_to_be_initialized == \old(time_struct_to_be_initialized);
   @*/
 int clock_gettime (clockid_t __clock_id, struct timespec *__tp);
 
@@ -88,17 +94,18 @@ int clock_gettime (clockid_t __clock_id, struct timespec *__tp);
  * (ERROR_CLOCK). Else, returns a positive value.
  *
  * For the ACSL specification, this function always returns
- * __PO_HI_SUCCESS as we do force POSIX. The specification also
- * precises the possible values for sec and nsec fields.
+ * __PO_HI_SUCCESS as we do force POSIX and guarantee that the call to
+ * clock_gettime is correct. The specification also precises the
+ * possible values for sec and nsec fields.
  *
  * Must include po_hi_returns.h to be able to use __PO_HI_SUCCESS
- * in specification, but does not seem to be possible... TBD
+ * in specification.
  */
 /*@ requires \valid(mytime);
-  @ assigns mytime->sec;
-  @ assigns mytime->nsec;
+  @ //assigns mytime->sec;
+  @ //assigns mytime->nsec;
   @ ensures is_time_struct_correct(mytime);
-  @ ensures \result == 1;
+  @ ensures \result == __PO_HI_SUCCESS;
   @*/
 int __po_hi_get_time (__po_hi_time_t* mytime);
 

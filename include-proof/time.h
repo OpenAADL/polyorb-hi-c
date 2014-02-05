@@ -26,6 +26,11 @@
 # define _TIME_H	1
 # include <features.h>
 
+/* including asm-generic/errno-base.h to be able to use constants in
+ * specifications
+ */
+#include <asm-generic/errno-base.h>
+
 __BEGIN_DECLS
 
 #endif
@@ -338,24 +343,48 @@ extern int nanosleep (const struct timespec *__requested_time,
 /* Get resolution of clock CLOCK_ID.  */
 extern int clock_getres (clockid_t __clock_id, struct timespec *__res) __THROW;
 
+/* ACSL predicate for verifying validity of clock identifiers. Must be
+ * parametrized. TBD.
+ */
+/*@ predicate clock_valid(clockid_t clock_id) =
+  @   clock_id == CLOCK_REALTIME &&
+  @   clock_id == CLOCK_REALTIME_COARSE &&
+  @   clock_id == CLOCK_MONOTONIC &&
+  @   clock_id == CLOCK_MONOTONIC_COARSE &&
+  @   clock_id == CLOCK_MONOTONIC_RAW &&
+  @   clock_id == CLOCK_BOOTTIME &&
+  @   clock_id == CLOCK_PROCESS_CPUTIME_ID &&
+  @   clock_id == CLOCK_THREAD_CPUTIME_ID;
+  @*/
+
 /* Get current value of clock CLOCK_ID and store it in TP.
  *
- * Add an ACSL specification saying that:
- *  - calling clock_gettime always succeeds
+ * Add an ACSL specification saying that when calling clock_gettime is
+ * successful:
  *  - clock_gettime allocates __tp and __tp is valid
- *  - value of __tp field are correct
- *  - a ghost variable time_struct_to_be_initialized is used to
- *    specify that __tp allocation does not overlap on the
- *    __po_hi_time_t struct that is used to contain seconds and
- *    nanoseconds
+ *  - values of __tp fields are correct
+ *
+ * Behaviors have been defined for error cases. Notice that it should
+ * be necessary to look more precisely at clock_gettime code to verify
+ * that the postconditions on __tp fields can be ensured.
  */
-/*@ requires \valid(__tp);
-  @ assigns __tp->tv_sec;
-  @ assigns __tp->tv_nsec;
-  @ ensures \result == 0;
-  @ ensures \valid(__tp);
-  @ ensures __tp->tv_nsec < 1000000000 && __tp->tv_nsec >= 0;
-  @ ensures __tp->tv_sec >= 0;
+/*@ behavior __tp_not_valid:
+  @   assumes !\valid(__tp);
+  @   assigns \nothing;
+  @   ensures \result == EFAULT;
+  @ behavior clock_not_valid:
+  @   assumes !clock_valid(__clock_id);
+  @   assigns \nothing;
+  @   ensures \result == EINVAL;
+  @ behavior normal:
+  @   assumes \valid(__tp);
+  @   assigns __tp->tv_sec;
+  @   assigns __tp->tv_nsec;
+  @   ensures \result == 0;
+  @   ensures \valid(__tp);
+  @   ensures __tp == \old(__tp);
+  @   ensures __tp->tv_nsec < 1000000000 && __tp->tv_nsec >= 0;
+  @   ensures __tp->tv_sec >= 0;
   @*/
 extern int clock_gettime (clockid_t __clock_id, struct timespec *__tp) __THROW;
 
