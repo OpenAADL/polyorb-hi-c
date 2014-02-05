@@ -26,10 +26,11 @@
 # define _TIME_H	1
 # include <features.h>
 
-/* including asm-generic/errno-base.h to be able to use constants in
- * specifications
+/* including stdint.h and asm-generic/errno-base.h to be able to use
+ * constants in specifications
  */
 #include <asm-generic/errno-base.h>
+#include <stdint.h>
 
 __BEGIN_DECLS
 
@@ -383,8 +384,8 @@ extern int clock_getres (clockid_t __clock_id, struct timespec *__res) __THROW;
   @   ensures \result == 0;
   @   ensures \valid(__tp);
   @   ensures __tp == \old(__tp);
+  @   ensures __tp->tv_sec >= 0 && __tp->tv_sec <= UINT32_MAX;
   @   ensures __tp->tv_nsec < 1000000000 && __tp->tv_nsec >= 0;
-  @   ensures __tp->tv_sec >= 0;
   @*/
 extern int clock_gettime (clockid_t __clock_id, struct timespec *__tp) __THROW;
 
