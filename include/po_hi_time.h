@@ -114,6 +114,27 @@ int __po_hi_get_time (__po_hi_time_t* mytime);
  * Add the two structures given in parameter. The returned
  * value is the result of the operation.
  */
+/*@ requires \valid(result);
+  @ requires \valid(left);
+  @ requires \valid(right);
+  @ requires is_time_struct_correct(left);
+  @ requires is_time_struct_correct(right);
+  @ requires right->sec + left->sec <= __PO_HI_UINT32_MAX - 1;
+  @ requires \separated(result, left, right);
+  @ assigns result->sec, result->nsec;
+  @ ensures \result == 1;
+  @ ensures is_time_struct_correct(result);
+  @ behavior nsec_sum_higher_than_1s:
+  @   assumes left->nsec + right->nsec >= 1000000000;
+  @   ensures result->sec == left->sec + right->sec + 1;
+  @   ensures result->nsec == left->nsec + right->nsec - 1000000000;
+  @ behavior nsec_sum_less_than_1s:
+  @   assumes left->nsec + right->nsec < 1000000000;
+  @   ensures result->sec == left->sec + right->sec;
+  @   ensures result->nsec == left->nsec + right->nsec;
+  @ complete behaviors;
+  @ disjoint behaviors;
+  @*/
 int __po_hi_add_times (__po_hi_time_t* result,
                        const __po_hi_time_t* left,
                        const __po_hi_time_t* right);
