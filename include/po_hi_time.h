@@ -64,7 +64,7 @@ typedef struct
  */
 /*@
   @ predicate is_time_struct_correct(__po_hi_time_t *mytime) =
-  @   mytime->sec >= 0 &&
+  @   mytime->sec >= 0 && mytime->sec <= __PO_HI_UINT32_MAX &&
   @   mytime->nsec >= 0 && mytime->nsec < 1000000000;
   @*/
 
