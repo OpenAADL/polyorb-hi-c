@@ -109,76 +109,74 @@ int clock_gettime (clockid_t __clock_id, struct timespec *__tp);
   @*/
 int __po_hi_get_time (__po_hi_time_t* mytime);
 
-int __po_hi_add_times (__po_hi_time_t* result,
-                       const __po_hi_time_t* left,
-                       const __po_hi_time_t* right);
 /*
  * Add the two structures given in parameter. The returned
  * value is the result of the operation.
  */
+int __po_hi_add_times (__po_hi_time_t* result,
+                       const __po_hi_time_t* left,
+                       const __po_hi_time_t* right);
 
-int __po_hi_seconds (__po_hi_time_t* time,
-                     const __po_hi_uint32_t seconds);
 /*
  * Build a __po_hi_time_t value which contains the
  * amount of time (in seconds) represented by the
  * argument seconds.
  */
+int __po_hi_seconds (__po_hi_time_t* time,
+                     const __po_hi_uint32_t seconds);
 
-int __po_hi_milliseconds  (__po_hi_time_t* time,
-                           const __po_hi_uint32_t milliseconds);
 /*
  * Build a __po_hi_time_t value which contains the
  * amount of time (in milliseconds) represented by the
  * argument milliseconds.
  */
+int __po_hi_milliseconds  (__po_hi_time_t* time,
+                           const __po_hi_uint32_t milliseconds);
 
-int __po_hi_microseconds  (__po_hi_time_t* time,
-                           const __po_hi_uint32_t microseconds);
 /*
  * Build a __po_hi_time_t value which contains the
  * amount of time (in microseconds) represented by the
  * argument microseconds.
  */
+int __po_hi_microseconds  (__po_hi_time_t* time,
+                           const __po_hi_uint32_t microseconds);
 
-int __po_hi_delay_until (const __po_hi_time_t* time);
 /*
  * sleep until the time given in argument.
  * Return SUCCESS if there is no error. Else, it returns
  * a negative value : ERROR_CLOCK or ERROR_PTHREAD_COND
  */
+int __po_hi_delay_until (const __po_hi_time_t* time);
 
-int __po_hi_time_copy (__po_hi_time_t* dst, const __po_hi_time_t* src);
 /*
  * Copy a time value from src to dst.
  * Returns __PO_HI_SUCCESS if successful.
  */
+int __po_hi_time_copy (__po_hi_time_t* dst, const __po_hi_time_t* src);
 
-
-#ifdef NEED_CLOCK_GETTIME
-#define CLOCK_REALTIME 0
-int clock_gettime(int clk_id, struct timespec *tp);
-#endif
 /*
  * If the system doesn't support the clock_gettime function, we
  * emulate it. For example, Darwin does not support it
  */
+#ifdef NEED_CLOCK_GETTIME
+#define CLOCK_REALTIME 0
+int clock_gettime(int clk_id, struct timespec *tp);
+#endif
 
-
-int __po_hi_time_is_greater (const __po_hi_time_t* value, const __po_hi_time_t* limit);
 /*
  * Indicates if a time value is greater than an other.
  * Returns 1 if value is greater than limit.
  * Returns 0 otherwise.
  */
+int __po_hi_time_is_greater (const __po_hi_time_t* value, const __po_hi_time_t* limit);
 
-#include <errno.h>
-#ifndef ETIMEDOUT
-#define ETIMEDOUT 60
-#endif
 /*
  * Ensure that ETIMEDOUT is defined
  * Workaround for bug #286
  */
+#include <errno.h>
+#ifndef ETIMEDOUT
+#define ETIMEDOUT 60
+#endif
 
 #endif /* __PO_HI_TIME_H__ */
