@@ -103,21 +103,24 @@ int __po_hi_get_time (__po_hi_time_t* mytime);
 /*@ requires \valid(result) &&
 						 \valid(left)   &&
 						 \valid(right);
-		requires left->sec + right->sec + 1 <= 4294967295;
-		requires left->nsec + right->nsec <= 4294967295;
-		requires result != left && result != right;
+		requires is_time_struct_correct(left);
+		requires is_time_struct_correct(right);
+		requires \separated(result, right);
+		requires \separated(result, left);
+		requires left->sec + right->sec + (left->nsec + right->nsec)/1000000000 <= 4294967295;
 		ensures \result == 1;
+		ensures is_time_struct_correct(result);
 		assigns result->sec, result->nsec;
-		behavior more_than_1s_in_nsec:
-			assumes left->nsec + right->nsec > 1000000000;
+		behavior equal_or_higher_1s_in_nsec:
+			assumes left->nsec + right->nsec >= 1000000000;
 			ensures result->sec == left->sec + right->sec + 1;
 			ensures result->nsec == left->nsec + right->nsec - 1000000000;
-		behavior equal_or_less_than_1s_in_nsec:
-			assumes left->nsec + right->nsec <= 1000000000;
+		behavior less_than_1s_in_nsec:
+			assumes left->nsec + right->nsec < 1000000000;
 			ensures result->sec == left->sec + right->sec;
 			ensures result->nsec == left->nsec + right->nsec;
-		complete behaviors more_than_1s_in_nsec, equal_or_less_than_1s_in_nsec;
-		disjoint behaviors more_than_1s_in_nsec, equal_or_less_than_1s_in_nsec;
+		complete behaviors equal_or_higher_1s_in_nsec, less_than_1s_in_nsec;
+		disjoint behaviors equal_or_higher_1s_in_nsec, less_than_1s_in_nsec;
 */
 int __po_hi_add_times (__po_hi_time_t* result,
                        const __po_hi_time_t* left,
@@ -178,7 +181,7 @@ int __po_hi_delay_until (const __po_hi_time_t* time);
 
 /*@ requires \valid(dst) && \valid(src);
   	requires \separated(dst, src);
-  	requires src->nsec <= 1000000000;
+  	requires is_time_struct_correct(src);
 		ensures dst->sec == src->sec;
 		ensures dst->nsec == src->nsec;
 		assigns dst->sec, dst->nsec;

@@ -159,9 +159,10 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
 
 int __po_hi_add_times (__po_hi_time_t* result, const __po_hi_time_t* left, const __po_hi_time_t* right)
 {
+   
    result->sec    = left->sec + right->sec;
    result->nsec   = left->nsec + right->nsec;
-   if (result->nsec > 1000000000)
+   if (result->nsec >= 1000000000)
    {
       result->sec = result->sec + 1;
       result->nsec = result->nsec - 1000000000;
