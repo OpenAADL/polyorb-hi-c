@@ -1,5 +1,5 @@
-#include <time.h>
 #include "po_hi_types.h"
+#include <time.h>
 
 typedef struct {
     __po_hi_uint32_t     sec;     /* amount of second     */
@@ -8,9 +8,9 @@ typedef struct {
 
 //@ ghost __po_hi_time_t *time_struct_to_be_initialized;
 
-/*@
-  @ requires \separated(time_struct_to_be_initialized, __tp);
+/*@ ensures \valid(time_struct_to_be_initialized);
   @ ensures \separated(time_struct_to_be_initialized, __tp);
+  @ ensures time_struct_to_be_initialized == \old(time_struct_to_be_initialized);
   @*/
 int clock_gettime (clockid_t __clock_id, struct timespec *__tp);
 

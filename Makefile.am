@@ -50,6 +50,8 @@ FILES_TO_PROVE =  po_hi_utils.c po_hi_time.c po_hi_marshallers.c \
 		  po_hi_messages.c po_hi_protected.c po_hi_task.c po_hi_gqueue.c \
 		  po_hi_transport.c po_hi_main.c
 _FILES_TO_PROVE = $(patsubst %,$(SRCDIR_PROOF)/%,$(FILES_TO_PROVE))
+FRAMA_C_LIBC_SHARE = `$(FRAMA_C) -print-share-path`/libc
+FRAMA_C_OPT = -pp-annot
 CPP_PROOF_OPT = -cpp-command="$(CPP_PROOF) -C -E -I./include -I./include-proof -I./doc/code"
 WP_ARGS = -wp -wp-rte -wp-timeout 60 -wp-prover alt-ergo
 WP_ARGS_INTERACTIVE = -wp -wp-rte -wp-timeout 60 -wp-prover why3ide
@@ -60,17 +62,17 @@ _WP_FILTER = $(if $(WP_FILTER),-wp-fct $(WP_FILTER),)
 _WP_VERBOSE = $(if $(WP_VERBOSE),-wp-print -wp-out proof-obligations,)
 
 proof-wp:
-	$(FRAMA_C) $(WP_ARGS) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
+	$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 
 proof-wp-report:
-	$(FRAMA_C) $(WP_ARGS) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE) -then -report
+	$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE) -then -report
 
 proof-wp-interactive:
-	$(FRAMA_C) $(WP_ARGS_INTERACTIVE) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
+	$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS_INTERACTIVE) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 
 proof-jessie:
-	$(FRAMA_C) $(JESSIE_ARGS) $(CPP_PROOF_OPT) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
+	$(FRAMA_C) $(FRAMA_C_OPT) $(JESSIE_ARGS) $(CPP_PROOF_OPT) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 
 proof-jessie-interactive:
-	$(FRAMA_C) $(JESSIE_ARGS_INTERACTIVE) $(CPP_PROOF_OPT) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
+	$(FRAMA_C) $(FRAMA_C_OPT) $(JESSIE_ARGS_INTERACTIVE) $(CPP_PROOF_OPT) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 endif
