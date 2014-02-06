@@ -223,7 +223,7 @@ int __po_hi_time_copy (__po_hi_time_t* dst, const __po_hi_time_t* src);
   @	  assumes value->sec < limit->sec;
   @	  ensures \result == 0;
   @	complete behaviors value_sec_higher_than_limit_sec,
-  @	                   value_sec_equal_to_limit_sec_and_value_nsec_higher_than_limit_nsec,
+  @                    value_sec_equal_to_limit_sec_and_value_nsec_higher_than_limit_nsec,
   @                    value_sec_equal_to_limit_sec_and_value_nsec_lower_than_limit_nsec,
   @                    value_sec_lower_than_limit_sec;
   @	disjoint behaviors value_sec_higher_than_limit_sec,
