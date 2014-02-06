@@ -51,7 +51,6 @@ __po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg)
   return (msg->length);
 }
 
-
 void __po_hi_msg_copy (__po_hi_msg_t* dest, __po_hi_msg_t* src)
 {
 	dest->length = src->length;
@@ -62,7 +61,6 @@ void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi
 {
 	msg->length = msg->length + length;
 	__po_hi_copy_array (&(msg->content[msg->length - length]), data, length);
-
 }
 
 void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source)

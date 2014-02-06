@@ -19,7 +19,12 @@
  */
 int __po_hi_compute_miss (__po_hi_uint8_t rate);
 
-
+/*@ assigns \nothing;
+  @ ensures \result == (((value % 256) * 16777216)      |
+  @                     (((value / 256) % 256) * 65536) |
+  @                     (((value / 65536) % 256) * 256) |
+  @                     (value / 16777216));
+  @*/
 unsigned long __po_hi_swap_byte (unsigned long value);
 
 #ifdef __PO_HI_USE_VCD
