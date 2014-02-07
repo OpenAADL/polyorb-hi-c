@@ -90,8 +90,8 @@ LARGE_INTEGER __po_hi_unix_seconds_to_windows_tick(unsigned sec, unsigned nsec)
 
 int __po_hi_get_time (__po_hi_time_t* mytime)
 {
-    // use ghost variable to be separate mytime from the ts timespec
-    // pointer used in POSIX when calling clock_gettime.
+    // use ghost variable to separate mytime from the ts timespec
+    // pointer used when calling clock_gettime.
     //@ ghost time_struct_to_be_initialized=mytime;
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
