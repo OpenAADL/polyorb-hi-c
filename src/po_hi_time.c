@@ -8,6 +8,12 @@
  * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2012 ESA & ISAE.
  */
 
+/*
+ * We define POSIX as the model generated from OCARINA does not
+ * specify the runtime.
+ */
+#define POSIX 1
+
 #if defined (__CYGWIN__) || defined (__MINGW32__)
 #else
 #include <xlocale.h>
@@ -82,13 +88,14 @@ LARGE_INTEGER __po_hi_unix_seconds_to_windows_tick(unsigned sec, unsigned nsec)
 
 #endif
 
-
-
 int __po_hi_get_time (__po_hi_time_t* mytime)
 {
-#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   struct timespec ts;
+    // use ghost variable to separate mytime from the ts timespec
+    // pointer used when calling clock_gettime.
+    //@ ghost time_struct_to_be_initialized=mytime;
 
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+    struct timespec ts;
 
 #ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
    clock_serv_t cclock;
@@ -96,16 +103,19 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
    clock_get_time(cclock, &mts);
    mach_port_deallocate(mach_task_self(), cclock);
-   ts.tv_sec = mts.tv_sec;
-   ts.tv_nsec = mts.tv_nsec;
+   ts->tv_sec = mts.tv_sec;
+   ts->tv_nsec = mts.tv_nsec;
 
 #else
    if (clock_gettime (CLOCK_REALTIME, &ts)!=0)
    {
-      return (__PO_HI_ERROR_CLOCK);
+       return (__PO_HI_ERROR_CLOCK);
+
+      // normally this statement is unreachable with our specification
+      // of clock_gettime
+      //@ assert \false;
    }
 #endif
-
    mytime->sec    = ts.tv_sec;
    mytime->nsec   = ts.tv_nsec;
 
@@ -148,9 +158,10 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
 
 int __po_hi_add_times (__po_hi_time_t* result, const __po_hi_time_t* left, const __po_hi_time_t* right)
 {
+   
    result->sec    = left->sec + right->sec;
    result->nsec   = left->nsec + right->nsec;
-   if (result->nsec > 1000000000)
+   if (result->nsec >= 1000000000)
    {
       result->sec = result->sec + 1;
       result->nsec = result->nsec - 1000000000;
