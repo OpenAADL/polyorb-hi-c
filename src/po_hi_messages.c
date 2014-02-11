@@ -29,12 +29,12 @@
 
 void __po_hi_msg_reallocate (__po_hi_msg_t* message)
 {
-  message->length = 0;
-  message->flags = 0;
-  memset (message->content, 0, __PO_HI_MESSAGES_MAX_SIZE);
+	  message->length = 0;
+	  message->flags = 0;
+	  memset (message->content, 0, __PO_HI_MESSAGES_MAX_SIZE);
 }
 
-void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len)
+/*void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len)
 {
 	  msg->length = len;
 	  __po_hi_copy_array  (msg->content, data, len);
@@ -44,7 +44,7 @@ void __po_hi_msg_read (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint3
 {
   __po_hi_copy_array  (data, msg->content, len);
   msg->length -= len;
-}
+}*/
 
 __po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg)
 {
@@ -66,22 +66,29 @@ void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi
 void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source)
 {
 	dest->length = dest->length + source->length;
-	__po_hi_copy_array  (&(dest->content[dest->length-source->length]), source->content, source->length);
+	__po_hi_copy_array  (&(dest->content[dest->length - source->length]), source->content, source->length);
 }
 
 void __po_hi_msg_get_data (__po_hi_uint8_t* dest, __po_hi_msg_t* source, __po_hi_uint32_t index, __po_hi_uint32_t size)
 {
-	__po_hi_copy_array (dest, source->content + index, size);
+	__po_hi_copy_array (dest, &(source->content[index]), size);
 }
 
 void __po_hi_msg_move (__po_hi_msg_t* msg, __po_hi_uint32_t length)
 {
-   __po_hi_uint32_t tmp;
-   for (tmp=length; tmp < msg->length ; tmp++)
+	 msg->length = msg->length - length;
+	 __po_hi_uint32_t tmp = 0;
+   /*@ loop assigns tmp, msg->content[0..msg->length-1];
+     @ loop invariant 0 <= tmp;
+     @ loop invariant tmp <= \at(msg->length, Pre) - length;
+     @ loop invariant \forall int i; 0 <= i < tmp ==> msg->content[i] == \at(msg->content[length + i], Pre);
+     @ loop invariant \forall int i; tmp <= i < \at(msg->length, Pre) ==> msg->content[i] == \at(msg->content[i], Pre);
+     @ loop variant msg->length - tmp;
+    */
+   for (tmp=0; tmp < msg->length ; tmp++)
    {
-      msg->content[tmp-length] = msg->content[tmp];
+      msg->content[tmp] = msg->content[length + tmp];
    }
-   msg->length = msg->length - length;
 }
 
 #ifdef __PO_HI_USE_GIOP

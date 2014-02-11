@@ -113,7 +113,7 @@ typedef enum
   @ assigns ((unsigned char *) dst)[0..size-1] \from ((unsigned char *) src)[0..size-1];
   @ ensures \forall int i; 0 <= i < size ==> *((unsigned char*) (dst+i)) == *((unsigned char*) (src+i));
   @*/
-//void __po_hi_copy_array (__po_hi_uint8_t* dst, __po_hi_uint8_t* src, __po_hi_uint32_t size);
-void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size);
+void __po_hi_copy_array (__po_hi_uint8_t* dst, __po_hi_uint8_t* src, __po_hi_uint32_t size);
+//void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size);
 
 #endif /* __PO_HI_TYPES_H_ */

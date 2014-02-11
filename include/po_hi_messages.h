@@ -49,9 +49,8 @@ void __po_hi_msg_reallocate (__po_hi_msg_t* message);
  * Reset the message given in parameter 
  */
 
-/*@ requires \valid(msg);
-  @ requires \valid(msg->content+(0..len-1));
-  @ requires \valid(data+(0..len-1));
+/* @ requires \valid(msg);
+  @ requires \valid(msg->content+(0..len-1)) && \valid(data+(0..len-1));
   @ requires \separated(msg->content+(0..len-1), data+(0..len-1));
   @ requires \separated(msg->content+(0..len-1), &(msg->length));
   @ requires \separated(data+(0..len-1), &(msg->length));
@@ -83,8 +82,8 @@ __po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg);
 
 /*@ requires \valid(dest);
   @ requires \valid(src);
-  @ requires \valid_read(dest->content+(0..(int) sizeof(__po_hi_request_t) + 3));
-  @ requires \valid_read(src->content+(0..(int) sizeof(__po_hi_request_t) + 3));
+  @ requires \valid(dest->content+(0..(int) sizeof(__po_hi_request_t) + 3));
+  @ requires \valid(src->content+(0..(int) sizeof(__po_hi_request_t) + 3));
   @ requires \separated(dest->content+(0..(int) sizeof(__po_hi_request_t) + 3), src->content+(0..(int) sizeof(__po_hi_request_t) + 3));
   @ requires \separated(dest->content+(0..(int) sizeof(__po_hi_request_t) + 3), &(dest->length));
   @ assigns dest->length;
@@ -105,10 +104,11 @@ void __po_hi_msg_copy (__po_hi_msg_t* dest,
   @	requires \separated(msg->content+(msg->length..msg->length + length - 1), data+(0..(length - 1)));
   @ requires \separated(msg->content+(msg->length..msg->length + length - 1), &(msg->length));
   @ requires \separated(data+(0..(length - 1)), &(msg->length));
+  @ requires msg->length + length <= 4294967295;
   @	assigns msg->content[msg->length..(msg->length + length - 1)] \from data[0..(length - 1)];
   @	assigns msg->length;
-  @ ensures \forall unsigned int i; 0 <= i < \old(msg->length) ==> msg->content[i] == \old(msg->content[i]);
-  @	ensures \forall unsigned int i; 0 <= i < length ==> msg->content[\old(msg->length) + i] == data[i];
+  @ //ensures \forall int i; 0 <= i < \old(msg->length) ==> msg->content[i] == \old(msg->content[i]);
+  @	ensures \forall int i; 0 <= i < length ==> msg->content[\old(msg->length) + i] == data[i];
   @ ensures msg->length == \old(msg->length) + length;
   @*/
 void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi_uint32_t length);
@@ -121,17 +121,20 @@ void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi
 
 /*@ requires \valid(dest);
   @ requires \valid(source);
-  @ requires \valid(dest->content+(dest->length..(dest->length + source->length - 1)));
-  @	requires \valid_read(source->content+(0..(source->length - 1)));
+  @ requires source->length + dest->length <= 4294967295;
+  @ requires \valid(dest->content+(0..(dest->length + source->length - 1)));
+  @	requires \valid(source->content+(0..(source->length - 1)));
   @	requires \separated(source->content+(0..source->length - 1), dest->content+(0..(dest->length + source->length - 1)));
-  @ requires \separated(dest->content+(dest->length..(dest->length + source->length - 1)), &(dest->length));
+  @ requires \separated(dest->content+(0..(dest->length + source->length - 1)), &(dest->length));
   @ requires \separated(source->content+(0..source->length - 1), &(dest->length));
-  @ requires \separated(dest->content+(dest->length..(dest->length + source->length - 1)), &(source->length));
-  @	assigns dest->content[dest->length..(dest->length + source->length - 1)];
+  @ requires \separated(dest->content+(0..(dest->length + source->length - 1)), &(source->length));
+  @ //requires \separated(source->content+(0..source->length - 1), &(source->length));
+  @ requires &(source->length) != &(dest->length);
+  @	assigns dest->content[dest->length..(dest->length + source->length - 1)] \from source->content[0..source->length-1];
   @	assigns dest->length;
-  @ ensures \forall unsigned int i; 0 <= i < \old(dest->length) ==> dest->content[i] == \old(dest->content[i]);
-  @ ensures \forall unsigned int i; 0 <= i < \old(source->length) ==> source->content[i] == \old(source->content[i]);
-  @	ensures \forall unsigned int i; 0 <= i < source->length ==> dest->content[\old(dest->length) + i] == source->content[i];
+  @	ensures \forall int i; 0 <= i < source->length ==> dest->content[\old(dest->length) + i] == source->content[i];
+  @	//ensures \forall int i; 0 <= i < source->length ==> source->content[i] == \old(source->content[i]);
+  @ //ensures \forall int i; 0 <= i < \old(dest->length) ==> dest->content[i] == \old(dest->content[i]);
   @ ensures dest->length == \old(dest->length) + source->length;
   @ ensures source->length == \old(source->length);
   @*/
@@ -143,10 +146,11 @@ void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source);
  */
 
 /*@	requires index >= 0;
-  @ requires \valid(dest+(0..(size-1))) && \valid_read(source->content+(index..(index+size-1)));
+  @ requires index + size < source->length;
+  @ requires \valid(dest+(0..(size-1))) && \valid(source->content+(index..(index+size-1)));
   @ requires \separated(dest+(0..size-1),(source->content)+(index..(index+size-1)));
   @ assigns dest[0..(size - 1)] \from source->content[index..(index+size-1)];
-  @ ensures \forall int i; 0 <= i < size ==> *(dest+i) == *(source->content + index + i);
+  @ ensures \forall int i; 0 <= i < size ==> dest[i] == (source->content + index)[i];
   @*/
 void __po_hi_msg_get_data (__po_hi_uint8_t* dest, __po_hi_msg_t* source,
                            __po_hi_uint32_t index,
@@ -156,6 +160,17 @@ void __po_hi_msg_get_data (__po_hi_uint8_t* dest, __po_hi_msg_t* source,
  * argument It will copy size bytes from the messages.
  */
 
+/*@ requires \valid(msg);
+  @ requires \valid(msg->content+(0..msg->length-1));
+  @ requires length > 0;
+  @ requires length <= msg->length;
+  @ requires msg->length < (int) sizeof(__po_hi_request_t) + 4;
+  @ requires \separated(msg->content+(0..msg->length-1), &(msg->length));
+  @ assigns msg->content[0..msg->length - length - 1];// \from msg->content[length..msg->length - 1];
+  @ assigns msg->length;
+  @ ensures \forall int i; 0 <= i < msg->length ==> msg->content[i] == \old(msg->content[length + i]);
+  @ ensures msg->length == \old(msg->length) - length;
+ */
 void __po_hi_msg_move (__po_hi_msg_t* msg, __po_hi_uint32_t length);
 /*
  * Move a part of the message to the beginning. This function will put
