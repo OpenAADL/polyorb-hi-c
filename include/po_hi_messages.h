@@ -21,8 +21,7 @@
 #ifdef __PO_HI_USE_GIOP
 #define __PO_HI_MESSAGES_MAX_SIZE (int) sizeof(__po_hi_request_t) + 200
 #else
-//#define __PO_HI_MESSAGES_MAX_SIZE (int) sizeof(__po_hi_request_t) + 4
-#define __PO_HI_MESSAGES_MAX_SIZE 500
+#define __PO_HI_MESSAGES_MAX_SIZE (int) sizeof(__po_hi_request_t) + 4
 /* XXX Why + 4 ? to be investigated */
 #endif
 
@@ -33,22 +32,17 @@ typedef struct
 {
   __po_hi_uint32_t  length;
   __po_hi_uint8_t   flags;
-  __po_hi_int8_t   content[__PO_HI_MESSAGES_MAX_SIZE]; /* Content of the message */
+  __po_hi_uint8_t   content[__PO_HI_MESSAGES_MAX_SIZE]; /* Content of the message */
 } __po_hi_msg_t;
 
 /*@ requires \valid(message);
-  @ requires \valid(message->content+(0..(int) sizeof(__po_hi_request_t) + 4 - 1));
-  @ requires \valid(message->content+(0..500 - 1));
-  @ //requires \separated(message->content+(0..(int) sizeof(__po_hi_request_t) + 4 - 1), &(message->flags));
-  @ requires \separated(message->content+(0..500 - 1), &(message->flags));
-  @ //requires \separated(message->content+(0..(int) sizeof(__po_hi_request_t) + 4 - 1), &(message->length));
-  @ requires \separated(message->content+(0..500 - 1), &(message->length));
-  @ //assigns message->length, message->flags, message->content[0..(int) sizeof(__po_hi_request_t) + 4 - 1];
-  @ assigns message->length, message->flags, message->content[0..500 - 1];
+  @ requires \valid(message->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1));
+  @ requires \separated(message->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1), &(message->flags));
+  @ requires \separated(message->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1), &(message->length));
+  @ assigns message->length, message->flags, message->content[0..__PO_HI_MESSAGES_MAX_SIZE - 1];
   @ ensures message->flags == 0;
   @ ensures message->length == 0;
-  @ //ensures \forall unsigned int i; 0 <= i < (int) sizeof(__po_hi_request_t) + 3 - 1 ==> message->content[i] == 0;
-  @ ensures \forall unsigned int i; 0 <= i < 500 - 1 ==> message->content[i] == 0;
+  @ ensures \forall unsigned int i; 0 <= i < __PO_HI_MESSAGES_MAX_SIZE - 1 ==> message->content[i] == 0;
  */
 void __po_hi_msg_reallocate (__po_hi_msg_t* message);
 /* 
@@ -88,19 +82,13 @@ __po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg);
 
 /*@ requires \valid(dest);
   @ requires \valid(src);
-  @ //requires \valid(dest->content+(0..(int) sizeof(__po_hi_request_t) + 4 - 1));
-  @ //requires \valid(src->content+(0..(int) sizeof(__po_hi_request_t) + 4 - 1));
-  @ requires \valid(dest->content+(0..500 - 1));
-  @ requires \valid(src->content+(0..500 - 1));
-  @ //requires \separated(dest->content+(0..(int) sizeof(__po_hi_request_t) + 4 - 1), src->content+(0..(int) sizeof(__po_hi_request_t) + 4 - 1));
-  @ //requires \separated(dest->content+(0..(int) sizeof(__po_hi_request_t) + 4 - 1), &(dest->length));
-  @ requires \separated(dest->content+(0..500 - 1), src->content+(0..500 - 1));
-  @ requires \separated(dest->content+(0..500 - 1), &(dest->length));
+  @ requires \valid(dest->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1));
+  @ requires \valid(src->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1));
+  @ requires \separated(dest->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1), src->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1));
+  @ requires \separated(dest->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1), &(dest->length));
   @ assigns dest->length;
-  @ //assigns dest->content[0..(int) sizeof(__po_hi_request_t) + 4 - 1];
-  @ assigns dest->content[0..500 - 1];
-  @ //ensures \forall unsigned int i; 0 <= i < (int) sizeof(__po_hi_request_t) + 4 ==> src->content[i] == dest->content[i];
-  @ ensures \forall unsigned int i; 0 <= i < 500 - 1 ==> src->content[i] == dest->content[i];
+  @ assigns dest->content[0..__PO_HI_MESSAGES_MAX_SIZE - 1];
+  @ ensures \forall unsigned int i; 0 <= i < __PO_HI_MESSAGES_MAX_SIZE - 1 ==> src->content[i] == dest->content[i];
   @ ensures dest->length == \old(src->length);
  */
 void __po_hi_msg_copy (__po_hi_msg_t* dest,
@@ -116,8 +104,7 @@ void __po_hi_msg_copy (__po_hi_msg_t* dest,
   @	requires \separated(msg->content+(msg->length..msg->length + length - 1), ((__po_hi_int8_t *) data)+(0..(length - 1)));
   @ requires \separated(msg->content+(msg->length..msg->length + length - 1), &(msg->length));
   @ requires \separated(((__po_hi_int8_t *) data)+(0..(length - 1)), &(msg->length));
-  @ requires msg->length + length <= (int) sizeof(__po_hi_request_t) + 4;
-  @ requires msg->length + length <= 500;
+  @ requires msg->length + length <= __PO_HI_MESSAGES_MAX_SIZE;
   @	assigns msg->content[msg->length..(msg->length + length - 1)];// \from ((__po_hi_int8_t *) data)[0..(length - 1)];
   @	assigns msg->length;
   @	ensures \forall int i; 0 <= i < length ==> msg->content[\old(msg->length) + i] == ((__po_hi_int8_t *) data)[i];
@@ -133,15 +120,12 @@ void __po_hi_msg_append_data (__po_hi_msg_t* msg, void* data, __po_hi_uint32_t l
 
 /*@ requires \valid(dest);
   @ requires \valid(source);
-  @ requires source->length + dest->length <= 500;
-  @ //requires source->length + dest->length <= (int) sizeof(__po_hi_request_t) + 4;
+  @ requires source->length + dest->length <= __PO_HI_MESSAGES_MAX_SIZE;
   @ requires \valid(dest->content+(0..(dest->length + source->length - 1)));
   @	requires \valid(source->content+(0..(source->length - 1)));
   @	requires \separated(source->content+(0..source->length - 1), dest->content+(0..(dest->length + source->length - 1)));
-  @ requires \separated(dest->content+(0..(dest->length + source->length - 1)), &(dest->length));
   @ requires \separated(source->content+(0..source->length - 1), &(dest->length));
   @ requires \separated(dest->content+(0..(dest->length + source->length - 1)), &(source->length));
-  @ //requires \separated(source->content+(0..source->length - 1), &(source->length));
   @ requires &(source->length) != &(dest->length);
   @	assigns dest->content[dest->length..(dest->length + source->length - 1)];// \from source->content[0..source->length-1];
   @	assigns dest->length;
@@ -176,8 +160,7 @@ void __po_hi_msg_get_data (void* dest, __po_hi_msg_t* source,
   @ requires \valid(msg->content+(0..msg->length-1));
   @ requires length > 0;
   @ requires length <= msg->length;
-  @ //requires msg->length < (int) sizeof(__po_hi_request_t) + 4;
-  @ requires msg->length <= 500;
+  @ requires msg->length <= __PO_HI_MESSAGES_MAX_SIZE;
   @ requires \separated(msg->content+(0..msg->length-1), &(msg->length));
   @ assigns msg->content[0..msg->length - length - 1];// \from msg->content[length..msg->length - 1];
   @ assigns msg->length;

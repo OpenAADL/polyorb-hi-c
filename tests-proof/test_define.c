@@ -1,8 +1,8 @@
-#define MY_CST 1
+#define __PO_HI_MESSAGES_MAX_SIZE 1
 
 /*@
-  @ ensures \result == MY_CST;
+  @ ensures \result == __PO_HI_MESSAGES_MAX_SIZE;
   @*/
 int foo() {
-    return MY_CST;
+    return __PO_HI_MESSAGES_MAX_SIZE;
 }

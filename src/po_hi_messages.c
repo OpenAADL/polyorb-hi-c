@@ -31,16 +31,7 @@ void __po_hi_msg_reallocate (__po_hi_msg_t* message)
 {
 	message->length = 0;
 	message->flags = 0;
-	//memset (message->content, 0, __PO_HI_MESSAGES_MAX_SIZE);
-	__po_hi_uint32_t i;
-	/*@ loop invariant \forall int k; 0 <= k < i ==> message->content[k] == 0;
-	  @ loop invariant 0 <= i;
-	  @ loop invariant i <= 500;//DEFINE
-	  @ loop assigns i, message->content[0..500-1];
-	  @ loop variant 500 - i;//DEFINE
-	 */
-	for (i = 0 ; i < __PO_HI_MESSAGES_MAX_SIZE ; ++i)
-		message->content[i] = 0;
+	memset (message->content, 0, __PO_HI_MESSAGES_MAX_SIZE);
 }
 
 /*void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len)
