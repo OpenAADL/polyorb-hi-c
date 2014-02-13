@@ -29,9 +29,18 @@
 
 void __po_hi_msg_reallocate (__po_hi_msg_t* message)
 {
-	  message->length = 0;
-	  message->flags = 0;
-	  memset (message->content, 0, __PO_HI_MESSAGES_MAX_SIZE);
+	message->length = 0;
+	message->flags = 0;
+	//memset (message->content, 0, __PO_HI_MESSAGES_MAX_SIZE);
+	__po_hi_uint32_t i;
+	/*@ loop invariant \forall int k; 0 <= k < i ==> message->content[k] == 0;
+	  @ loop invariant 0 <= i;
+	  @ loop invariant i <= 500;//DEFINE
+	  @ loop assigns i, message->content[0..500-1];
+	  @ loop variant 500 - i;//DEFINE
+	 */
+	for (i = 0 ; i < __PO_HI_MESSAGES_MAX_SIZE ; ++i)
+		message->content[i] = 0;
 }
 
 /*void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len)
@@ -57,7 +66,7 @@ void __po_hi_msg_copy (__po_hi_msg_t* dest, __po_hi_msg_t* src)
 	__po_hi_copy_array  (dest->content, src->content, __PO_HI_MESSAGES_MAX_SIZE);
 }
 
-void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi_uint32_t length)
+void __po_hi_msg_append_data (__po_hi_msg_t* msg, void* data, __po_hi_uint32_t length)
 {
 	msg->length = msg->length + length;
 	__po_hi_copy_array (&(msg->content[msg->length - length]), data, length);
@@ -69,7 +78,7 @@ void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source)
 	__po_hi_copy_array  (&(dest->content[dest->length - source->length]), source->content, source->length);
 }
 
-void __po_hi_msg_get_data (__po_hi_uint8_t* dest, __po_hi_msg_t* source, __po_hi_uint32_t index, __po_hi_uint32_t size)
+void __po_hi_msg_get_data (void* dest, __po_hi_msg_t* source, __po_hi_uint32_t index, __po_hi_uint32_t size)
 {
 	__po_hi_copy_array (dest, &(source->content[index]), size);
 }
@@ -77,7 +86,7 @@ void __po_hi_msg_get_data (__po_hi_uint8_t* dest, __po_hi_msg_t* source, __po_hi
 void __po_hi_msg_move (__po_hi_msg_t* msg, __po_hi_uint32_t length)
 {
 	 msg->length = msg->length - length;
-	 __po_hi_uint32_t tmp = 0;
+	 __po_hi_uint32_t tmp;
    /*@ loop assigns tmp, msg->content[0..msg->length-1];
      @ loop invariant 0 <= tmp;
      @ loop invariant tmp <= \at(msg->length, Pre) - length;
