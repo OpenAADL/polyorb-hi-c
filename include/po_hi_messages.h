@@ -14,7 +14,7 @@
 #include <po_hi_config.h>
 #include <po_hi_types.h>
 
-#include <request.h>  
+#include <request.h>
 /* This file may not be generated. However, using messages implies
    using request. */
 
@@ -36,17 +36,17 @@ typedef struct
 } __po_hi_msg_t;
 
 /*@ requires \valid(message);
-  @ requires \valid(message->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1));
-  @ requires \separated(message->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1), &(message->flags));
-  @ requires \separated(message->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1), &(message->length));
-  @ assigns message->length, message->flags, message->content[0..__PO_HI_MESSAGES_MAX_SIZE - 1];
+  @ requires \valid(message->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)));
+  @ requires \separated(message->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)), &(message->flags));
+  @ requires \separated(message->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)), &(message->length));
+  @ assigns message->length, message->flags, message->content[0..(__PO_HI_MESSAGES_MAX_SIZE - 1)];
   @ ensures message->flags == 0;
   @ ensures message->length == 0;
   @ ensures \forall unsigned int i; 0 <= i < __PO_HI_MESSAGES_MAX_SIZE - 1 ==> message->content[i] == 0;
  */
 void __po_hi_msg_reallocate (__po_hi_msg_t* message);
-/* 
- * Reset the message given in parameter 
+/*
+ * Reset the message given in parameter
  */
 
 /* @ requires \valid(msg);
@@ -82,12 +82,12 @@ __po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg);
 
 /*@ requires \valid(dest);
   @ requires \valid(src);
-  @ requires \valid(dest->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1));
-  @ requires \valid(src->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1));
-  @ requires \separated(dest->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1), src->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1));
-  @ requires \separated(dest->content+(0..__PO_HI_MESSAGES_MAX_SIZE - 1), &(dest->length));
+  @ requires \valid(dest->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)));
+  @ requires \valid(src->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)));
+  @ requires \separated(dest->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)), src->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)));
+  @ requires \separated(dest->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)), &(dest->length));
   @ assigns dest->length;
-  @ assigns dest->content[0..__PO_HI_MESSAGES_MAX_SIZE - 1];
+  @ assigns dest->content[0..(__PO_HI_MESSAGES_MAX_SIZE - 1)];
   @ ensures \forall unsigned int i; 0 <= i < __PO_HI_MESSAGES_MAX_SIZE - 1 ==> src->content[i] == dest->content[i];
   @ ensures dest->length == \old(src->length);
  */
