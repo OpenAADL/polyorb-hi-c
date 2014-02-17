@@ -89,7 +89,6 @@ typedef double __po_hi_float64_t;
 
 typedef unsigned char            __po_hi_byte_t;
 
-
 typedef enum
 {
    __PO_HI_IN_DATA_INTER_PROCESS             = 0,
@@ -113,7 +112,6 @@ typedef enum
   @ assigns ((__po_hi_int8_t *) dst)[0..size-1] \from ((__po_hi_int8_t *) src)[0..size-1];
   @ ensures \forall int i; 0 <= i < size ==> *(((__po_hi_int8_t *) dst)+i) == *(((__po_hi_int8_t *) src)+i);
   @*/
-//void __po_hi_copy_array (__po_hi_uint8_t* dst, __po_hi_uint8_t* src, __po_hi_uint32_t size);
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint32_t size);
 
 #endif /* __PO_HI_TYPES_H_ */

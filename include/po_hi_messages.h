@@ -142,7 +142,7 @@ void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source);
 
 /*@ requires \valid(source);
   @	requires index >= 0;
-  @ requires index + size < source->length;
+  @ requires index + size <= source->length;
   @ requires \valid(((__po_hi_int8_t *) dest)+(0..(size-1))) && \valid(source->content+(index..(index+size-1)));
   @ requires \separated(((__po_hi_int8_t *) dest)+(0..size-1),(source->content)+(index..(index+size-1)));
   @ assigns ((__po_hi_int8_t *) dest)[0..(size - 1)];// \from source->content[index..(index+size-1)];

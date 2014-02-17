@@ -224,7 +224,7 @@ void __po_hi_gqueue_store_out (__po_hi_task_id id,
 
    request->port = __PO_HI_GQUEUE_OUT_PORT;
    ptr = &__po_hi_gqueues_most_recent_values[id][port];
-   memcpy (ptr, request, sizeof (__po_hi_request_t));
+   __po_hi_copy_array(ptr, request, sizeof (__po_hi_request_t));
    __PO_HI_DEBUG_DEBUG ("__po_hi_gqueue_store_out() from task %d on port %d\n", id, port);
 }
 
@@ -266,7 +266,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 #endif
    if (__po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA)
    {
-      memcpy(ptr,request,sizeof(*request));
+      __po_hi_copy_array(ptr,request,sizeof(*request));
    }
    else
    {
@@ -299,7 +299,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 
       tmp = tmp + size;
 
-      memcpy (tmp , request, sizeof (__po_hi_request_t));
+      __po_hi_copy_array (tmp , request, sizeof (__po_hi_request_t));
 
       __po_hi_gqueues_woffsets[id][port] =  (__po_hi_gqueues_woffsets[id][port] + 1 ) % __po_hi_gqueues_sizes[id][port];
 
@@ -500,12 +500,12 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
 
    if (__po_hi_gqueues_used_size[id][port] == 0)
    {
-      memcpy (request, ptr, sizeof (__po_hi_request_t));
+      __po_hi_copy_array (request, ptr, sizeof (__po_hi_request_t));
    }
    else
    {
       ptr = ((__po_hi_request_t *) &__po_hi_gqueues[id][port]) +  __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port]; 
-      memcpy (request, ptr, sizeof (__po_hi_request_t));
+      __po_hi_copy_array (request, ptr, sizeof (__po_hi_request_t));
    }
     
    
