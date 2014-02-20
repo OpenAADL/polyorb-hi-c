@@ -2,6 +2,9 @@
 # middleware written for generated code from AADL models.
 # You should use it with the Ocarina toolsuite.
 
+CYGPATH_U = @CYGPATH_U@
+CYGPATH_W = @CYGPATH_W@
+
 GCC_GENERIC_CFLAGS=-Wall -g
 
 all: build-node

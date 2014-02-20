@@ -61,7 +61,7 @@ case ${host_os} in
 		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lrt"
 		SIMULINK_LDFLAGS="-lm"
 		;;
-	*cygwin*)	
+	*cygwin*)
 		NATIVE_CFLAGS="${NATIVE_CFLAGS} -D_GNU_SOURCE"
 		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lwsock32"
 		SIMULINK_LDFLAGS="-lm"
@@ -217,6 +217,7 @@ AC_OUTPUT([
 	share/tsim/Makefile
 	share/make/Makefile
 	share/utils/Makefile
+	share/make/Makefile.common
 	share/make/Makefile.native
 	share/config/Makefile
 	share/config/spif-rtems/Makefile
