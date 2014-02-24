@@ -54,7 +54,7 @@ __po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg)
 void __po_hi_msg_copy (__po_hi_msg_t* dest, __po_hi_msg_t* src)
 {
 	dest->length = src->length;
-	__po_hi_copy_array  (dest->content, src->content, __PO_HI_MESSAGES_MAX_SIZE);
+	__po_hi_copy_array_uint8 (dest->content, src->content, __PO_HI_MESSAGES_MAX_SIZE);
 }
 
 void __po_hi_msg_append_data (__po_hi_msg_t* msg, void* data, __po_hi_uint32_t length)
@@ -136,7 +136,7 @@ void __po_hi_messages_debug (__po_hi_msg_t* msg)
 
    for (i = 0 ; i < 50 ; i++)
      Hexa[i] = ' ';
-   
+
    for (i = 0 ; i < 17 ; i++)
      ASCII[i] = ' ';
 

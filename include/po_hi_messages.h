@@ -80,23 +80,22 @@ __po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg);
  * Return the length is the message
  */
 
+/*
+ * Copy a message. The first argument is the message destination
+ * whereas the second argument is the message source
+ */
 /*@ requires \valid(dest);
   @ requires \valid(src);
   @ requires \valid(dest->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)));
   @ requires \valid(src->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)));
   @ requires \separated(dest->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)), src->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)));
-  @ requires \separated(dest->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)), &(dest->length));
   @ assigns dest->length;
   @ assigns dest->content[0..(__PO_HI_MESSAGES_MAX_SIZE - 1)];
-  @ ensures \forall unsigned int i; 0 <= i < __PO_HI_MESSAGES_MAX_SIZE - 1 ==> src->content[i] == dest->content[i];
   @ ensures dest->length == \old(src->length);
+  @ ensures \forall int i; 0 <= i < __PO_HI_MESSAGES_MAX_SIZE ==> src->content[i] == dest->content[i];
  */
 void __po_hi_msg_copy (__po_hi_msg_t* dest,
 		       __po_hi_msg_t* src);
-/*
- * Copy a message. The first argument is the message destination
- * whereas the second argument is the message source
- */
 
 /*@ requires \valid(msg);
   @ requires \valid(msg->content+(0..(msg->length + length - 1)));
