@@ -13,6 +13,7 @@
 
 #include <po_hi_config.h>
 #include <po_hi_types.h>
+#include <stddef.h>
 
 #include <request.h>
 /* This file may not be generated. However, using messages implies
@@ -35,19 +36,31 @@ typedef struct
   __po_hi_uint8_t   content[__PO_HI_MESSAGES_MAX_SIZE]; /* Content of the message */
 } __po_hi_msg_t;
 
+/*
+ * memset variant for uint8 arrays.
+ */
+/*@ requires \valid(s+(0..n-1));
+  @ assigns s[0..n-1];
+  @ ensures \forall int i; 0 <= i < n ==> *(s+i) == c;
+  @ ensures \result == s;
+  @*/
+__po_hi_uint8_t* memset_uint8(__po_hi_uint8_t* s, int c, size_t n);
+
+/*
+ * Reset the message given in parameter
+ */
 /*@ requires \valid(message);
   @ requires \valid(message->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)));
   @ requires \separated(message->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)), &(message->flags));
   @ requires \separated(message->content+(0..(__PO_HI_MESSAGES_MAX_SIZE - 1)), &(message->length));
-  @ assigns message->length, message->flags, message->content[0..(__PO_HI_MESSAGES_MAX_SIZE - 1)];
+  @ assigns message->length;
+  @ assigns message->flags;
+  @ assigns message->content[0..(__PO_HI_MESSAGES_MAX_SIZE - 1)];
   @ ensures message->flags == 0;
   @ ensures message->length == 0;
-  @ ensures \forall unsigned int i; 0 <= i < __PO_HI_MESSAGES_MAX_SIZE - 1 ==> message->content[i] == 0;
+  @ ensures \forall int i; 0 <= i < __PO_HI_MESSAGES_MAX_SIZE - 1 ==> message->content[i] == 0;
  */
 void __po_hi_msg_reallocate (__po_hi_msg_t* message);
-/*
- * Reset the message given in parameter
- */
 
 /* @ requires \valid(msg);
   @ requires \valid(msg->content+(0..len-1)) && \valid(data+(0..len-1));
