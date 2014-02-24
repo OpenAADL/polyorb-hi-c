@@ -106,16 +106,16 @@ typedef enum
    __PO_HI_INVALID_PORT_KIND                 = 50
 }__po_hi_port_kind_t;
 
-/*@ requires \valid(((char *) dst)+(0..size-1)) &&
-  @          \valid(((char *) src)+(0..size-1));
+/*@ requires \valid(((char *) dst)+(0..size-1));
+  @ requires \valid(((char *) src)+(0..size-1));
   @ requires \separated(((char *) dst)+(0..size-1), ((char *) src)+(0..size-1));
   @ assigns ((char *) dst)[0..size-1] \from ((char *) src)[0..size-1];
   @ ensures \forall int i; 0 <= i < size ==> *(((char *) dst)+i) == *(((char *) src)+i);
   @*/
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint32_t size);
 
-/*@ requires \valid(dst+(0..size-1)) &&
-  @          \valid(src+(0..size-1));
+/*@ requires \valid(dst+(0..size-1));
+  @ requires \valid(src+(0..size-1));
   @ requires \separated(dst+(0..size-1), src+(0..size-1));
   @ assigns dst[0..size-1] \from src[0..size-1];
   @ ensures \forall int i; 0 <= i < size ==> *(dst+i) == *(src+i);
