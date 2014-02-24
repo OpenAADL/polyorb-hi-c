@@ -62,20 +62,21 @@ __po_hi_uint8_t* memset_uint8(__po_hi_uint8_t* s, int c, size_t n);
  */
 void __po_hi_msg_reallocate (__po_hi_msg_t* message);
 
-/* @ requires \valid(msg);
-  @ requires \valid(msg->content+(0..len-1)) && \valid(data+(0..len-1));
-  @ requires \separated(msg->content+(0..len-1), data+(0..len-1));
-  @ requires \separated(msg->content+(0..len-1), &(msg->length));
-  @ requires \separated(data+(0..len-1), &(msg->length));
-  @ assigns msg->content[0..len-1], msg->length;
-  @ ensures msg->length == len;
-  @ ensures \forall unsigned int i; 0 <= i < len ==> msg->content[i] == data[i];
- */
-void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len);
 /*
  * Write the data at the beginning of the specified message.  Length
  * of the data are specified by the parameter len
  */
+/*@ requires \valid(msg);
+  @ requires \valid(msg->content+(0..len-1));
+  @ requires \valid(data+(0..len-1));
+  @ requires \separated(msg->content+(0..len-1), data+(0..len-1));
+  @ assigns msg->content[0..len-1];
+  @ assigns msg->length;
+  @ ensures msg->length == len;
+  @ ensures \forall int i; 0 <= i < len ==> msg->content[i] == data[i];
+  @*/
+void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len);
+
 
 void __po_hi_msg_read (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len);
 /*

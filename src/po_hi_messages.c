@@ -38,12 +38,13 @@ void __po_hi_msg_reallocate (__po_hi_msg_t* message)
 	memset_uint8 (message->content, 0, __PO_HI_MESSAGES_MAX_SIZE);
 }
 
-/*void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len)
+void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len)
 {
 	  msg->length = len;
-	  __po_hi_copy_array  (msg->content, data, len);
+	  __po_hi_copy_array_uint8  (msg->content, data, len);
 }
 
+/*
 void __po_hi_msg_read (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len)
 {
   __po_hi_copy_array  (data, msg->content, len);
