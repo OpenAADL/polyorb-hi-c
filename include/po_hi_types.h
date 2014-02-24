@@ -106,12 +106,19 @@ typedef enum
    __PO_HI_INVALID_PORT_KIND                 = 50
 }__po_hi_port_kind_t;
 
-/*@ requires \valid(((__po_hi_int8_t *) dst)+(0..size-1)) &&
-  @          \valid(((__po_hi_int8_t *) src)+(0..size-1));
-  @ requires \separated(((__po_hi_int8_t *) dst)+(0..size-1), ((__po_hi_int8_t *) src)+(0..size-1));
-  @ assigns ((__po_hi_int8_t *) dst)[0..size-1] \from ((__po_hi_int8_t *) src)[0..size-1];
-  @ ensures \forall int i; 0 <= i < size ==> *(((__po_hi_int8_t *) dst)+i) == *(((__po_hi_int8_t *) src)+i);
+/*@ requires \valid(((char *) dst)+(0..size-1)) &&
+  @          \valid(((char *) src)+(0..size-1));
+  @ requires \separated(((char *) dst)+(0..size-1), ((char *) src)+(0..size-1));
+  @ assigns ((char *) dst)[0..size-1] \from ((char *) src)[0..size-1];
+  @ ensures \forall int i; 0 <= i < size ==> *(((char *) dst)+i) == *(((char *) src)+i);
   @*/
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint32_t size);
 
+/*@ requires \valid(dst+(0..size-1)) &&
+  @          \valid(src+(0..size-1));
+  @ requires \separated(dst+(0..size-1), src+(0..size-1));
+  @ assigns dst[0..size-1] \from src[0..size-1];
+  @ ensures \forall int i; 0 <= i < size ==> *(dst+i) == *(src+i);
+  @*/
+void __po_hi_copy_array_uint8 (__po_hi_uint8_t* dst, __po_hi_uint8_t* src, __po_hi_uint16_t size);
 #endif /* __PO_HI_TYPES_H_ */
