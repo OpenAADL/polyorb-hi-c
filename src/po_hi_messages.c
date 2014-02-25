@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://assert-project.net/taste
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2012 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -42,12 +42,6 @@ void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint
 {
          msg->length = len;
          __po_hi_copy_array_uint8  (msg->content, data, len);
-}
-
-void __po_hi_msg_read (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len)
-{
-         __po_hi_copy_array_uint8 (data, msg->content, len);
-         msg->length -= len;
 }
 
 __po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg)
