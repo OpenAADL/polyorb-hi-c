@@ -146,14 +146,14 @@ void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi
  */
 /*@ requires \valid(dest);
   @ requires \valid(source);
-  @ requires source->length + dest->length <= __PO_HI_MESSAGES_MAX_SIZE;
   @ requires \valid(dest->content+(0..(dest->length + source->length - 1)));
   @ requires \valid(source->content+(0..(source->length - 1)));
+  @ requires source->length + dest->length <= __PO_HI_MESSAGES_MAX_SIZE;
   @ requires \separated(source->content+(0..source->length - 1), dest->content+(0..(dest->length + source->length - 1)));
   @ requires \separated(source->content+(0..source->length - 1), &(dest->length));
   @ requires \separated(dest->content+(0..(dest->length + source->length - 1)), &(source->length));
   @ requires &(source->length) != &(dest->length);
-  @ assigns dest->content[dest->length..(dest->length + source->length - 1)];// \from source->content[0..source->length-1];
+  @ assigns dest->content[dest->length..(dest->length + source->length - 1)];
   @ assigns dest->length;
   @ ensures \forall int i; 0 <= i < source->length ==> dest->content[\old(dest->length) + i] == source->content[i];
   @ ensures dest->length == \old(dest->length) + source->length;

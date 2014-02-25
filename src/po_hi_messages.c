@@ -70,7 +70,7 @@ void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi
 void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source)
 {
 	dest->length = dest->length + source->length;
-	__po_hi_copy_array_uint8  (&(dest->content[dest->length - source->length]), source->content, source->length);
+	__po_hi_copy_array_uint8 (&(dest->content[dest->length - source->length]), source->content, source->length);
 }
 
 void __po_hi_msg_get_data (void* dest, __po_hi_msg_t* source, __po_hi_uint32_t index, __po_hi_uint32_t size)
