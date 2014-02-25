@@ -82,17 +82,18 @@ void __po_hi_msg_move (__po_hi_msg_t* msg, __po_hi_uint32_t length)
 {
 	 msg->length = msg->length - length;
 	 __po_hi_uint32_t tmp;
-   /*@ loop assigns tmp, msg->content[0..msg->length-1];
-     @ loop invariant 0 <= tmp;
-     @ loop invariant tmp <= \at(msg->length, Pre) - length;
-     @ loop invariant \forall int i; 0 <= i < tmp ==> msg->content[i] == \at(msg->content[length + i], Pre);
-     @ loop invariant \forall int i; tmp <= i < \at(msg->length, Pre) ==> msg->content[i] == \at(msg->content[i], Pre);
-     @ loop variant msg->length - tmp;
-    */
-   for (tmp=0; tmp < msg->length ; tmp++)
-   {
-      msg->content[tmp] = msg->content[length + tmp];
-   }
+
+         /*@ loop assigns tmp, msg->content[0..msg->length-1];
+           @ loop invariant 0 <= tmp;
+           @ loop invariant tmp <= \at(msg->length, Pre) - length;
+           @ loop invariant \forall int i; 0 <= i < tmp ==> msg->content[i] == \at(msg->content[length + i], Pre);
+           @ loop invariant \forall int i; tmp <= i < \at(msg->length, Pre) ==> msg->content[i] == \at(msg->content[i], Pre);
+           @ loop variant msg->length - tmp;
+         */
+         for (tmp=0; tmp < msg->length ; tmp++)
+         {
+             msg->content[tmp] = msg->content[length + tmp];
+         }
 }
 
 #ifdef __PO_HI_USE_GIOP

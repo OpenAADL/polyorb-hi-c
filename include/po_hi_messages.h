@@ -178,23 +178,23 @@ void __po_hi_msg_get_data (__po_hi_uint8_t* dest, __po_hi_msg_t* source,
                            __po_hi_uint32_t index,
                            __po_hi_uint32_t size);
 
+/*
+ * Move a part of the message to the beginning. This function will put
+ * the part (starting from the length argument) to the beginning of
+ * the message.
+ */
 /*@ requires \valid(msg);
   @ requires \valid(msg->content+(0..msg->length-1));
   @ requires length > 0;
   @ requires length <= msg->length;
   @ requires msg->length <= __PO_HI_MESSAGES_MAX_SIZE;
   @ requires \separated(msg->content+(0..msg->length-1), &(msg->length));
-  @ assigns msg->content[0..msg->length - length - 1];// \from msg->content[length..msg->length - 1];
+  @ assigns msg->content[0..msg->length - length - 1];
   @ assigns msg->length;
   @ ensures \forall int i; 0 <= i < msg->length ==> msg->content[i] == \old(msg->content[length + i]);
   @ ensures msg->length == \old(msg->length) - length;
  */
 void __po_hi_msg_move (__po_hi_msg_t* msg, __po_hi_uint32_t length);
-/*
- * Move a part of the message to the beginning. This function will put
- * the part (starting from the length argument) to the beginning of
- * the message.
- */
 
 #ifdef __PO_HI_USE_GIOP
 int __po_hi_msg_should_swap (__po_hi_msg_t* msg);
