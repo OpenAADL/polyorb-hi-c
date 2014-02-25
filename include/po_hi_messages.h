@@ -161,21 +161,22 @@ void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi
   @*/
 void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source);
 
-/*@ requires \valid(source);
-  @	requires index >= 0;
-  @ requires index + size <= source->length;
-  @ requires \valid(((__po_hi_int8_t *) dest)+(0..(size-1))) && \valid(source->content+(index..(index+size-1)));
-  @ requires \separated(((__po_hi_int8_t *) dest)+(0..size-1),(source->content)+(index..(index+size-1)));
-  @ assigns ((__po_hi_int8_t *) dest)[0..(size - 1)];// \from source->content[index..(index+size-1)];
-  @ ensures \forall int i; 0 <= i < size ==> ((__po_hi_int8_t *) dest)[i] == (source->content + index)[i];
-  @*/
-void __po_hi_msg_get_data (void* dest, __po_hi_msg_t* source,
-                           __po_hi_uint32_t index,
-                           __po_hi_uint32_t size);
 /*
  * Get data from a message at index 'index', and copy it to the dest
  * argument It will copy size bytes from the messages.
  */
+/*@ requires \valid(source);
+  @ requires \valid(dest+(0..size-1));
+  @ requires \valid(source->content+(index..(index+size-1)));
+  @ requires index >= 0;
+  @ requires index + size <= source->length;
+  @ requires \separated(dest+(0..size-1),(source->content)+(index..(index+size-1)));
+  @ assigns dest[0..(size - 1)];
+  @ ensures \forall int i; 0 <= i < size ==> dest[i] == (source->content + index)[i];
+  @*/
+void __po_hi_msg_get_data (__po_hi_uint8_t* dest, __po_hi_msg_t* source,
+                           __po_hi_uint32_t index,
+                           __po_hi_uint32_t size);
 
 /*@ requires \valid(msg);
   @ requires \valid(msg->content+(0..msg->length-1));
