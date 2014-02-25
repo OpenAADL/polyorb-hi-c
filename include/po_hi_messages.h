@@ -121,47 +121,45 @@ __po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg);
 void __po_hi_msg_copy (__po_hi_msg_t* dest,
 		       __po_hi_msg_t* src);
 
-/*@ requires \valid(msg);
-  @ requires \valid(msg->content+(0..(msg->length + length - 1)));
-  @	requires \valid(((__po_hi_int8_t *) data)+(0..(length - 1)));
-  @	requires \separated(msg->content+(msg->length..msg->length + length - 1), ((__po_hi_int8_t *) data)+(0..(length - 1)));
-  @ requires \separated(msg->content+(msg->length..msg->length + length - 1), &(msg->length));
-  @ requires \separated(((__po_hi_int8_t *) data)+(0..(length - 1)), &(msg->length));
-  @ requires msg->length + length <= __PO_HI_MESSAGES_MAX_SIZE;
-  @	assigns msg->content[msg->length..(msg->length + length - 1)];// \from ((__po_hi_int8_t *) data)[0..(length - 1)];
-  @	assigns msg->length;
-  @	ensures \forall int i; 0 <= i < length ==> msg->content[\old(msg->length) + i] == ((__po_hi_int8_t *) data)[i];
-  @ ensures msg->length == \old(msg->length) + length;
-  @*/
-void __po_hi_msg_append_data (__po_hi_msg_t* msg, void* data, __po_hi_uint32_t length);
 /*
  * Append data to a message. The first argument is the message which
  * will contain all the data. The second argument is a pointer to the
  * data and the third argument (length) is the size of the data in
  * byte.
  */
-
-/*@ requires \valid(dest);
-  @ requires \valid(source);
-  @ requires source->length + dest->length <= __PO_HI_MESSAGES_MAX_SIZE;
-  @ requires \valid(dest->content+(0..(dest->length + source->length - 1)));
-  @	requires \valid(source->content+(0..(source->length - 1)));
-  @	requires \separated(source->content+(0..source->length - 1), dest->content+(0..(dest->length + source->length - 1)));
-  @ requires \separated(source->content+(0..source->length - 1), &(dest->length));
-  @ requires \separated(dest->content+(0..(dest->length + source->length - 1)), &(source->length));
-  @ requires &(source->length) != &(dest->length);
-  @	assigns dest->content[dest->length..(dest->length + source->length - 1)];// \from source->content[0..source->length-1];
-  @	assigns dest->length;
-  @	ensures \forall int i; 0 <= i < source->length ==> dest->content[\old(dest->length) + i] == source->content[i];
-  @ ensures dest->length == \old(dest->length) + source->length;
-  @ ensures source->length == \old(source->length);
+/*@ requires \valid(msg);
+  @ requires \valid(msg->content+(0..(msg->length + length - 1)));
+  @ requires \valid(data+(0..(length - 1)));
+  @ requires \separated(msg->content+(msg->length..msg->length + length - 1), data+(0..(length - 1)));
+  @ requires msg->length + length <= __PO_HI_MESSAGES_MAX_SIZE;
+  @ assigns msg->content[msg->length..(msg->length + length - 1)];
+  @ assigns msg->length;
+  @ ensures \forall int i; 0 <= i < length ==> msg->content[\old(msg->length) + i] == data[i];
+  @ ensures msg->length == \old(msg->length) + length;
   @*/
-void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source);
+void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi_uint32_t length);
+
 /*
  * Append a message to another message. The first argument is the
  * message in which we will append the data. The second argument is
  * the source of the data.
  */
+/*@ requires \valid(dest);
+  @ requires \valid(source);
+  @ requires source->length + dest->length <= __PO_HI_MESSAGES_MAX_SIZE;
+  @ requires \valid(dest->content+(0..(dest->length + source->length - 1)));
+  @ requires \valid(source->content+(0..(source->length - 1)));
+  @ requires \separated(source->content+(0..source->length - 1), dest->content+(0..(dest->length + source->length - 1)));
+  @ requires \separated(source->content+(0..source->length - 1), &(dest->length));
+  @ requires \separated(dest->content+(0..(dest->length + source->length - 1)), &(source->length));
+  @ requires &(source->length) != &(dest->length);
+  @ assigns dest->content[dest->length..(dest->length + source->length - 1)];// \from source->content[0..source->length-1];
+  @ assigns dest->length;
+  @ ensures \forall int i; 0 <= i < source->length ==> dest->content[\old(dest->length) + i] == source->content[i];
+  @ ensures dest->length == \old(dest->length) + source->length;
+  @ ensures source->length == \old(source->length);
+  @*/
+void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source);
 
 /*@ requires \valid(source);
   @	requires index >= 0;
