@@ -52,7 +52,7 @@ void __po_hi_msg_read (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint3
 
 __po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg)
 {
-  return (msg->length);
+         return (msg->length);
 }
 
 void __po_hi_msg_copy (__po_hi_msg_t* dest, __po_hi_msg_t* src)

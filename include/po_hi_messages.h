@@ -95,14 +95,14 @@ void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint
   @*/
 void __po_hi_msg_read (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len);
 
+/*
+ * Return the length is the message
+ */
 /*@ requires \valid(msg);
   @ assigns \nothing;
   @ ensures \result == msg->length;
  */
 __po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg);
-/*
- * Return the length is the message
- */
 
 /*
  * Copy a message. The first argument is the message destination
