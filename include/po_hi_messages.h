@@ -77,13 +77,23 @@ void __po_hi_msg_reallocate (__po_hi_msg_t* message);
   @*/
 void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len);
 
-
-void __po_hi_msg_read (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len);
 /*
  * Read the data in the specified message. The data are taken from the
  * message and copied into the variable data.  Length of the data are
  * specified by the parameter len
  */
+/*@ requires \valid(msg);
+  @ requires \valid(msg->content+(0..len-1));
+  @ requires \valid(data+(0..len-1));
+  @ requires len <= msg->length;
+  @ requires \separated(msg->content+(0..len-1), data+(0..len-1));
+  @ requires \separated(&(msg->length), data+(0..len-1));
+  @ assigns data[0..len-1];
+  @ assigns msg->length;
+  @ ensures msg->length == \old(msg->length) - len;
+  @ ensures \forall int i; 0 <= i < len ==> data[i] == msg->content[i];
+  @*/
+void __po_hi_msg_read (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len);
 
 /*@ requires \valid(msg);
   @ assigns \nothing;
