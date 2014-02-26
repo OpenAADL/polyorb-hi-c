@@ -210,16 +210,16 @@ int __po_hi_time_copy (__po_hi_time_t* dst, const __po_hi_time_t* src);
 /*@ requires \valid(value);
   @ requires \valid(limit);
   @ assigns \nothing;
-  @ behavior value_sec_higher_than_limit_sec:
+  @ behavior sec_higher:
   @   assumes value->sec > limit->sec;
   @   ensures \result == 1;
-  @ behavior value_sec_equals_to_limit_sec_and_value_nsec_higher_than_limit_nsec:
+  @ behavior sec_equals_and_nsec_higher:
   @   assumes value->sec == limit->sec && value->nsec > limit->nsec;
   @   ensures \result == 1;
-  @ behavior value_sec_equals_to_limit_sec_and_value_nsec_lower_than_limit_nsec:
+  @ behavior sec_equals_value_nsec_lower:
   @   assumes value->sec == limit->sec && value->nsec <= limit->nsec;
   @   ensures \result == 0;
-  @ behavior value_sec_lower_than_limit_sec:
+  @ behavior sec_lower:
   @   assumes value->sec < limit->sec;
   @   ensures \result == 0;
   @ complete behaviors;
