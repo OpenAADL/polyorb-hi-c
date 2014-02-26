@@ -70,6 +70,11 @@ proof-wp-report:
 proof-wp-interactive:
 	$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS_INTERACTIVE) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 
+proof-wp-pretty-print:
+	$(foreach file,$(FILES_TO_PROVE),$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) src/$(file) > report/report_$(subst .c,.txt,$(file)) ;)
+	cd report; $(foreach file,$(FILES_TO_PROVE),./format-cu.py $(subst .c,,$(file)) ;)
+
+
 proof-jessie:
 	$(FRAMA_C) $(FRAMA_C_OPT) $(JESSIE_ARGS) $(CPP_PROOF_OPT) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 
