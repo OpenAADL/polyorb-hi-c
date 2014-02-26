@@ -13,13 +13,13 @@ def pretty_print():
     pretty_print_latex()
 
 def pretty_print_latex():
-    latex_file.write("\\subsection{Proof obligations for " + sys.argv[1] + ".c}\n\\label{proof:" + sys.argv[1] + "}\n\n")
+    latex_file.write("\\subsection{Proof obligations for " + sys.argv[1].replace('_', '\_') + ".c}\n\\label{proof:" + sys.argv[1] + "}\n\n")
     latex_file.write("\\begin{table}\n\\begin{tabular}[h]{l l r r r}\n")
     latex_file.write("\\toprule[1.5pt]\n")
-    latex_file.write("\muticolumn{1}{c}{\\bfseries Function} & \muticolumn{1}{c}{\\bfseries VC} & \muticolumn{1}{c}{\\bfseries To be proved} & \muticolumn{1}{c}{\\bfseries Proved} & \muticolumn{1}{c}{\\bfseries Time (ms)}\\\\\n")
+    latex_file.write("\multicolumn{1}{c}{\\bfseries Function} & \multicolumn{1}{c}{\\bfseries VC} & \multicolumn{1}{c}{\\bfseries To be proved} & \multicolumn{1}{c}{\\bfseries Proved} & \multicolumn{1}{c}{\\bfseries Time (ms)}\\\\\n")
     for function in functions:
         latex_file.write("\\midrule\n")
-        latex_file.write(function.replace('_', '\_') + " & total" + pretty_print_row(function, 'total'))
+        latex_file.write("\\texttt{" + function.replace('_', '\_') + "} & Total" + pretty_print_row(function, 'total'))
         latex_file.write(" & Qed" + pretty_print_row(function, 'qed'))
         latex_file.write(" & Alt-Ergo" + pretty_print_row(function, 'ergo'))
         latex_file.write(" & Pre" + pretty_print_row(function, 'call'))
