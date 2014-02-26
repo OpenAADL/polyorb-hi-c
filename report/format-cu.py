@@ -32,6 +32,8 @@ def pretty_print_latex():
         latex_file.write("\\nopagebreak & RTE" + pretty_print_row(function, 'assert_rte'))
         latex_file.write("\\nopagebreak & Assigns" + pretty_print_row(function, 'assign'))
         latex_file.write("\\nopagebreak & Loop" + pretty_print_row(function, 'loop'))
+        latex_file.write("\\nopagebreak & Other" + pretty_print_row(function, 'other'))
+
     latex_file.write("\\bottomrule[1.5pt]\n")
     latex_file.write("\end{longtable}\n")
 
