@@ -61,7 +61,7 @@ for line in data:
 
     if line.startswith("[rte] annotating function"):
         fun_name = re.search('function (\w+)', line).group(1)
-        functions_prop[fun_name] = dict(total=[0, 0, 0], ergo=[0, 0, 0], qed=[0, 0, 0], call=[0, 0, 0], post=[0, 0, 0], assign=[0, 0, 0], loop=[0, 0, 0], assert_rte=[0, 0, 0])
+        functions_prop[fun_name] = dict(total=[0, 0, 0], ergo=[0, 0, 0], qed=[0, 0, 0], call=[0, 0, 0], post=[0, 0, 0], assign=[0, 0, 0], loop=[0, 0, 0], assert_rte=[0, 0, 0], other=[0,0,0])
         functions = sorted(functions_prop.keys())
         continue
 
@@ -84,9 +84,12 @@ for line in data:
 
         # finding function name and VC type
         vc_name = my_match.group(2)
-        my_fun_match = re.match('(.*)_(call|post|assert_rte|assign|loop).*', vc_name)
+        my_fun_match = re.match('(.*)_(call|post|assert_rte|assign|loop|complete|disjoint).*', vc_name)
         my_fun_pos_name = my_fun_match.group(1)
         vc_type = my_fun_match.group(2)
+
+        if vc_type == 'complete' or vc_type == 'disjoint':
+            vc_type = 'other'
 
         for name in functions:
             if re.search(name, my_fun_pos_name) != None:
