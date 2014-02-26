@@ -17,15 +17,14 @@ def pretty_print_latex():
     latex_file.write("\\begin{longtable}[h]{l l r r r}\n")
     latex_file.write("\\toprule[1.5pt]\n")
     latex_file.write("\multicolumn{1}{c}{\\bfseries Function} & \multicolumn{1}{c}{\\bfseries VC} & \multicolumn{1}{c}{\\bfseries To be proved} & \multicolumn{1}{c}{\\bfseries Proved} & \multicolumn{1}{c}{\\bfseries Time (ms)}\\\\\n")
-    latex_file.write("\\midrule\\endhead\n")
+    latex_file.write("\\hline\\endhead\n")
     flag = True
     for function in functions:
         if flag:
             flag = False
         else:
-            latex_file.write("\\midrule\n")
-        latex_file.write("\\nopagebreak\\texttt{" + function.replace('_', '\_') + "} & Total" + pretty_print_row(function, 'total'))
-        latex_file.write("\\nopagebreak & Qed" + pretty_print_row(function, 'qed'))
+            latex_file.write("\\hline\n")
+        latex_file.write("\\nopagebreak\\texttt{" + function.replace('_', '\_') + "} & Qed" + pretty_print_row(function, 'qed'))
         latex_file.write("\\nopagebreak & Alt-Ergo" + pretty_print_row(function, 'ergo'))
         latex_file.write("\\nopagebreak & Pre" + pretty_print_row(function, 'call'))
         latex_file.write("\\nopagebreak & Post" + pretty_print_row(function, 'post'))
@@ -33,6 +32,8 @@ def pretty_print_latex():
         latex_file.write("\\nopagebreak & Assigns" + pretty_print_row(function, 'assign'))
         latex_file.write("\\nopagebreak & Loop" + pretty_print_row(function, 'loop'))
         latex_file.write("\\nopagebreak & Other" + pretty_print_row(function, 'other'))
+        latex_file.write("\\cmidrule{2-5}")
+        latex_file.write("\\nopagebreak & Total" + pretty_print_row(function, 'total'))
 
     latex_file.write("\\bottomrule[1.5pt]\n")
     latex_file.write("\end{longtable}\n")
