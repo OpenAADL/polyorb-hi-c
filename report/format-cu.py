@@ -16,14 +16,10 @@ def pretty_print_latex():
     latex_file.write("\\subsection{Proof obligations for \\texttt{" + sys.argv[1].replace('_', '\_') + ".c}}\n\\label{proof:" + sys.argv[1] + "}\n\n")
     latex_file.write("\\begin{longtable}[h]{l l r r r}\n")
     latex_file.write("\\toprule[1.5pt]\n")
-    latex_file.write("\multicolumn{1}{c}{\\bfseries Function} & \multicolumn{1}{c}{\\bfseries VC} & \multicolumn{1}{c}{\\bfseries To be proved} & \multicolumn{1}{c}{\\bfseries Proved} & \multicolumn{1}{c}{\\bfseries Time (ms)}\\\\\n")
-    latex_file.write("\\hline\\endhead\n")
+    latex_file.write("\multicolumn{1}{c}{\\bfseries Function} & \multicolumn{1}{c}{\\bfseries VC} & \multicolumn{1}{c}{\\bfseries To be proved} & \multicolumn{1}{c}{\\bfseries Proved} & \multicolumn{1}{c}{\\bfseries Time (ms)}\\\\\\endhead\n")
     flag = True
     for function in functions:
-        if flag:
-            flag = False
-        else:
-            latex_file.write("\\hline\n")
+        latex_file.write("\\noalign{\\vskip 0.5ex}\\hline\\noalign{\\vskip 0.5ex}\n")
         latex_file.write("\\nopagebreak\\texttt{" + function.replace('_', '\_') + "} & Qed" + pretty_print_row(function, 'qed'))
         latex_file.write("\\nopagebreak & Alt-Ergo" + pretty_print_row(function, 'ergo'))
         latex_file.write("\\nopagebreak & Pre" + pretty_print_row(function, 'call'))
@@ -32,9 +28,7 @@ def pretty_print_latex():
         latex_file.write("\\nopagebreak & Assigns" + pretty_print_row(function, 'assign'))
         latex_file.write("\\nopagebreak & Loop" + pretty_print_row(function, 'loop'))
         latex_file.write("\\nopagebreak & Other" + pretty_print_row(function, 'other'))
-        latex_file.write("\\cmidrule{2-5}")
-        latex_file.write("\\nopagebreak & Total" + pretty_print_row(function, 'total'))
-
+        latex_file.write("\\nopagebreak & \\cellcolor{gray!30} Total" + pretty_print_row_color(function, 'total'))
     latex_file.write("\\bottomrule[1.5pt]\n")
     latex_file.write("\end{longtable}\n")
 
@@ -43,6 +37,12 @@ def pretty_print_row(function, index):
         return " & " + str(functions_prop[function][index][0]) + " & " + str(functions_prop[function][index][1]) + " & " + str(functions_prop[function][index][2]) + " \\\\\n"
     else:
          return " & 0 & - & - \\\\\n"
+
+def pretty_print_row_color(function, index):
+    if functions_prop[function][index][0] != 0:
+        return " & \\cellcolor{gray!30}" + str(functions_prop[function][index][0]) + " & \\cellcolor{gray!30}" + str(functions_prop[function][index][1]) + " & \\cellcolor{gray!30}" + str(functions_prop[function][index][2]) + " \\\\\n"
+    else:
+         return " & \\cellcolor{gray!30} 0 & \\cellcolor{gray!30} - & \\cellcolor{gray!30} - \\\\\n"
 
 # close for pretty print
 def close_pretty_print():
