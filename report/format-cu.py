@@ -9,42 +9,43 @@ def pretty_print_cu(file):
 
 def pretty_print_latex_cu(file):
     latex_file.write("\\subsection{Proof obligations for \\texttt{" + file.replace('_', '\_') + ".c}}\n\\label{proof:" + file + "}\n\n")
-    latex_file.write("\\begin{longtable}[h]{l l r r r r}\n")
+    latex_file.write("\\begin{longtable}[h]{l l r r r r r}\n")
     latex_file.write("\\toprule[1.5pt]\n")
-    latex_file.write("\multicolumn{1}{l}{\\bfseries Function} & \multicolumn{1}{l}{\\bfseries VC} & \multicolumn{1}{l}{\\bfseries To be proved} & \multicolumn{1}{l}{\\bfseries Proved} & \multicolumn{1}{l}{\\bfseries Time (ms)}\\\\\\endhead\n")
-    flag = True
+    latex_file.write("\multicolumn{1}{l}{\\bfseries Function} & \multicolumn{1}{l}{\\bfseries VC} & \multicolumn{1}{l}{\\bfseries To be proved} & \multicolumn{1}{l}{\\bfseries Proved} & \multicolumn{1}{l}{\\bfseries Time (ms)}\\\\\\midrule\\endhead\n")
     for function in functions:
-        pretty_print_info_latex(functions_prop[function], "\\texttt{" + function.replace('_', '\_') + "}")
-    pretty_print_info_latex(total_cu, "\\textbf{Global for CU}")
+        pretty_print_info_latex(functions_prop[function], "\\texttt{" + function.replace('_', '\_') + "}", False)
+    pretty_print_info_latex(total_cu, "\\textbf{Global for CU}", True)
     latex_file.write("\\bottomrule[1.5pt]\n")
     latex_file.write("\end{longtable}\n")
 
-def pretty_print_info_latex(dic, label):
-    #latex_file.write("\\noalign{\\vskip 0.5ex}\\hline\\noalign{\\vskip 0.5ex}\n")
-    latex_file.write("\\midrule")
-    latex_file.write("\\nopagebreak " + label + " & Qed" + pretty_print_row_latex_cat(dic, 'qed', 2, 'Tool'))
-    latex_file.write("\\nopagebreak & Alt-Ergo" + pretty_print_row_latex(dic, 'ergo'))
-    latex_file.write("\\nopagebreak \cmidrule{2-6}")
-    latex_file.write("\\nopagebreak & Pre" + pretty_print_row_latex_cat(dic, 'call', 6, 'Category'))
-    latex_file.write("\\nopagebreak & Post" + pretty_print_row_latex(dic, 'post'))
-    latex_file.write("\\nopagebreak & RTE" + pretty_print_row_latex(dic, 'assert_rte'))
-    latex_file.write("\\nopagebreak & Assigns" + pretty_print_row_latex(dic, 'assign'))
-    latex_file.write("\\nopagebreak & Loop" + pretty_print_row_latex(dic, 'loop'))
-    latex_file.write("\\nopagebreak & Other" + pretty_print_row_latex(dic, 'other'))
-    latex_file.write("\\nopagebreak \cmidrule{2-6}")
-    latex_file.write("\\nopagebreak & Total" + pretty_print_row_latex(dic, 'total'))
+def pretty_print_info_latex(dic, label, last):
+    latex_file.write(" " + label + " & Qed" + pretty_print_row_latex_cat(dic, 'qed', 2, 'Tool'))
+    latex_file.write(" & Alt-Ergo" + pretty_print_row_latex(dic, 'ergo'))
+    latex_file.write("\\\\*[-1ex]")
+    latex_file.write(" & Pre" + pretty_print_row_latex_cat(dic, 'call', 6, 'Category'))
+    latex_file.write(" & Post" + pretty_print_row_latex(dic, 'post'))
+    latex_file.write(" & RTE" + pretty_print_row_latex(dic, 'assert_rte'))
+    latex_file.write(" & Assigns" + pretty_print_row_latex(dic, 'assign'))
+    latex_file.write(" & Loop" + pretty_print_row_latex(dic, 'loop'))
+    latex_file.write(" & Other" + pretty_print_row_latex(dic, 'other'))
+    latex_file.write("\\\\*[-1ex]")
+    latex_file.write(" & \\cellcolor{gray!30} Total" + pretty_print_row_color_latex(dic, 'total'))
+    latex_file.write("\\\\*[-2ex]")
+    if (not last):
+        latex_file.write("\\midrule")
+    latex_file.write("\\pagebreak[2]")
 
 def pretty_print_row_latex(dic, index):
     if dic[index][0] != 0:
-        return " & " + str(dic[index][0]) + " & " + str(dic[index][1]) + " & " + str(dic[index][2]) + " \\\\\n"
+        return " & " + str(dic[index][0]) + " & " + str(dic[index][1]) + " & " + str(dic[index][2]) + " \\\\*\n"
     else:
-         return " & 0 & - & - \\\\\n"
+         return " & 0 & - & - \\\\*\n"
 
 def pretty_print_row_latex_cat(dic, index, num, cat):
     if dic[index][0] != 0:
-        return " & " + str(dic[index][0]) + " & " + str(dic[index][1]) + " & " + str(dic[index][2]) + "& \\multirow{" + str(num) + "}{*}{\\rotatebox{90}{\\mbox{" + cat + "}}}" + " \\\\\n"
+        return " & " + str(dic[index][0]) + " & " + str(dic[index][1]) + " & " + str(dic[index][2]) + "& \\rdelim]{" + str(num) + "}{1em}" + "& \\multirow{" + str(num) + "}{*}{\\rotatebox{90}{\\mbox{" + cat + "}}}" + " \\\\*\n"
     else:
-         return " & 0 & - & - " + "& \\multirow{" + str(num) + "}{*}{\\rotatebox{90}{\\mbox{" + cat + "}}}" + "\\\\\n"
+         return " & 0 & - & - " + "& \\rdelim]{" + str(num) + "}{1em}" + "& \\multirow{" + str(num) + "}{*}{\\rotatebox{90}{\\mbox{" + cat + "}}}" + "\\\\*\n"
 
 def pretty_print_row_color_latex(dic, index):
     if dic[index][0] != 0:
@@ -65,24 +66,23 @@ def pretty_print_global():
 
 def pretty_print_latex_global():
     latex_file.write("\\subsection{Global results}\n\\label{proof:global}\n\n")
-    latex_file.write("\\begin{longtable}[h]{l r r r r}\n")
+    latex_file.write("\\begin{longtable}{l r r r r r}\n")
     latex_file.write("\\toprule[1.5pt]\n")
-    latex_file.write("\multicolumn{1}{l}{\\bfseries VC} & \multicolumn{1}{l}{\\bfseries To be proved} & \multicolumn{1}{l}{\\bfseries Proved} & \multicolumn{1}{l}{\\bfseries Time (ms)}\\\\\\endhead\n")
-    #latex_file.write("\\noalign{\\vskip 0.5ex}\\hline\\noalign{\\vskip 0.5ex}\n")
-    latex_file.write("\\midrule")
-    latex_file.write("\\nopagebreak Qed" + pretty_print_row_latex_cat(total, 'qed', 2, 'Tool'))
-    latex_file.write("\\nopagebreak Alt-Ergo" + pretty_print_row_latex(total, 'ergo'))
-    latex_file.write("\\midrule")
-    latex_file.write("\\nopagebreak Pre" + pretty_print_row_latex_cat(total, 'call', 6, "Category"))
-    latex_file.write("\\nopagebreak Post" + pretty_print_row_latex(total, 'post'))
-    latex_file.write("\\nopagebreak RTE" + pretty_print_row_latex(total, 'assert_rte'))
-    latex_file.write("\\nopagebreak Assigns" + pretty_print_row_latex(total, 'assign'))
-    latex_file.write("\\nopagebreak Loop" + pretty_print_row_latex(total, 'loop'))
-    latex_file.write("\\nopagebreak Other" + pretty_print_row_latex(total, 'other'))
-    latex_file.write("\\midrule")
-    latex_file.write("\\nopagebreak Total" + pretty_print_row_latex(total, 'total'))
+    latex_file.write("\multicolumn{1}{l}{\\bfseries VC} & \multicolumn{1}{l}{\\bfseries To be proved} & \multicolumn{1}{l}{\\bfseries Proved} & \multicolumn{1}{l}{\\bfseries Time (ms)}\\\\\\midrule\\endhead\n")
+    latex_file.write("Qed" + pretty_print_row_latex_cat(total, 'qed', 2, 'Tool'))
+    latex_file.write("Alt-Ergo" + pretty_print_row_latex(total, 'ergo'))
+    latex_file.write("\\\\*[-1ex]")
+    latex_file.write("Pre" + pretty_print_row_latex_cat(total, 'call', 6, "Category"))
+    latex_file.write("Post" + pretty_print_row_latex(total, 'post'))
+    latex_file.write("RTE" + pretty_print_row_latex(total, 'assert_rte'))
+    latex_file.write("Assigns" + pretty_print_row_latex(total, 'assign'))
+    latex_file.write("Loop" + pretty_print_row_latex(total, 'loop'))
+    latex_file.write("Other" + pretty_print_row_latex(total, 'other'))
+    latex_file.write("\\\\[-1ex]")
+    latex_file.write("\\cellcolor{gray!30} Total" + pretty_print_row_color_latex(total, 'total'))
+    latex_file.write("\\\\*[-2ex]")
     latex_file.write("\\bottomrule[1.5pt]\n")
-    latex_file.write("\end{longtable}\n")
+    latex_file.write("\\end{longtable}\n")
 
 # close for pretty print for global
 def close_pretty_print_global():
