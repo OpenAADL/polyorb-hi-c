@@ -93,17 +93,17 @@ def close_pretty_print_latex_global():
 
 # updating function
 def update_dictionary(dic):
-    dic['total'][0] = dic['total'][0] + 1
-    dic[prover][0] = dic[prover][0] + 1
-    dic[vc_type][0] = dic[vc_type][0] + 1
+    dic['total'][0] += 1
+    dic[prover][0] += 1
+    dic[vc_type][0] += 1
 
     if valid:
-        dic['total'][1] = dic['total'][1] + 1
-        dic['total'][2] = dic['total'][2] + time
-        dic[prover][1] = dic[prover][1] + 1
-        dic[prover][2] = dic[prover][2] + time
-        dic[vc_type][1] = dic[vc_type][1] + 1
-        dic[vc_type][2] = dic[vc_type][2] + time
+        dic['total'][1] += 1
+        dic['total'][2] += time
+        dic[prover][1] += 1
+        dic[prover][2] += time
+        dic[vc_type][1] += 1
+        dic[vc_type][2] += time
 
 
 # main loop
@@ -133,13 +133,13 @@ for c_file in sys.argv[1:]:
 
         # analysing VC proofs
         my_match = re.match('\[wp\] \[(Alt-Ergo|Qed)\] Goal (.*) : (.*)', line)
-        if my_match != None:
+        if my_match is not None:
             prover = 'ergo' if my_match.group(1) == 'Alt-Ergo' else 'qed'
 
             if 'Valid' in my_match.group(3):
                 valid = True
                 time_match = re.search('([0-9]*)(m?s)', my_match.group(3))
-                if time_match != None:
+                if time_match is not None:
                     time = int(time_match.group(1)) if time_match.group(2) == 'ms' else int(time_match.group(1)) * 1000
                 else:
                     time = 0
@@ -157,7 +157,7 @@ for c_file in sys.argv[1:]:
                 vc_type = 'other'
 
             for name in functions:
-                if re.search(name, my_fun_pos_name) != None:
+                if re.search(name, my_fun_pos_name) is not None:
                     fun_name = name
                     break
 
@@ -170,10 +170,10 @@ for c_file in sys.argv[1:]:
     pretty_print_cu(file)
     close_pretty_print_cu()
 
+    # close data
+    data.close()
+
 # pretty print global informations
 latex_file = open('report_global.tex', 'w')
 pretty_print_global()
 close_pretty_print_global()
-
-# close
-data.close()
