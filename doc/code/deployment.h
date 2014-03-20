@@ -1,6 +1,7 @@
 #ifndef __DEPLOYMENT_H_
 #define __DEPLOYMENT_H_ 
 #include <po_hi_protected.h>
+
 typedef enum
 {
    pinger_local_data_source = 0
@@ -59,7 +60,40 @@ typedef enum
 typedef enum
 {
    pinger_global_data_source = 0,
-   ping_me_global_data_sink = 1
+   ping_me_global_data_sink = 1,
+   constant_out_identifier = 5
 } __po_hi_port_t;
+
+/* Mock */
+
+typedef enum
+{
+  invalid_local_port_t = -1
+} __po_hi_local_port_t;
+
+#define __PO_HI_NB_DEVICES 2
+
+#define __PO_HI_NB_BUSES 1
+
+#define __PO_HI_NB_PROTOCOLS 0
+
+#define __PO_HI_NEED_DRIVER_SOCKETS 1
+
+#define invalid_port_t -1
+
+typedef enum
+{
+  invalid_device_id = -1
+} __po_hi_device_id;
+
+typedef enum
+{
+  invalid_bus_id = -1
+} __po_hi_bus_id;
+
+typedef enum
+{
+  invalid_protocol = -1
+} __po_hi_protocol_t;
 
 #endif

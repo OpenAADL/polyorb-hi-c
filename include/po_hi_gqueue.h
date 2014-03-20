@@ -23,6 +23,7 @@
 #include <request.h>
 #include <po_hi_types.h>
 
+
 void __po_hi_gqueue_init (__po_hi_task_id       id,
 			  __po_hi_uint8_t       nb_ports,
 			  __po_hi_port_t        queue[],

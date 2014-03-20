@@ -78,7 +78,259 @@ RT_COND                 __po_hi_gqueues_conds[__PO_HI_NB_TASKS];
 HANDLE                  __po_hi_gqueues_events[__PO_HI_NB_TASKS];
 CRITICAL_SECTION        __po_hi_gqueues_cs[__PO_HI_NB_TASKS];
 #endif
+/*@ predicate GOOD_GLOBALE_SEPARATION =
+  @		\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1))) &&
+  @		\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1))) &&
+  @		\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @		\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1))) &&
+  @		\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @		\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(__po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @
+  @ 	\separated(__po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1)));
+  @*/
 
+/*@ predicate valid_globale(__po_hi_task_id id, __po_hi_uint8_t nb_ports) =
+  @ 	\valid(__po_hi_gqueues[id]) &&
+  @ 	\valid(__po_hi_gqueues_most_recent_values[id]) &&
+  @ 	\valid((__po_hi_gqueues_most_recent_values[id])+(0..(nb_ports-1))) &&
+  @ 	\valid(__po_hi_gqueues_global_history[id]) &&
+  @ 	\valid(__po_hi_gqueues_woffsets[id]) &&
+  @		\valid((__po_hi_gqueues_woffsets[id])+(0..(nb_ports-1))) &&
+  @ 	\valid(__po_hi_gqueues_port_is_empty[id]) &&
+  @		\valid((__po_hi_gqueues_port_is_empty[id])+(0..(nb_ports-1))) &&
+  @ 	\valid(__po_hi_gqueues_sizes[id]) &&
+  @ 	\valid((__po_hi_gqueues_sizes[id])+(0..(nb_ports-1))) &&
+  @ 	\valid(__po_hi_gqueues_first[id]) &&
+  @ 	\valid((__po_hi_gqueues_first[id])+(0..(nb_ports-1))) &&
+  @ 	\valid(__po_hi_gqueues_used_size[id]) &&
+  @ 	\valid((__po_hi_gqueues_used_size[id])+(0..(nb_ports-1))) &&
+  @ 	\valid(__po_hi_gqueues_offsets[id]) &&
+  @ 	\valid((__po_hi_gqueues_offsets[id])+(0..(nb_ports-1))) &&
+  @ 	\valid(__po_hi_gqueues_n_destinations[id]) &&
+  @ 	\valid(__po_hi_gqueues_destinations[id]);
+ */
+
+
+/*@ requires 0 <= id < __PO_HI_NB_TASKS;
+  @ requires nb_ports < MAX_UINT8_T;
+  @
+  @ requires \valid(queue+(0..(__PO_HI_NB_TASKS-1)));
+  @ requires \valid(sizes+(0..(__PO_HI_NB_TASKS-1)));
+  @ requires \valid(first+(0..(__PO_HI_NB_TASKS-1)));
+  @ requires \valid(offsets+(0..(__PO_HI_NB_TASKS-1)));
+  @ requires \valid(woffsets+(0..(__PO_HI_NB_TASKS-1)));
+  @ requires \valid(n_dest+(0..(__PO_HI_NB_TASKS-1)));
+  @ requires \valid(destinations+(0..(__PO_HI_NB_TASKS-1)));
+  @ requires \valid(used_size+(0..(__PO_HI_NB_TASKS-1)));
+  @ requires \valid(history+(0..(__PO_HI_NB_TASKS-1)));
+  @ requires \valid(recent+(0..(__PO_HI_NB_TASKS-1)));
+  @ requires \valid(empties+(0..(__PO_HI_NB_TASKS-1)));
+  @
+  @ requires GOOD_GLOBALE_SEPARATION;
+  @ requires valid_globale(id, nb_ports);
+  @
+  @ assigns __po_hi_gqueues_global_history_woffset[id];
+  @ assigns __po_hi_gqueues_global_history_offset[id];
+  @ assigns __po_hi_gqueues_n_empty[id];
+  @ assigns __po_hi_gqueues[id];
+  @ assigns __po_hi_gqueues_most_recent_values[id];
+  @ assigns __po_hi_gqueues_global_history[id];
+  @ assigns __po_hi_gqueues_woffsets[id];
+  @ assigns __po_hi_gqueues_port_is_empty[id];
+  @ assigns __po_hi_gqueues_nb_ports[id];
+  @ assigns __po_hi_gqueues_sizes[id];
+  @ assigns __po_hi_gqueues_first[id];
+  @ assigns __po_hi_gqueues_used_size[id];
+  @ assigns __po_hi_gqueues_offsets[id];
+  @ assigns __po_hi_gqueues_n_destinations[id];
+  @ assigns __po_hi_gqueues_destinations[id];
+  @ assigns __po_hi_gqueues_total_fifo_size[id];
+  @ assigns __po_hi_gqueues_queue_is_empty[id];
+  @ assigns used_size[0..nb_ports-1];
+  @ assigns first[0..nb_ports-1];
+  @ assigns offsets[0..nb_ports-1];
+  @ assigns woffsets[0..nb_ports-1];
+  @ assigns empties[0..nb_ports-1];
+  @
+  @ ensures __po_hi_gqueues_global_history_woffset[id] == 0;
+//  @ ensures __po_hi_gqueues_global_history_offset[id] == 0;
+//  @ ensures __po_hi_gqueues_n_empty[id] == nb_ports;
+//  @ ensures __po_hi_gqueues[id] == queue;
+//  @ ensures __po_hi_gqueues_most_recent_values[id] == recent;
+//  @ ensures __po_hi_gqueues_global_history[id] == history;
+//  @ ensures __po_hi_gqueues_woffsets[id] == woffsets;
+//  @ ensures __po_hi_gqueues_port_is_empty[id] == empties;
+//  @ ensures __po_hi_gqueues_nb_ports[id] == nb_ports;
+//  @ ensures __po_hi_gqueues_sizes[id] == sizes;
+//  @ ensures __po_hi_gqueues_first[id] == first;
+//  @ ensures __po_hi_gqueues_used_size[id] == used_size;
+//  @ ensures __po_hi_gqueues_offsets[id] == offsets;
+//  @ ensures __po_hi_gqueues_n_destinations[id] == n_dest;
+//  @ ensures __po_hi_gqueues_destinations[id] == destinations;
+//  @ ensures __po_hi_gqueues_total_fifo_size[id] == total_fifo_size;
+//  @ ensures __po_hi_gqueues_queue_is_empty[id] == 1;
+ */
 void __po_hi_gqueue_init (__po_hi_task_id       id,
                           __po_hi_uint8_t       nb_ports,
                           __po_hi_port_t        queue[],
@@ -94,7 +346,7 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
                           __po_hi_uint8_t       empties[],
                           __po_hi_uint16_t      total_fifo_size)
 {
-   __po_hi_uint8_t      tmp;
+   __po_hi_uint8_t      tmp = 0;
    __po_hi_uint16_t     off;
    __po_hi_request_t*   request;
 
@@ -182,7 +434,18 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 #endif
 
    off = 0;
-
+   /*@ loop assigns tmp, off, request, request->port;
+     @ loop assigns __po_hi_gqueues_used_size[id][0..nb_ports-1];
+     @ loop assigns __po_hi_gqueues_first[id][0..nb_ports-1];
+     @ loop assigns __po_hi_gqueues_offsets[id][0..nb_ports-1];
+     @ loop assigns __po_hi_gqueues_woffsets[id][0..nb_ports-1];
+     @ loop assigns __po_hi_gqueues_offsets[id][0..nb_ports-1];
+     @ loop assigns __po_hi_gqueues_port_is_empty[id][0..nb_ports-1];
+//     @ loop invariant 0 <= tmp <= nb_ports;
+//     @ loop invariant \forall int k; 0 <= k < tmp ==> __po_hi_gqueues_used_size[id][k] == 0;
+//     @ loop invariant (\forall int k; (0 <= k < tmp) &&  (sizes[k] != __PO_HI_GQUEUE_FIFO_INDATA) && (sizes[k] != __PO_HI_GQUEUE_FIFO_OUT)
+//     @	 	 	 	 						==> __po_hi_gqueues_offsets[id][k] == 0);
+    */
    for (tmp=0;tmp<nb_ports;tmp++)
    {
       __po_hi_gqueues_used_size[id][tmp] = 0;

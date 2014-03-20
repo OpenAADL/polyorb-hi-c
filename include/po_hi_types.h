@@ -86,6 +86,7 @@ typedef double __po_hi_float64_t;
 
 typedef unsigned char            __po_hi_byte_t;
 
+#define MAX_UINT8_T 512
 
 typedef enum
 {
