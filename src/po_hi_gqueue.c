@@ -78,6 +78,70 @@ RT_COND                 __po_hi_gqueues_conds[__PO_HI_NB_TASKS];
 HANDLE                  __po_hi_gqueues_events[__PO_HI_NB_TASKS];
 CRITICAL_SECTION        __po_hi_gqueues_cs[__PO_HI_NB_TASKS];
 #endif
+
+/*@ predicate SEPARATED_WITH_GLOBAL_UINT8(__po_hi_uint8_t * tab, __po_hi_uint8_t nb_ports) =
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1))) &&
+  @		\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1))) &&
+  @		\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)));
+ */
+
+/*@ predicate SEPARATED_WITH_GLOBAL_INT8(__po_hi_int8_t * tab, __po_hi_uint8_t nb_ports) =
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1))) &&
+  @		\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1))) &&
+  @		\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)));
+ */
+
+/*@ predicate SEPARATED_WITH_GLOBAL_REQUEST(__po_hi_request_t* tab, __po_hi_uint8_t nb_ports) =
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1))) &&
+  @		\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1))) &&
+  @		\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_used_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_offsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_woffsets+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_n_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_destinations+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_total_fifo_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_most_recent_values+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_first+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_global_size+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_global_history+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_global_history_offset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_global_history_woffset+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_port_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_queue_is_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues_n_empty+(0..(__PO_HI_NB_TASKS-1))) &&
+  @ 	\separated(tab+(0..(nb_ports-1)), __po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)));
+ */
+
 /*@ predicate GOOD_GLOBALE_SEPARATION =
   @		\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_nb_ports+(0..(__PO_HI_NB_TASKS-1))) &&
   @		\separated(__po_hi_gqueues+(0..(__PO_HI_NB_TASKS-1)), __po_hi_gqueues_sizes+(0..(__PO_HI_NB_TASKS-1))) &&
@@ -253,20 +317,13 @@ CRITICAL_SECTION        __po_hi_gqueues_cs[__PO_HI_NB_TASKS];
 /*@ predicate valid_globale(__po_hi_task_id id, __po_hi_uint8_t nb_ports) =
   @ 	\valid(__po_hi_gqueues[id]) &&
   @ 	\valid(__po_hi_gqueues_most_recent_values[id]) &&
-  @ 	\valid((__po_hi_gqueues_most_recent_values[id])+(0..(nb_ports-1))) &&
   @ 	\valid(__po_hi_gqueues_global_history[id]) &&
   @ 	\valid(__po_hi_gqueues_woffsets[id]) &&
-  @		\valid((__po_hi_gqueues_woffsets[id])+(0..(nb_ports-1))) &&
   @ 	\valid(__po_hi_gqueues_port_is_empty[id]) &&
-  @		\valid((__po_hi_gqueues_port_is_empty[id])+(0..(nb_ports-1))) &&
   @ 	\valid(__po_hi_gqueues_sizes[id]) &&
-  @ 	\valid((__po_hi_gqueues_sizes[id])+(0..(nb_ports-1))) &&
   @ 	\valid(__po_hi_gqueues_first[id]) &&
-  @ 	\valid((__po_hi_gqueues_first[id])+(0..(nb_ports-1))) &&
   @ 	\valid(__po_hi_gqueues_used_size[id]) &&
-  @ 	\valid((__po_hi_gqueues_used_size[id])+(0..(nb_ports-1))) &&
   @ 	\valid(__po_hi_gqueues_offsets[id]) &&
-  @ 	\valid((__po_hi_gqueues_offsets[id])+(0..(nb_ports-1))) &&
   @ 	\valid(__po_hi_gqueues_n_destinations[id]) &&
   @ 	\valid(__po_hi_gqueues_destinations[id]);
  */
@@ -275,20 +332,23 @@ CRITICAL_SECTION        __po_hi_gqueues_cs[__PO_HI_NB_TASKS];
 /*@ requires 0 <= id < __PO_HI_NB_TASKS;
   @ requires nb_ports < MAX_UINT8_T;
   @
-  @ requires \valid(queue+(0..(__PO_HI_NB_TASKS-1)));
-  @ requires \valid(sizes+(0..(__PO_HI_NB_TASKS-1)));
-  @ requires \valid(first+(0..(__PO_HI_NB_TASKS-1)));
-  @ requires \valid(offsets+(0..(__PO_HI_NB_TASKS-1)));
-  @ requires \valid(woffsets+(0..(__PO_HI_NB_TASKS-1)));
-  @ requires \valid(n_dest+(0..(__PO_HI_NB_TASKS-1)));
-  @ requires \valid(destinations+(0..(__PO_HI_NB_TASKS-1)));
-  @ requires \valid(used_size+(0..(__PO_HI_NB_TASKS-1)));
-  @ requires \valid(history+(0..(__PO_HI_NB_TASKS-1)));
-  @ requires \valid(recent+(0..(__PO_HI_NB_TASKS-1)));
-  @ requires \valid(empties+(0..(__PO_HI_NB_TASKS-1)));
+  @ requires \valid(first+(0..(nb_ports-1)));
+  @ requires \valid(offsets+(0..(nb_ports-1)));
+  @ requires \valid(woffsets+(0..(nb_ports-1)));
+  @ requires \valid(used_size+(0..(nb_ports-1)));
+  @ requires \valid(empties+(0..(nb_ports-1)));
+  @ requires \valid(recent+(0..(nb_ports-1)));
+  @ requires \valid(sizes+(0..(nb_ports-1)));
   @
   @ requires GOOD_GLOBALE_SEPARATION;
   @ requires valid_globale(id, nb_ports);
+  @ requires SEPARATED_WITH_GLOBAL_UINT8(first, nb_ports);
+  @ requires SEPARATED_WITH_GLOBAL_UINT8(offsets, nb_ports);
+  @ requires SEPARATED_WITH_GLOBAL_UINT8(woffsets, nb_ports);
+  @ requires SEPARATED_WITH_GLOBAL_UINT8(used_size, nb_ports);
+  @ requires SEPARATED_WITH_GLOBAL_UINT8(empties, nb_ports);
+  @ requires SEPARATED_WITH_GLOBAL_REQUEST(recent, nb_ports);
+  @ requires SEPARATED_WITH_GLOBAL_INT8(sizes, nb_ports);
   @
   @ assigns __po_hi_gqueues_global_history_woffset[id];
   @ assigns __po_hi_gqueues_global_history_offset[id];
@@ -313,7 +373,7 @@ CRITICAL_SECTION        __po_hi_gqueues_cs[__PO_HI_NB_TASKS];
   @ assigns woffsets[0..nb_ports-1];
   @ assigns empties[0..nb_ports-1];
   @
-  @ ensures __po_hi_gqueues_global_history_woffset[id] == 0;
+//  @ ensures __po_hi_gqueues_global_history_woffset[id] == 0;
 //  @ ensures __po_hi_gqueues_global_history_offset[id] == 0;
 //  @ ensures __po_hi_gqueues_n_empty[id] == nb_ports;
 //  @ ensures __po_hi_gqueues[id] == queue;
@@ -441,8 +501,8 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
      @ loop assigns __po_hi_gqueues_woffsets[id][0..nb_ports-1];
      @ loop assigns __po_hi_gqueues_offsets[id][0..nb_ports-1];
      @ loop assigns __po_hi_gqueues_port_is_empty[id][0..nb_ports-1];
-//     @ loop invariant 0 <= tmp <= nb_ports;
-//     @ loop invariant \forall int k; 0 <= k < tmp ==> __po_hi_gqueues_used_size[id][k] == 0;
+     @ loop invariant 0 <= tmp <= nb_ports;
+     @ loop invariant \forall int k; 0 <= k < tmp ==> __po_hi_gqueues_used_size[id][k] == 0;
 //     @ loop invariant (\forall int k; (0 <= k < tmp) &&  (sizes[k] != __PO_HI_GQUEUE_FIFO_INDATA) && (sizes[k] != __PO_HI_GQUEUE_FIFO_OUT)
 //     @	 	 	 	 						==> __po_hi_gqueues_offsets[id][k] == 0);
     */
