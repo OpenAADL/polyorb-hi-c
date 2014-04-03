@@ -17,6 +17,8 @@
 /*
  * Take a rate as argument, returns the probability that we meet this rate.
  */
+/*@ ensures \result == 0 || \result == 1;
+  @*/
 int __po_hi_compute_miss (__po_hi_uint8_t rate);
 
 /*@ assigns \nothing;
