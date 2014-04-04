@@ -19,10 +19,10 @@ def pretty_print_latex_cu(file):
     latex_file.write("\end{longtable}\n")
 
 def pretty_print_info_latex(dic, label, last):
-    latex_file.write(" " + label + " & Qed" + pretty_print_row_latex_cat(dic, 'qed', 2, 'Tool'))
+    latex_file.write(" " + label + " & Qed" + pretty_print_row_latex_cat(dic, 'qed', 0, 2, 'Tool'))
     latex_file.write(" & Alt-Ergo" + pretty_print_row_latex(dic, 'ergo'))
     latex_file.write("\\\\*[-1ex]")
-    latex_file.write(" & Pre" + pretty_print_row_latex_cat(dic, 'call', 6, 'Category'))
+    latex_file.write(" & Pre" + pretty_print_row_latex_cat(dic, 'call', 0, 6, 'Category'))
     latex_file.write(" & Post" + pretty_print_row_latex(dic, 'post'))
     latex_file.write(" & RTE" + pretty_print_row_latex(dic, 'assert_rte'))
     latex_file.write(" & Assigns" + pretty_print_row_latex(dic, 'assign'))
@@ -41,9 +41,9 @@ def pretty_print_row_latex(dic, index):
     else:
          return " & 0 & - & - \\\\*\n"
 
-def pretty_print_row_latex_cat(dic, index, num, cat):
+def pretty_print_row_latex_cat(dic, index, col, num, cat):
     if dic[index][0] != 0:
-        return " & " + str(dic[index][0]) + " & " + str(dic[index][1]) + " & " + str(dic[index][2]) + "& \\rdelim]{" + str(num) + "}{1em}" + "& \\multirow{" + str(num) + "}{*}{\\rotatebox{90}{\\mbox{" + cat + "}}}" + " \\\\*\n"
+        return " & " + str(dic[index][0]) + " & " + str(dic[index][1]) + " & " + str(dic[index][2]) + col*"& " + "& \\rdelim]{" + str(num) + "}{1em}" + "& \\multirow{" + str(num) + "}{*}{\\rotatebox{90}{\\mbox{" + cat + "}}}" + " \\\\*\n"
     else:
          return " & 0 & - & - " + "& \\rdelim]{" + str(num) + "}{1em}" + "& \\multirow{" + str(num) + "}{*}{\\rotatebox{90}{\\mbox{" + cat + "}}}" + "\\\\*\n"
 
@@ -52,6 +52,18 @@ def pretty_print_row_color_latex(dic, index):
         return " & \\cellcolor{gray!30}" + str(dic[index][0]) + " & \\cellcolor{gray!30}" + str(dic[index][1]) + " & \\cellcolor{gray!30}" + str(dic[index][2]) + " \\\\\n"
     else:
          return " & \\cellcolor{gray!30} 0 & \\cellcolor{gray!30} - & \\cellcolor{gray!30} - \\\\\n"
+
+def pretty_print_row_latex_global(dic, index):
+    if dic[index][0] != 0:
+        return " & " + str(dic[index][0]) + " & " + str(dic[index][1]) + " & " + str(dic[index][2]) + "&" + str(total_qed[index]) + "&" + str(total_ergo[index]) + " \\\\*\n"
+    else:
+         return " & 0 & - & - & - & -\\\\*\n"
+
+def pretty_print_row_latex_cat_global(dic, index, num, cat):
+    if dic[index][0] != 0:
+        return " & " + str(dic[index][0]) + " & " + str(dic[index][1]) + " & " + str(dic[index][2]) + "&" + str(total_qed[index]) + "&" + str(total_ergo[index]) + "& \\rdelim]{" + str(num) + "}{1em}" + "& \\multirow{" + str(num) + "}{*}{\\rotatebox{90}{\\mbox{" + cat + "}}}" + " \\\\*\n"
+    else:
+         return " & 0 & - & - & - & -" + "& \\rdelim]{" + str(num) + "}{1em}" + "& \\multirow{" + str(num) + "}{*}{\\rotatebox{90}{\\mbox{" + cat + "}}}" + "\\\\*\n"
 
 # close for pretty print for CU
 def close_pretty_print_cu():
@@ -66,18 +78,18 @@ def pretty_print_global():
 
 def pretty_print_latex_global():
     latex_file.write("\\subsection{Global results}\n\\label{proof:global}\n\n")
-    latex_file.write("\\begin{longtable}{l r r r r r}\n")
+    latex_file.write("\\begin{longtable}{l r r r r r r r r r}\n")
     latex_file.write("\\toprule[1.5pt]\n")
-    latex_file.write("\multicolumn{1}{l}{\\bfseries VC} & \multicolumn{1}{l}{\\bfseries To be proved} & \multicolumn{1}{l}{\\bfseries Proved} & \multicolumn{1}{l}{\\bfseries Time (ms)}\\\\\\midrule\\endhead\n")
-    latex_file.write("Qed" + pretty_print_row_latex_cat(total, 'qed', 2, 'Tool'))
+    latex_file.write("\multicolumn{1}{l}{\\bfseries VC} & \multicolumn{1}{l}{\\bfseries To be proved} & \multicolumn{1}{l}{\\bfseries Proved} & \multicolumn{1}{l}{\\bfseries Time (ms)} & \multicolumn{1}{l}{\\bfseries Qed} & \multicolumn{1}{l}{\\bfseries Alt-Ergo}\\\\\\midrule\\endhead\n")
+    latex_file.write("Qed" + pretty_print_row_latex_cat(total, 'qed', 2, 2, 'Tool'))
     latex_file.write("Alt-Ergo" + pretty_print_row_latex(total, 'ergo'))
     latex_file.write("\\\\*[-1ex]")
-    latex_file.write("Pre" + pretty_print_row_latex_cat(total, 'call', 6, "Category"))
-    latex_file.write("Post" + pretty_print_row_latex(total, 'post'))
-    latex_file.write("RTE" + pretty_print_row_latex(total, 'assert_rte'))
-    latex_file.write("Assigns" + pretty_print_row_latex(total, 'assign'))
-    latex_file.write("Loop" + pretty_print_row_latex(total, 'loop'))
-    latex_file.write("Other" + pretty_print_row_latex(total, 'other'))
+    latex_file.write("Pre" + pretty_print_row_latex_cat_global(total, 'call', 6, "Category"))
+    latex_file.write("Post" + pretty_print_row_latex_global(total, 'post'))
+    latex_file.write("RTE" + pretty_print_row_latex_global(total, 'assert_rte'))
+    latex_file.write("Assigns" + pretty_print_row_latex_global(total, 'assign'))
+    latex_file.write("Loop" + pretty_print_row_latex_global(total, 'loop'))
+    latex_file.write("Other" + pretty_print_row_latex_global(total, 'other'))
     latex_file.write("\\\\[-1ex]")
     latex_file.write("\\cellcolor{gray!30} Total" + pretty_print_row_color_latex(total, 'total'))
     latex_file.write("\\\\*[-2ex]")
@@ -107,7 +119,9 @@ def update_dictionary(dic):
 
 
 # main loop
-total = dict(total=[0, 0, 0], ergo=[0, 0, 0], qed=[0, 0, 0], call=[0, 0, 0], post=[0, 0, 0], assign=[0, 0, 0], loop=[0, 0, 0], assert_rte=[0, 0, 0], other=[0,0,0])
+total = dict(total=[0, 0, 0], ergo=[0, 0, 0], qed=[0, 0, 0], call=[0, 0, 0], post=[0, 0, 0], assign=[0, 0, 0], loop=[0, 0, 0], assert_rte=[0, 0, 0], other=[0, 0, 0])
+total_qed = dict(call=0, post=0, assign=0, loop=0, assert_rte=0, other=0)
+total_ergo = dict(call=0, post=0, assign=0, loop=0, assert_rte=0, other=0)
 
 for c_file in sys.argv[1:]:
     file = c_file.replace('.c', '')
@@ -117,7 +131,7 @@ for c_file in sys.argv[1:]:
     functions = []
     functions_prop = {}
     cur_function = ""
-    total_cu = dict(total=[0, 0, 0], ergo=[0, 0, 0], qed=[0, 0, 0], call=[0, 0, 0], post=[0, 0, 0], assign=[0, 0, 0], loop=[0, 0, 0], assert_rte=[0, 0, 0], other=[0,0,0])
+    total_cu = dict(total=[0, 0, 0], ergo=[0, 0, 0], qed=[0, 0, 0], call=[0, 0, 0], post=[0, 0, 0], assign=[0, 0, 0], loop=[0, 0, 0], assert_rte=[0, 0, 0], other=[0, 0, 0])
 
     data = open("report_" + file + ".txt", "r")
 
@@ -155,6 +169,11 @@ for c_file in sys.argv[1:]:
 
             if vc_type == 'complete' or vc_type == 'disjoint':
                 vc_type = 'other'
+
+            if prover == 'ergo':
+                total_ergo[vc_type] += 1
+            else:
+                total_qed[vc_type] += 1
 
             for name in functions:
                 if re.search(name, my_fun_pos_name) is not None:
