@@ -65,31 +65,9 @@ void __po_hi_find_alignment (__po_hi_uint8_t align, __po_hi_msg_t* msg, __po_hi_
  * Operations Marshallers
  */
 
-/* @	requires \valid(msg);
-	requires \valid(msg->content+(0..(msg->length + sizeof(__po_hi_port_t))));
-
- 	assigns (msg->content+(msg->length..msg->length + sizeof(__po_hi_port_t) - 1));
-
- 	ensures msg->length == \old(msg->length) + sizeof(__po_hi_port_t);
- 	ensures ((__po_hi_port_t *) msg->content)[\old(msg->length)] == value;
- */
-
-/*@ requires \valid(msg);
-  @ requires \valid(msg->content+(msg->length..(msg->length + sizeof(__po_hi_port_t) - 1)));
-  @	requires \valid(((__po_hi_uint8_t*)value)+(0..(sizeof(__po_hi_port_t) - 1)));
-  @	requires \separated(msg->content+(msg->length..msg->length + sizeof(__po_hi_port_t) - 1), ((__po_hi_uint8_t*)value)+(0..(sizeof(__po_hi_port_t) - 1)));
-  @ requires \separated(msg->content+(msg->length..msg->length + sizeof(__po_hi_port_t) - 1), &(msg->length));
-  @ requires \separated(((__po_hi_uint8_t*)value)+(0..(sizeof(__po_hi_port_t) - 1)), &(msg->length));
-  @ requires msg->length + sizeof(__po_hi_port_t) <= 4294967295;
-  @	assigns msg->content[msg->length..(msg->length + sizeof(__po_hi_port_t) - 1)] \from ((unsigned char*)value)[0..(sizeof(__po_hi_port_t) - 1)];
-  @	assigns msg->length;
-  @ //ensures \forall int i; 0 <= i < \old(msg->length) ==> msg->content[i] == \old(msg->content[i]);
-  @	ensures \forall int i; 0 <= i < sizeof(__po_hi_port_t) ==> msg->content[\old(msg->length) + i] == ((__po_hi_uint8_t*)value) [i];
-  @ ensures msg->length == \old(msg->length) + sizeof(__po_hi_port_t);
-  */
 void __po_hi_marshall_port (__po_hi_port_t value, __po_hi_msg_t* msg)
 {
-        __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_port_t));
+    __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_port_t));
 }
 
 void __po_hi_unmarshall_port (__po_hi_port_t* value, __po_hi_msg_t* msg)
@@ -111,7 +89,7 @@ void __po_hi_marshall_array (void* value, __po_hi_msg_t* msg,__po_hi_uint32_t si
         __po_hi_find_alignment (4, msg, offset);
 #endif
         __po_hi_msg_append_data (msg, value, size);
-        *offset = *offset + size; 
+        *offset = *offset + size;
 }
 
 void __po_hi_unmarshall_array (void* value, __po_hi_msg_t* msg,__po_hi_uint32_t size, __po_hi_uint32_t* offset)
@@ -132,7 +110,7 @@ void __po_hi_unmarshall_array (void* value, __po_hi_msg_t* msg,__po_hi_uint32_t 
         }
 #endif
 
-        *offset = *offset + size; 
+        *offset = *offset + size;
 }
 
 #ifndef COMPCERT
@@ -143,13 +121,13 @@ void __po_hi_unmarshall_array (void* value, __po_hi_msg_t* msg,__po_hi_uint32_t 
 void __po_hi_marshall_bool (__po_hi_bool_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
   __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_bool_t));
-  *offset = *offset + sizeof (__po_hi_bool_t); 
+  *offset = *offset + sizeof (__po_hi_bool_t);
 }
 
 void __po_hi_unmarshall_bool (__po_hi_bool_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
   __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_bool_t));
-  *offset = *offset + sizeof (__po_hi_bool_t); 
+  *offset = *offset + sizeof (__po_hi_bool_t);
 }
 #endif
 
@@ -160,13 +138,13 @@ void __po_hi_unmarshall_bool (__po_hi_bool_t* value, __po_hi_msg_t* msg,__po_hi_
 void __po_hi_marshall_char (char value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
   __po_hi_msg_append_data (msg, &value, sizeof(char));
-  *offset = *offset + sizeof (char); 
+  *offset = *offset + sizeof (char);
 }
 
 void __po_hi_unmarshall_char (char* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
   __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(char));
-  *offset = *offset + sizeof (char); 
+  *offset = *offset + sizeof (char);
 }
 
 
@@ -179,7 +157,7 @@ void __po_hi_marshall_int (int value, __po_hi_msg_t* msg,__po_hi_uint32_t* offse
         __po_hi_find_alignment (4, msg, offset);
 #endif
         __po_hi_msg_append_data (msg, &value, sizeof(int));
-        *offset = *offset + sizeof (int); 
+        *offset = *offset + sizeof (int);
 }
 
 void __po_hi_unmarshall_int (int* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
@@ -200,7 +178,7 @@ void __po_hi_unmarshall_int (int* value, __po_hi_msg_t* msg,__po_hi_uint32_t* of
         }
 #endif
 
-        *offset = *offset + sizeof (int); 
+        *offset = *offset + sizeof (int);
 }
 
 /*
@@ -214,7 +192,7 @@ void __po_hi_marshall_float (float value, __po_hi_msg_t* msg,__po_hi_uint32_t* o
 #endif
 
         __po_hi_msg_append_data (msg, &value, sizeof(float));
-        *offset = *offset + sizeof (float); 
+        *offset = *offset + sizeof (float);
 }
 
 void __po_hi_unmarshall_float (float* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
@@ -233,7 +211,7 @@ void __po_hi_unmarshall_float (float* value, __po_hi_msg_t* msg,__po_hi_uint32_t
                 *value = tmpvalue;
         }
 #endif
-        *offset = *offset + sizeof (float); 
+        *offset = *offset + sizeof (float);
 }
 
 
@@ -244,7 +222,7 @@ void __po_hi_marshall_float32 (__po_hi_float32_t value, __po_hi_msg_t* msg,__po_
 #endif
 
         __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_float32_t));
-        *offset = *offset + sizeof (__po_hi_float32_t); 
+        *offset = *offset + sizeof (__po_hi_float32_t);
 }
 
 void __po_hi_unmarshall_float32 (__po_hi_float32_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
@@ -263,19 +241,19 @@ void __po_hi_unmarshall_float32 (__po_hi_float32_t* value, __po_hi_msg_t* msg,__
                 *value = tmpvalue;
         }
 #endif
-        *offset = *offset + sizeof (__po_hi_float32_t); 
+        *offset = *offset + sizeof (__po_hi_float32_t);
 }
 
 void __po_hi_marshall_float64 (__po_hi_float64_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
         __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_float64_t));
-        *offset = *offset + sizeof (__po_hi_float64_t); 
+        *offset = *offset + sizeof (__po_hi_float64_t);
 }
 
 void __po_hi_unmarshall_float64 (__po_hi_float64_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
         __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_float64_t));
-        *offset = *offset + sizeof (__po_hi_float64_t); 
+        *offset = *offset + sizeof (__po_hi_float64_t);
 }
 
 /*
@@ -285,13 +263,13 @@ void __po_hi_unmarshall_float64 (__po_hi_float64_t* value, __po_hi_msg_t* msg,__
 void __po_hi_marshall_int8 (__po_hi_int8_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
         __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_int8_t));
-        *offset = *offset + sizeof (__po_hi_int8_t); 
+        *offset = *offset + sizeof (__po_hi_int8_t);
 }
 
 void __po_hi_unmarshall_int8 (__po_hi_int8_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
         __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_int8_t));
-        *offset = *offset + sizeof (__po_hi_int8_t); 
+        *offset = *offset + sizeof (__po_hi_int8_t);
 }
 
 /*
@@ -304,7 +282,7 @@ void __po_hi_marshall_int16 (__po_hi_int16_t value, __po_hi_msg_t* msg,__po_hi_u
         __po_hi_find_alignment (4, msg, offset);
 #endif
         __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_int16_t));
-        *offset = *offset + sizeof (__po_hi_int16_t); 
+        *offset = *offset + sizeof (__po_hi_int16_t);
 }
 
 void __po_hi_unmarshall_int16 (__po_hi_int16_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
@@ -323,7 +301,7 @@ void __po_hi_unmarshall_int16 (__po_hi_int16_t* value, __po_hi_msg_t* msg,__po_h
                 *value = tmpvalue;
         }
 #endif
-        *offset = *offset + sizeof (__po_hi_int16_t); 
+        *offset = *offset + sizeof (__po_hi_int16_t);
 }
 
 /*
@@ -336,7 +314,7 @@ void __po_hi_marshall_int32 (__po_hi_int32_t value, __po_hi_msg_t* msg,__po_hi_u
         __po_hi_find_alignment (4, msg, offset);
 #endif
         __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_int32_t));
-        *offset = *offset + sizeof (__po_hi_int32_t); 
+        *offset = *offset + sizeof (__po_hi_int32_t);
 }
 
 void __po_hi_unmarshall_int32 (__po_hi_int32_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
@@ -354,7 +332,7 @@ void __po_hi_unmarshall_int32 (__po_hi_int32_t* value, __po_hi_msg_t* msg,__po_h
                 *value = tmpvalue;
         }
 #endif
-        *offset = *offset + sizeof (__po_hi_int32_t); 
+        *offset = *offset + sizeof (__po_hi_int32_t);
 }
 
 #ifndef COMPCERT
@@ -365,13 +343,13 @@ void __po_hi_unmarshall_int32 (__po_hi_int32_t* value, __po_hi_msg_t* msg,__po_h
 void __po_hi_marshall_int64 (__po_hi_int64_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
         __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_int64_t));
-        *offset = *offset + sizeof (__po_hi_int64_t); 
+        *offset = *offset + sizeof (__po_hi_int64_t);
 }
 
 void __po_hi_unmarshall_int64 (__po_hi_int64_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
         __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_int64_t));
-        *offset = *offset + sizeof (__po_hi_int64_t); 
+        *offset = *offset + sizeof (__po_hi_int64_t);
 }
 #endif
 
@@ -383,13 +361,13 @@ void __po_hi_unmarshall_int64 (__po_hi_int64_t* value, __po_hi_msg_t* msg,__po_h
 void __po_hi_marshall_uint8 (__po_hi_uint8_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
         __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_uint8_t));
-        *offset = *offset + sizeof (__po_hi_uint8_t); 
+        *offset = *offset + sizeof (__po_hi_uint8_t);
 }
 
 void __po_hi_unmarshall_uint8 (__po_hi_uint8_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
         __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_uint8_t));
-        *offset = *offset + sizeof (__po_hi_uint8_t); 
+        *offset = *offset + sizeof (__po_hi_uint8_t);
 }
 
 /*
@@ -402,7 +380,7 @@ void __po_hi_marshall_uint16 (__po_hi_uint16_t value, __po_hi_msg_t* msg,__po_hi
         __po_hi_find_alignment (4, msg, offset);
 #endif
         __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_uint16_t));
-        *offset = *offset + sizeof (__po_hi_uint16_t); 
+        *offset = *offset + sizeof (__po_hi_uint16_t);
 }
 
 void __po_hi_unmarshall_uint16 (__po_hi_uint16_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
@@ -421,7 +399,7 @@ void __po_hi_unmarshall_uint16 (__po_hi_uint16_t* value, __po_hi_msg_t* msg,__po
                 *value = tmpvalue;
         }
 #endif
-        *offset = *offset + sizeof (__po_hi_uint16_t); 
+        *offset = *offset + sizeof (__po_hi_uint16_t);
 }
 
 /*
@@ -434,7 +412,7 @@ void __po_hi_marshall_uint32 (__po_hi_uint32_t value, __po_hi_msg_t* msg,__po_hi
         __po_hi_find_alignment (4, msg, offset);
 #endif
         __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_uint32_t));
-        *offset = *offset + sizeof (__po_hi_uint32_t); 
+        *offset = *offset + sizeof (__po_hi_uint32_t);
 }
 
 void __po_hi_unmarshall_uint32 (__po_hi_uint32_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
@@ -452,7 +430,7 @@ void __po_hi_unmarshall_uint32 (__po_hi_uint32_t* value, __po_hi_msg_t* msg,__po
                 *value = tmpvalue;
         }
 #endif
-        *offset = *offset + sizeof (__po_hi_uint32_t); 
+        *offset = *offset + sizeof (__po_hi_uint32_t);
 }
 
 #ifndef COMPCERT
@@ -463,12 +441,12 @@ void __po_hi_unmarshall_uint32 (__po_hi_uint32_t* value, __po_hi_msg_t* msg,__po
 void __po_hi_marshall_uint64 (__po_hi_uint64_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
         __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_uint64_t));
-        *offset = *offset + sizeof (__po_hi_uint64_t); 
+        *offset = *offset + sizeof (__po_hi_uint64_t);
 }
 
 void __po_hi_unmarshall_uint64 (__po_hi_uint64_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
         __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_uint64_t));
-        *offset = *offset + sizeof (__po_hi_uint64_t); 
+        *offset = *offset + sizeof (__po_hi_uint64_t);
 }
 #endif
