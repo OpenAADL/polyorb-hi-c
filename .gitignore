@@ -118,3 +118,7 @@ tools/check-symbols/src/Makefile.in
 /support/compile
 /config.log
 /config.status
+report/*.tex
+report/*.txt
+report/try*
+report/auto
