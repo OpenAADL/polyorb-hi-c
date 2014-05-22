@@ -74,21 +74,6 @@ typedef struct
 #define __PO_HI_TIME_TO_MS(value) ((value.sec*1000)+(value.nsec / 1000000))
 
 /*
- * <ugly hack warning>
- * Add specification for clock_gettime ensuring that the timespec
- * structure used in clock_gettime does not overlap with a ghost field
- * representing the __po_hi_time_t * parameter of __po_hi_get_time.
- * </ugly hack warning>
- */
-//@ ghost __po_hi_time_t *time_struct_to_be_initialized;
-
-/*@ ensures \valid(time_struct_to_be_initialized);
-  @ ensures \separated(time_struct_to_be_initialized, __tp);
-  @ ensures time_struct_to_be_initialized == \old(time_struct_to_be_initialized);
-  @*/
-int clock_gettime (clockid_t __clock_id, struct timespec *__tp);
-
-/*
  * Get the current time and store informations
  * in the structure mytime.
  * If there is an error, returns a negative value
