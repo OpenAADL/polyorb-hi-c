@@ -88,8 +88,8 @@ typedef struct
  * in specification.
  */
 /*@ requires \valid(mytime);
-  @ //assigns mytime->sec;
-  @ //assigns mytime->nsec;
+  @ assigns mytime->sec;
+  @ assigns mytime->nsec;
   @ ensures is_time_struct_correct(mytime);
   @ ensures \result == __PO_HI_SUCCESS;
   @*/
