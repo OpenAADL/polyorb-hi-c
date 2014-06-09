@@ -413,7 +413,6 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
    __po_hi_messages_debug (&__po_hi_c_sockets_poller_msg);
 #endif
 
-
             if (len <= 0)
             {
                __DEBUGMSG ("[DRIVER SOCKETS] Invalid size (%d) from device %d\n",len, dev);
@@ -423,6 +422,8 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
             __po_hi_unmarshall_request (&__po_hi_c_sockets_poller_received_request, &__po_hi_c_sockets_poller_msg);
 #endif
+
+            __DEBUGMSG ("[DRIVER SOCKETS] Delivering message to %d\n",__po_hi_c_sockets_poller_received_request.port );
             __po_hi_main_deliver (&__po_hi_c_sockets_poller_received_request);
          }
       }
