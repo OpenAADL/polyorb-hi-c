@@ -242,7 +242,7 @@ aadl.sed-stamp:
 	touch aadl.sed-stamp
 
 dist-hook: all
-	cp -r $(builddir)/$(GUIDE).html $(builddir)/$(GUIDE).pdf $(distdir)
+	-cp -r $(builddir)/$(GUIDE).html $(builddir)/$(GUIDE).pdf $(distdir)
 
 debug-makefile:
 	@echo "C_CODE = $(C_CODE)"
