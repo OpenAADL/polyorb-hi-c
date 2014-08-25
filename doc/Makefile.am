@@ -55,7 +55,9 @@ polyorb_hi_c_ug_TEXINFOS = $(GUIDE_TEXIFILES)
 
 SUFFIXES = .c .h .aadl .texi .sed .pdf .html
 
-all-local: $(GUIDE_TEXIFILES) $(GUIDE).html $(GUIDE).pdf
+docs: $(GUIDE_TEXIFILES) $(GUIDE).html $(GUIDE).pdf
+
+all-local: @DOC_TARGETS@
 
 ###############################################################################
 # The target below are active only in developper mode. In package
@@ -149,7 +151,8 @@ install-data-local: all
 	  for f in $(builddir)/$(GUIDE).html/fig/*.png; do \
             $(INSTALL_DATA) $$f  $(DESTDIR)$(po_hi_doc_dir)/$(GUIDE).html/fig; \
           done; \
-	else \
+	fi	
+	if [ -r $(srcdir)/$(GUIDE).pdf ]; then \
 	  $(INSTALL_DATA) $(srcdir)/$(GUIDE).pdf  $(DESTDIR)$(po_hi_doc_dir); \
 	  for f in $(srcdir)/$(GUIDE).html/*.html; do \
             $(INSTALL_DATA) $$f  $(DESTDIR)$(po_hi_doc_dir)/$(GUIDE).html; \
