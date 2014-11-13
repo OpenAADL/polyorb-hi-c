@@ -99,6 +99,7 @@ int __po_hi_msg_should_swap (__po_hi_msg_t* msg)
 #endif
         return 0;
 }
+#endif
 
 void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size)
 {
@@ -111,10 +112,9 @@ void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size)
 
         for (tmp=0 ; tmp < size ; tmp++)
         {
-                udest[tmp] = ufrom[size-tmp];
+                udest[tmp] = ufrom[size-tmp - 1];
         }
 }
-#endif
 
 #ifdef __PO_HI_DEBUG
 void __po_hi_messages_debug (__po_hi_msg_t* msg)
