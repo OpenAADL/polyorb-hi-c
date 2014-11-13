@@ -135,7 +135,10 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
    __DEBUGMSG("MUTEX_INIT %d %d\n", id, err);
 #if defined (POSIX) || defined (XENO_POSIX)
    // XXX disabled for OS X
-   //   err = pthread_mutexattr_setpshared(&__po_hi_gqueues_mutexes_attr[id],PTHREAD_PROCESS_SHARED);
+
+#ifndef __MACH__ // OS X bugs on this attribute
+   err = pthread_mutexattr_setpshared(&__po_hi_gqueues_mutexes_attr[id],PTHREAD_PROCESS_SHARED);
+#endif
    __DEBUGMSG("MUTEX_INIT %d\n", err);
 #endif
    err = pthread_mutex_init (&__po_hi_gqueues_mutexes[id], &__po_hi_gqueues_mutexes_attr[id]);
