@@ -5,447 +5,209 @@
  *
  * For more informations, please visit http://assert-project.net/taste
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2012 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
 #include <po_hi_marshallers.h>
 #include <po_hi_messages.h>
+#include <po_hi_transport.h>
 /* headers from PolyORB-HI-C */
 
 #include <request.h>
 #include <deployment.h>
 /* headers from the generated code */
 
-#ifdef __PO_HI_USE_GIOP
-#include <string.h>
-#endif
-/* should be made with our own allocator, such as
-   a big array that we handle by hand
-*/
 
-/*
- * This file provides some useful function to marshall and unmarshall data.
- * It handles several protocols.
- *
- * For the GIOP protocol, we perform an alignment of the data. Currently,
- * the data are aligned like this :
- * - int                  is aligned to 4 bytes
- * - __po_hi_int16_t      is aligned to 4 bytes
- * - __po_hi_int32_t      is aligned to 4 bytes
- * - __po_hi_int8_t       is aligned to 1 byte (we consider this type as a character)
- */
+/* Generic marshaller/unmarshaller macros */
 
-
-#ifdef __PO_HI_USE_GIOP
-void __po_hi_find_alignment (__po_hi_uint8_t align, __po_hi_msg_t* msg, __po_hi_uint32_t* offset)
-{
-  __po_hi_uint16_t the_offset = *offset;
-  while( (the_offset % align) != 0 )
-    {
-      the_offset++;
-      msg->length++;
-    }
+#define TYPE_MARSHALLER(THE_TYPE) \
+void __po_hi_marshall_##THE_TYPE (__po_hi_##THE_TYPE##_t value, __po_hi_msg_t* msg, __po_hi_uint32_t* offset) \
+{ \
+  __po_hi_##THE_TYPE##_t tmpvalue = value; \
+\
+  if (sizeof (__po_hi_##THE_TYPE##_t) > 1 && __po_hi_get_endianness (__PO_HI_MY_NODE) == __PO_HI_BIGENDIAN) \
+    { \
+      __po_hi_msg_swap_value (&value, &tmpvalue, sizeof (__po_hi_##THE_TYPE##_t)); \
+    } \
+  __po_hi_msg_append_data (msg, &tmpvalue, sizeof(__po_hi_##THE_TYPE##_t)); \
+  *offset = *offset + sizeof (__po_hi_##THE_TYPE##_t); \
 }
-#endif
-/*
- * The function __po_hi_find_alignment was made to align data for GIOP
- * messages.  The first parameter is used to give to alignment value
- * in byte. The function search a correct value according to the
- * offset argument (current offset in the marshalled data). The size
- * of the message given in argument is increased to respect the
- * alignment.
- *
- * This function is defined for the GIOP protocol and is used only if
- * this protocol is chosen.
- */
 
+#define TYPE_UNMARSHALLER(THE_TYPE)  \
+void __po_hi_unmarshall_##THE_TYPE (__po_hi_##THE_TYPE##_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset) \
+  { \
+  __po_hi_##THE_TYPE##_t tmpvalue; \
+  __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_##THE_TYPE##_t)); \
+\
+  if (sizeof (__po_hi_##THE_TYPE##_t) > 1 && __po_hi_get_endianness (__PO_HI_MY_NODE) == __PO_HI_BIGENDIAN) \
+    { \
+      __po_hi_msg_swap_value (value, &tmpvalue, sizeof (__po_hi_##THE_TYPE##_t)); \
+      *value = tmpvalue; \
+    } \
+ *offset = *offset + sizeof (__po_hi_##THE_TYPE##_t); \
+ }
 
-/*
- * Operations Marshallers
- */
+/* __po_hi_port_t marshallers */
+// XXX why no update on offset ?
+
 void __po_hi_marshall_port (__po_hi_port_t value, __po_hi_msg_t* msg)
 {
-        __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_port_t));
+  __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_port_t));
 }
 
 void __po_hi_unmarshall_port (__po_hi_port_t* value, __po_hi_msg_t* msg)
 {
-        /*
-         * The operation is always written by the local machine, or
-         * received with the raw protocol. So, we don't have to check
-         * byte order for it
-         */
-        __po_hi_msg_get_data (value, msg, 0, sizeof (__po_hi_port_t));
+  /* The operation is always written by the local machine, or received
+   * with the raw protocol. So, we don't have to check byte order */
+
+  __po_hi_msg_get_data (value, msg, 0, sizeof (__po_hi_port_t));
 }
 
-/*
- * Array marshallers
- */
+/* array marshallers */
+
 void __po_hi_marshall_array (void* value, __po_hi_msg_t* msg,__po_hi_uint32_t size, __po_hi_uint32_t* offset)
 {
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_find_alignment (4, msg, offset);
-#endif
-        __po_hi_msg_append_data (msg, value, size);
-        *offset = *offset + size; 
+  __po_hi_msg_append_data (msg, value, size);
+  *offset = *offset + size;
 }
 
 void __po_hi_unmarshall_array (void* value, __po_hi_msg_t* msg,__po_hi_uint32_t size, __po_hi_uint32_t* offset)
 {
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_uint8_t tmpvalue[size];
-
-        __po_hi_find_alignment (4, msg, offset);
-#endif
-
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), size);
-
-#ifdef __PO_HI_USE_GIOP
-        if (__po_hi_msg_should_swap (msg))
-        {
-           __po_hi_msg_swap_value (value, tmpvalue, size);
-           memcpy (value, tmpvalue, size);
-        }
-#endif
-
-        *offset = *offset + size; 
+  __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), size);
+  *offset = *offset + size;
 }
 
 #ifndef COMPCERT
-/*
- * __po_hi_bool_t marshallers
- */
+/* __po_hi_bool_t marshallers */
 
-void __po_hi_marshall_bool (__po_hi_bool_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-  __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_bool_t));
-  *offset = *offset + sizeof (__po_hi_bool_t); 
-}
+TYPE_MARSHALLER (bool)
+TYPE_UNMARSHALLER (bool)
 
-void __po_hi_unmarshall_bool (__po_hi_bool_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-  __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_bool_t));
-  *offset = *offset + sizeof (__po_hi_bool_t); 
-}
 #endif
 
-/*
- * char marshallers
- */
+/* char marshallers */
 
 void __po_hi_marshall_char (char value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
   __po_hi_msg_append_data (msg, &value, sizeof(char));
-  *offset = *offset + sizeof (char); 
+  *offset = *offset + sizeof (char);
 }
 
 void __po_hi_unmarshall_char (char* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
   __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(char));
-  *offset = *offset + sizeof (char); 
+  *offset = *offset + sizeof (char);
 }
 
+/* integer marshallers */
 
-/*
- * Integer marshallers
- */
 void __po_hi_marshall_int (int value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_find_alignment (4, msg, offset);
-#endif
-        __po_hi_msg_append_data (msg, &value, sizeof(int));
-        *offset = *offset + sizeof (int); 
+  int tmpvalue = value;
+
+  if (sizeof (int) > 1 && __po_hi_get_endianness (__PO_HI_MY_NODE) == __PO_HI_BIGENDIAN)
+    {
+      __po_hi_msg_swap_value (&value, &tmpvalue, sizeof (int));
+    }
+
+  __po_hi_msg_append_data (msg, &tmpvalue, sizeof(int));
+  *offset = *offset + sizeof (int);
 }
 
 void __po_hi_unmarshall_int (int* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
-#ifdef __PO_HI_USE_GIOP
-        int tmpvalue;
+  int tmpvalue;
 
-        __po_hi_find_alignment (4, msg, offset);
-#endif
+  __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(int));
 
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(int));
-
-#ifdef __PO_HI_USE_GIOP
-        if (__po_hi_msg_should_swap (msg))
-        {
-                __po_hi_msg_swap_value (value, &tmpvalue, sizeof (int));
-                *value = tmpvalue;
-        }
-#endif
-
-        *offset = *offset + sizeof (int); 
+  if (sizeof (int) > 1 && __po_hi_get_endianness (__PO_HI_MY_NODE) == __PO_HI_BIGENDIAN)
+    {
+      __po_hi_msg_swap_value (value, &tmpvalue, sizeof (int));
+      *value = tmpvalue;
+    }
+  *offset = *offset + sizeof (int);
 }
 
-/*
- * Float Marshallers
- */
+/* float marshallers */
 
 void __po_hi_marshall_float (float value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_find_alignment (4, msg, offset);
-#endif
+  float tmpvalue = value;
 
-        __po_hi_msg_append_data (msg, &value, sizeof(float));
-        *offset = *offset + sizeof (float); 
+  if (sizeof (int) > 1 && __po_hi_get_endianness (__PO_HI_MY_NODE) == __PO_HI_BIGENDIAN)
+    {
+      __po_hi_msg_swap_value (&value, &tmpvalue, sizeof (float));
+    }
+  __po_hi_msg_append_data (msg, &tmpvalue, sizeof(float));
+  *offset = *offset + sizeof (float);
 }
 
 void __po_hi_unmarshall_float (float* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
 {
-#ifdef __PO_HI_USE_GIOP
-        float tmpvalue;
-        __po_hi_find_alignment (4, msg, offset);
-#endif
+  float tmpvalue;
 
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(float));
+  __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(float));
 
-#ifdef __PO_HI_USE_GIOP
-        if (__po_hi_msg_should_swap (msg))
-        {
-                __po_hi_msg_swap_value (value, &tmpvalue, sizeof (float));
-                *value = tmpvalue;
-        }
-#endif
-        *offset = *offset + sizeof (float); 
+  if (sizeof (float) > 1 && __po_hi_get_endianness (__PO_HI_MY_NODE) == __PO_HI_BIGENDIAN)
+    {
+      __po_hi_msg_swap_value (value, &tmpvalue, sizeof (float));
+      *value = tmpvalue;
+    }
+  *offset = *offset + sizeof (float);
 }
 
+/* __po_hi_float32_t marshallers */
 
-void __po_hi_marshall_float32 (__po_hi_float32_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_find_alignment (4, msg, offset);
-#endif
+TYPE_MARSHALLER (float32)
+TYPE_UNMARSHALLER (float32)
 
-        __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_float32_t));
-        *offset = *offset + sizeof (__po_hi_float32_t); 
-}
+/* __po_hi_float64_t marshallers */
 
-void __po_hi_unmarshall_float32 (__po_hi_float32_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-#ifdef __PO_HI_USE_GIOP
-        float tmpvalue;
-        __po_hi_find_alignment (4, msg, offset);
-#endif
+TYPE_MARSHALLER (float64)
+TYPE_UNMARSHALLER (float64)
 
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_float32_t));
+/* __po_hi_int8_t marshallers */
 
-#ifdef __PO_HI_USE_GIOP
-        if (__po_hi_msg_should_swap (msg))
-        {
-                __po_hi_msg_swap_value (value, &tmpvalue, sizeof (__po_hi_float32_t));
-                *value = tmpvalue;
-        }
-#endif
-        *offset = *offset + sizeof (__po_hi_float32_t); 
-}
+TYPE_MARSHALLER (int8)
+TYPE_UNMARSHALLER (int8)
 
-void __po_hi_marshall_float64 (__po_hi_float64_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-        __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_float64_t));
-        *offset = *offset + sizeof (__po_hi_float64_t); 
-}
+/* __po_hi_int16_t marshallers */
 
-void __po_hi_unmarshall_float64 (__po_hi_float64_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_float64_t));
-        *offset = *offset + sizeof (__po_hi_float64_t); 
-}
+TYPE_MARSHALLER (int16)
+TYPE_UNMARSHALLER (int16)
 
-/*
- * __po_hi_int8_t marshallers
- */
+/* __po_hi_int32_t marshallers */
 
-void __po_hi_marshall_int8 (__po_hi_int8_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-        __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_int8_t));
-        *offset = *offset + sizeof (__po_hi_int8_t); 
-}
-
-void __po_hi_unmarshall_int8 (__po_hi_int8_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_int8_t));
-        *offset = *offset + sizeof (__po_hi_int8_t); 
-}
-
-/*
- * __po_hi_int16_t marshallers
- */
-
-void __po_hi_marshall_int16 (__po_hi_int16_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_find_alignment (4, msg, offset);
-#endif
-        __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_int16_t));
-        *offset = *offset + sizeof (__po_hi_int16_t); 
-}
-
-void __po_hi_unmarshall_int16 (__po_hi_int16_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_int16_t tmpvalue;
-        __po_hi_find_alignment (4, msg, offset);
-#endif
-
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_int16_t));
-
-#ifdef __PO_HI_USE_GIOP
-        if (__po_hi_msg_should_swap (msg))
-        {
-                __po_hi_msg_swap_value (value, &tmpvalue, sizeof (__po_hi_int16_t));
-                *value = tmpvalue;
-        }
-#endif
-        *offset = *offset + sizeof (__po_hi_int16_t); 
-}
-
-/*
- * __po_hi_int32_t marshallers
- */
-
-void __po_hi_marshall_int32 (__po_hi_int32_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_find_alignment (4, msg, offset);
-#endif
-        __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_int32_t));
-        *offset = *offset + sizeof (__po_hi_int32_t); 
-}
-
-void __po_hi_unmarshall_int32 (__po_hi_int32_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_int32_t tmpvalue;
-        __po_hi_find_alignment (4, msg, offset);
-#endif
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_int32_t));
-
-#ifdef __PO_HI_USE_GIOP
-        if (__po_hi_msg_should_swap (msg))
-        {
-                __po_hi_msg_swap_value (value, &tmpvalue, sizeof (__po_hi_int32_t));
-                *value = tmpvalue;
-        }
-#endif
-        *offset = *offset + sizeof (__po_hi_int32_t); 
-}
+TYPE_MARSHALLER (int32)
+TYPE_UNMARSHALLER (int32)
 
 #ifndef COMPCERT
-/*
- * __po_hi_int64_t marshallers
- */
+/* __po_hi_int64_t marshallers */
 
-void __po_hi_marshall_int64 (__po_hi_int64_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-        __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_int64_t));
-        *offset = *offset + sizeof (__po_hi_int64_t); 
-}
-
-void __po_hi_unmarshall_int64 (__po_hi_int64_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_int64_t));
-        *offset = *offset + sizeof (__po_hi_int64_t); 
-}
+TYPE_MARSHALLER (int64)
+TYPE_UNMARSHALLER (int64)
 #endif
 
+/* __po_hi_uint8_t marshallers */
 
-/*
- * __po_hi_uint8_t marshallers
- */
+TYPE_MARSHALLER (uint8)
+TYPE_UNMARSHALLER (uint8)
 
-void __po_hi_marshall_uint8 (__po_hi_uint8_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-        __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_uint8_t));
-        *offset = *offset + sizeof (__po_hi_uint8_t); 
-}
+/* __po_hi_uint16_t marshallers */
 
-void __po_hi_unmarshall_uint8 (__po_hi_uint8_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_uint8_t));
-        *offset = *offset + sizeof (__po_hi_uint8_t); 
-}
+TYPE_MARSHALLER (uint16)
+TYPE_UNMARSHALLER (uint16)
 
-/*
- * __po_hi_uint16_t marshallers
- */
+/* __po_hi_uint32_t marshallers */
 
-void __po_hi_marshall_uint16 (__po_hi_uint16_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_find_alignment (4, msg, offset);
-#endif
-        __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_uint16_t));
-        *offset = *offset + sizeof (__po_hi_uint16_t); 
-}
-
-void __po_hi_unmarshall_uint16 (__po_hi_uint16_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_uint16_t tmpvalue;
-        __po_hi_find_alignment (4, msg, offset);
-#endif
-
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_uint16_t));
-
-#ifdef __PO_HI_USE_GIOP
-        if (__po_hi_msg_should_swap (msg))
-        {
-                __po_hi_msg_swap_value (value, &tmpvalue, sizeof (__po_hi_uint16_t));
-                *value = tmpvalue;
-        }
-#endif
-        *offset = *offset + sizeof (__po_hi_uint16_t); 
-}
-
-/*
- * __po_hi_uint32_t marshallers
- */
-
-void __po_hi_marshall_uint32 (__po_hi_uint32_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_find_alignment (4, msg, offset);
-#endif
-        __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_uint32_t));
-        *offset = *offset + sizeof (__po_hi_uint32_t); 
-}
-
-void __po_hi_unmarshall_uint32 (__po_hi_uint32_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-#ifdef __PO_HI_USE_GIOP
-        __po_hi_uint32_t tmpvalue;
-        __po_hi_find_alignment (4, msg, offset);
-#endif
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_uint32_t));
-
-#ifdef __PO_HI_USE_GIOP
-        if (__po_hi_msg_should_swap (msg))
-        {
-                __po_hi_msg_swap_value (value, &tmpvalue, sizeof (__po_hi_uint32_t));
-                *value = tmpvalue;
-        }
-#endif
-        *offset = *offset + sizeof (__po_hi_uint32_t); 
-}
+TYPE_MARSHALLER (uint32)
+TYPE_UNMARSHALLER (uint32)
 
 #ifndef COMPCERT
-/*
- * __po_hi_uint64_t marshallers
- */
+/* __po_hi_uint64_t marshallers */
 
-void __po_hi_marshall_uint64 (__po_hi_uint64_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-        __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_uint64_t));
-        *offset = *offset + sizeof (__po_hi_uint64_t); 
-}
+TYPE_MARSHALLER (uint64)
+TYPE_UNMARSHALLER (uint64)
 
-void __po_hi_unmarshall_uint64 (__po_hi_uint64_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
-{
-        __po_hi_msg_get_data (value, msg, *offset + sizeof (__po_hi_port_t), sizeof(__po_hi_uint64_t));
-        *offset = *offset + sizeof (__po_hi_uint64_t); 
-}
 #endif
