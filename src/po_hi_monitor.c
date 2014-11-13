@@ -37,7 +37,6 @@ int __po_hi_monitor_n_failures_buses[__PO_HI_NB_BUSES];
 void __po_hi_monitor_init (void)
 {
    int i;
-   __PO_HI_DEBUG_DEBUG ("[MONITOR] Initialise the monitoring subsystem\n");
 
    /*
     * Initialise the monitoring subsystem, we assume that everything is
@@ -52,6 +51,7 @@ void __po_hi_monitor_init (void)
    {
       __po_hi_monitor_n_failures_buses[i] = 0;
    }
+   __PO_HI_DEBUG_DEBUG ("[MONITOR] Initialized the monitoring subsystem\n");
 }
 
 
@@ -75,7 +75,7 @@ int __po_hi_monitor_get_status_device (const __po_hi_device_id device,
    int               n_failure;
    uint32_t          n_buses;
    __po_hi_bus_id*   buses;
-   uint32_t i; 
+   uint32_t i;
 
    __PO_HI_DEBUG_DEBUG ("[MONITOR] call __po_hi_monitor_get_status_device with argument %d (device) and 0x%x (status pointer)\n", device, status);
 
@@ -149,7 +149,7 @@ int __po_hi_monitor_get_status_bus (const __po_hi_bus_id       bus,
    return __PO_HI_SUCCESS;
 }
 
-int __po_hi_monitor_report_failure_bus (const __po_hi_bus_id bus, 
+int __po_hi_monitor_report_failure_bus (const __po_hi_bus_id bus,
                                         const __po_hi_monitor_failure_t failure)
 {
    int n_failure;
@@ -162,7 +162,7 @@ int __po_hi_monitor_report_failure_bus (const __po_hi_bus_id bus,
       __PO_HI_DEBUG_DEBUG ("[MONITOR] invalid bus-id %d\n", bus);
       return __PO_HI_UNAVAILABLE;
    }
-  
+
    n_failure = __po_hi_monitor_n_failures_buses[bus];
    if (n_failure >= __PO_HI_MONITOR_NB_FAILURES)
    {
@@ -188,7 +188,7 @@ int __po_hi_monitor_report_failure_device (const __po_hi_device_id device,
       __PO_HI_DEBUG_DEBUG ("[MONITOR] invalid device-id %d\n", device);
       return __PO_HI_UNAVAILABLE;
    }
-  
+
    n_failure = __po_hi_monitor_n_failures_devices[device];
    if (n_failure >= __PO_HI_MONITOR_NB_FAILURES)
    {
@@ -226,7 +226,7 @@ int __po_hi_monitor_recover_bus (const __po_hi_bus_id bus)
       __PO_HI_DEBUG_DEBUG ("[MONITOR] invalid bus-id %d\n", bus);
       return __PO_HI_UNAVAILABLE;
    }
-   
+
    __po_hi_monitor_n_failures_buses[bus] = 0;
 
    return __PO_HI_SUCCESS;
@@ -240,7 +240,7 @@ int __po_hi_monitor_recover_device (const __po_hi_device_id device)
       __PO_HI_DEBUG_DEBUG ("[MONITOR] invalid device-id %d\n", device);
       return __PO_HI_UNAVAILABLE;
    }
-   
+
    __po_hi_monitor_n_failures_devices[device] = 0;
 
    return __PO_HI_SUCCESS;
