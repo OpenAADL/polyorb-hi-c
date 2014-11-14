@@ -3,7 +3,7 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://http://taste.tuxfamily.org/wiki
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
  * Copyright (C) 2011-2014 ESA & ISAE.
  */
@@ -971,4 +971,3 @@ SPACEWIREUSB_API U32 SPW_USB_API_CC USBSpaceWire_TC_GetClockFrequency(
 
 
 #endif	/* SPACEWIRE_USB_API_H */
-

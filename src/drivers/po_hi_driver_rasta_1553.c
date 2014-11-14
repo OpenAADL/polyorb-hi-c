@@ -3,7 +3,7 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://http://taste.tuxfamily.org/wiki
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
  * Copyright (C) 2010-2014 ESA & ISAE.
  */
@@ -449,4 +449,3 @@ void __po_hi_c_driver_1553_rasta_init_controller (__po_hi_device_id id)
 
 
 #endif
-

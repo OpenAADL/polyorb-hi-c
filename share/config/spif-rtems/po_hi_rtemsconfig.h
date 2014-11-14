@@ -3,7 +3,7 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://http://taste.tuxfamily.org/wiki
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
  * Copyright (C) 2008-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
  */

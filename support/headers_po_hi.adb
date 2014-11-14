@@ -56,7 +56,7 @@ procedure Headers_PO_HI is
      " * middleware written for generated code from AADL models." & ASCII.LF &
      " * You should use it with the Ocarina toolsuite." & ASCII.LF &
      " *" & ASCII.LF &
-     " * For more informations, please visit http://http://taste.tuxfamily.org/wiki"
+     " * For more informations, please visit http://taste.tuxfamily.org/wiki"
      & ASCII.LF & " *" & ASCII.LF & "@COPYRIGHT@" & " */" & ASCII.LF;
 
    -------------------------
