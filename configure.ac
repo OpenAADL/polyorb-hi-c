@@ -160,7 +160,9 @@ AC_SUBST(DOC_DIR)
 ###########################################
 AC_CHECK_PROGS([ALT_ERGO], [alt-ergo], [:])
 AC_CHECK_PROGS([FRAMA_C],  [frama-c],  [:])
-AC_CHECK_PROGS([CPP_PROOF],  [cpp-4.7 cpp-4.6 cpp-4.5 cpp-4.4],  [:])
+# cpp version in Debian seems to be OK, no more need to use cpp
+# version <= 4.7
+AC_CHECK_PROGS([CPP_PROOF], [cpp], [:])
 AC_CHECK_PROGS([WHY],      [why],      [:])
 AC_CHECK_PROGS([WHY3],     [why3],     [:])
 
