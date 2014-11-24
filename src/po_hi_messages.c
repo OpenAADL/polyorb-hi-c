@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://assert-project.net/taste
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2012 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -26,70 +26,68 @@
 #include <stdio.h>
 #endif
 
+__po_hi_uint8_t* memset_uint8(__po_hi_uint8_t* s, int c, size_t n)
+{
+    return memset (s, c, n);
+}
 
 void __po_hi_msg_reallocate (__po_hi_msg_t* message)
 {
-  message->length = 0;
-  message->flags = 0;
-  memset (message->content, 0, __PO_HI_MESSAGES_MAX_SIZE);
+         message->length = 0;
+         message->flags = 0;
+         memset_uint8 (message->content, 0, __PO_HI_MESSAGES_MAX_SIZE);
 }
 
-void __po_hi_msg_write (__po_hi_msg_t*  msg,
-			void*           data,
-			__po_hi_uint32_t len)
+void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len)
 {
-  memcpy (msg->content, data, len);
-  msg->length = len;
+         msg->length = len;
+         __po_hi_copy_array_uint8  (msg->content, data, len);
 }
 
-void __po_hi_msg_read (__po_hi_msg_t*  msg,
-		       void*           data,
-		       __po_hi_uint32_t len)
+__po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg)
 {
-  memcpy (data, msg->content, len);
-  msg->length -= len;
+         return (msg->length);
 }
 
-int __po_hi_msg_length (__po_hi_msg_t* msg)
+void __po_hi_msg_copy (__po_hi_msg_t* dest, __po_hi_msg_t* src)
 {
-  return (msg->length);
+	dest->length = src->length;
+	__po_hi_copy_array_uint8 (dest->content, src->content, __PO_HI_MESSAGES_MAX_SIZE);
 }
 
-
-void __po_hi_msg_copy (__po_hi_msg_t* dest,
-		       __po_hi_msg_t* src)
+void __po_hi_msg_append_data (__po_hi_msg_t* msg, __po_hi_uint8_t* data, __po_hi_uint32_t length)
 {
-  memcpy (dest->content,
-	  src->content,
-	  __PO_HI_MESSAGES_MAX_SIZE);
-  dest->length = src->length;
-}
-
-void __po_hi_msg_append_data (__po_hi_msg_t* msg, void* data, __po_hi_uint32_t length)
-{
-        memcpy (msg->content + msg->length, data, length);
-        msg->length = msg->length + length;
+	msg->length = msg->length + length;
+	__po_hi_copy_array_uint8 (&(msg->content[msg->length - length]), data, length);
 }
 
 void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source)
 {
-        memcpy (&(dest->content[dest->length]), source->content, source->length);
-        dest->length = dest->length + source->length;
+	dest->length = dest->length + source->length;
+	__po_hi_copy_array_uint8 (&(dest->content[dest->length - source->length]), source->content, source->length);
 }
 
-void __po_hi_msg_get_data (void* dest, __po_hi_msg_t* source, __po_hi_uint32_t index, __po_hi_uint32_t size)
+void __po_hi_msg_get_data (__po_hi_uint8_t* dest, __po_hi_msg_t* source, __po_hi_uint32_t index, __po_hi_uint32_t size)
 {
-        memcpy (dest, &(source->content[index]), size);
+	__po_hi_copy_array_uint8 (dest, &(source->content[index]), size);
 }
 
 void __po_hi_msg_move (__po_hi_msg_t* msg, __po_hi_uint32_t length)
 {
-   __po_hi_uint32_t tmp;
-   for (tmp=length; tmp < msg->length ; tmp++)
-   {
-      msg->content[tmp-length] = msg->content[tmp];
-   }
-   msg->length = msg->length - length;
+	 msg->length = msg->length - length;
+	 __po_hi_uint32_t tmp;
+
+         /*@ loop assigns tmp, msg->content[0..msg->length-1];
+           @ loop invariant 0 <= tmp;
+           @ loop invariant tmp <= \at(msg->length, Pre) - length;
+           @ loop invariant \forall int i; 0 <= i < tmp ==> msg->content[i] == \at(msg->content[length + i], Pre);
+           @ loop invariant \forall int i; tmp <= i < \at(msg->length, Pre) ==> msg->content[i] == \at(msg->content[i], Pre);
+           @ loop variant msg->length - tmp;
+         */
+         for (tmp=0; tmp < msg->length ; tmp++)
+         {
+             msg->content[tmp] = msg->content[length + tmp];
+         }
 }
 
 #ifdef __PO_HI_USE_GIOP
@@ -137,7 +135,7 @@ void __po_hi_messages_debug (__po_hi_msg_t* msg)
 
    for (i = 0 ; i < 50 ; i++)
      Hexa[i] = ' ';
-   
+
    for (i = 0 ; i < 17 ; i++)
      ASCII[i] = ' ';
 

@@ -14,11 +14,16 @@
 #include <po_hi_returns.h>
 /* Header files in PolyORB-HI */
 
-#include <types.h>	
+#include <types.h>
 /* Header files from generated code */
 
 #include <string.h>
-void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size)
+void __po_hi_copy_array (void* dst, void* src, __po_hi_uint32_t size)
+{
+  memcpy (dst, src, size);
+}
+
+void __po_hi_copy_array_uint8 (__po_hi_uint8_t* dst, __po_hi_uint8_t* src, __po_hi_uint16_t size)
 {
   memcpy (dst, src, size);
 }

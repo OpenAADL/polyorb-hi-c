@@ -20,6 +20,15 @@
  * reused in the generated code to marshall application data.
  */
 
+/*@ requires \valid(msg);
+  @ requires \valid(msg->content+(msg->length..(msg->length + sizeof(__po_hi_port_t) - 1)));
+  @ requires \separated(msg->content+(msg->length..msg->length + sizeof(__po_hi_port_t) - 1), &(msg->length));
+  @ requires msg->length + sizeof(__po_hi_port_t) <= __PO_HI_MESSAGES_MAX_SIZE;
+  @	assigns msg->content[msg->length..(msg->length + sizeof(__po_hi_port_t) - 1)];// \from value[0..(sizeof(__po_hi_port_t) - 1)];
+  @	assigns msg->length;
+  @	ensures \forall int i; 0 <= i < sizeof(__po_hi_port_t) ==> msg->content[\old(msg->length) + i] == ((__po_hi_int8_t *) &value)[i];
+  @ ensures msg->length == \old(msg->length) + sizeof(__po_hi_port_t);
+  */
 void __po_hi_marshall_port (__po_hi_port_t value, __po_hi_msg_t* msg);
 void __po_hi_unmarshall_port (__po_hi_port_t* value, __po_hi_msg_t* msg);
 
