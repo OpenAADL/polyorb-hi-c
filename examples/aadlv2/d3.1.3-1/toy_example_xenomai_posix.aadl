@@ -1,5 +1,5 @@
 --  This AADL model is derived from the AADL model published in the
---  IST-ASSERT d3.3.1-3 deliverable. 
+--  IST-ASSERT d3.3.1-3 deliverable.
 
 --  $Id: toy_example.aadl 407 2007-06-19 15:24:28Z delange $
 
@@ -73,7 +73,7 @@ features
 end GNC_Thread_Wrapper;
 
 subprogram implementation GNC_Thread_Wrapper.Impl
-calls 
+calls
 Mycalls: {
   Welcome     : subprogram GNC_Identity;
   Update_POS  : subprogram POS.Update;
@@ -92,7 +92,7 @@ features
 end TMTC_Thread_Wrapper;
 
 subprogram implementation TMTC_Thread_Wrapper.Impl
-calls 
+calls
 Mycalls: {
   Welcome  : subprogram TMTC_Identity;
   TMTC_Job : subprogram TMTC_Job;
@@ -113,7 +113,7 @@ features
 end GNC_Thread;
 
 thread implementation GNC_Thread.Impl
-calls 
+calls
 Mycalls: {
   GNC_Thread_Wrapper : subprogram GNC_Thread_Wrapper.Impl;
 };
@@ -133,7 +133,7 @@ features
 end TMTC_Thread;
 
 thread implementation TMTC_Thread.Impl
-calls 
+calls
 Mycalls: {
   TMTC_Thread_Wrapper : subprogram TMTC_Thread_Wrapper.Impl;
 };
@@ -184,9 +184,8 @@ end toy_example;
 system implementation toy_example.sample_1
 subcomponents
   P1            : processor the_processor;
-  GNC_TMTC_POS  : process Toy_Example_Proc.Impl 
-   {Deployment::Channel_Address => 2;
-    Deployment::Process_Id      => 1200;};
+  GNC_TMTC_POS  : process Toy_Example_Proc.Impl;
+
 properties
   Actual_Processor_Binding => reference (P1) applies to GNC_TMTC_POS;
 end toy_example.sample_1;
@@ -219,7 +218,7 @@ data implementation POS.Impl
 subcomponents
   Field : data POS_Internal_Type;
   spgUpdate : subprogram Update;
-  spgRead   : subprogram Read_POS; 
+  spgRead   : subprogram Read_POS;
 
 connections
   Cnx_Pos_1 : subprogram access SpgUpdate -> Update;
