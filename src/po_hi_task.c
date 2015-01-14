@@ -5,8 +5,21 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2015 ESA & ISAE.
  */
+
+#ifdef POSIX
+
+#ifdef __linux__
+/*  We need GNU extensions to support thread affinify.
+    These are Linux specific
+ */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
+#include <sched.h>
+#endif
+#endif
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
 #if defined (__CYGWIN__) || defined (__MINGW32__)
@@ -171,6 +184,7 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
    __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", task);
 
   return (__PO_HI_SUCCESS);
+
 #elif defined (_WIN32)
   int ret;
   __po_hi_task_delay_until (&(tasks[task].timer), task);
@@ -180,6 +194,7 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
     }
 
   return (__PO_HI_SUCCESS);
+
 #elif defined (RTEMS_PURE)
    rtems_status_code ret;
    ret = rtems_rate_monotonic_period (tasks[task].ratemon_period, (rtems_interval)__PO_HI_TIME_TO_US(tasks[task].period) / rtems_configuration_get_microseconds_per_tick());
@@ -203,6 +218,7 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
    }
 
    return (__PO_HI_UNAVAILABLE);
+
 #elif defined (XENO_NATIVE)
    unsigned long overrun;
    int ret;
@@ -250,7 +266,8 @@ int __po_hi_initialize_tasking( )
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
 pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
                                        __po_hi_stack_t    stack_size,
-				                           void*              (*start_routine)(void),
+                                       const __po_hi_int8_t       core_id,
+                                       void*              (*start_routine)(void),
                                        void*              arg)
 {
   int                policy;
@@ -258,10 +275,26 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
   pthread_attr_t     attr;
   struct sched_param param;
 
+  /* Create attributes to store all configuration parameters */
+
   if (pthread_attr_init (&attr) != 0)
     {
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
     }
+
+#if defined (POSIX) && defined (__linux__)
+  /* Thread affinity */
+  cpu_set_t cpuset;
+
+  CPU_ZERO(&cpuset);
+  CPU_SET(core_id, &cpuset);
+
+  if (pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) != 0)
+    {
+      __DEBUGMSG("CANNOT SET AFFINTY\n");
+      return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
+    }
+#endif
 
 #if defined (POSIX) || defined (XENO_POSIX)
   if (pthread_attr_setscope (&attr, PTHREAD_SCOPE_SYSTEM) != 0)
@@ -273,7 +306,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
       if (pthread_attr_setstacksize (&attr, stack_size) != 0)
 	{
 	  return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
-      }
+        }
     }
 #elif defined (RTEMS_POSIX)
   if (pthread_attr_setscope (&attr, PTHREAD_SCOPE_PROCESS) != 0)
@@ -353,27 +386,46 @@ DWORD __po_hi_win32_create_thread (__po_hi_task_id    id,
 }
 #endif
 
-
-
-
 #ifdef RTEMS_PURE
 rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority,
                                       __po_hi_stack_t    stack_size,
+                                      __po_hi_int8_t       core_id,
                                       void*              (*start_routine)(void),
                                       void*              arg)
 {
   rtems_id rid;
-   if (rtems_task_create (rtems_build_name( 'T', 'A', nb_tasks, ' ' ), 1, RTEMS_MINIMUM_STACK_SIZE, RTEMS_DEFAULT_MODES, RTEMS_DEFAULT_ATTRIBUTES | RTEMS_FLOATING_POINT, &rid) != RTEMS_SUCCESSFUL)
-   {
+  if (rtems_task_create (rtems_build_name( 'T', 'A', nb_tasks, ' ' ),
+                         1,
+                         RTEMS_MINIMUM_STACK_SIZE,
+                         RTEMS_DEFAULT_MODES,
+                         RTEMS_DEFAULT_ATTRIBUTES | RTEMS_FLOATING_POINT, &rid)
+      != RTEMS_SUCCESSFUL)
+    {
       __DEBUGMSG ("ERROR when creating the task\n");
       return __PO_HI_ERROR_CREATE_TASK;
-   }
+    }
+
+#ifdef RTEMS411
+  /* Thread affinity API for SMP systems appeared in RTEMS 4.11,
+     section 25 of RTEMS Applications C User’s Guide */
+
+  cpu_set_t         cpuset;
+
+  CPU_ZERO(&cpuset);
+  CPU_SET(processor_index, &cpuset);
+
+  if (rtems_task_set_affinity(task_id, sizeof(cpuset), &cpuset) != RTEMS_SUCCESSFUL)
+    {
+      __DEBUGMSG ("ERROR setting thread affinity\n");
+      return __PO_HI_ERROR_CREATE_TASK;
+    }
+#endif
 
   if (rtems_task_start (rid, (rtems_task_entry)start_routine, 0 ) != RTEMS_SUCCESSFUL)
-  {
+    {
       __DEBUGMSG ("ERROR when starting the task\n");
       return __PO_HI_ERROR_CREATE_TASK;
-  }
+    }
 
    return rid;
 }
@@ -405,6 +457,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
                                  const __po_hi_time_t*      period,
                                  const __po_hi_priority_t   priority,
                                  const __po_hi_stack_t      stack_size,
+                                 const __po_hi_int8_t       core_id,
                                  void*                      (*start_routine)(void),
                                  void*                      arg)
 {
@@ -412,7 +465,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
   if (id == -1)
     {
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-      __po_hi_posix_create_thread (priority, stack_size, start_routine, arg);
+      __po_hi_posix_create_thread (priority, stack_size, core_id, start_routine, arg);
       return (__PO_HI_SUCCESS);
 #elif defined (_WIN32)
       __po_hi_win32_create_thread (id, priority, stack_size, start_routine, arg);
@@ -428,7 +481,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
       return (__PO_HI_SUCCESS);
 #elif defined (RTEMS_PURE)
       (void) arg;
-      __po_hi_rtems_create_thread (priority, stack_size, start_routine, arg);
+      __po_hi_rtems_create_thread (priority, stack_size, core_id, start_routine, arg);
       return (__PO_HI_SUCCESS);
 #else
       return (__PO_HI_UNAVAILABLE);
@@ -441,10 +494,10 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
       my_task->id     = id;
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-      my_task->tid    = __po_hi_posix_create_thread (priority, stack_size, start_routine, arg);
+      my_task->tid    = __po_hi_posix_create_thread (priority, stack_size, core_id, start_routine, arg);
       __po_hi_posix_initialize_task (my_task);
 #elif defined (RTEMS_PURE)
-      my_task->rtems_id = __po_hi_rtems_create_thread (priority, stack_size, start_routine, arg);
+      my_task->rtems_id = __po_hi_rtems_create_thread (priority, stack_size, core_id, start_routine, arg);
 #elif defined (_WIN32)
       my_task->tid = __po_hi_win32_create_thread (id, priority, stack_size, start_routine, arg);
 #elif defined (XENO_NATIVE)
@@ -462,9 +515,10 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
                                   const __po_hi_time_t*     period,
                                   const __po_hi_priority_t  priority,
                                   const __po_hi_stack_t     stack_size,
+                                  const __po_hi_int8_t      core_id,
                                   void*                     (*start_routine)(void))
 {
-   if (__po_hi_create_generic_task( id, period , priority , stack_size, start_routine, NULL) != 1)
+  if (__po_hi_create_generic_task( id, period , priority , stack_size, core_id, start_routine, NULL) != 1)
    {
       __DEBUGMSG ("ERROR when creating generic task (task id=%d)\n", id);
       return (__PO_HI_ERROR_CREATE_TASK);
@@ -508,6 +562,7 @@ int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
                                   const __po_hi_time_t*     period,
                                   const __po_hi_priority_t  priority,
                                   const __po_hi_stack_t     stack_size,
+                                  const __po_hi_int8_t      core_id,
                                   void*                     (*start_routine)(void) )
 {
   /*
@@ -515,7 +570,7 @@ int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
    * last parameter. Typically, a sporadic thread will wait on a
    * mutex.
    */
-  if (__po_hi_create_generic_task( id, period , priority , stack_size, start_routine, NULL) != 1)
+  if (__po_hi_create_generic_task( id, period , priority , stack_size, core_id, start_routine, NULL) != 1)
     {
       return (__PO_HI_ERROR_CREATE_TASK);
     }

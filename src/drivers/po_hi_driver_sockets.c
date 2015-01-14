@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2014 ESA & ISAE.
+ * Copyright (C) 2010-2015 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -528,7 +528,8 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
       __po_hi_initialize_add_task ();
       __po_hi_create_generic_task
-         (-1, 0,__PO_HI_MAX_PRIORITY, 0, (void* (*)(void))__po_hi_sockets_poller, &dev_id);
+        (-1, 0,__PO_HI_MAX_PRIORITY, 0, 0, (void* (*)(void))__po_hi_sockets_poller, &dev_id);
+      // XXX Why forcing core id to 0 ?
    }
 
 

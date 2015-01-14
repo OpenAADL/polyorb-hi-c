@@ -5,14 +5,14 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2014 ESA & ISAE.
+ * Copyright (C) 2010-2015 ESA & ISAE.
  */
 
 #ifndef __PO_HI_TASK_H__
 #define __PO_HI_TASK_H__
 
 /*
- * Define some values that are dependant of the 
+ * Define some values that are dependant of the
  * underlying executive.
  */
 #if defined(POSIX) || defined (XENO_POSIX)
@@ -30,7 +30,7 @@
    #include <stdio.h>
    #define __PO_HI_MAIN_NAME _tmain
    #define __PO_HI_MAIN_TYPE int
-   #define __PO_HI_MAIN_ARGS 
+   #define __PO_HI_MAIN_ARGS
    #define __PO_HI_MAIN_RETURN EXIT_SUCCESS
    #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
 #elif defined (XENO_NATIVE)
@@ -50,7 +50,7 @@
 #elif defined(RTEMS_POSIX)
    #define __PO_HI_MAIN_NAME POSIX_Init
    #define __PO_HI_MAIN_TYPE int
-   #define __PO_HI_MAIN_ARGS 
+   #define __PO_HI_MAIN_ARGS
    #define __PO_HI_MAIN_RETURN 0
    #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
 #endif
@@ -100,38 +100,40 @@ typedef size_t __po_hi_stack_t;
 int __po_hi_initialize_tasking(void);
 
 /*
- * Create a periodic task. 
- * 
+ * Create a periodic task.
+ *
  * The task created have the identifier given by the first
  * parameter. It is created according to the period created
  * with __po_hi_* functions (like __po_hi_milliseconds())
  * and priority parameters (use the OS priority). The task execute
  * periodically start_routine.
  *
- * This function returns SUCCESS if there is no error. Else, 
+ * This function returns SUCCESS if there is no error. Else,
  * it returns the negative value ERROR_CREATE_TASK.
  */
-int __po_hi_create_periodic_task (const __po_hi_task_id      id, 
-                                  const __po_hi_time_t*      period, 
-                                  const __po_hi_priority_t   priority, 
+int __po_hi_create_periodic_task (const __po_hi_task_id      id,
+                                  const __po_hi_time_t*      period,
+                                  const __po_hi_priority_t   priority,
                                   const __po_hi_stack_t      stack_size,
+                                  const __po_hi_int8_t      core_id,
                                   void*                (*start_routine)(void));
 
 /*
- * Create a sporadic task. 
+ * Create a sporadic task.
  *
  * The identifier of the task is the first parameter. The period and
  * the priority of the task are stored in the second and third
  * parameter.  The code executed by the task is stored in the
  * start_routine pointer.
- * 
+ *
  * Returns SUCCESS value if there is no error. Else, returns the negative
  * value ERROR_CREATE_TASK
  */
 int __po_hi_create_sporadic_task (const __po_hi_task_id      id,
-				                      const __po_hi_time_t*      period, 
-                                  const __po_hi_priority_t   priority, 
+				                      const __po_hi_time_t*      period,
+                                  const __po_hi_priority_t   priority,
                                   const __po_hi_stack_t      stack_size,
+                                  const __po_hi_int8_t       core_id,
                                   void*                      (*start_routine)(void));
 
 /*
@@ -141,14 +143,15 @@ int __po_hi_create_sporadic_task (const __po_hi_task_id      id,
  * the priority of the task are stored in the second and third
  * parameter.  The code executed by the task is stored in the
  * start_routine pointer.
- * 
+ *
  * Returns SUCCESS value if there is no error. Else, returns the negative
  * value ERROR_CREATE_TASK
  */
-int __po_hi_create_generic_task (const __po_hi_task_id      id, 
-                                 const __po_hi_time_t*      period, 
-                                 const __po_hi_priority_t   priority, 
+int __po_hi_create_generic_task (const __po_hi_task_id      id,
+                                 const __po_hi_time_t*      period,
+                                 const __po_hi_priority_t   priority,
                                  const __po_hi_stack_t      stack_size,
+                                 const __po_hi_int8_t      core_id,
                                  void*                      (*start_routine)(void),
                                  void*                      arg);
 
@@ -193,4 +196,4 @@ void __po_hi_tasks_killall (void);
 void __po_hi_task_wait_offset (const __po_hi_time_t* time);
 
 
-#endif /* __PO_HI_TASK_H__ */ 
+#endif /* __PO_HI_TASK_H__ */
