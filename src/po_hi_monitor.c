@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2014 ESA & ISAE.
+ * Copyright (C) 2011-2015 ESA & ISAE.
  */
 
 /*
@@ -17,6 +17,8 @@
  * the file po_hi_monitor.h or also the deployment.h file
  * generated from AADL models.
  */
+
+#include <stddef.h> /* Definition of the NULL macro */
 
 #include <deployment.h>
 
