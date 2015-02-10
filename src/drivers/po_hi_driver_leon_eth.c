@@ -3,9 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://assert-project.net/taste
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2012 ESA & ISAE.
+ * Copyright (C) 2011-2015 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -97,7 +97,7 @@ static struct rtems_bsdnet_ifconfig netdriver_config = {
 #ifdef RTEMS48
    loopback_config,
 #else
-   0,    
+   0,
 #endif
    */
    "255.255.255.255",       /* IP address */
@@ -144,7 +144,7 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
    struct sockaddr_in         sa;
    __po_hi_device_id          dev;
    __po_hi_node_t             dev_init;
-   int                        established = 0; 
+   int                        established = 0;
    __po_hi_protocol_conf_t*   protocol_conf;
 
    unsigned long* swap_pointer;
@@ -207,7 +207,7 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
          if (sock > max_socket )
          {
             max_socket = sock;
-         }	  
+         }
       }
    }
    __DEBUGMSG ("[DRIVER ETH] Poller initialization finished, waiting for other tasks\n");
@@ -233,7 +233,7 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
       {
 #ifdef __PO_HI_DEBUG
          __DEBUGMSG ("[DRIVER ETH] Error on select for node %d\n", __po_hi_mynode);
-#endif 
+#endif
       }
 #ifdef __PO_HI_DEBUG
       __DEBUGMSG ("[DRIVER ETH] Receive message\n");
@@ -293,7 +293,7 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
             __po_hi_main_deliver (& __po_hi_c_driver_eth_leon_poller_received_request);
          }
       }
-   }  
+   }
 }
 #endif
 
@@ -382,7 +382,7 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
       __DEBUGMSG ("[DRIVER ETH] Receiving socket for device %d created, value=%d\n", id, nodes[id].socket);
 
       sa.sin_addr.s_addr = htonl (INADDR_ANY);   /* We listen on all adresses */
-      sa.sin_family = AF_INET;                   
+      sa.sin_family = AF_INET;
       sa.sin_port = htons (ip_port);   /* Port provided by the generated code */
 
       if( bind (nodes[id].socket , (struct sockaddr *) &sa , sizeof (struct sockaddr_in) ) == -1 )
@@ -397,7 +397,7 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 
       __DEBUGMSG ("[DRIVER ETH] Receiving socket listen on any address on port %d\n", sa.sin_port);
 
-      /* 
+      /*
        * Create the thread which receive all data from other
        * nodes. This thread will execute the function
        * __po_hi_receiver_task
@@ -405,8 +405,9 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 
       __po_hi_initialize_add_task ();
 
-      __po_hi_create_generic_task 
-         (-1, 0,__PO_HI_MAX_PRIORITY, 0, (void* (*)(void)) __po_hi_c_driver_eth_leon_poller, NULL);
+      __po_hi_create_generic_task
+        (-1, 0,__PO_HI_MAX_PRIORITY, 0, 0, (void* (*)(void)) __po_hi_c_driver_eth_leon_poller, NULL);
+      // XXX Why forcing core id to 0 ?
    }
 
    /*
@@ -484,7 +485,7 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
           * second to connect on.
           */
 
-         ret = connect (nodes[dev].socket, 
+         ret = connect (nodes[dev].socket,
                         (struct sockaddr*) &sa ,
                         sizeof (struct sockaddr_in));
 
@@ -543,7 +544,7 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 #endif
 
 
-#if defined (__PO_HI_NEED_DRIVER_ETH_LEON) 
+#if defined (__PO_HI_NEED_DRIVER_ETH_LEON)
 
 __po_hi_msg_t              __po_hi_c_driver_eth_leon_sender_msg;
 
@@ -585,7 +586,7 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
 #ifdef __PO_HI_DEBUG
       __DEBUGMSG (" [DRIVER SOCKETS] Invalid socket for port-id %d, device-id %d\n", destination_port, associated_device);
 #endif
-      return __PO_HI_ERROR_TRANSPORT_SEND;		
+      return __PO_HI_ERROR_TRANSPORT_SEND;
    }
 
    /*
@@ -600,7 +601,7 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
       __DEBUGMSG (" [error getsockopt() in file %s, line%d ]\n", __FILE__, __LINE__);
       close (nodes[associated_device].socket);
       nodes[associated_device].socket = -1;
-      return __PO_HI_ERROR_TRANSPORT_SEND;		
+      return __PO_HI_ERROR_TRANSPORT_SEND;
    }
 
    if (optval != 0)
@@ -608,7 +609,7 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
       __DEBUGMSG (" [error getsockopt() return code in file %s, line%d ]\n", __FILE__, __LINE__);
       close (nodes[associated_device].socket);
       nodes[associated_device].socket = -1;
-      return __PO_HI_ERROR_TRANSPORT_SEND;		
+      return __PO_HI_ERROR_TRANSPORT_SEND;
    }
 
    /* Ignore SIGPIPE to be able to recover from errors instead of crashing the node */
@@ -636,12 +637,12 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
             __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
             close (nodes[associated_device].socket);
             nodes[associated_device].socket = -1;
-            return __PO_HI_ERROR_TRANSPORT_SEND;		
+            return __PO_HI_ERROR_TRANSPORT_SEND;
          }
          break;
       }
 #endif
-      default: 
+      default:
       {
          request->port = destination_port;
          __po_hi_msg_reallocate (&__po_hi_c_driver_eth_leon_sender_msg);
@@ -661,7 +662,7 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
             __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
             close (nodes[associated_device].socket);
             nodes[associated_device].socket = -1;
-            return __PO_HI_ERROR_TRANSPORT_SEND;		
+            return __PO_HI_ERROR_TRANSPORT_SEND;
          }
 
          request->port = __PO_HI_GQUEUE_INVALID_PORT;

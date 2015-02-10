@@ -3,9 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://assert-project.net/taste
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2012 ESA & ISAE.
+ * Copyright (C) 2010-2015 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -413,7 +413,6 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
    __po_hi_messages_debug (&__po_hi_c_sockets_poller_msg);
 #endif
 
-
             if (len <= 0)
             {
                __DEBUGMSG ("[DRIVER SOCKETS] Invalid size (%d) from device %d\n",len, dev);
@@ -423,6 +422,8 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
             __po_hi_unmarshall_request (&__po_hi_c_sockets_poller_received_request, &__po_hi_c_sockets_poller_msg);
 #endif
+
+            __DEBUGMSG ("[DRIVER SOCKETS] Delivering message to %d\n",__po_hi_c_sockets_poller_received_request.port );
             __po_hi_main_deliver (&__po_hi_c_sockets_poller_received_request);
          }
       }
@@ -527,7 +528,8 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
       __po_hi_initialize_add_task ();
       __po_hi_create_generic_task
-         (-1, 0,__PO_HI_MAX_PRIORITY, 0, (void* (*)(void))__po_hi_sockets_poller, &dev_id);
+        (-1, 0,__PO_HI_MAX_PRIORITY, 0, 0, (void* (*)(void))__po_hi_sockets_poller, &dev_id);
+      // XXX Why forcing core id to 0 ?
    }
 
 

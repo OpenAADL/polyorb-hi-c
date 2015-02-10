@@ -3,9 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://assert-project.net/taste
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2012 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2015 ESA & ISAE.
  */
 
 /*
@@ -196,7 +196,6 @@ int __po_hi_delay_until (const __po_hi_time_t* time)
    int ret;
 
    timer.tv_sec = time->sec;
-
    timer.tv_nsec = time->nsec;
 
    if (pthread_mutex_init (&mutex, NULL) != 0)
@@ -238,8 +237,10 @@ int __po_hi_delay_until (const __po_hi_time_t* time)
       ret = __PO_HI_ERROR_PTHREAD_MUTEX;
    }
    return (ret);
+
 #elif defined (RTEMS_PURE)
    return (__PO_HI_UNAVAILABLE);
+
 #elif defined (XENO_NATIVE)
   int ret;
   ret =  rt_task_sleep_until (rt_timer_ns2tsc ( (time->sec * 1000000000) +  time->nsec));
@@ -249,6 +250,7 @@ int __po_hi_delay_until (const __po_hi_time_t* time)
       return (__PO_HI_ERROR_PTHREAD_COND);
   }
   return (__PO_HI_SUCCESS);
+
 #elif defined (_WIN32)
    HANDLE hTimer = NULL;
    LARGE_INTEGER ularge;

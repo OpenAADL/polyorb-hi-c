@@ -25,10 +25,10 @@ fi;
 
 if test $# = 0 ; then
     echo "Updating headers for changed and new files"
-    
-    changed_files=`svn status -q | grep "^[M]" | grep '\.\(\([ch]\)\)' | awk '{print $NF}'`
-    added_files=`svn status -q | grep "^[A]" | grep '\.\(\([ch]\)\)' | awk '{print $NF}'`
-    
+
+    changed_files=`git status -s | grep "^\ M" | grep '\.\(\([ch]\)\)' | awk '{print $NF}'`
+    added_files=`git status -s | grep "^[A]" | grep '\.\(\([ch]\)\)' | awk '{print $NF}'`
+
     # For changed files, update the header
 
     for i in ${changed_files}; do
@@ -44,7 +44,7 @@ if test $# = 0 ; then
 else
     if test x${1} = xall ; then
 	echo "Updating headers for all files"
-	
+
 	find . -name "*.c" -exec ${headers_po_hi} $1 '{}' \;
 	find . -name "*.h" -exec ${headers_po_hi} $1 '{}' \;
     else
@@ -54,4 +54,3 @@ else
 fi
 
 exit 0
-

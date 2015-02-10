@@ -3,9 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://assert-project.net/taste
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2012 ESA & ISAE.
+ * Copyright (C) 2012-2014 ESA & ISAE.
  */
 
 #ifndef __PO_HI_DRIVER_RASTA_1553_BRM_LIB_H__

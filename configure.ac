@@ -144,16 +144,16 @@ AC_SUBST(CYGPATH_U)
 
 AC_CHECK_PROGS(TEXI2HTML, texi2html)
 
-DOC_DIR=
+DOC_TARGETS=
 
 AC_ARG_ENABLE(doc,
 [  --enable-doc            Build documentation [default=no]],
 [if [[ "$enableval" = "yes" ]]; then
-        DOC_DIR=doc
+        DOC_TARGETS=docs
 fi],
 [])
 
-AC_SUBST(DOC_DIR)
+AC_SUBST(DOC_TARGETS)
 
 ###########################################
 # Proof of PolyORB/HI-C
@@ -260,6 +260,7 @@ AC_OUTPUT([
 	share/tsim/Makefile
 	share/make/Makefile
 	share/utils/Makefile
+	share/make/Makefile.common
 	share/make/Makefile.native
 	share/config/Makefile
 	share/config/spif-rtems/Makefile

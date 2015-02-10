@@ -3,9 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://assert-project.net/taste
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2012 ESA & ISAE.
+ * Copyright (C) 2011-2014 ESA & ISAE.
  */
 
 #if defined (__CYGWIN__) || defined (__MINGW32__)
@@ -750,4 +750,3 @@ int __po_hi_storage_packet_store_status (__po_hi_storage_packet_store_t* store, 
    }
    return __PO_HI_SUCCESS;
 }
-

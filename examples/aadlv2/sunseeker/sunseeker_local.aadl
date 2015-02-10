@@ -27,13 +27,11 @@ end Sunseekercontrolsystem_Type;
 system implementation Sunseekercontrolsystem_Type.Local
 subcomponents
 
-  Sunseeker : process Sunseeker::sunseeker_local.Impl
-    {Deployment::Channel_Address => 2;
-     Deployment::Process_Id      => 1200;};
+  Sunseeker : process Sunseeker::sunseeker_local.Impl;
 
   Platform: processor LEON_Type.LEON;
 properties
-  Actual_Processor_Binding => reference (Platform) 
+  Actual_Processor_Binding => reference (Platform)
     applies to Sunseeker;
 end Sunseekercontrolsystem_Type.Local;
 

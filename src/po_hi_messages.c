@@ -3,7 +3,7 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://assert-project.net/taste
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
  * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
  */
@@ -41,7 +41,7 @@ void __po_hi_msg_reallocate (__po_hi_msg_t* message)
 void __po_hi_msg_write (__po_hi_msg_t*  msg, __po_hi_uint8_t* data, __po_hi_uint32_t len)
 {
          msg->length = len;
-         __po_hi_copy_array_uint8  (msg->content, data, len);
+         __po_hi_copy_array_uint8 (msg->content, data, len);
 }
 
 __po_hi_uint32_t __po_hi_msg_length (__po_hi_msg_t* msg)
@@ -106,6 +106,7 @@ int __po_hi_msg_should_swap (__po_hi_msg_t* msg)
 #endif
         return 0;
 }
+#endif
 
 void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size)
 {
@@ -118,10 +119,9 @@ void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size)
 
         for (tmp=0 ; tmp < size ; tmp++)
         {
-                udest[tmp] = ufrom[size-tmp];
+                udest[tmp] = ufrom[size-tmp - 1];
         }
 }
-#endif
 
 #ifdef __PO_HI_DEBUG
 void __po_hi_messages_debug (__po_hi_msg_t* msg)

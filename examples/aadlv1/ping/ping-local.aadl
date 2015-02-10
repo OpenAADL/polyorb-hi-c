@@ -8,7 +8,7 @@ properties
 end the_processor;
 
 processor implementation the_processor.Impl
-properties 
+properties
    Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
    Cheddar_Properties::Scheduler_Quantum => 0 Ms;
    Cheddar_Properties::Preemptive_Scheduler => true;
@@ -38,9 +38,7 @@ end PING;
 
 system implementation PING.Local
 subcomponents
-  Node_A : process A.Impl
-   {Deployment::Channel_Address => 2;
-    Deployment::Process_Id      => 1200;};
+  Node_A : process A.Impl;
 
   CPU : processor the_processor.Impl;
 properties
