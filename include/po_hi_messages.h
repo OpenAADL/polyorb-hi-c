@@ -185,14 +185,23 @@ int __po_hi_msg_should_swap (__po_hi_msg_t* msg);
  * current processor differs with the endianness of the message. Else,
  * it returns 0.
  */
+#endif /* __PO_HI_USE_GIOP */
 
-void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size);
 /*
  * The function __po_hi_msg_swap_value swap the bytes of the from
  * value and put it to the dest argument. The size of the value is
  * designed by the third argument.
  */
-#endif /* __PO_HI_USE_GIOP */
+/*@ requires \valid(((__po_hi_int8_t *)from)+(0..size-1));
+  @ requires \valid(((__po_hi_int8_t *)dest)+(0..size-1));
+  @ requires \separated(((__po_hi_int8_t *)from)+(0..size-1),
+  @                     ((__po_hi_int8_t *)dest)+(0..size-1));
+  @ requires size > 0;
+  @ assigns ((__po_hi_int8_t *)dest)[0..size-1];
+  @ ensures \forall int i; 0 <= i < size ==>
+  @         ((__po_hi_int8_t *)dest)[i] == ((__po_hi_int8_t *)from)[size - i - 1];
+  @*/
+void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size);
 
 #ifdef __PO_HI_DEBUG
 void __po_hi_messages_debug (__po_hi_msg_t* msg);

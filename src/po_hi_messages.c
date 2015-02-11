@@ -111,15 +111,22 @@ int __po_hi_msg_should_swap (__po_hi_msg_t* msg)
 void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size)
 {
         __po_hi_uint8_t tmp;
-        __po_hi_uint8_t* udest;
-        __po_hi_uint8_t* ufrom;
+        __po_hi_int8_t* udest;
+        __po_hi_int8_t* ufrom;
 
-        ufrom = (__po_hi_uint8_t*)from;
-        udest = (__po_hi_uint8_t*)dest;
+        ufrom = (__po_hi_int8_t*)from;
+        udest = (__po_hi_int8_t*)dest;
 
+        /*@
+          @ loop invariant 0 <= tmp <= size;
+          @ loop invariant \forall int i; 0 <= i < tmp ==>
+          @                udest[i] == ufrom[size - i - 1];
+          @ loop assigns tmp, udest[0..size-1];
+          @ loop variant (size - tmp);
+          @*/
         for (tmp=0 ; tmp < size ; tmp++)
         {
-                udest[tmp] = ufrom[size-tmp - 1];
+                udest[tmp] = ufrom[size - tmp - 1];
         }
 }
 
