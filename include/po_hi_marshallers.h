@@ -38,12 +38,32 @@ void __po_hi_unmarshall_array (void* value, __po_hi_msg_t* msg,__po_hi_uint32_t 
 void __po_hi_marshall_bool (__po_hi_bool_t value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset);
 void __po_hi_unmarshall_bool (__po_hi_bool_t* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset);
 
+/*@ requires \valid(msg) && \valid(offset);
+  @ requires \valid(msg->content+(0..(msg->length + sizeof(char) - 1)));
+  @ requires \valid((&value)+(0..(sizeof(char) - 1)));
+  @ requires \separated(msg->content+(msg->length..msg->length + sizeof(char) - 1), (&value)+(0..(sizeof(char) - 1)));
+  @ requires msg->length + sizeof(char) <= __PO_HI_MESSAGES_MAX_SIZE;
+  @ assigns *offset;
+  @*/
 void __po_hi_marshall_char (char value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset);
 void __po_hi_unmarshall_char (char* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset);
 
-void __po_hi_marshall_int (int value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset);
+/*@ requires \valid(msg) && \valid(offset);
+  @ requires \valid(msg->content+(0..(msg->length + sizeof(int) - 1)));
+  @ requires \valid(value+(0..(sizeof(int) - 1)));
+  @ requires \separated(msg->content+(msg->length..msg->length + sizeof(int) - 1), value+(0..(sizeof(int) - 1)));
+  @ requires msg->length + sizeof(int) <= __PO_HI_MESSAGES_MAX_SIZE;
+  @ assigns *offset;
+  @*/
+void __po_hi_marshall_int (int* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset);
 void __po_hi_unmarshall_int (int* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset);
 
+/*@ requires \valid(msg) && \valid(offset);
+  @ requires \valid(msg->content+(0..(msg->length + msg->length - 1)));
+  @ requires \separated(msg->content+(msg->length..msg->length + msg->length - 1), &value+(0..(msg->length - 1)));
+  @ requires msg->length + msg->length <= __PO_HI_MESSAGES_MAX_SIZE;
+  @ assigns *offset;
+  @*/
 void __po_hi_marshall_float (float value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset);
 void __po_hi_unmarshall_float (float* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset);
 
