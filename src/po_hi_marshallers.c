@@ -156,13 +156,8 @@ void __po_hi_marshall_int (int* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offs
 #ifdef __PO_HI_USE_GIOP
         __po_hi_find_alignment (4, msg, offset);
 #endif
-<<<<<<< HEAD
         __po_hi_msg_append_data (msg, value, sizeof(int));
         *offset = *offset + sizeof (int); 
-=======
-        __po_hi_msg_append_data (msg, &value, sizeof(int));
-        *offset = *offset + sizeof (int);
->>>>>>> 64c77620fd437bdbb8ffe471933647a501a611b8
 }
 
 void __po_hi_unmarshall_int (int* value, __po_hi_msg_t* msg,__po_hi_uint32_t* offset)
