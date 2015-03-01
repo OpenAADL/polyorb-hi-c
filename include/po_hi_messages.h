@@ -147,8 +147,7 @@ void __po_hi_msg_append_msg (__po_hi_msg_t* dest, __po_hi_msg_t* source);
  * Get data from a message at index 'index', and copy it to the dest
  * argument It will copy size bytes from the messages.
  */
-/*@ requires \valid(source);
-  @ requires \valid(dest+(0..size-1));
+/*@ requires \valid(dest+(0..size-1));
   @ requires \valid(source->content+(index..(index+size-1)));
   @ requires index >= 0;
   @ requires index + size <= source->length;
