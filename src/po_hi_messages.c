@@ -77,13 +77,13 @@ void __po_hi_msg_move (__po_hi_msg_t* msg, __po_hi_uint32_t length)
 	 msg->length = msg->length - length;
 	 __po_hi_uint32_t tmp;
 
-         /*@ loop assigns tmp, msg->content[0..msg->length-1];
-           @ loop invariant 0 <= tmp;
+         /*@ loop invariant 0 <= tmp;
            @ loop invariant tmp <= \at(msg->length, Pre) - length;
            @ loop invariant \forall int i; 0 <= i < tmp ==> msg->content[i] == \at(msg->content[length + i], Pre);
            @ loop invariant \forall int i; tmp <= i < \at(msg->length, Pre) ==> msg->content[i] == \at(msg->content[i], Pre);
+           @ loop assigns tmp, msg->content[0..msg->length-1];
            @ loop variant msg->length - tmp;
-         */
+           @*/
          for (tmp=0; tmp < msg->length ; tmp++)
          {
              msg->content[tmp] = msg->content[length + tmp];
@@ -117,8 +117,7 @@ void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size)
         ufrom = (__po_hi_int8_t*)from;
         udest = (__po_hi_int8_t*)dest;
 
-        /*@
-          @ loop invariant 0 <= tmp <= size;
+        /*@ loop invariant 0 <= tmp <= size;
           @ loop invariant \forall int i; 0 <= i < tmp ==>
           @                udest[i] == ufrom[size - i - 1];
           @ loop assigns tmp, udest[0..size-1];
