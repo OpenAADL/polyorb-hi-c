@@ -36,7 +36,7 @@ AC_CHECK_SIZEOF(unsigned long int)
 AC_CHECK_SIZEOF(short int)
 AC_CHECK_SIZEOF(unsigned short int)
 
-AC_CHECK_FUNC(clock_gettime, AC_DEFINE(HAVE_CLOCK_GETTIME, [], [Check if the system supports the clock_gettime function]),)
+AC_CHECK_FUNC(clock_gettime, AC_DEFINE(HAVE_CLOCK_GETTIME, 1, [Check if the system supports the clock_gettime function]),)
 
 AC_C_BIGENDIAN
 
