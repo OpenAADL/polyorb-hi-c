@@ -24,8 +24,14 @@
 #include <xlocale.h>
 #endif
 
-#include <time.h>
 #endif
+
+/* adding time.h as autodetection of clock_gettime during configure is
+ * not sufficient on Debian platforms.
+ *
+ * TODO: should be enclosed in if directive?
+ */
+#include <time.h>
 
 #ifdef XENO_NATIVE
 #include <native/timer.h>
