@@ -8,12 +8,6 @@
  * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2015 ESA & ISAE.
  */
 
-/*
- * We define POSIX as the model generated from OCARINA does not
- * specify the runtime.
- */
-#define POSIX 1
-
 #if defined (__CYGWIN__) || defined (__MINGW32__)
 #else
 #include <xlocale.h>

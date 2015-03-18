@@ -5,7 +5,7 @@
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
 /* Check if the system supports the clock_gettime function */
-/* #undef HAVE_CLOCK_GETTIME */
+#define HAVE_CLOCK_GETTIME 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -117,3 +117,11 @@
 
 /* "Enable the LUA script engine" */
 /* #undef __PO_HI_USE_LUA */
+
+/* Needed for proof */
+
+/*
+ * We define POSIX as the model generated from OCARINA does not
+ * specify the runtime.
+ */
+#define POSIX 1

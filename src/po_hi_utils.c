@@ -8,18 +8,6 @@
  * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
  */
 
-/* Needs to include time.h for Frama-C, as we are using po_hi_time.h
- * that does define a function using clockid_t
- */
-#ifndef HAVE_CLOCK_GETTIME
-#if defined (__CYGWIN__) || defined (__MINGW32__)
-#else
-#include <xlocale.h>
-#endif
-
-#include <time.h>
-#endif
-
 #include <po_hi_config.h>
 #include <po_hi_time.h>
 #include <po_hi_types.h>
