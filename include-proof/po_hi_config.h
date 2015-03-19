@@ -1,6 +1,9 @@
 /* include/po_hi_config.h.  Generated from po_hi_config.h.in by configure.  */
 /* include/po_hi_config.h.in.  Generated from configure.ac by autoheader.  */
 
+#ifndef PO_HI_CONFIG_H
+#define PO_HI_CONFIG_H
+
 /* Define if building universal (internal helper macro) */
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
@@ -125,3 +128,5 @@
  * specify the runtime.
  */
 #define POSIX 1
+
+#endif
