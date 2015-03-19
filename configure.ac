@@ -160,6 +160,7 @@ AC_SUBST(DOC_TARGETS)
 ###########################################
 AC_CHECK_PROGS([ALT_ERGO], [alt-ergo], [:])
 AC_CHECK_PROGS([FRAMA_C],  [frama-c],  [:])
+AC_CHECK_PROGS([FRAMA_C_INTERACTIVE],  [frama-c-gui],  [:])
 # cpp version in Debian seems to be OK, no more need to use cpp
 # version <= 4.7
 AC_CHECK_PROGS([CPP_PROOF], [cpp], [:])
@@ -182,7 +183,9 @@ AC_ARG_ENABLE(proof,
         [AC_SUBST([ALT_ERGO])]
         [EXISTS_PROG_PROOF($FRAMA_C, frama-c)]
         [AC_SUBST([FRAMA_C])]
-        [EXISTS_PROG_PROOF($CPP_PROOF, a cpp version < 4.8)]
+        [EXISTS_PROG_PROOF($FRAMA_C_GUI, frama-c-gui)]
+        [AC_SUBST([FRAMA_C_INTERACTIVE])]
+        [EXISTS_PROG_PROOF($CPP_PROOF, cpp)]
         [AC_SUBST([CPP_PROOF])]
         [EXISTS_PROG_PROOF($WHY, why)]
         [AC_SUBST([WHY])]
