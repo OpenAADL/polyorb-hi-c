@@ -7,7 +7,11 @@ AC_CANONICAL_HOST
 AM_INIT_AUTOMAKE([1.9 tar-pax] foreign)
 AM_CONFIG_HEADER(include/po_hi_config.h)
 
-CFLAGS="-Wall -O"
+AH_TOP([
+#ifndef HAVE_PO_HI_CONFIG_H
+#define HAVE_PO_HI_CONFIG_H
+])
+
 AC_PROG_CC
 AC_LANG_C
 AC_PROG_INSTALL
@@ -40,10 +44,15 @@ AC_CHECK_FUNC(clock_gettime, AC_DEFINE(HAVE_CLOCK_GETTIME, [], [Check if the sys
 
 AC_C_BIGENDIAN
 
+AH_BOTTOM([
+#endif /* ! HAVE_PO_HI_CONFIG_H */
+])
+
 ##################################################
 # Set CFLAGS and LDFLAGS for the native platform #
 ##################################################
 
+CFLAGS="-Wall -O"
 NATIVE_CFLAGS=""
 NATIVE_LDFLAGS=""
 SIMULINK_LDFLAGS=""
