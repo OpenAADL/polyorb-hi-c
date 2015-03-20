@@ -106,12 +106,13 @@ int __po_hi_get_time (__po_hi_time_t* mytime);
  * value is the result of the operation.
  */
 /*@ requires \valid(result);
-  @ requires \valid(left);
-  @ requires \valid(right);
+  @ requires \valid_read(left);
+  @ requires \valid_read(right);
   @ requires is_time_struct_correct(left);
   @ requires is_time_struct_correct(right);
   @ requires right->sec + left->sec <= __PO_HI_UINT32_MAX - 1;
-  @ requires \separated(result, left, right);
+  @ requires right->nsec + left->nsec <= __PO_HI_UINT32_MAX - 1;
+  @ requires \separated(result+(0..), left+(0..), right+(0..));
   @ assigns result->sec, result->nsec;
   @ ensures \result == 1;
   @ ensures is_time_struct_correct(result);
@@ -185,7 +186,7 @@ int __po_hi_delay_until (const __po_hi_time_t* time);
  * Returns __PO_HI_SUCCESS if successful.
  */
 /*@ requires \valid(dst) && \valid(src);
-  @ requires \separated(dst, src);
+  @ requires \separated(dst+(0..), src+(0..));
   @ requires is_time_struct_correct(src);
   @ assigns dst->sec, dst->nsec;
   @ ensures dst->sec == src->sec;
