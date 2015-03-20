@@ -184,6 +184,8 @@ typedef int clockid_t;
   @   ensures __tp == \old(__tp);
   @   ensures __tp->tv_sec >= 0 && __tp->tv_sec <= UINT32_MAX;
   @   ensures __tp->tv_nsec < 1000000000 && __tp->tv_nsec >= 0;
+  @ complete behaviors;
+  @ disjoint behaviors;
   @*/
 extern int clock_gettime (clockid_t __clock_id, struct timespec *__tp); // __THROW;
 
