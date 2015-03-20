@@ -45,4 +45,24 @@ enum
 };
 
 
+/* Necessary functions for po_hi_time.c */
+
+/* Initialize a mutex.  */
+extern int pthread_mutex_init (pthread_mutex_t *__mutex,
+			       const pthread_mutexattr_t *__mutexattr);
+
+/* Destroy a mutex.  */
+extern int pthread_mutex_destroy (pthread_mutex_t *__mutex);
+
+/* Unlock a mutex.  */
+extern int pthread_mutex_unlock (pthread_mutex_t *__mutex);
+
+/* Initialize condition variable COND using attributes ATTR, or use
+   the default values if later is NULL.  */
+extern int pthread_cond_init (pthread_cond_t *__restrict __cond,
+			      const pthread_condattr_t *__restrict __cond_attr);
+
+/* Destroy condition variable COND.  */
+extern int pthread_cond_destroy (pthread_cond_t *__cond);
+
 #endif
