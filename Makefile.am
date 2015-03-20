@@ -54,6 +54,7 @@ FRAMA_C_LIBC_SHARE = `$(FRAMA_C) -print-share-path`/libc
 FRAMA_C_OPT = -pp-annot
 CPP_PROOF_OPT = -cpp-extra-args="-I./include-proof -I./doc/code"
 WP_ARGS = -wp -wp-rte -wp-timeout 60 -wp-split -wp-prover alt-ergo
+WP_ARGS_INTERACTIVE = -wp -wp-rte -wp-timeout 60 -wp-split -wp-prover alt-ergo
 JESSIE_ARGS = -jessie -jessie-atp alt-ergo
 JESSIE_ARGS_INTERACTIVE = -jessie
 PROVER_OPTIONS =
