@@ -54,6 +54,9 @@ extern int pthread_mutex_init (pthread_mutex_t *__mutex,
 /* Destroy a mutex.  */
 extern int pthread_mutex_destroy (pthread_mutex_t *__mutex);
 
+/* Lock a mutex.  */
+extern int pthread_mutex_lock (pthread_mutex_t *__mutex);
+
 /* Unlock a mutex.  */
 extern int pthread_mutex_unlock (pthread_mutex_t *__mutex);
 
@@ -64,5 +67,16 @@ extern int pthread_cond_init (pthread_cond_t *__restrict __cond,
 
 /* Destroy condition variable COND.  */
 extern int pthread_cond_destroy (pthread_cond_t *__cond);
+
+/* Wait for condition variable COND to be signaled or broadcast until
+   ABSTIME.  MUTEX is assumed to be locked before.  ABSTIME is an
+   absolute time specification; zero is the beginning of the epoch
+   (00:00:00 GMT, January 1, 1970).
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern int pthread_cond_timedwait (pthread_cond_t *__restrict __cond,
+				   pthread_mutex_t *__restrict __mutex,
+				   const struct timespec *__restrict __abstime);
 
 #endif
