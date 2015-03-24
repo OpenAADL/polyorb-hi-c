@@ -3,9 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://taste.tuxfamily.org/wiki
+ * For more informations, please visit http://assert-project.net/taste
  *
- * Copyright (C) 2010-2014 ESA & ISAE.
+ * Copyright (C) 2010-2012 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -39,7 +39,7 @@
 
 
 
-#define __PO_HI_GQUEUE_OUT_PORT constant_out_identifier
+#define __PO_HI_GQUEUE_OUT_PORT constant_out_identifier 
 /* give a default value to the out port */
 
 __po_hi_port_t*        __po_hi_gqueues[__PO_HI_NB_TASKS];
@@ -79,6 +79,65 @@ HANDLE                  __po_hi_gqueues_events[__PO_HI_NB_TASKS];
 CRITICAL_SECTION        __po_hi_gqueues_cs[__PO_HI_NB_TASKS];
 #endif
 
+/*@ requires 0 <= id < __PO_HI_NB_TASKS;
+  @ requires \valid(__po_hi_gqueues_global_history_woffset+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_global_history_offset+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_n_empty+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_most_recent_values+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_global_history+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_woffsets+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_port_is_empty+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_nb_ports+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_sizes+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_first+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_used_size+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_offsets+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_n_destinations+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_destinations+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_total_fifo_size+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_queue_is_empty+(0.. __PO_HI_NB_TASKS));
+  @
+  @ assigns __po_hi_gqueues_global_history_woffset[id];
+  @ assigns __po_hi_gqueues_global_history_offset[id];
+  @ assigns __po_hi_gqueues_n_empty[id];
+  @ assigns __po_hi_gqueues[id];
+  @ assigns __po_hi_gqueues_most_recent_values[id];
+  @ assigns __po_hi_gqueues_global_history[id];
+  @ assigns __po_hi_gqueues_woffsets[id];
+  @ assigns __po_hi_gqueues_port_is_empty[id];
+  @ assigns __po_hi_gqueues_nb_ports[id];
+  @ assigns __po_hi_gqueues_sizes[id];
+  @ assigns __po_hi_gqueues_first[id];
+  @ assigns __po_hi_gqueues_used_size[id];
+  @ assigns __po_hi_gqueues_offsets[id];
+  @ assigns __po_hi_gqueues_n_destinations[id];
+  @ assigns __po_hi_gqueues_destinations[id];
+  @ assigns __po_hi_gqueues_total_fifo_size[id];
+  @ assigns __po_hi_gqueues_queue_is_empty[id];
+  @ assigns __po_hi_gqueues_used_size[id][0 .. nb_ports];
+  @ 
+  @ ensures __po_hi_gqueues_global_history_woffset[id] == 0;
+  @ ensures __po_hi_gqueues_global_history_offset[id] == 0;
+  @ ensures __po_hi_gqueues_n_empty[id] == nb_ports;
+  @ ensures __po_hi_gqueues[id] == queue;
+  @ ensures __po_hi_gqueues_most_recent_values[id] == recent;
+  @ ensures __po_hi_gqueues_global_history[id] == history;
+  @ ensures __po_hi_gqueues_woffsets[id] == woffsets;
+  @ ensures __po_hi_gqueues_port_is_empty[id] == empties;
+  @ ensures __po_hi_gqueues_nb_ports[id] == nb_ports;
+  @ ensures __po_hi_gqueues_sizes[id] == sizes;
+  @ ensures __po_hi_gqueues_first[id] == first;
+  @ ensures __po_hi_gqueues_used_size[id] == used_size;
+  @ ensures __po_hi_gqueues_offsets[id] == offsets;
+  @ ensures __po_hi_gqueues_n_destinations[id] == n_dest;
+  @ ensures __po_hi_gqueues_destinations[id] == destinations;
+  @ ensures __po_hi_gqueues_total_fifo_size[id] == total_fifo_size;
+  @ ensures __po_hi_gqueues_queue_is_empty[id] == 1;
+  @ 
+  @ ensures \forall integer i; 0 <= i < nb_ports ==> __po_hi_gqueues_used_size[id][i] == 0;
+  @ ensures \forall integer i; 0 <= i < nb_ports ==> __po_hi_gqueues_most_recent_values[id][i].port == invalid_port_t;
+  @*/
 void __po_hi_gqueue_init (__po_hi_task_id       id,
                           __po_hi_uint8_t       nb_ports,
                           __po_hi_port_t        queue[],
@@ -97,7 +156,6 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
    __po_hi_uint8_t      tmp;
    __po_hi_uint16_t     off;
    __po_hi_request_t*   request;
-   int err;
 
 #if defined (RTEMS_PURE)
    rtems_status_code    ret;
@@ -116,7 +174,7 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 
    __po_hi_gqueues_port_is_empty[id] = empties;
 
-   __po_hi_gqueues_nb_ports[id] = nb_ports;
+   __po_hi_gqueues_nb_ports[id] = nb_ports; 
    __po_hi_gqueues_sizes[id] = sizes;
    __po_hi_gqueues_first[id] = first;
    __po_hi_gqueues_used_size[id] = used_size;
@@ -129,22 +187,13 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
    __po_hi_gqueues_queue_is_empty[id] = 1;
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
-   err = pthread_mutexattr_init (&__po_hi_gqueues_mutexes_attr[id]);
-   __DEBUGMSG("MUTEX_INIT %d %d\n", id, err);
-   err = pthread_condattr_init (&__po_hi_gqueues_conds_attr[id]);
-   __DEBUGMSG("MUTEX_INIT %d %d\n", id, err);
+   pthread_mutexattr_init (&__po_hi_gqueues_mutexes_attr[id]);
+   pthread_condattr_init (&__po_hi_gqueues_conds_attr[id]);
 #if defined (POSIX) || defined (XENO_POSIX)
-   // XXX disabled for OS X
-
-#ifndef __MACH__ // OS X bugs on this attribute
-   err = pthread_mutexattr_setpshared(&__po_hi_gqueues_mutexes_attr[id],PTHREAD_PROCESS_SHARED);
+   pthread_mutexattr_setpshared(&__po_hi_gqueues_mutexes_attr[id],PTHREAD_PROCESS_SHARED); 
 #endif
-   __DEBUGMSG("MUTEX_INIT %d\n", err);
-#endif
-   err = pthread_mutex_init (&__po_hi_gqueues_mutexes[id], &__po_hi_gqueues_mutexes_attr[id]);
-   __DEBUGMSG("MUTEX_INIT %d %d\n", id, err);
-   err = pthread_cond_init (&__po_hi_gqueues_conds[id], &__po_hi_gqueues_conds_attr[id]);
-   __DEBUGMSG("COND_INIT %d %d\n", id, err);
+   pthread_mutex_init (&__po_hi_gqueues_mutexes[id], &__po_hi_gqueues_mutexes_attr[id]);
+   pthread_cond_init (&__po_hi_gqueues_conds[id], &__po_hi_gqueues_conds_attr[id]);
 #endif
 
 #ifdef RTEMS_PURE
@@ -180,10 +229,10 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 #endif
 
 #ifdef _WIN32
-   __po_hi_gqueues_events[id] = CreateEvent (NULL, FALSE, FALSE, NULL);
+   __po_hi_gqueues_events[id] = CreateEvent (NULL, FALSE, FALSE, NULL); 
 
-   if (__po_hi_gqueues_events[id] == NULL)
-   {
+   if (__po_hi_gqueues_events[id] == NULL) 
+   { 
       __PO_HI_DEBUG_WARNING("CreateEvent failed (%d)\n", GetLastError());
 
       return;
@@ -197,7 +246,7 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
    {
       __po_hi_gqueues_used_size[id][tmp] = 0;
 
-      if ( (sizes[tmp] != __PO_HI_GQUEUE_FIFO_INDATA)
+      if ( (sizes[tmp] != __PO_HI_GQUEUE_FIFO_INDATA) 
             && (sizes[tmp] != __PO_HI_GQUEUE_FIFO_OUT))
       {
          __po_hi_gqueues_first[id][tmp]=off;
@@ -216,32 +265,64 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
    __DEBUGMSG("Initialize global queue for task-id %d ... ", id);
    for (tmp=0;tmp<nb_ports;tmp++)
    {
-      __DEBUGMSG("port %d (used_size=%d,first=%d) ",
-            tmp,
+      __DEBUGMSG("port %d (used_size=%d,first=%d) ", 
+            tmp, 
             __po_hi_gqueues_used_size[id][tmp],
             __po_hi_gqueues_first[id][tmp]);
    }
    __DEBUGMSG(" ... done\n");
-#endif
+#endif 
 }
 
-
-void __po_hi_gqueue_store_out (__po_hi_task_id id,
-                               __po_hi_local_port_t port,
+/*@ requires \valid(request);
+  @ requires 0 <= id < __PO_HI_NB_TASKS;
+  @ ensures __po_hi_gqueues_most_recent_values[id][port] == *request;
+  @*/
+void __po_hi_gqueue_store_out (__po_hi_task_id id, 
+                               __po_hi_local_port_t port, 
                                __po_hi_request_t* request)
 {
    __po_hi_request_t* ptr;
 
    request->port = __PO_HI_GQUEUE_OUT_PORT;
    ptr = &__po_hi_gqueues_most_recent_values[id][port];
-   __po_hi_copy_array(ptr, request, sizeof (__po_hi_request_t));
+   memcpy (ptr, request, sizeof (__po_hi_request_t));
    __PO_HI_DEBUG_DEBUG ("__po_hi_gqueue_store_out() from task %d on port %d\n", id, port);
 }
 
-
-
-__po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
-                                         __po_hi_local_port_t port,
+/*@ requires 0 <= id < __PO_HI_NB_TASKS;
+  @ requires \valid(request);
+  @ requires \valid(__po_hi_gqueues_most_recent_values+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_global_history+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_woffsets+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_sizes+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_offsets+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_used_size+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_n_empty+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_port_is_empty+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_global_history_woffset+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_total_fifo_size+(0.. __PO_HI_NB_TASKS));
+  @ behavior port_length_1:
+  @   assumes __po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA;
+  @   ensures *request == __po_hi_gqueues_most_recent_values[id][port];
+  @ behavior port_length_sup_1:
+  @   assumes __po_hi_gqueues_sizes[id][port] != __PO_HI_GQUEUE_FIFO_INDATA;
+  @   assigns __po_hi_gqueues_woffsets[id][port];
+  @   assigns __po_hi_gqueues_used_size[id][port];
+  @   assigns __po_hi_gqueues_global_history_woffset[id];
+  @   assigns __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_woffset[id]];
+  @   ensures 0 <= __po_hi_gqueues_used_size[id][port] < __po_hi_gqueues_sizes[id][port];
+  @   ensures 0 <= __po_hi_gqueues_global_history_woffset[id] < __po_hi_gqueues_total_fifo_size[id];
+  @   ensures 0 <= __po_hi_gqueues_woffsets[id][port] < __po_hi_gqueues_sizes[id][port];
+  @   behavior port_empty:
+  @     assumes __po_hi_gqueues_port_is_empty[id][port] == 1;
+  @     assigns __po_hi_gqueues_port_is_empty[id][port];
+  @     assigns __po_hi_gqueues_n_empty[id];
+  @     ensures __po_hi_gqueues_port_is_empty[id][port] == 0;
+  @   ensures __po_hi_gqueues_queue_is_empty[id] == 0;
+  @*/
+__po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id, 
+                                         __po_hi_local_port_t port, 
                                          __po_hi_request_t* request)
 {
    __po_hi_request_t* ptr;
@@ -276,7 +357,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 #endif
    if (__po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA)
    {
-      __po_hi_copy_array(ptr,request,sizeof(*request));
+      memcpy(ptr,request,sizeof(*request));
    }
    else
    {
@@ -285,24 +366,23 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 #endif
       if (__po_hi_gqueues_used_size[id][port] == __po_hi_gqueues_sizes[id][port])
       {
-
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-        pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
+         pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (XENO_NATIVE)
-        rt_mutex_release (&__po_hi_gqueues_mutexes[id]);
+   rt_mutex_release (&__po_hi_gqueues_mutexes[id]);
 #elif defined (RTEMS_PURE)
-        ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
-        if (ret != RTEMS_SUCCESSFUL)
-          {
+         ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
+         if (ret != RTEMS_SUCCESSFUL)
+         {
             __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Cannot release semaphore in __po_hi_gqueue_store_in()\n");
-          }
+         }
 #elif defined (_WIN32)
-        LeaveCriticalSection(&__po_hi_gqueues_cs[id]);
+       LeaveCriticalSection(&__po_hi_gqueues_cs[id]);
 #endif
-        __PO_HI_DEBUG_CRITICAL ("[GQUEUE] QUEUE FULL, task-id=%d, port=%d\n", id, port);
+         __PO_HI_DEBUG_CRITICAL ("[GQUEUE] QUEUE FULL, task-id=%d, port=%d\n", id, port);
 
-        __DEBUGMSG ("[GQUEUE] Semaphore released (id=%d)\n", id);
-        return __PO_HI_ERROR_QUEUE_FULL;
+         __DEBUGMSG ("[GQUEUE] Semaphore released (id=%d)\n", id);
+         return __PO_HI_ERROR_QUEUE_FULL;
       }
 
       tmp = (__po_hi_request_t*) &__po_hi_gqueues[id][port];
@@ -310,12 +390,12 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 
       tmp = tmp + size;
 
-      __po_hi_copy_array (tmp , request, sizeof (__po_hi_request_t));
+      memcpy (tmp , request, sizeof (__po_hi_request_t));
 
       __po_hi_gqueues_woffsets[id][port] =  (__po_hi_gqueues_woffsets[id][port] + 1 ) % __po_hi_gqueues_sizes[id][port];
 
       __po_hi_gqueues_used_size[id][port]++;
-      __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueues_used_size[id][port], id, port);
+      __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueues_used_size[id][port], id, port); 
 
       __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_woffset[id]] = port;
       __po_hi_gqueues_global_history_woffset[id] = (__po_hi_gqueues_global_history_woffset[id] + 1 ) % __po_hi_gqueues_total_fifo_size[id];
@@ -330,14 +410,13 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
-   int err = pthread_cond_signal (&__po_hi_gqueues_conds[id]);
-   __DEBUGMSG("*** Releasing (%d) %d\n", id, err);
+   pthread_cond_broadcast (&__po_hi_gqueues_conds[id]);
 #elif defined (XENO_NATIVE)
    rt_mutex_release (&__po_hi_gqueues_mutexes[id]);
    rt_cond_broadcast (&__po_hi_gqueues_conds[id]);
 #elif defined (_WIN32)
    LeaveCriticalSection(&__po_hi_gqueues_cs[id]);
-   if (! SetEvent(__po_hi_gqueues_events[id]) )
+   if (! SetEvent(__po_hi_gqueues_events[id]) ) 
    {
       __DEBUGMSG("SetEvent failed (%d)\n", GetLastError());
    }
@@ -350,98 +429,106 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
    __DEBUGMSG ("[GQUEUE] Semaphore released (id=%d)\n", id);
 #endif
 
-   __DEBUGMSG ("[GQUEUE] store_in completed\n");
    return __PO_HI_SUCCESS;
 }
 
-void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
+void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id, 
                                              __po_hi_local_port_t* port)
 {
 #ifdef RTEMS_PURE
-  rtems_status_code ret;
+   rtems_status_code ret;
 #endif
 
 #ifdef _WIN32
-  DWORD ret;
+   DWORD ret;
 #endif
 
+
+
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-  int error = pthread_mutex_lock (&__po_hi_gqueues_mutexes[id]);
-  __DEBUGMSG("*** Locking (%d) %d\n", id, error);
+   pthread_mutex_lock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (XENO_NATIVE)
-  rt_mutex_acquire (&__po_hi_gqueues_mutexes[id], TM_INFINITE);
+   rt_mutex_acquire (&__po_hi_gqueues_mutexes[id], TM_INFINITE);
 #elif defined (RTEMS_PURE)
-  ret = rtems_semaphore_obtain (__po_hi_gqueues_semaphores[id], RTEMS_WAIT, RTEMS_NO_TIMEOUT);
+   ret = rtems_semaphore_obtain (__po_hi_gqueues_semaphores[id], RTEMS_WAIT, RTEMS_NO_TIMEOUT);
   if (ret != RTEMS_SUCCESSFUL)
-    {
-      __DEBUGMSG ("[GQUEUE] Cannot obtain semaphore in __po_hi_gqueue_store_in()\n");
-    }
+  {
+     __DEBUGMSG ("[GQUEUE] Cannot obtain semaphore in __po_hi_gqueue_store_in()\n");
+  }
 #elif defined (_WIN32)
   EnterCriticalSection(&__po_hi_gqueues_cs[id]);
 #endif
 
-  while(__po_hi_gqueues_queue_is_empty[id] == 1)
-    {
-      __PO_HI_INSTRUMENTATION_VCD_WRITE("0t%d\n", id);
+   while(__po_hi_gqueues_queue_is_empty[id] == 1)
+   {
 
+      __PO_HI_INSTRUMENTATION_VCD_WRITE("0t%d\n", id); 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-      __DEBUGMSG("*** Waiting (%d)\n", id);
-      int error = pthread_cond_wait (&__po_hi_gqueues_conds[id],
-                                     &__po_hi_gqueues_mutexes[id]);
-      __DEBUGMSG("*** Done Waiting (%d) %d\n", id, error);
+
+      pthread_cond_wait (&__po_hi_gqueues_conds[id],
+            &__po_hi_gqueues_mutexes[id]);
 #elif defined (XENO_NATIVE)
-      rt_cond_wait (&__po_hi_gqueues_conds[id], &__po_hi_gqueues_mutexes[id], TM_INFINITE);
+   rt_cond_wait (&__po_hi_gqueues_conds[id], &__po_hi_gqueues_mutexes[id], TM_INFINITE);
 #elif defined (RTEMS_PURE)
       ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
       if (ret != RTEMS_SUCCESSFUL)
-        {
-          __DEBUGMSG ("[GQUEUE] Cannot obtain semaphore in __po_hi_gqueue_store_in()\n");
-        }
+      {
+         __DEBUGMSG ("[GQUEUE] Cannot obtain semaphore in __po_hi_gqueue_store_in()\n");
+      }
       rtems_task_wake_after (1);
       ret = rtems_semaphore_obtain (__po_hi_gqueues_semaphores[id], RTEMS_WAIT, RTEMS_NO_TIMEOUT);
       if (ret != RTEMS_SUCCESSFUL)
-        {
-          __DEBUGMSG ("[GQUEUE] Cannot obtain semaphore in __po_hi_gqueue_store_in()\n");
-        }
+      {
+         __DEBUGMSG ("[GQUEUE] Cannot obtain semaphore in __po_hi_gqueue_store_in()\n");
+      }
       else
-        {
-          __PO_HI_DEBUG_CRITICAL ("[GQUEUE] semaphore %d obtained\n", id);
-        }
+      {
+         __PO_HI_DEBUG_CRITICAL ("[GQUEUE] semaphore %d obtained\n", id);
+      }
 #elif defined (_WIN32)
-      LeaveCriticalSection(&__po_hi_gqueues_cs[id]);
+   LeaveCriticalSection(&__po_hi_gqueues_cs[id]);
 
-      ret = WaitForSingleObject (__po_hi_gqueues_events[id], INFINITE);
-      if (ret == WAIT_FAILED)
-        {
-          __PO_HI_DEBUG_DEBUG ("[GQUEUE] Wait failed\n");
-        }
-      EnterCriticalSection(&__po_hi_gqueues_cs[id]);
+   ret = WaitForSingleObject (__po_hi_gqueues_events[id], INFINITE);
+   if (ret == WAIT_FAILED)
+   {
+      __PO_HI_DEBUG_DEBUG ("[GQUEUE] Wait failed\n");
+   }
+   EnterCriticalSection(&__po_hi_gqueues_cs[id]);
 #endif
 
-      __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", id);
-    }
+      __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", id); 
+   }
 
-  __DEBUGMSG ("[GQUEUE] Gogo kiki\n");
-  *port = __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_offset[id]];
+   *port = __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_offset[id]];
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-  pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
+   pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (XENO_NATIVE)
-  rt_mutex_release (&__po_hi_gqueues_mutexes[id]);
+   rt_mutex_release (&__po_hi_gqueues_mutexes[id]);
 #elif defined (_WIN32)
-  LeaveCriticalSection(&__po_hi_gqueues_cs[id]);
+   LeaveCriticalSection(&__po_hi_gqueues_cs[id]);
 #elif defined (RTEMS_PURE)
-  ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
-  if (ret != RTEMS_SUCCESSFUL)
-    {
+   ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
+   if (ret != RTEMS_SUCCESSFUL)
+   {
       __DEBUGMSG ("[GQUEUE] Cannot release semaphore in __po_hi_gqueue_store_in()\n");
-    }
+   }
 
-  __PO_HI_DEBUG_CRITICAL ("[GQUEUE] semaphore %d released\n", id);
+   __PO_HI_DEBUG_CRITICAL ("[GQUEUE] semaphore %d released\n", id);
 #endif
 
 }
 
+/*@ requires 0 <= id < __PO_HI_NB_TASKS;
+  @ requires \valid(__po_hi_gqueues_sizes+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_used_size+(0.. __PO_HI_NB_TASKS));
+  @ behavior size_1:
+  @   assumes __po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA;
+  @   ensures \result;
+  @ behavior size_sup_1:
+  @   assumes __po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA;
+  @   ensures \result == __po_hi_gqueues_used_size[id][port];
+  @*/
 int __po_hi_gqueue_get_count( __po_hi_task_id id, __po_hi_local_port_t port)
 {
    if (__po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA)
@@ -454,8 +541,27 @@ int __po_hi_gqueue_get_count( __po_hi_task_id id, __po_hi_local_port_t port)
    }
 }
 
-int __po_hi_gqueue_get_value (__po_hi_task_id      id,
-                              __po_hi_local_port_t port,
+/*@ requires 0 <= id < __PO_HI_NB_TASKS;
+  @ requires \valid(request);
+  @ requires \valid(__po_hi_gqueues_most_recent_values+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_sizes+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_port_is_empty+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_used_size+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_first+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_offsets+(0.. __PO_HI_NB_TASKS));
+  @ assigns *request;
+  @ //ensures valid_request(request);
+  @ behavior almost_empty_port:
+  @   assumes __po_hi_gqueues_used_size[id][port] == 0;
+  @   ensures *request == __po_hi_gqueues_most_recent_values[id][port];
+  @ behavior else:
+  @  assumes __po_hi_gqueues_used_size[id][port] != 0;
+  @  ensures *request == *(((__po_hi_request_t *) &__po_hi_gqueues[id][port]) +  __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port]);
+  @ ensures !(\result);
+  @*/
+int __po_hi_gqueue_get_value (__po_hi_task_id      id, 
+                              __po_hi_local_port_t port, 
                               __po_hi_request_t*   request)
 {
    __po_hi_request_t* ptr;
@@ -514,15 +620,15 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
 
    if (__po_hi_gqueues_used_size[id][port] == 0)
    {
-      __po_hi_copy_array (request, ptr, sizeof (__po_hi_request_t));
+      memcpy (request, ptr, sizeof (__po_hi_request_t));
    }
    else
    {
-      ptr = ((__po_hi_request_t *) &__po_hi_gqueues[id][port]) +  __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port];
+      ptr = ((__po_hi_request_t *) &__po_hi_gqueues[id][port]) +  __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port]; 
       memcpy (request, ptr, sizeof (__po_hi_request_t));
    }
-
-
+    
+   
    __PO_HI_DEBUG_INFO ("[GQUEUE] Task %d get a value on port %d\n", id, port);
 
    /*
@@ -564,6 +670,32 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
    return 0;
 }
 
+/*@ requires 0 <= id < __PO_HI_NB_TASKS;
+  @ requires \valid(__po_hi_gqueues_sizes+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_offsets+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_used_size+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_n_empty+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_port_is_empty+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_global_history_offset+(0.. __PO_HI_NB_TASKS));
+  @ requires \valid(__po_hi_gqueues_total_fifo_size+(0.. __PO_HI_NB_TASKS));
+  @ behavior no_gqueue:
+  @   assumes __po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA;
+  @   ensures \result;
+  @ assigns __po_hi_gqueues_offsets[id][port];
+  @ assigns __po_hi_gqueues_used_size[id][port];
+  @ behavior gqueue_port_empty:
+  @   assumes __po_hi_gqueues_used_size[id][port] == 0;
+  @   assigns __po_hi_gqueues_n_empty[id];
+  @   ensures 0 <= __po_hi_gqueues_n_empty[id] < __po_hi_gqueues_nb_ports[id];
+  @   ensures __po_hi_gqueues_port_is_empty[id][port] == 1;
+  @ behavior gqueue_empty:
+  @   assumes __po_hi_gqueues_n_empty[id] == __po_hi_gqueues_nb_ports[id];
+  @   ensures __po_hi_gqueues_queue_is_empty[id] == 1;
+  @ assigns __po_hi_gqueues_global_history_offset[id];
+  @ ensures 0 <= __po_hi_gqueues_used_size[id][port] < __po_hi_gqueues_sizes[id][port];
+  @ ensures 0 <= __po_hi_gqueues_global_history_offset[id] < __po_hi_gqueues_total_fifo_size[id];
+  @ ensures 0 <= __po_hi_gqueues_offsets[id][port] < __po_hi_gqueues_sizes[id][port];
+  @*/
 int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
 {
 #ifdef RTEMS_PURE
@@ -595,13 +727,13 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
 #endif
 
 
-   __po_hi_gqueues_offsets[id][port] =
-      (__po_hi_gqueues_offsets[id][port] + 1)
+   __po_hi_gqueues_offsets[id][port] = 
+      (__po_hi_gqueues_offsets[id][port] + 1) 
       % __po_hi_gqueues_sizes[id][port];
 
    __po_hi_gqueues_used_size[id][port]--;
 
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueues_used_size[id][port], id, port);
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueues_used_size[id][port], id, port); 
 
    if (__po_hi_gqueues_used_size[id][port] == 0)
    {
@@ -614,8 +746,8 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
       __po_hi_gqueues_queue_is_empty[id] = 1;
    }
 
-   __po_hi_gqueues_global_history_offset[id] =
-      (__po_hi_gqueues_global_history_offset[id] + 1)
+   __po_hi_gqueues_global_history_offset[id] = 
+      (__po_hi_gqueues_global_history_offset[id] + 1) 
       % __po_hi_gqueues_total_fifo_size[id];
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
@@ -635,17 +767,29 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
    return __PO_HI_SUCCESS;
 }
 
+/*@ requires \valid(__po_hi_gqueues_most_recent_values+(0.. __PO_HI_NB_TASKS));
+  @ ensures \result == &__po_hi_gqueues_most_recent_values[task_id][local_port];
+  @*/
 __po_hi_request_t*  __po_hi_gqueue_get_most_recent_value (const __po_hi_task_id task_id, const __po_hi_local_port_t local_port)
 {
    return (&__po_hi_gqueues_most_recent_values[task_id][local_port]);
 }
 
+/*@ requires 0 <= task_id < __PO_HI_NB_TASKS;
+  @ requires \valid(__po_hi_gqueues_n_destinations+(0 .. __PO_HI_NB_TASKS)); 
+  @ ensures \result ==  __po_hi_gqueues_n_destinations[task_id][local_port];
+  @*/
 uint8_t __po_hi_gqueue_get_destinations_number (const __po_hi_task_id task_id, const __po_hi_local_port_t local_port)
 {
       return (__po_hi_gqueues_n_destinations[task_id][local_port]);
 }
 
+
+/*@ requires \valid(__po_hi_gqueues_destinations+(0 .. __PO_HI_NB_TASKS)); 
+  @ ensures \result ==  __po_hi_gqueues_destinations[task_id][local_port][destination_number];
+  @*/
 __po_hi_port_t __po_hi_gqueue_get_destination (const __po_hi_task_id task_id, const __po_hi_local_port_t local_port, const uint8_t destination_number)
 {
       return (__po_hi_gqueues_destinations[task_id][local_port][destination_number]);
 }
+
