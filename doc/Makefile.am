@@ -50,7 +50,7 @@ EXTRA_DIST= $(GUIDE_TEXIFILES) $(SRC_CODE) $(DOC_CODE) $(AADL_MODELS)	\
 	$(srcdir)/polyorb-hi_ug_ref.tex polyorb-hi_ug_ref.bbl		\
 	polyorb-hi_ug_ref.aux $(srcdir)/polyorb-hi_ug.bib $(FIGURES)
 
-info_TEXINFOS = polyorb-hi-c_ug.texi
+info_TEXINFOS =
 polyorb_hi_c_ug_TEXINFOS = $(GUIDE_TEXIFILES)
 
 SUFFIXES = .c .h .aadl .texi .sed .pdf .html
@@ -151,7 +151,7 @@ install-data-local: all
 	  for f in $(builddir)/$(GUIDE).html/fig/*.png; do \
             $(INSTALL_DATA) $$f  $(DESTDIR)$(po_hi_doc_dir)/$(GUIDE).html/fig; \
           done; \
-	fi	
+	fi
 	if [ -r $(srcdir)/$(GUIDE).pdf ]; then \
 	  $(INSTALL_DATA) $(srcdir)/$(GUIDE).pdf  $(DESTDIR)$(po_hi_doc_dir); \
 	  for f in $(srcdir)/$(GUIDE).html/*.html; do \
