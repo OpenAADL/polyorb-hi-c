@@ -7,10 +7,9 @@
 ## This file has been built for a generic RTEMS integration
 
 
-include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
-include $(RTEMS_CUSTOM)
-include $(PROJECT_ROOT)/make/leaf.cfg
-
+-include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
+-include $(RTEMS_CUSTOM)
+-include $(PROJECT_ROOT)/make/leaf.cfg
 
 define bsp-post-link
    $(NM) -g -n $@ > $(basename $@).num
@@ -25,15 +24,15 @@ CPP                          = $(CXX_FOR_TARGET)
 LD                           = $(LD_FOR_TARGET)
 GPROF                        = sparc-rtems-gprof
 
-TARGET_SOURCES               = 
+TARGET_SOURCES               =
 #TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
-TARGET_TRANSPORT_SOURCES     = 
+TARGET_TRANSPORT_SOURCES     =
 
 TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS $(GCC_GENERIC_FLAGS) $(CPU_FLAGS) $(AM_FLAGS) $(GCCSPECS)
 
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
-TARGET_LDFLAGS               = -lrtemsbsp -lc -lm 
+TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
 
 ifndef RTEMS_API
    TARGET_CFLAGS                +=  -DRTEMS48
