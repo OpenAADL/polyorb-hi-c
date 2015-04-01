@@ -53,11 +53,12 @@ _FILES_TO_PROVE = $(patsubst %,$(SRCDIR_PROOF)/%,$(FILES_TO_PROVE))
 FRAMA_C_LIBC_SHARE = `$(FRAMA_C) -print-share-path`/libc
 FRAMA_C_OPT = -pp-annot
 CPP_PROOF_OPT = -cpp-extra-args="-I./include-proof -I./doc/code"
-WP_ARGS = -wp -wp-rte -wp-timeout 60 -wp-split -wp-prover alt-ergo
-WP_ARGS_INTERACTIVE = -wp -wp-rte -wp-timeout 60 -wp-split -wp-prover alt-ergo
+_WP_RTE = $(if $(NO_RTE),,-wp-rte)
+WP_ARGS = -wp $(_WP_RTE) -wp-timeout 60 -wp-split -wp-prover alt-ergo
+WP_ARGS_INTERACTIVE = -wp $(_WP_RTE) -wp-timeout 60 -wp-split -wp-prover alt-ergo
 WHY_PROVER = alt-ergo
-WHY_ARGS = -wp -wp-rte -wp-timeout 60 -wp-split -wp-prover why3:$(WHY_PROVER)
-WHY_ARGS_INTERACTIVE = -wp -wp-rte -wp-timeout 60 -wp-split -wp-prover why3ide
+WHY_ARGS = -wp $(_WP_RTE) -wp-timeout 60 -wp-split -wp-prover why3:$(WHY_PROVER)
+WHY_ARGS_INTERACTIVE = -wp $(_WP_RTE) -wp-timeout 60 -wp-split -wp-prover why3ide
 JESSIE_ARGS = -jessie -jessie-atp alt-ergo
 JESSIE_ARGS_INTERACTIVE = -jessie
 PROVER_OPTIONS =
