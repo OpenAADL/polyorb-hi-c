@@ -8,11 +8,6 @@
  * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2015 ESA & ISAE.
  */
 
-#if defined (__CYGWIN__) || defined (__MINGW32__)
-#else
-#include <xlocale.h>
-#endif
-
 #include <time.h>
 #include <errno.h>
 
