@@ -14,7 +14,7 @@
 #include <po_hi_types.h>
 
 #ifndef HAVE_CLOCK_GETTIME
-#if defined (__CYGWIN__) || defined (__MINGW32__)
+#if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (RTEMS_PURE)
 #else
 #include <xlocale.h>
 #endif
