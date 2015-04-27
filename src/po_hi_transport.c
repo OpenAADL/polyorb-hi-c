@@ -5,8 +5,10 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2015 ESA & ISAE.
  */
+
+#include<stddef.h>
 
 #include <po_hi_config.h>
 #include <po_hi_types.h>
