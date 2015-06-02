@@ -48,6 +48,11 @@
 #include <po_hi_utils.h>
 /* Header files in PolyORB-HI */
 
+#if defined (MONITORING)
+#include <trace_manager.hh>
+#endif
+/* Headers from run-time verification */
+
 #include <deployment.h>
 
 /* Header files from generated code */
@@ -89,6 +94,7 @@ __po_hi_task_t tasks[__PO_HI_NB_TASKS];
 #if defined (_WIN32)
 HANDLE  __po_hi_tasks_array[__PO_HI_NB_TASKS];
 #endif
+
 
 void __po_hi_wait_for_tasks ()
 {
@@ -170,12 +176,21 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
 #endif
 }
 
+
 int __po_hi_wait_for_next_period (__po_hi_task_id task)
 {
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
   int ret;
    __PO_HI_INSTRUMENTATION_VCD_WRITE("0t%d\n", task);
   __po_hi_task_delay_until (&(tasks[task].timer), task);
+
+/*!
+ * Entry ports monitoring at dispatch if MONITORING is defined
+ */
+#if defined (MONITORING)
+ update_periodic_dispatch(task);
+#endif
+
   if ( (ret = __po_hi_compute_next_period (task)) != 1)
     {
       return (__PO_HI_ERROR_CLOCK);
@@ -355,6 +370,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
   return tid;
 }
 
+
 int __po_hi_posix_initialize_task (__po_hi_task_t* task)
 {
         if (pthread_mutex_init (&(task->mutex), NULL) != 0)
@@ -452,7 +468,6 @@ RT_TASK __po_hi_xenomai_create_thread (__po_hi_priority_t priority,
 }
 #endif
 
-
 int __po_hi_create_generic_task (const __po_hi_task_id      id,
                                  const __po_hi_time_t*      period,
                                  const __po_hi_priority_t   priority,
@@ -511,6 +526,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
   return (__PO_HI_SUCCESS);
 }
 
+
 int __po_hi_create_periodic_task (const __po_hi_task_id     id,
                                   const __po_hi_time_t*     period,
                                   const __po_hi_priority_t  priority,
@@ -518,6 +534,14 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
                                   const __po_hi_int8_t      core_id,
                                   void*                     (*start_routine)(void))
 {
+  /*
+   * Send Task type to trace manager, if there is monitoring.
+   */
+
+#if defined (MONITORING)
+   periodic_task_creation(id);
+#endif
+
   if (__po_hi_create_generic_task( id, period , priority , stack_size, core_id, start_routine, NULL) != 1)
    {
       __DEBUGMSG ("ERROR when creating generic task (task id=%d)\n", id);
@@ -565,6 +589,13 @@ int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
                                   const __po_hi_int8_t      core_id,
                                   void*                     (*start_routine)(void) )
 {
+  /*
+   * Send Task type to trace manager, if there is monitoring.
+   */
+#if defined (MONITORING)
+   sporadic_task_creation(id);
+#endif
+
   /*
    * Create generic task which will execute the routine given in the
    * last parameter. Typically, a sporadic thread will wait on a

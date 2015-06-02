@@ -37,7 +37,9 @@
 #include <native/mutex.h>
 #endif
 
-
+#if defined (MONITORING) /* Headers from run-time verification */
+#include <trace_manager.hh>
+#endif
 
 #define __PO_HI_GQUEUE_OUT_PORT constant_out_identifier
 /* give a default value to the out port */
@@ -225,7 +227,6 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 #endif
 }
 
-
 void __po_hi_gqueue_store_out (__po_hi_task_id id,
                                __po_hi_local_port_t port,
                                __po_hi_request_t* request)
@@ -237,8 +238,6 @@ void __po_hi_gqueue_store_out (__po_hi_task_id id,
    memcpy (ptr, request, sizeof (__po_hi_request_t));
    __PO_HI_DEBUG_DEBUG ("__po_hi_gqueue_store_out() from task %d on port %d\n", id, port);
 }
-
-
 
 __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
                                          __po_hi_local_port_t port,
@@ -354,6 +353,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
    return __PO_HI_SUCCESS;
 }
 
+
 void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
                                              __po_hi_local_port_t* port)
 {
@@ -424,6 +424,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
   __DEBUGMSG ("[GQUEUE] Gogo kiki\n");
   *port = __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_offset[id]];
 
+
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
   pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (XENO_NATIVE)
@@ -442,6 +443,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
 
 }
 
+
 int __po_hi_gqueue_get_count( __po_hi_task_id id, __po_hi_local_port_t port)
 {
    if (__po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA)
@@ -453,6 +455,7 @@ int __po_hi_gqueue_get_count( __po_hi_task_id id, __po_hi_local_port_t port)
       return (__po_hi_gqueues_used_size[id][port]);
    }
 }
+
 
 int __po_hi_gqueue_get_value (__po_hi_task_id      id,
                               __po_hi_local_port_t port,
@@ -495,6 +498,7 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
          pthread_cond_wait (&__po_hi_gqueues_conds[id],
                &__po_hi_gqueues_mutexes[id]);
+
 #elif defined (XENO_NATIVE)
    rt_cond_wait (&__po_hi_gqueues_conds[id], &__po_hi_gqueues_mutexes[id], TM_INFINITE);
 #elif defined (RTEMS_PURE)
@@ -512,9 +516,14 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
       }
    }
 
+#if defined (MONITORING)
+   update_sporadic_dispatch (id, port);
+#endif
+
    if (__po_hi_gqueues_used_size[id][port] == 0)
    {
       memcpy (request, ptr, sizeof (__po_hi_request_t));
+      //update_runtime (id, port, ptr);
    }
    else
    {
@@ -524,28 +533,6 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
 
 
    __PO_HI_DEBUG_INFO ("[GQUEUE] Task %d get a value on port %d\n", id, port);
-
-   /*
-    * As this part of the code is now considered as stable, we don't print debug output
-    *
-
-   __DEBUGMSG ("RECEIVED vars in gqueue: |");
-   {
-         int s;
-         int i;
-         uint8_t* tmp;
-         tmp = (unsigned int*) &request->vars;
-         s = sizeof (request->vars);
-         for (i = 0 ; i < s ; i++)
-         {
-            printf("%x", *tmp);
-            tmp++;
-            fflush (stdout);
-         }
-   }
-   __DEBUGMSG ("|\n");
-#endif
-*/
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
@@ -569,7 +556,6 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
 #ifdef RTEMS_PURE
    rtems_status_code ret;
 #endif
-
 
    /* incomplete semantics, should discriminate and report whether
       there is a next value or not */
@@ -649,3 +635,38 @@ __po_hi_port_t __po_hi_gqueue_get_destination (const __po_hi_task_id task_id, co
 {
       return (__po_hi_gqueues_destinations[task_id][local_port][destination_number]);
 }
+
+__po_hi_int8_t __po_hi_gqueue_get_port_size( __po_hi_task_id id, __po_hi_local_port_t port)
+{
+   return __po_hi_gqueues_sizes[id][port];
+
+}
+
+__po_hi_int8_t __po_hi_gqueue_used_size( __po_hi_task_id id, __po_hi_local_port_t port)
+{
+   return __po_hi_gqueues_used_size[id][port];
+
+}
+
+__po_hi_int8_t po_hi_gqueues_queue_is_empty( __po_hi_task_id id)
+{
+   return __po_hi_gqueues_queue_is_empty[id];
+}
+
+__po_hi_request_t*
+ __po_hi_gqueues_get_request(__po_hi_task_id id, __po_hi_local_port_t port)
+ {
+ __po_hi_request_t* request;
+__po_hi_request_t* ptr;
+   if (__po_hi_gqueues_used_size[id][port] == 0)
+   {
+      memcpy (request, ptr, sizeof (__po_hi_request_t));
+      //update_runtime (id, port, ptr);
+   }
+   else
+   {
+      ptr = ((__po_hi_request_t *) &__po_hi_gqueues[id][port]) +  __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port];
+      memcpy (request, ptr, sizeof (__po_hi_request_t));
+   }      return request;
+}
+

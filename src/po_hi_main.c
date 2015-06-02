@@ -8,7 +8,6 @@
  * Copyright (C) 2010-2014 ESA & ISAE.
  */
 
-
 #include <deployment.h>
 /* included files from the generated code */
 
@@ -21,6 +20,11 @@
 #include <po_hi_protected.h>
 #include <po_hi_utils.h>
 /* included files from PolyORB-HI-C */
+
+#if defined (MONITORING)
+#include <trace_manager.hh>
+#endif
+/* Headers from run-time verification */
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
 #include <pthread.h>
@@ -59,7 +63,7 @@ RT_TASK*  main_task_id;
  * between the main task and the other tasks.
  *
  * For that reason, the main task does not wait for
- * the initialization of the other tasks. The 
+ * the initialization of the other tasks. The
  * __po_hi_wait_initialization just passes when it is
  * called from the main task. To do that, we need
  * to differentiate the main task from the other,
@@ -97,7 +101,7 @@ int __po_hi_initialize_early ()
 
 #if defined (XENO_POSIX) || defined (XENO_NATIVE)
    /*
-    * Once initialization has been done, we avoid ALL 
+    * Once initialization has been done, we avoid ALL
     * potential paging operations that can introduce
     * some indeterministic timing behavior.
     */
@@ -186,7 +190,7 @@ int __po_hi_initialize_early ()
 
 #ifdef RTEMS_PURE
   __DEBUGMSG ("[MAIN] Create a barrier that wait for %d tasks\n", __po_hi_nb_tasks_to_init);
-   
+
   ret = rtems_barrier_create (rtems_build_name ('B', 'A', 'R', 'M'), RTEMS_BARRIER_AUTOMATIC_RELEASE, __po_hi_nb_tasks_to_init, &__po_hi_main_initialization_barrier);
   if (ret != RTEMS_SUCCESSFUL)
   {
@@ -226,7 +230,7 @@ int __po_hi_initialize ()
    #include <po_hi_transport.h>
    #include <xm.h>
 
-   __po_hi_port_kind_t        pkind; 
+   __po_hi_port_kind_t        pkind;
    __po_hi_port_t             tmp;
    __po_hi_node_t             tmpnode;
    __po_hi_node_t             mynode;
@@ -284,6 +288,14 @@ int __po_hi_initialize ()
    }
 #endif
 
+
+/*!
+ * Initialize the monitoring trace if needed
+ */
+#if defined (MONITORING)
+  trace_initialize ();
+#endif
+
   return (__PO_HI_SUCCESS);
 }
 
@@ -310,7 +322,7 @@ int __po_hi_wait_initialization ()
   __po_hi_initialized_tasks++;
 
   __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
- 
+
   while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init)
   {
       pthread_cond_wait (&cond_init, &mutex_init);
@@ -327,11 +339,11 @@ int __po_hi_wait_initialization ()
   __po_hi_initialized_tasks++;
 
   __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
- 
+
   while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init)
   {
       LeaveCriticalSection (&__po_hi_main_initialization_critical_section);
-      WaitForSingleObject (__po_hi_main_initialization_event, INFINITE); 
+      WaitForSingleObject (__po_hi_main_initialization_event, INFINITE);
       EnterCriticalSection (&__po_hi_main_initialization_critical_section);
   }
 
@@ -339,7 +351,7 @@ int __po_hi_wait_initialization ()
   LeaveCriticalSection (&__po_hi_main_initialization_critical_section);
   return (__PO_HI_SUCCESS);
 
-#elif defined (RTEMS_PURE) 
+#elif defined (RTEMS_PURE)
   rtems_status_code ret;
 
   __DEBUGMSG ("[MAIN] Task wait for the barrier\n");
@@ -375,7 +387,7 @@ int __po_hi_wait_initialization ()
   __po_hi_initialized_tasks++;
 
   __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
- 
+
   while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init)
   {
       rt_cond_wait (&cond_init, &mutex_init, TM_INFINITE);
@@ -393,9 +405,9 @@ int __po_hi_wait_initialization ()
 void __po_hi_wait_end_of_instrumentation ()
 {
 #ifdef RTEMS_PURE
-   rtems_task_wake_after (10000000 / _TOD_Microseconds_per_tick); 
+   rtems_task_wake_after (10000000 / _TOD_Microseconds_per_tick);
 #else
-   #include <po_hi_time.h> 
+   #include <po_hi_time.h>
    #include <unistd.h>
 
    __po_hi_time_t now;

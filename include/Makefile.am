@@ -1,5 +1,6 @@
 AUTOMAKE_OPTIONS = no-dependencies
-SUBDIRS=drivers
+SUBDIRS=drivers monitoring
+
 EXTRA_DIST = $(srcdir)/po_hi_common.h \
              $(srcdir)/po_hi_debug.h \
              $(srcdir)/po_hi_marshallers.h \

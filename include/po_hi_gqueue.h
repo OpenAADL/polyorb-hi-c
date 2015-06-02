@@ -53,8 +53,8 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
  * total_fifo_size gives the total size of the global queue
  */
 
-void __po_hi_gqueue_store_out (__po_hi_task_id id, 
-                               __po_hi_local_port_t port, 
+void __po_hi_gqueue_store_out (__po_hi_task_id id,
+                               __po_hi_local_port_t port,
                                __po_hi_request_t* request);
 /* Store a value for an OUT port.
  *
@@ -63,10 +63,10 @@ void __po_hi_gqueue_store_out (__po_hi_task_id id,
  * last argument is the request to store in the queue.
  */
 
-int __po_hi_gqueue_send_output (__po_hi_task_id id, 
+int __po_hi_gqueue_send_output (__po_hi_task_id id,
                                  __po_hi_port_t port);
 /*
- * Send a value for an out port. 
+ * Send a value for an out port.
  *
  * The first argument is the id of the task which have the global
  * queue. The second argument is the number of port that will send the
@@ -74,11 +74,11 @@ int __po_hi_gqueue_send_output (__po_hi_task_id id,
  */
 
 
-int __po_hi_gqueue_get_value(__po_hi_task_id id, 
-			     __po_hi_local_port_t port, 
+int __po_hi_gqueue_get_value(__po_hi_task_id id,
+			     __po_hi_local_port_t port,
 			     __po_hi_request_t* request);
 /*
- * Get the value on the specified port. 
+ * Get the value on the specified port.
  *
  * The id parameter corresponds to the task-id in the local
  * process. The port argument is the number of the port that received
@@ -87,7 +87,7 @@ int __po_hi_gqueue_get_value(__po_hi_task_id id,
  * but will not produce an error.
  */
 
-int __po_hi_gqueue_next_value(__po_hi_task_id id, 
+int __po_hi_gqueue_next_value(__po_hi_task_id id,
 			      __po_hi_local_port_t port);
 /*
  * Dequeue the value on a port. The argument id is the task identifier
@@ -96,7 +96,7 @@ int __po_hi_gqueue_next_value(__po_hi_task_id id,
  * you know what you do.
  */
 
-int __po_hi_gqueue_get_count(__po_hi_task_id id, 
+int __po_hi_gqueue_get_count(__po_hi_task_id id,
 			     __po_hi_local_port_t port);
 /*
  * Return the number of events that are pending of a port. The first
@@ -104,7 +104,7 @@ int __po_hi_gqueue_get_count(__po_hi_task_id id,
  * argument is the port identifier (or port number) for the thread.
  */
 
-void __po_hi_gqueue_wait_for_incoming_event(__po_hi_task_id id, 
+void __po_hi_gqueue_wait_for_incoming_event(__po_hi_task_id id,
 					    __po_hi_local_port_t* port);
 /*
  * Wait until an event is received on any port for a given thread. The
@@ -114,8 +114,8 @@ void __po_hi_gqueue_wait_for_incoming_event(__po_hi_task_id id,
  * the event.
  */
 
-__po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id, 
-					 __po_hi_local_port_t port, 
+__po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
+					 __po_hi_local_port_t port,
 					 __po_hi_request_t* request);
 /*
  * Store a value in a IN port. The first argument is the task
@@ -124,14 +124,37 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
  * request that will be stored in the queue.
  */
 
-__po_hi_request_t*  __po_hi_gqueue_get_most_recent_value 
+__po_hi_request_t*  __po_hi_gqueue_get_most_recent_value
          (const __po_hi_task_id task_id,
           const __po_hi_local_port_t local_port);
 
 
-__po_hi_port_t __po_hi_gqueue_get_destination (const __po_hi_task_id task_id, const __po_hi_local_port_t local_port, const uint8_t destination_number);
+__po_hi_port_t __po_hi_gqueue_get_destination (const __po_hi_task_id task_id,
+                                               const __po_hi_local_port_t local_port,
+                                               const uint8_t destination_number);
 
-uint8_t __po_hi_gqueue_get_destinations_number (const __po_hi_task_id task_id, const __po_hi_local_port_t local_port);
+uint8_t __po_hi_gqueue_get_destinations_number (const __po_hi_task_id task_id,
+                                                const __po_hi_local_port_t local_port);
 
+/*
+ * Access the size of a port. The first argument is the task
+ * identifier in the local process. The second argument is the port
+ * identifier for the local thread.
+ */
+
+__po_hi_int8_t __po_hi_gqueue_get_port_size(const __po_hi_task_id id,
+                                            const __po_hi_local_port_t port);
+
+/*
+ * Access the used size of a port. The first argument is the task
+ * identifier in the local process. The second argument is the port
+ * identifier for the local thread.
+ */
+
+__po_hi_int8_t __po_hi_gqueue_used_size( __po_hi_task_id id, __po_hi_local_port_t port);
+
+__po_hi_int8_t  po_hi_gqueues_queue_is_empty(__po_hi_task_id id);
+
+__po_hi_request_t* __po_hi_gqueues_get_request(__po_hi_task_id id, __po_hi_local_port_t port);
 
 #endif /* __PO_HI_GQUEUE_H__ */

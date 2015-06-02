@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = no-dependencies
-SUBDIRS=drivers
+SUBDIRS=drivers monitoring
 
 C_FILES =   $(srcdir)/po_hi_task.c           \
             $(srcdir)/po_hi_main.c           \

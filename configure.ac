@@ -185,9 +185,12 @@ AC_OUTPUT([
 	src/Makefile
 	src/drivers/Makefile
 	src/drivers/configuration/Makefile
+        src/monitoring/Makefile
+        src/monitoring/cheddar_scheduling/Makefile
 	include/Makefile
 	include/drivers/Makefile
 	include/drivers/configuration/Makefile
+        include/monitoring/Makefile
 	examples/Makefile
 	examples/aadlv1/Makefile
 	examples/aadlv1/d3.1.3-1/Makefile
