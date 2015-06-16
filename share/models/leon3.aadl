@@ -1,0 +1,130 @@
+--  This model defines the hardware layers of the GR-XC3S-1500 board
+--  from Gaisler Research (http://www.gaisler.com/)
+-- 
+-- This board supports
+-- - 1 LEON3 processor, 
+-- - 1 ethernet, 
+-- - 2 serial lines,
+-- - 64 MB of RAM,
+-- - 8 MB of ROM
+
+-- Hardware components
+
+memory RAM
+properties
+  ARAO::Memory_Size => 64 MB;
+  Memory_Protocol => read_write;
+end RAM;
+
+memory ROM
+properties
+  ARAO::Memory_Size => 8 MB;
+  Memory_Protocol => read_only;
+end ROM;
+
+bus Ethernet_Bus
+properties
+   ARAO::Transport_Layer => ethernet;
+end Ethernet_Bus;
+
+bus Serial_Bus
+properties
+   ARAO::Transport_Layer => Serial;
+end Serial_Bus;
+
+-- Definition of the GR-X3CS-1500 board
+
+processor GR_XC3S_1500
+features
+  eth0 : requires bus access Ethernet_Bus;
+  S0 : requires bus access Serial_Bus;
+  S1 : requires bus access Serial_Bus;
+end GR_XC3S_1500;
+
+processor implementation GR_XC3S_1500.i0
+refines type
+   eth0 : refined to requires bus access Ethernet_Bus 
+                  {ARAO::MAC_Address => constant access "00:80:7F:22:61:77"; };
+subcomponents
+  mem_ram : memory RAM;
+  mem_rom : memory ROM;
+end GR_XC3S_1500.i0;
+
+processor implementation GR_XC3S_1500.i1
+refines type
+   eth0 : refined to requires bus access Ethernet_Bus
+                  {ARAO::MAC_Address => constant access "00:80:7F:22:61:78"; };
+subcomponents
+  mem_ram : memory RAM;
+  mem_rom : memory ROM;
+end GR_XC3S_1500.i1;
+
+processor implementation GR_XC3S_1500.i2
+refines type
+   eth0 : refined to requires bus access Ethernet_Bus
+                  {ARAO::MAC_Address => constant access "00:80:7F:22:61:79"; };
+subcomponents
+  mem_ram : memory RAM;
+  mem_rom : memory ROM;
+end GR_XC3S_1500.i2;
+
+-- Definition of the actual running platform
+
+system leon3 
+features
+  eth0 : requires bus access Ethernet_Bus;
+  S0 : requires bus access Serial_Bus;
+  S1 : requires bus access Serial_Bus;
+end leon3;
+
+system implementation leon3.i0
+refines type
+   eth0 : refined to requires bus access Ethernet_bus
+                  {ARAO::ip_address => constant access "137.168.160.88"; };
+subcomponents
+   proc : processor GR_XC3S_1500.i0;
+connections
+   bus access eth0 -> proc.eth0;
+end leon3.i0;
+
+system implementation leon3.i1
+refines type
+   eth0 : refined to requires bus access Ethernet_bus
+                  {ARAO::ip_address => constant access "137.168.160.100"; };
+subcomponents
+   proc : processor GR_XC3S_1500.i1;
+connections
+   bus access eth0 -> proc.eth0;
+end leon3.i1;
+
+system implementation leon3.i2
+refines type
+   eth0 : refined to requires bus access Ethernet_bus
+                  {ARAO::ip_address => constant access "137.168.160.119"; };
+subcomponents
+   proc : processor GR_XC3S_1500.i2;
+connections
+   bus access eth0 -> proc.eth0;
+end leon3.i2;
+
+-- All the boards are in a rack, connected to the local network
+
+system boards_rack
+features
+   eth0 : requires bus access Ethernet_Bus;
+   eth1 : requires bus access Ethernet_Bus;
+   eth2 : requires bus access Ethernet_Bus;
+end boards_rack;
+
+system implementation boards_rack.impl
+subcomponents
+   leonboard0 : system leon3.i0;
+   leonboard1 : system leon3.i1;
+   leonboard2 : system leon3.i2;
+connections
+   bus access eth0 -> leonboard0.eth0;
+   bus access eth1 -> leonboard1.eth0;
+   bus access eth2 -> leonboard2.eth0;
+end boards_rack.impl;
+
+

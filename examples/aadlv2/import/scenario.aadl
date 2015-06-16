@@ -1,0 +1,26 @@
+--  This is a scenario file describing the AADL 
+--  application import
+
+--  $Id: scenario.aadl 6898 2009-07-27 11:53:15Z lasnier $
+
+system import
+properties
+  Ocarina_Config::Timeout_Property     => 4000ms;
+  Ocarina_Config::Use_Components_Library => true;
+  Ocarina_Config::Referencial_Files    => 
+    ("node_a", "node_a_native.ref",
+    "node_b", "node_b_native.ref");
+  Ocarina_Config::AADL_Files           => 
+    ("ping.aadl", "software.aadl");
+  Ocarina_Config::Generator            => polyorb_hi_c;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::ARINC653_Properties),
+     value (Ocarina_Config::Cheddar_Properties));
+  Ocarina_Config::AADL_Version         => AADLv2;
+end import;
+
+system implementation import.Impl
+end  import.Impl;
+

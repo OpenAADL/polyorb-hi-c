@@ -1,0 +1,2 @@
+CLEANFILES = *~
+EXTRA_DIST = test.c

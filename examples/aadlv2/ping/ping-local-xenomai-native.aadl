@@ -1,0 +1,52 @@
+package PING_Local
+public
+  with Software;
+  with Deployment;
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+properties
+  Deployment::Execution_Platform => linux32_xenomai_native;
+end the_processor;
+
+processor implementation the_processor.Impl
+properties
+   Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
+   Priority_Range => 0 .. 255;
+end the_processor.Impl;
+
+---------------
+-- Processes --
+---------------
+
+process A
+end A;
+
+process implementation A.Impl
+subcomponents
+  Pinger        : thread Software::P.Impl;
+  Ping_Me       : thread  Software::Q.Impl;
+connections
+  port Pinger.Data_Source -> Ping_Me.Data_Sink;
+end A.Impl;
+
+------------
+-- System --
+------------
+
+system PING
+end PING;
+
+system implementation PING.Local
+subcomponents
+  Node_A : process A.Impl;
+
+  CPU : processor the_processor.Impl;
+properties
+  actual_processor_binding => (reference (CPU)) applies to Node_A;
+end PING.Local;
+
+end PING_Local;

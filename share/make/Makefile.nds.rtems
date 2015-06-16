@@ -1,0 +1,65 @@
+## This file is a part of PolyORB-HI-C software.
+## It sets some variables useful to compile generated
+## code to the NDS platform with the RTEMS operating system.
+
+## To use and compile RTEMS, visit http://www.rtems.com
+
+## This file has been built for RTEMS 4.9.0
+## So, you have to build the cross compiler for RTEMS4.9
+## Basically, it will called arm-rtems4.9
+
+
+MANAGERS = all
+
+-include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
+
+CC                           = $(CC_FOR_TARGET)
+CPP                          = $(CXX_FOR_TARGET)
+
+GPROF                        = arm-rtems4.10-gprof
+
+TARGET_SOURCES               = 
+#TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
+TARGET_TRANSPORT_SOURCES     = 
+
+TARGET_CFLAGS                = -DRTEMS_PURE -DNDS_RTEMS -mstructure-size-boundary=8 -mcpu=arm9tdmi -mfpu=vfp -mfloat-abi=soft $(GCC_GENERIC_FLAGS) -mthumb-interwork -g
+TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
+
+LD                           = $(LD_FOR_TARGET)
+TARGET_LDFLAGS               =  -lrtemsbsp -lc -lm -mthumb-interwork
+			     
+target-clean:
+	rm -f $(BINARY).nds
+
+sim:
+	desmume $(BINARY).nds
+
+
+-include $(RTEMS_CUSTOM)
+-include $(PROJECT_ROOT)/make/leaf.cfg
+
+define bsp-link-c
+   $(LINK.c) $(CPU_CFLAGS) $(AM_CFLAGS) $(AM_LDFLAGS) \
+      -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS)
+endef
+
+define bsp-link-cxx
+   $(LINK.cc) $(CPU_CFLAGS) $(AM_CFLAGS) $(AM_LDFLAGS) \
+      -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS)
+endef
+
+target-objects:
+
+
+
+define bsp-post-link
+	$(NM) -g -n $@ > $(basename $@).num
+	$(SIZE) $@
+	$(OBJCOPY) -O binary $(basename $@) $(basename $@).bin
+	$(NDSTOOL) -c $(basename $@).nds -9 $(basename $@).bin \
+		-7 $(COPROC_ELF_PATH)/coproc.bin
+   chmod a+x $(basename $@).nds
+	rm -f $(basename $@).bin
+endef
+
+

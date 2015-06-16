@@ -1,0 +1,16 @@
+system lua
+properties
+  Ocarina_Config::Timeout_Property     => 4000ms;
+  Ocarina_Config::AADL_Files           => 
+    ("lua-simple.aadl");
+  Ocarina_Config::Generator            => polyorb_hi_c;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::Cheddar_Properties));
+  Ocarina_Config::AADL_Version         => AADLv2;
+end lua;
+
+system implementation lua.Impl
+end  lua.Impl;
+

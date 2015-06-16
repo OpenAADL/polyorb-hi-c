@@ -1,0 +1,55 @@
+## This file is a part of PolyORB-HI-C software.
+## It sets some variables useful to compile generated
+## code to the LEON platform with the RTEMS operating system.
+
+## To use and compile RTEMS, visit http://www.rtems.com
+
+## This file has been built for RTEMS 4.8.0
+
+
+
+define bsp-post-link
+   $(NM) -g -n $@ > $(basename $@).num
+   $(SIZE) $@
+endef
+
+
+MANAGERS = all rate_monotonic
+
+CC                           = i386-rtems4.8-gcc
+CPP                          = i386-rtems4.8-g++
+
+GPROF                        = i386-rtems4.8-gprof
+
+TARGET_SOURCES               =
+TARGET_TRANSPORT_SOURCES     =
+
+TARGET_CFLAGS                = -DRTEMS_POSIX -DX86_RTEMS $(GCC_GENERIC_FLAGS)
+TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/
+
+LD                           = i386-rtems4.8-gcc
+TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
+
+target-clean:
+
+-include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
+
+-include $(RTEMS_CUSTOM)
+-include $(PROJECT_ROOT)/make/leaf.cfg
+
+define bsp-link-c
+   $(LINK.c) $(CPU_CFLAGS) $(AM_CFLAGS) $(AM_LDFLAGS) \
+      -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS)
+endef
+
+define bsp-link-cxx
+   $(LINK.cc) $(CPU_CFLAGS) $(AM_CFLAGS) $(AM_LDFLAGS) \
+      -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS)
+endef
+
+ifdef USE_GPROF
+TARGET_LDFLAGS+=-Wl,--wrap,Clock_isr -pg
+target-objects:
+else
+target-objects:
+endif

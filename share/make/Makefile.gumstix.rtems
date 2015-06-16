@@ -1,0 +1,56 @@
+## This file is a part of PolyORB-HI-C software.
+## It sets some variables useful to compile generated
+## code to the Gumstix platform with the RTEMS operating system.
+
+## To use and compile RTEMS, visit http://www.rtems.com
+
+MANAGERS = all
+
+CC                           = arm-rtems4.10-gcc
+CPP                          = arm-rtems4.10-g++
+
+GPROF                        = arm-rtems4.10-gprof
+
+TARGET_SOURCES               =
+#TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
+TARGET_TRANSPORT_SOURCES     =
+
+TARGET_CFLAGS                = -DRTEMS_PURE -DGUMSTIX_RTEMS  -mstructure-size-boundary=8 -mcpu=xscale -mfpu=vfp -mfloat-abi=soft $(GCC_GENERIC_FLAGS)
+TARGET_INCLUDE               =
+
+LD                           = arm-rtems4.10-gcc
+TARGET_LDFLAGS               =
+
+target-clean:
+	rm -f $(BINARY).ralf
+	rm -f flash.img
+
+-include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
+
+-include $(RTEMS_CUSTOM)
+-include $(PROJECT_ROOT)/make/leaf.cfg
+
+define bsp-link-c
+   $(LINK.c) $(CPU_CFLAGS) $(AM_CFLAGS) $(AM_LDFLAGS) \
+      -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS)
+endef
+
+define bsp-link-cxx
+   $(LINK.cc) $(CPU_CFLAGS) $(AM_CFLAGS) $(AM_LDFLAGS) \
+      -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS)
+endef
+
+target-objects:
+
+sim:
+	rm -f flash.img && \
+	dd of=flash.img bs=128k count=128 if=/dev/zero &&  \
+	dd of=flash.img bs=128k conv=notrunc if=$(RUNTIME_PATH)/utils/gumstix-uboot.bin &&  \
+	dd of=flash.img bs=1k conv=notrunc seek=4096 if=$(BINARY)  && \
+	qemu-system-arm -M connex -m 289 -nographic -monitor null -pflash flash.img
+
+define bsp-post-link
+	$(NM) -g -n $@ > $(basename $@).num
+	$(SIZE) $@
+   cp $@ $(basename $@).ralf
+endef

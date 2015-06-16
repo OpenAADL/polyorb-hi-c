@@ -1,0 +1,15 @@
+*~
+Makefile
+Makefile.in
+autom4te.cache/
+config.log
+config.status
+configure
+
+aclocal.m4
+doc/ocarina.info
+doc/stamp-vti
+doc/version.texi
+support/mdate-sh
+support/texinfo.tex
+

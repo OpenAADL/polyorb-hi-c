@@ -1,0 +1,39 @@
+Quick installation instructions for PolyORB-HI-C:
+=================================================
+
+Please refer to the provided user's guide for more
+detailed installation instructions.
+
+
+BUILD REQUIREMENTS:
+===================
+
+ - Gnu C Compiler (aka GCC, see http://gcc.gnu.org/). Compiler
+   provided by most of Linux distribution is sufficient. However,
+   you'll need cross-compiler if you try to generate code for 
+   embedded architectures. In this case, please refer to the
+   manual of PolyORB-HI-C.
+ - The latest snapshot of the Ocarina AADL tool suite 
+   (http://ocarina.enst.fr/snapshots/).
+
+
+BUILD AND INSTALLATION INSTRUCTIONS:
+====================================
+
+ - Install Ocarina as specified by their respective  	 
+   documentations and make sure their 'bin' installation directories is 
+   located at the top of your PATH environment variable.
+
+ - Issue ./configure
+
+ - Issue make && make install. It will install the runtime
+   in a directory of Ocarina. You must have the rights to write
+   into the Ocarina installation directory to install PolyORB-HI-C.
+
+To build the examples, and after installing PolyORB-HI-C, issue:
+
+ $> make examples
+
+The generated code and the compiled nodes for each example are located
+in examples/example_name/<main_aadl_system_name>
+

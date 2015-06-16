@@ -1,0 +1,142 @@
+package RMAAadl
+public
+  with Deployment;
+  with ARINC653;
+
+-----------------
+-- Subprograms --
+-----------------
+
+subprogram Hello_Spg_1
+properties
+  source_language => C;
+  source_name     => "user_Hello_Spg_1";
+  source_text     => ("hello.c");
+end Hello_Spg_1;
+
+subprogram Hello_Spg_2
+properties
+  source_language => C;
+  source_name     => "user_Hello_Spg_2";
+  source_text     => ("hello.c");
+end Hello_Spg_2;
+
+-------------
+-- Threads --
+-------------
+
+thread Task
+end Task;
+
+thread implementation Task.impl_1
+calls 
+Mycalls: {
+  P_Spg : subprogram Hello_Spg_1;
+};
+properties
+   Dispatch_Protocol                  => periodic;
+   Period                             => 1000ms;
+   Compute_Execution_time             => 0 ms .. 3 ms;
+   Deadline                           => 1000 ms;
+end Task.impl_1;
+
+thread implementation Task.impl_2
+calls 
+Mycalls: {
+  P_Spg : subprogram Hello_Spg_2;
+};
+properties
+   Dispatch_Protocol                  => periodic;
+   Period                             => 500ms;
+   Compute_Execution_time             => 0 ms .. 3 ms;
+   Deadline                           => 500 ms;
+end Task.impl_2;
+
+---------------
+-- Processor --
+---------------
+
+virtual processor partition_runtime
+end partition_runtime;
+
+virtual processor implementation partition_runtime.i
+properties
+  Deployment::Execution_Platform => LEON3_XM3;
+end partition_runtime.i;
+
+processor cpurm
+properties
+  Deployment::Execution_Platform => LEON3_XTRATUM;
+end cpurm;
+
+processor implementation cpurm.impl
+subcomponents
+   part1 : virtual processor partition_runtime.i;
+   part2 : virtual processor partition_runtime.i;
+properties
+   ARINC653::Module_Major_Frame => 2000 ms;
+   ARINC653::Partition_Slots => (1000 ms, 1000 ms);
+   ARINC653::Slots_Allocation => ( reference (part1), reference (part2));
+end cpurm.impl;
+
+---------------
+-- Processes --
+---------------
+
+process node_a
+end node_a;
+
+process implementation node_a.impl
+subcomponents
+   Task1 : thread Task.impl_1;
+   Task2 : thread Task.impl_2;
+end node_a.impl;
+
+memory myram
+end myram;
+
+memory segment
+end segment;
+
+memory implementation segment.i
+end segment.i;
+
+memory implementation  myram.stram
+properties
+   Base_Address => 40000000;
+   Byte_Count   => 4194304;
+end myram.stram;
+
+memory implementation myram.sdram
+subcomponents
+	segment1 : memory segment.i {Base_Address => 40100000; Byte_Count => 524288;};
+	segment2 : memory segment.i {Base_Address => 40180000; Byte_Count => 524288;};
+properties
+   Base_Address => 40000000;
+   Byte_Count   => 4194304;
+end myram.sdram;
+
+
+
+------------
+-- System --
+------------
+
+system rma 
+end rma;
+
+system implementation rma.impl
+subcomponents
+   node_a : process node_a.impl;
+   node_b : process node_a.impl;
+   cpu_rm : processor cpurm.impl;
+   mem    :  memory myram.sdram;
+   memst  :  memory myram.stram;
+properties
+   Actual_Processor_Binding => (reference (cpu_rm.part1)) applies to node_a;
+   Actual_Processor_Binding => (reference (cpu_rm.part2)) applies to node_b;
+   actual_memory_binding => (reference (mem.segment1)) applies to Node_A;
+   actual_memory_binding => (reference (mem.segment2)) applies to Node_B;
+end rma.impl;
+
+end RMAAadl;

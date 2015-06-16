@@ -1,0 +1,8 @@
+Description:
+
+A simple test to check "Rate Monotonic Analysis" from the Cheddar
+schedulability analysis tool.
+
+Execution:
+
+Simulate the example using by issuing 'tsim-erc32 node_a'

@@ -1,0 +1,53 @@
+define bsp-post-link
+   $(NM) -g -n $@ > $(basename $@).num
+   $(SIZE) $@
+endef
+
+XPATH=$(RUNTIME_PATH)/utils/xpath
+
+xpathstart = $(shell $(XPATH) -c -f $(2) '/xm:SystemDescription/xm:PartitionTable/xm:Partition[@name="$(1)"]/xm:PhysicalMemoryAreas/xm:Area[1]/@start')
+stringsize= $(shell $(XPATH) -c -f ../$(MAINAPP)_xtratum-conf.xml '/xm:SystemDescription/xm:PartitionTable/xm:Partition[@name="$(1)"]/xm:PhysicalMemoryAreas/xm:Area[1]/@size')
+xpathsize = $(shell expr substr "$(stringsize)" 1 $(shell echo "$(shell expr match "$(stringsize)" [0-9]*)"+1|bc))
+
+
+
+MANAGERS = all rate_monotonic
+
+CC                           = sparc-rtems-gcc
+CPP                          = sparc-rtems-g++
+
+GPROF                        = sparc-rtems-gprof
+
+TARGET_SOURCES               = 
+TARGET_TRANSPORT_SOURCES     = 
+
+TARGET_CFLAGS                = -DRTEMS_PURE -DSPARC_RTEMS -mcpu=v8  -I$(XTRATUM_PATH)/include -B$(RTEMS_PATH)/sparc-rtems/leon3xm3/lib --include xm_inc/config.h --include xm_inc/arch/arch_types.h -DXM_SRC  -DXM3_RTEMS_MODE $(GCC_GENERIC_FLAGS)
+
+LD                           = sparc-rtems-gcc
+TARGET_LDFLAGS               = -lrtemsbsp -lc -lm -mcpu=v8 -msoft-float -qrtems -L$(XTRATUM_PATH)/lib -Wl,--defsym=PARTITION_START=$(call xpathstart,$(BINARY),../$(MAINAPP)_xtratum-conf.xml),--defsym=PARTITION_SIZE=$(call xpathsize,$(BINARY),../$(MAINAPP_xtratum-conf.xml)) -Ttext=$(call xpathstart,$(BINARY),../$(MAINAPP)_xtratum-conf.xml)
+			     
+target-clean:
+
+-include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
+
+-include $(RTEMS_CUSTOM)
+-include $(PROJECT_ROOT)/make/leaf.cfg
+
+define bsp-link-c
+   $(LINK.c) $(CPU_CFLAGS) $(AM_CFLAGS) $(AM_LDFLAGS) \
+      -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS)
+endef
+
+define bsp-link-cxx
+   $(LINK.cc) $(CPU_CFLAGS) $(AM_CFLAGS) $(AM_LDFLAGS) \
+      -o $(BINARY) $(LINK_OBJS) $(LINK_LIBS)
+endef
+
+ifdef USE_GPROF
+TARGET_LDFLAGS+=-Wl,--wrap,Clock_isr -pg
+target-objects:
+else
+target-objects:
+endif
+
+

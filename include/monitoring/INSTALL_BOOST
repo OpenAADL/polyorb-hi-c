@@ -1,0 +1,23 @@
+#! /bin/sh
+# The Boost version needed is the 1.55
+# Under Linux, the following installation packages work
+
+sudo apt-get install libboost-all-dev
+
+sudo apt-get install aptitude
+
+aptitude search boost
+
+#Second option
+#Needed to get a specific version of Boost
+
+#wget -O boost_1_55_0.tar.gz http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.gz/download
+#tar xzvf boost_1_55_0.tar.gz
+#cd boost_1_55_0/
+
+#sudo apt-get update
+#sudo apt-get install build-essential g++ python-dev autotools-dev libicu-dev build-essential libbz2-dev libboost-all-dev
+
+#./bootstrap.sh --prefix=/usr/local
+
+

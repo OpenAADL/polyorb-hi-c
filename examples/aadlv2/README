@@ -1,0 +1,19 @@
+Available examples for PolyORB-HI-C
+
+ * d3.1.3-1          : example with a protected object
+ * flight-mgmt       : example of a flight control system
+ * import            : show how to import Ada code in a PolyORB-HI/C node
+ * ping              : two threads that periodically send an integer. 
+                       This test has a distributed version and a local 
+                       version.
+ * producer-consumer : one node generates data and send it to another node
+ * rma               : two tasks with different period on the same node 
+ * some-types        : two tasks that send integer between them
+ * some-types-stdint : same example as some-types, but fixed-size int
+ * sunseeker         : two threads that send floats to each other
+
+To build an exemple, go in its directory and invoke 'make'. It should
+be enough to generate the code and compile it. To only generate the
+code, you can use the scenario file with Ocarina (for example :
+'ocarina -x my_scenario_file.aadl').
+

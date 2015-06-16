@@ -1,0 +1,38 @@
+package Sunseeker_Local
+public
+  with Sunseeker;
+  with Deployment;
+
+---------------
+-- Processor --
+---------------
+
+processor LEON_Type
+properties
+  Deployment::Execution_Platform => Native;
+end LEON_Type;
+
+processor implementation LEON_Type.LEON
+properties
+  none;
+end LEON_Type.LEON;
+
+------------
+-- System --
+------------
+
+system Sunseekercontrolsystem_Type
+end Sunseekercontrolsystem_Type;
+
+system implementation Sunseekercontrolsystem_Type.Local
+subcomponents
+
+  Sunseeker : process Sunseeker::sunseeker_local.Impl;
+
+  Platform: processor LEON_Type.LEON;
+properties
+  Actual_Processor_Binding => reference (Platform)
+    applies to Sunseeker;
+end Sunseekercontrolsystem_Type.Local;
+
+end Sunseeker_Local;

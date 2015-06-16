@@ -1,0 +1,14 @@
+POHICDRIVER DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+
+IMPORTS IP-Conf-T FROM POHICDRIVER-IP
+        Spacewire-Conf-T FROM POHICDRIVER-SPACEWIRE
+        Serial-Conf-T FROM POHICDRIVER-UART;
+
+Driver-T ::= CHOICE {
+	ip              IP-Conf-T,
+	serial          Serial-Conf-T,
+	spw				 Spacewire-Conf-T
+}
+
+END
+

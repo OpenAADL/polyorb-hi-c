@@ -1,0 +1,16 @@
+## This file is a template of a specific Makefile 
+## for PolyORB-HI-C. The name of the file must respect
+## the form Makefile.targetname where targetname 
+## is the name of the execution platform in the model.
+
+## This file set some variables useful to compile
+## the source code to the target.
+
+CC       =   your_c_compiler
+CFLAGS   =   options and flags useful for your compiler
+LD       =   the linker used (not used at this time)
+LDFLAGS  =   flags useful for the link step
+
+## The target-clean rule is useful if you have to handle 
+## specific actions to clean the target.
+target-clean:

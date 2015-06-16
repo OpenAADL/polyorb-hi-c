@@ -1,0 +1,86 @@
+package Producer::Consumer
+public
+  with Deployment, Software;
+  with ocarina_drivers;
+  with ocarina_buses;
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+properties
+  Deployment::Execution_Platform => Native;
+end the_processor;
+
+processor implementation the_processor.i
+end the_processor.i;
+
+---------------
+-- Processes --
+---------------
+
+process A
+features
+  Alpha : out data port Software::Alpha_Type;
+  Beta  : in data port Software::Alpha_Type;
+end A;
+
+process implementation A.Impl
+subcomponents
+  Producer        : thread Software::P.Impl;
+  Result_Consumer : thread Software::Q.Impl;
+connections
+  port Producer.Data_Source -> Alpha;
+  port Beta -> Result_Consumer.Data_Sink;
+end A.Impl;
+
+process B
+features
+  Alpha : out data port Software::Alpha_Type;
+  Beta  : in data port Software::Alpha_Type;
+end B;
+
+process implementation B.Impl
+subcomponents
+  Consumer        : thread Software::Q.Impl;
+  Result_Producer : thread Software::P.Impl;
+connections
+  port Beta -> Consumer.Data_Sink;
+  port Result_Producer.Data_Source -> Alpha;
+end B.Impl;
+
+------------
+-- System --
+------------
+
+system PC_Simple
+end PC_Simple;
+
+system implementation PC_Simple.Impl
+subcomponents
+  pr_A : process A.Impl {Deployment::port_number => 4001;};
+  pr_B : process B.Impl {Deployment::port_number => 4002;};
+  Device_A : device ocarina_drivers::generic_sockets_ip.pohic
+               {Source_Text => ("devicesconf.c");};
+  Device_B : device ocarina_drivers::generic_sockets_ip.pohic
+               {Source_Text => ("devicesconf.c");};
+  CPU_A : processor the_processor.i;
+  CPU_B : processor the_processor.i;
+  the_bus : bus ocarina_buses::ip.i;
+connections
+  bus access the_bus -> Device_A.link;
+  bus access the_bus -> Device_B.link;
+
+  port pr_A.Alpha -> pr_B.Beta
+    {Actual_Connection_Binding => (reference (the_bus));};
+  port pr_B.Alpha -> pr_A.Beta
+    {Actual_Connection_Binding => (reference (the_bus));};
+properties
+  actual_processor_binding => reference (CPU_A) applies to pr_A;
+  actual_processor_binding => reference (CPU_B) applies to pr_B;
+  actual_processor_binding => (reference (CPU_A)) applies to Device_A;
+  actual_processor_binding => (reference (CPU_B)) applies to Device_B;
+end PC_Simple.Impl;
+
+end Producer::Consumer;
