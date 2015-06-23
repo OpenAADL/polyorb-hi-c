@@ -249,9 +249,9 @@ endif
 	   c_file_dirname="`dirname $$f`"; \
       if [ -n "$$c_file_dirname" ]; then \
          if [ ! -d $$c_file_dirname ]; then mkdir -p $$c_file_dirname ; fi ; \
-	      $(CPP) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
+	      $(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
       else \
-	      $(CPP) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file || exit 1 ; \
+	      $(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file || exit 1 ; \
       fi ; \
 	done
 
@@ -363,10 +363,10 @@ $(BINARY): check-linuxtaste generate-asn1-deployment target-objects compile-po-h
 endif
 
 %.o: %.cpp
-	$(CPP) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
+	$(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
 
 %.o: %.cc
-	$(CPP) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
+	$(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
 
 %.o: %.c
 	$(CC) $(INCLUDE) $(CFLAGS) -c -o $@ $<
