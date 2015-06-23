@@ -1,8 +1,21 @@
-################################################################################
-# Use of Cheddar with python and C++ compilation rules
+AUTOMAKE_OPTIONS = no-dependencies
+SUBDIRS=
 
-clean:
-	rm *.o *~ *.cxx cheddar_schedule.py *.so
+CPP_FILES = $(srcdir)/cheddar_schedule.cc $(srcdir)/cheddar_schedule.hh	\
+$(srcdir)/cheddar_types.hh $(srcdir)/hyperperriod_config.hh
+
+csrc = ${shell $(CYGPATH_U) '$(OCARINA_RUNTIME)/polyorb-hi-c/src'}
+
+install-data-local:
+	$(INSTALL) -d $(DESTDIR)$(csrc)
+	for f in $(CPP_FILES); do $(INSTALL) -m 444 $$f $(DESTDIR)$(csrc) ; done
+
+uninstall-local:
+	rm -rf $(DESTDIR)$(csrc)
+
+EXTRA_DIST = $(CPP_FILES) $(PYTHON_FILES)
+
+CLEANFILES = *~
 
 hyperperiod-cheddar:
 	python get_cheddar_schedule.py

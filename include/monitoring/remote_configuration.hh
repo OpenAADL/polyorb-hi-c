@@ -5,10 +5,10 @@
 #include <request.h>
 #include <state.hh>
 #include <trace.hh>
-#include <configuration.hh>
+#include <deployment.h>
 
 
-// Parameter i in the template parameters list 
+// Parameter i in the template parameters list
 // gives the number of ports for thread i.
 // >>> TO GENERATE
 using ports_type = taste::ports_table< PORT_TYPE_CONTENT >;

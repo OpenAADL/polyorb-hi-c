@@ -200,6 +200,28 @@ check-linuxtaste:
 	fi
 
 ################################################################################
+# TASTE-RUNTIME-MONITORING
+
+ifeq ($(MONITORING),true)
+
+MONITORING_OBJS = trace_manager.o remote_configuration.o
+PO_HI_CPPOBJS += $(MONITORING_OBJS)
+
+INCLUDE += -I$(RUNTIME_PATH)/src \
+-I$(RUNTIME_PATH)/src/monitoring \
+-I$(RUNTIME_PATH)/include \
+-I$(RUNTIME_PATH)/include/monitoring \
+-I$(RUNTIME_PATH)/src/monitoring/cheddar_scheduling
+
+CPPFLAGS += -std=c++1y -g
+LDFLAGS += -lstdc++
+endif
+
+hyperperiod-cheddar:
+	python get_cheddar_schedule.py
+	python parser_cheddar_et.py
+
+################################################################################
 # General compilation rules
 
 compile-po-hi:
@@ -210,6 +232,7 @@ endif
 ifdef SCADE_DIR
 	(cd $(SCADE_DIR) && for v in `ls *.c`; do $(CC) -c $$v; done)
 endif
+
 	for f in $(PO_HI_OBJS); do \
 	   c_file="`basename $$f .o`.c"; \
 	   c_file_dirname="`dirname $$f`"; \
@@ -218,6 +241,17 @@ endif
 	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
       else \
 	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file || exit 1 ; \
+      fi ; \
+	done
+
+	for f in $(PO_HI_CPPOBJS); do \
+	   c_file="`basename $$f .o`.cc"; \
+	   c_file_dirname="`dirname $$f`"; \
+      if [ -n "$$c_file_dirname" ]; then \
+         if [ ! -d $$c_file_dirname ]; then mkdir -p $$c_file_dirname ; fi ; \
+	      $(CPP) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
+      else \
+	      $(CPP) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file || exit 1 ; \
       fi ; \
 	done
 
@@ -329,6 +363,9 @@ $(BINARY): check-linuxtaste generate-asn1-deployment target-objects compile-po-h
 endif
 
 %.o: %.cpp
+	$(CPP) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
+
+%.o: %.cc
 	$(CPP) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
 
 %.o: %.c
