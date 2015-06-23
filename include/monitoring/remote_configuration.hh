@@ -11,7 +11,7 @@
 // Parameter i in the template parameters list
 // gives the number of ports for thread i.
 // >>> TO GENERATE
-using ports_type = taste::ports_table< PORT_TYPE_CONTENT >;
+using ports_type = taste::ports_table< __PO_HI_PORT_TYPE_CONTENT >;
 // <<< END TO GENERATE
 using state_type = taste::state<__po_hi_request_t, ports_type>;
 using trace_type = taste::trace<state_type>;
