@@ -18,8 +18,7 @@ extern "C" {
 #include <mutex>
 #include <state.hh>
 
-#include <hyperperriod_config.hh>
-//#define hyperperiod_size 1752
+#include <hyperperiod_config.hh>
 #define TRACESIZE 1
 
 int cpt_obs = 0;
@@ -52,7 +51,7 @@ state_type* modified_copy;
 
 static int tasks_type[__PO_HI_NB_TASKS];
 
-void 
+void
 generic_task_creation(const __po_hi_task_id      id)
 {
 #ifdef MONITORING
@@ -60,7 +59,7 @@ tasks_type[id]=__TRACE_GENERIC_TASK_MONITORED;
 #endif
 }
 
-void 
+void
 periodic_task_creation(const __po_hi_task_id      id)
 {
 #ifdef MONITORING
@@ -69,7 +68,7 @@ tasks_type[id]=__TRACE_PERIODIC_TASK_MONITORED;
 #endif
 }
 
-void 
+void
 sporadic_task_creation(const __po_hi_task_id      id)
 {
 #ifdef MONITORING
@@ -117,7 +116,7 @@ set_state_port_value(__po_hi_task_id id_th, __po_hi_local_port_t port_id,__po_hi
   //ptr = __po_hi_gqueue_get_most_recent_value (id_th,port_id);
 //  __DEBUGMSG ("Before memcpy\n");
 // __DEBUGMSG ("Set state port before memcopy. IF Th: %d, Pt: %d\n",id_th,port_id);
- // memcpy (_port_value, ptr, sizeof (__po_hi_request_t*)); 
+ // memcpy (_port_value, ptr, sizeof (__po_hi_request_t*));
 //  __DEBUGMSG ("After memcpy\n");
 // __DEBUGMSG ("Set state port after memcopy. IF Th: %d, Pt: %d, port_value: %d\n",id_th,port_id, ptr->vars);
   local_state->port_value(id_th,port_id) = *ptr;
@@ -127,7 +126,7 @@ set_state_port_value(__po_hi_task_id id_th, __po_hi_local_port_t port_id,__po_hi
 
 /*------------------------------------------------------------------------------------------------*/
 
-void 
+void
 init_monitored_ports_for_thread(__po_hi_task_id id_th, __po_hi_uint8_t* __po_hi_n_dest, int nb_ports)
 {
 #ifdef MONITORING
@@ -138,7 +137,7 @@ nb_ports_per_thread[(int)id_th] = nb_ports;
 
 /*------------------------------------------------------------------------------------------------*/
 
-int 
+int
 nb_ports_for_thread(__po_hi_task_id id_th)
 {
 return nb_ports_per_thread[(int)id_th];
@@ -146,7 +145,7 @@ return nb_ports_per_thread[(int)id_th];
 
 /*------------------------------------------------------------------------------------------------*/
 
-void 
+void
 update_periodic_dispatch (__po_hi_task_id id_th)
 {
 #ifdef MONITORING
@@ -173,17 +172,17 @@ update_periodic_dispatch (__po_hi_task_id id_th)
   //(__po_hi_gqueue_get_port_size((__po_hi_task_id)id_th,(__po_hi_local_port_t)port_id) ==    (__po_hi_int8_t)-1
   // __PO_HI_GQUEUE_FIFO_INDATA
   //) &&
-    (global_n_dest[id_th][port_id] == (__po_hi_int8_t)0) 
-    //&& 
+    (global_n_dest[id_th][port_id] == (__po_hi_int8_t)0)
+    //&&
     //(po_hi_gqueues_queue_is_empty(id_th)==(__po_hi_int8_t)0)
     )
     {
     __DEBUGMSG ("Update_dispatch. relevant case 1111 Th: %d Po: %d \n\n\n\n",id_th,port_id);
     monitored_port_value = __po_hi_gqueue_get_most_recent_value (id_th,(__po_hi_local_port_t)port_id);
-    
+
     if ((monitored_port_value->port != -1) && (monitored_port_value->port != -2))
     {__DEBUGMSG ("Update_dispatch. relevant case 2222 Th: %d Po: %d \n",id_th,port_id);}
-    
+
     set_state_port_value(id_th, (__po_hi_local_port_t)port_id, monitored_port_value, modified_copy);
     }
    }
@@ -213,8 +212,8 @@ display_state_temp(modified_copy);
 }
 /*------------------------------------------------------------------------------------------------*/
 
-void 
-update_sporadic_dispatch (__po_hi_task_id id_th, 
+void
+update_sporadic_dispatch (__po_hi_task_id id_th,
                           __po_hi_local_port_t port)
 {__DEBUGMSG ("0-----------***---------Sporadic dispatch after mutex th_id : %d; port_id : %d ; task type : %d -----------***---------\n\n",id_th, port, tasks_type[id_th]);
 __DEBUGMSG ("Task-types : [");
@@ -231,12 +230,12 @@ __DEBUGMSG ("]\n\n");
   modified_copy = new state_type{global_trace->back()};
 
  __DEBUGMSG ("1-----------***---------Sporadic dispatch after mutex th_id : %d; port_id : %d -----------***---------\n\n",id_th, port);
- 
+
 if (
   (__po_hi_gqueue_get_port_size((__po_hi_task_id)id_th,(__po_hi_local_port_t)port) ==    (__po_hi_int8_t)__PO_HI_GQUEUE_FIFO_INDATA
   ) &&
-    (global_n_dest[id_th][port] == (__po_hi_int8_t)0) 
-    && 
+    (global_n_dest[id_th][port] == (__po_hi_int8_t)0)
+    &&
     (po_hi_gqueues_queue_is_empty(id_th)==(__po_hi_int8_t)0)
     )
     {
@@ -247,7 +246,7 @@ set_state_port_value(id_th, port, monitored_port_value, modified_copy);
 }
  __DEBUGMSG ("3-----------***---------Sporadic dispatch after mutex th_id : %d; port_id : %d -----------***---------\n\n",id_th, port);
 
- 
+
    hyperperiodstep++;
    modified_copy->step()=hyperperiodstep;
    modified_copy->thread_event()=id_th;
@@ -299,7 +298,7 @@ for (i=0; i<__PO_HI_NB_PORTS; i++){
 /** Trace instanciation **/
   new_trace((step_type)0,(hyperperiod_type)0,(__po_hi_request_t*)static_initial_state);
   display_trace_temp(global_trace);
-  
+
 __DEBUGMSG ("End of first initialization\n");
 
 
