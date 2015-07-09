@@ -202,7 +202,7 @@ check-linuxtaste:
 ################################################################################
 # TASTE-RUNTIME-MONITORING
 
-ifeq ($(MONITORING),true)
+ifeq ($(MONITORING), true)
 
 MONITORING_OBJS = trace_manager.o remote_configuration.o
 PO_HI_CPPOBJS += $(MONITORING_OBJS)
@@ -327,7 +327,7 @@ ifeq ($(TARGET), $(filter $(TARGET), native bench linux32 linux64))
 EXE=$(BINARY)
 $(BINARY):
 	$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-cpp-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
-	$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
+	$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(PO_HI_CPPOBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
 endif
 
 ifeq ($(TARGET), $(filter $(TARGET), win32))
