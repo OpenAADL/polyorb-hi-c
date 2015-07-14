@@ -9,7 +9,7 @@ public
 
 processor the_processor
 properties
-  Deployment::Execution_Platform => win32;
+  Deployment::Execution_Platform => native;
 end the_processor;
 
 processor implementation the_processor.Impl

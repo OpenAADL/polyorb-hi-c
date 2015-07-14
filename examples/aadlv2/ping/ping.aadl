@@ -18,7 +18,7 @@ public
 processor the_processor
 properties
   Deployment::location           => "127.0.0.1";
-  Deployment::Execution_Platform => win32;
+  Deployment::Execution_Platform => native;
   Priority_Range                 => 0 .. 255;
   Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
 end the_processor;
