@@ -213,7 +213,7 @@ INCLUDE += -I$(RUNTIME_PATH)/src \
 -I$(RUNTIME_PATH)/include/monitoring \
 -I$(RUNTIME_PATH)/src/monitoring/cheddar_scheduling
 
-CPPFLAGS += -std=c++1y -g
+CPPFLAGS += -std=c++1y -g @BOOST_CPPFLAGS@
 LDFLAGS += -lstdc++
 endif
 
