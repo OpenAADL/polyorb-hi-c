@@ -336,7 +336,7 @@ $(BINARY):
 	@if [ x"$(shell which i686-w64-mingw32-gcc)" = x ]; then \
 		echo "Windows compiler is not installed in your system, exiting" ; \
 	else \
-		$(MAKE) generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS) ; \
+		$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS) ; \
 		$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) ; \
 	fi
 endif
@@ -347,7 +347,7 @@ $(BINARY):
 	@if [ x"$(shell which xeno-config)" = x ]; then \
 		echo "Xenomai is not installed in your system, exiting" ; \
 	else \
-		$(MAKE) generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS) ; \
+		$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS) ; \
 		$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) ; \
 	fi
 endif
