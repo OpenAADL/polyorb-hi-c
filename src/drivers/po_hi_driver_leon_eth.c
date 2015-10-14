@@ -108,7 +108,14 @@ static struct rtems_bsdnet_ifconfig netdriver_config = {
 
 /*
  * Network configuration
+ *
+ * See
+ * https://docs.rtems.org/doc-current/share/rtems/html/networking/Network-Configuration.html
+ * for details on each field
+ *
  */
+
+
 struct rtems_bsdnet_config rtems_bsdnet_config = {
    &netdriver_config,
    NULL,
@@ -117,14 +124,19 @@ struct rtems_bsdnet_config rtems_bsdnet_config = {
 #else
    150,
 #endif
-   128*1024,      /* Default mbuf capacity */
-   256*1024,      /* Default mbuf cluster capacity */
-   "rtems_host",     /* Host name */
-   "localnet",    /* Domain name */
+   128*1024,             /* mbuf capacity */
+   256*1024,             /* mbuf cluster capacity */
+   "rtems_host",         /* Host name */
+   "localnet",           /* Domain name */
    "255.255.255.255",    /* Gateway */
-   "10.1.1.1",    /* Log host */
+   "10.1.1.1",           /* Log host */
    {"255.255.255.255" }, /* Name server(s) */
    {"255.155.255.255" }, /* NTP server(s) */
+   2,                    /* sb_efficiency */
+   9216,                 /* UDP TX */
+   40 * 1024,            /* UDP RX */
+   128 * 1024,           /* TCP TX */
+   128 * 1024            /* TCP RX */
 };
 
 __po_hi_request_t          __po_hi_c_driver_eth_leon_poller_received_request;
@@ -406,8 +418,7 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
       __po_hi_initialize_add_task ();
 
       __po_hi_create_generic_task
-        (-1, 0,__PO_HI_MAX_PRIORITY, 0, 0, (void* (*)(void)) __po_hi_c_driver_eth_leon_poller, NULL);
-      // XXX Why forcing core id to 0 ?
+         (-1, 0,__PO_HI_MAX_PRIORITY, 0, (void* (*)(void)) __po_hi_c_driver_eth_leon_poller, NULL);
    }
 
    /*
