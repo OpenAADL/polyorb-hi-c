@@ -83,7 +83,6 @@ void __po_hi_msg_move (__po_hi_msg_t* msg, __po_hi_uint32_t length)
    msg->length = msg->length - length;
 }
 
-#ifdef __PO_HI_USE_GIOP
 int __po_hi_msg_should_swap (__po_hi_msg_t* msg)
 {
 #ifdef WORDS_BIGENDIAN
@@ -99,7 +98,6 @@ int __po_hi_msg_should_swap (__po_hi_msg_t* msg)
 #endif
         return 0;
 }
-#endif
 
 void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size)
 {
