@@ -92,7 +92,6 @@ void __po_hi_msg_move (__po_hi_msg_t* msg, __po_hi_uint32_t length);
  * the message.
  */
 
-#ifdef __PO_HI_USE_GIOP
 int __po_hi_msg_should_swap (__po_hi_msg_t* msg);
 /*
  * The __po_hi_msg_should_swap return 1 if the endianness of the
@@ -106,7 +105,6 @@ void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size);
  * value and put it to the dest argument. The size of the value is
  * designed by the third argument.
  */
-#endif /* __PO_HI_USE_GIOP */
 
 #ifdef __PO_HI_DEBUG
 void __po_hi_messages_debug (__po_hi_msg_t* msg);
