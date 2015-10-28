@@ -21,6 +21,10 @@
 #endif
 #endif
 
+#if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
+#include <sys/cpuset.h>
+#endif
+
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
 #if defined (__CYGWIN__) || defined (__MINGW32__)
 #else
@@ -428,9 +432,9 @@ rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority,
   cpu_set_t         cpuset;
 
   CPU_ZERO(&cpuset);
-  CPU_SET(processor_index, &cpuset);
+  CPU_SET(core_id, &cpuset);
 
-  if (rtems_task_set_affinity(task_id, sizeof(cpuset), &cpuset) != RTEMS_SUCCESSFUL)
+  if (rtems_task_set_affinity(rid, sizeof(cpuset), &cpuset) != RTEMS_SUCCESSFUL)
     {
       __DEBUGMSG ("ERROR setting thread affinity\n");
       return __PO_HI_ERROR_CREATE_TASK;
