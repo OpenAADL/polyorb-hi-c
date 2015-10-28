@@ -12,6 +12,7 @@
 #include <po_hi_marshallers.h>
 #include <po_hi_messages.h>
 #include <po_hi_transport.h>
+#include <po_hi_utils.h>
 /* headers from PolyORB-HI-C */
 
 #include <request.h>
