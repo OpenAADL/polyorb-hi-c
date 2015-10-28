@@ -168,7 +168,8 @@ AC_SUBST(DOC_TARGETS)
 # Use of BOOST
 ###############################################################
 
-BOOST_REQUIRE([1.55.0])
+#BOOST_REQUIRE([1.55.0],[echo])
+AX_BOOST_BASE([1.55.0], [], [])
 
 ###############################################################
 # Force the installation prefix to be equal to the Ocarina one
