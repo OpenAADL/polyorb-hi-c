@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include <po_hi_time.h>
 
 int produce_data = 0;
