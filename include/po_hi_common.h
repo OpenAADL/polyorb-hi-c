@@ -21,7 +21,6 @@
    #endif
 #endif
 
-
 /*
  * Configure RTEMS executive.
  * We have to define the number of tasks inside the executive,
@@ -36,7 +35,7 @@
    #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_NULL_DRIVER
-   #define CONFIGURE_APPLICATION_NEEDS_TIMER_DRIVER
+//   #define CONFIGURE_APPLICATION_NEEDS_TIMER_DRIVER
    #define CONFIGURE_MAXIMUM_DRIVERS                     10
    #define CONFIGURE_MAXIMUM_POSIX_TIMERS                40
    #define CONFIGURE_MAXIMUM_TIMERS                      40
@@ -44,6 +43,8 @@
    #define CONFIGURE_MAXIMUM_SEMAPHORES                  20
    #define CONFIGURE_MAXIMUM_TASKS                       __PO_HI_NB_TASKS + 2
    #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS      20
+
+   #define CONFIGURE_SMP_APPLICATION
 
    int POSIX_Init ();
    #define CONFIGURE_MAXIMUM_POSIX_THREADS               __PO_HI_NB_TASKS + 10
@@ -70,7 +71,7 @@
    #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_NULL_DRIVER
-   #define CONFIGURE_APPLICATION_NEEDS_TIMER_DRIVER
+// #define CONFIGURE_APPLICATION_NEEDS_TIMER_DRIVER
    #define CONFIGURE_MAXIMUM_DRIVERS                     10
    #define CONFIGURE_MAXIMUM_TIMERS                   40
 
@@ -93,7 +94,7 @@
     */
 
 #ifndef RTEMS411
-   int Init ();
+   rtems_task Init (rtems_task_argument no_argument);
 #endif
 
 /*
