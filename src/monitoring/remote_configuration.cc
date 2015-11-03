@@ -1,3 +1,5 @@
+#include <iostream>
+
 //#include <trace_interfaces.hh>
 #include <meta.hh>
 #include <request.h>
@@ -30,11 +32,11 @@ __DEBUGMSG ("---------------------Display Start---------------------\n");
 //trace_iterator_type* ite = &new trace_iterator_type;
 /*  for (const auto& state : *trace)
   {
-  
+
 //  const auto& state = trace->back();
       std::cout << "[step=" << state.step() << ", hyperperiod=" << state.hyperperiod() << ", thread=" << state.thread_event() << ", port=" << state.port_event() << "]\n";
     for (int i = 0 ; i<__PO_HI_NB_PORTS ; i++)
-    { 
+    {
       auto const& request = state.ports(i);
       std::cout << "port n : " << (__po_hi_port_t)i << " => " ;
       switch (request.port)
@@ -42,20 +44,20 @@ __DEBUGMSG ("---------------------Display Start---------------------\n");
       // >>> TO GENERATE FOR EACH PORT in ENUM __po_hi_port_t
 DISPLAY_GENERATION
       // <<< END TO GENERATE
-      
+
 	case constant_out_identifier:
           std::cout << "Port is empty";
           break;
-          
+
 	case invalid_port_t:
           std::cout << "Port is invalid";
           break;
 
-        default : 
-        assert(true  
+        default :
+        assert(true
 	    && "Should not be here -- display");
 //	    (request.port < invalid_port_t ||
-//	      request.port > constant_out_identifier || 
+//	      request.port > constant_out_identifier ||
 //	      request.port == (constant_out_identifier-1))
       }
 //      ++requests;
@@ -78,11 +80,11 @@ __DEBUGMSG ("---------------------Display state Start---------------------\n");
  // trace_iterator_type* ite = new_trace_iterator(trace);
 //  for (const auto& state : *trace)
   {
-  
+
 //  const auto& state = trace->back();
       std::cout << "[step=" << state->step() << ", hyperperiod=" << state->hyperperiod() << ", thread=" << state->thread_event() << ", port=" << state->port_event() << "]\n";
     for (int i = 0 ; i<__PO_HI_NB_PORTS ; i++)
-    { 
+    {
       auto const& request = state->ports(i);
       std::cout << "port n : " << (__po_hi_port_t)i << " => " ;
       switch (request.port)
@@ -173,20 +175,20 @@ break;
 
 
       // <<< END TO GENERATE
-      
+
 	case constant_out_identifier:
           std::cout << "Port is empty";
           break;
-          
+
 	case invalid_port_t:
           std::cout << "Port is invalid";
           break;
 
-        default : 
-        assert(true  
+        default :
+        assert(true
 	    && "Should not be here -- display");
 //	    (request.port < invalid_port_t ||
-//	      request.port > constant_out_identifier || 
+//	      request.port > constant_out_identifier ||
 //	      request.port == (constant_out_identifier-1))
       }
 //      ++requests;
