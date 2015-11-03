@@ -167,7 +167,6 @@ int __po_hi_initialize_early ()
   }
 #endif
 
-
 #if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
   rtems_status_code ret;
   rtems_time_of_day time;
@@ -333,6 +332,7 @@ int __po_hi_wait_initialization ()
    __PO_HI_INSTRUMENTATION_VCD_INIT
 
   return (__PO_HI_SUCCESS);
+
 #elif defined (_WIN32)
    EnterCriticalSection (&__po_hi_main_initialization_critical_section);
 
