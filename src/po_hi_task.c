@@ -21,6 +21,16 @@
 #endif
 #endif
 
+#if defined (SIMULATOR)
+#include <um_threads.h>
+#undef POSIX
+#endif
+
+
+#if defined (SIMULATOR) && defined (POSIX)
+#error "fuck"
+#endif
+
 #if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
 #include <sys/cpuset.h>
 #endif
@@ -86,6 +96,8 @@ typedef struct
   rtems_id            rtems_id;
 #elif defined(XENO_NATIVE)
   RT_TASK             xeno_id;
+#elif defined(SIMULATOR)
+  um_thread_id        um_id;
 #endif
 } __po_hi_task_t;
 /*
@@ -109,20 +121,27 @@ void __po_hi_wait_for_tasks ()
     {
       pthread_join( tasks[i].tid , NULL );
     }
+
 #elif defined (RTEMS_PURE)
   rtems_task_suspend(RTEMS_SELF);
+
 #elif defined (_WIN32)
   WaitForMultipleObjects (__PO_HI_NB_TASKS, __po_hi_tasks_array, TRUE, INFINITE);
+
 #elif defined (XENO_NATIVE)
   int ret;
   while (1)
   {
-  ret = rt_task_join (&(tasks[0].xeno_id));
-  if (ret != 0)
-  {
-      __PO_HI_DEBUG_DEBUG ("Error while calling rt_task_suspend in __po_hi_wait_for_tasks (ret=%d)\n", ret);
+    ret = rt_task_join (&(tasks[0].xeno_id));
+    if (ret != 0)
+      {
+        __PO_HI_DEBUG_DEBUG ("Error while calling rt_task_suspend in __po_hi_wait_for_tasks (ret=%d)\n", ret);
+      }
   }
-  }
+#elif defined (SIMULATOR)
+  start_scheduler();
+  return (__PO_HI_SUCCESS);
+
 #endif
 
 #ifdef __PO_HI_DEBUG
@@ -377,16 +396,17 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
 
 int __po_hi_posix_initialize_task (__po_hi_task_t* task)
 {
-        if (pthread_mutex_init (&(task->mutex), NULL) != 0)
-        {
-                return (__PO_HI_ERROR_PTHREAD_MUTEX);
-        }
+  if (pthread_mutex_init (&(task->mutex), NULL) != 0)
+    {
+      return (__PO_HI_ERROR_PTHREAD_MUTEX);
+    }
 
-        if (pthread_cond_init (&(task->cond), NULL) != 0)
-        {
-                return (__PO_HI_ERROR_PTHREAD_COND);
-        }
-        return (__PO_HI_SUCCESS);
+  if (pthread_cond_init (&(task->cond), NULL) != 0)
+    {
+      return (__PO_HI_ERROR_PTHREAD_COND);
+    }
+
+  return (__PO_HI_SUCCESS);
 }
 
 #endif /* POSIX || RTEMS_POSIX */
@@ -513,14 +533,20 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
       my_task->id     = id;
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-      my_task->tid    = __po_hi_posix_create_thread (priority, stack_size, core_id, start_routine, arg);
+      my_task->tid    = __po_hi_posix_create_thread
+        (priority, stack_size, core_id, start_routine, arg);
       __po_hi_posix_initialize_task (my_task);
 #elif defined (RTEMS_PURE)
-      my_task->rtems_id = __po_hi_rtems_create_thread (priority, stack_size, core_id, start_routine, arg);
+      my_task->rtems_id = __po_hi_rtems_create_thread
+        (priority, stack_size, core_id, start_routine, arg);
 #elif defined (_WIN32)
-      my_task->tid = __po_hi_win32_create_thread (id, priority, stack_size, start_routine, arg);
+      my_task->tid = __po_hi_win32_create_thread
+        (id, priority, stack_size, start_routine, arg);
 #elif defined (XENO_NATIVE)
-      my_task->xeno_id = __po_hi_xenomai_create_thread (priority, stack_size, start_routine, arg);
+      my_task->xeno_id = __po_hi_xenomai_create_thread
+        (priority, stack_size, start_routine, arg);
+#elif defined (SIMULATOR)
+      my_task->um_id = um_thread_create (start_routine, stack_size, priority);
 #else
       return (__PO_HI_UNAVAILABLE);
 #endif
@@ -561,8 +587,8 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
     {
       return (__PO_HI_ERROR_CLOCK);
     }
-#elif defined (XENO_NATIVE)
 
+#elif defined (XENO_NATIVE)
    int ret;
 
    ret = rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW,  (tasks[id].period.sec * 1000000000) + tasks[id].period.nsec);

@@ -15,7 +15,7 @@
  * Define some values that are dependant of the
  * underlying executive.
  */
-#if defined(POSIX) || defined (XENO_POSIX)
+#if defined(POSIX) || defined (XENO_POSIX) || defined (SIMULATOR)
    #include <stdlib.h>
    #include <stdio.h>
    #define __PO_HI_MAIN_NAME main
@@ -65,6 +65,13 @@
    #define __PO_HI_MAX_PRIORITY sched_get_priority_max(SCHED_FIFO)
    #define __PO_HI_MIN_PRIORITY sched_get_priority_min(SCHED_FIFO)
    #define __PO_HI_DEFAULT_PRIORITY ((sched_get_priority_min(SCHED_FIFO) + sched_get_priority_max(SCHED_FIFO))/2)
+
+#elif defined (SIMULATOR)
+   #include <po_hi_time.h>
+   #define __PO_HI_MAX_PRIORITY 255
+   #define __PO_HI_MIN_PRIORITY 1
+   #define __PO_HI_DEFAULT_PRIORITY 128
+
 #elif defined(_WIN32)
    #include <inttypes.h>
    #include <po_hi_time.h>

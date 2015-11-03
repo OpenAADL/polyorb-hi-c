@@ -194,10 +194,12 @@ AC_OUTPUT([
 	src/drivers/configuration/Makefile
         src/monitoring/Makefile
         src/monitoring/cheddar_scheduling/Makefile
+        src/simulator/Makefile
 	include/Makefile
 	include/drivers/Makefile
 	include/drivers/configuration/Makefile
         include/monitoring/Makefile
+        include/simulator/Makefile
 	examples/Makefile
 	examples/aadlv1/Makefile
 	examples/aadlv1/d3.1.3-1/Makefile
@@ -245,5 +247,3 @@ AC_OUTPUT([
 	share/config/gumstix-rtems/Makefile
 	support/Makefile
 ])
-
-
