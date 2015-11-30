@@ -16,10 +16,10 @@
  */
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
-#endif
+#endif /* _GNU_SOURCE */
 #include <sched.h>
-#endif
-#endif
+#endif /* __linux__ */
+#endif /* POSIX */
 
 #if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
 #include <sys/cpuset.h>
