@@ -41,21 +41,23 @@ SRC_CODE_TEXIFILES = ${notdir $(SRC_CODE:.h=.h.texi) $(SRC_CODE:.c=.c.texi)}
 DOC_CODE_TEXIFILES = ${notdir $(DOC_CODE:.h=.h.texi) $(DOC_CODE:.c=.c.texi)}
 AADL_TEXIFILES = ${notdir $(AADL_MODELS:.aadl=.texi)}
 
-GUIDE_TEXIFILES = polyorb-hi_ug_ref.texi $(SRC_CODE_TEXIFILES)	\
+GENERATED_TEXIFILES=polyorb-hi_ug_ref.texi polyorb-hi_ug_ref.bbl	\
+	polyorb-hi_ug_ref.aux
+
+GUIDE_TEXIFILES =  $(SRC_CODE_TEXIFILES)	\
 	$(DOC_CODE_TEXIFILES) $(AADL_TEXIFILES)
 
 EXTRA_DIST= $(GUIDE_TEXIFILES) $(SRC_CODE) $(DOC_CODE) $(AADL_MODELS)	\
 	$(srcdir)/CODING_GUIDELINES $(srcdir)/polyorb_hi.css		\
 	$(srcdir)/conventions.texi $(srcdir)/gfdl.texi			\
-	$(srcdir)/polyorb-hi_ug_ref.tex polyorb-hi_ug_ref.bbl		\
-	polyorb-hi_ug_ref.aux $(srcdir)/polyorb-hi_ug.bib $(FIGURES)
+	$(srcdir)/polyorb-hi_ug_ref.tex $(srcdir)/polyorb-hi_ug.bib $(FIGURES)
 
 info_TEXINFOS =
 polyorb_hi_c_ug_TEXINFOS = $(GUIDE_TEXIFILES)
 
 SUFFIXES = .c .h .aadl .texi .sed .pdf .html
 
-docs: $(GUIDE_TEXIFILES) $(GUIDE).html $(GUIDE).pdf
+docs: $(GENERATED_TEXIFILES) $(GUIDE_TEXIFILES) $(GUIDE).html $(GUIDE).pdf
 
 all-local: @DOC_TARGETS@
 
