@@ -26,11 +26,6 @@
 #undef POSIX
 #endif
 
-
-#if defined (SIMULATOR) && defined (POSIX)
-#error "fuck"
-#endif
-
 #if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
 #include <sys/cpuset.h>
 #endif
@@ -202,17 +197,18 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
 
 int __po_hi_wait_for_next_period (__po_hi_task_id task)
 {
-#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-  int ret;
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("0t%d\n", task);
-  __po_hi_task_delay_until (&(tasks[task].timer), task);
 
 /*!
  * Entry ports monitoring at dispatch if MONITORING is defined
  */
 #if defined (MONITORING)
- update_periodic_dispatch(task);
+  update_periodic_dispatch(task); // XXX ?
 #endif
+
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+  int ret;
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("0t%d\n", task);
+  __po_hi_task_delay_until (&(tasks[task].timer), task);
 
   if ( (ret = __po_hi_compute_next_period (task)) != 1)
     {
@@ -271,6 +267,7 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
    {
       return (__PO_HI_ERROR_TASK_PERIOD);
    }
+
    return (__PO_HI_SUCCESS);
 #else
   return (__PO_HI_UNAVAILABLE);

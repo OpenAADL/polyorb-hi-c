@@ -271,17 +271,17 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 
    __DEBUGMSG ("[GQUEUE] Semaphore got (id=%d)\n", id);
 #elif defined (_WIN32)
-       EnterCriticalSection(&__po_hi_gqueues_cs[id]);
+   EnterCriticalSection(&__po_hi_gqueues_cs[id]);
 #endif
+
    if (__po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA)
    {
-      memcpy(ptr,request,sizeof(*request));
+     memcpy(ptr,request,sizeof(*request));
    }
    else
    {
-#ifdef __PO_HI_DEBUG
-      __DEBUGMSG ("[GQUEUE] Received  message for task %d, port %d\n", id, port);
-#endif
+     __DEBUGMSG ("[GQUEUE] Received  message for task %d, port %d\n", id, port);
+
       if (__po_hi_gqueues_used_size[id][port] == __po_hi_gqueues_sizes[id][port])
       {
 
@@ -485,7 +485,6 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
 #elif defined (_WIN32)
   EnterCriticalSection(&__po_hi_gqueues_cs[id]);
 #endif
-
 
    /*
     * If the port is an event port, with no value queued, then we block

@@ -99,7 +99,7 @@ void start_scheduler (void) {
 
   sched_current_context_id = 0;
   sched_context = get_context(sched_current_context_id);
-  __DEBUGMSG ("[MAIN] Starting scheduler\n");
+  __DEBUGMSG ("[UM_THREADS] Starting scheduler\n");
   scheduler();
 }
 
