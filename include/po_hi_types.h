@@ -28,11 +28,10 @@
  * on the target host.
  */
 
-
 #ifdef HAVE_STDBOOL_H
 typedef bool __po_hi_bool_t;
 #else
-#error This configuration is not supported
+#error This configuration is not supported, PolyORB-HI/C requires a C compiler supporting the "bool" type.
 #endif
 
 typedef float  __po_hi_float32_t;
@@ -57,7 +56,7 @@ typedef double __po_hi_float64_t;
  * Most modern compilers have stdint.h header file.
  */
 
-#error This configuration is not supported
+#error This configuration is not supported, PolyORB-HI/C requires a C compiler with support for the stdint.h header file.
 
   #if SIZEOF_INT == 4
   typedef int                    __po_hi_int32_t;
@@ -85,7 +84,6 @@ typedef double __po_hi_float64_t;
 #endif
 
 typedef unsigned char            __po_hi_byte_t;
-
 
 typedef enum
 {
