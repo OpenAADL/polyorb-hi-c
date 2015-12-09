@@ -16,10 +16,10 @@
  */
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
-#endif
+#endif /* _GNU_SOURCE */
 #include <sched.h>
-#endif
-#endif
+#endif /* __linux__ */
+#endif /* POSIX */
 
 #if defined (SIMULATOR)
 #include <um_threads.h>
