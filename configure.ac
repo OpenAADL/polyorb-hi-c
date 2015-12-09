@@ -194,6 +194,7 @@ AC_OUTPUT([
 	src/drivers/configuration/Makefile
         src/monitoring/Makefile
         src/monitoring/cheddar_scheduling/Makefile
+        src/python/Makefile
         src/simulator/Makefile
 	include/Makefile
 	include/drivers/Makefile

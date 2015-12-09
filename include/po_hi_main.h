@@ -13,7 +13,7 @@
 
 int __po_hi_initialize (void);
 /*
- * Invoke all functions to initialize tasks 
+ * Invoke all functions to initialize tasks
  * and network. Return __PO_HI_SUCCESS if there
  * is no error. Else, it can return the value
  * __PO_HI_ERROR_PTHREAD_BARRIER.
@@ -37,11 +37,10 @@ int __po_hi_wait_initialization (void);
 #ifdef __PO_HI_USE_GPROF
 void __po_hi_wait_end_of_instrumentation (void);
 /*
- * Wait a certain amount of time to finish the 
+ * Wait a certain amount of time to finish the
  * execution of the system.
  */
 #endif
-
 
 int __po_hi_initialize_early (void);
 /*

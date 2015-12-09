@@ -15,14 +15,19 @@
  * Define some values that are dependant of the
  * underlying executive.
  */
-#if defined(POSIX) || defined (XENO_POSIX) || defined (SIMULATOR)
+#if defined (POSIX) || defined (XENO_POSIX) || defined (SIMULATOR)
    #include <stdlib.h>
    #include <stdio.h>
+#if defined (DLL)
+   #define __PO_HI_MAIN_NAME aadl_start
+#else
    #define __PO_HI_MAIN_NAME main
+#endif
    #define __PO_HI_MAIN_TYPE int
    #define __PO_HI_MAIN_ARGS int argc , char *argv[] , char **arge
    #define __PO_HI_MAIN_RETURN EXIT_SUCCESS
    #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
+
 #elif defined(_WIN32)
    #include <tchar.h>
    #include <windows.h>
@@ -33,6 +38,7 @@
    #define __PO_HI_MAIN_ARGS
    #define __PO_HI_MAIN_RETURN EXIT_SUCCESS
    #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
+
 #elif defined (XENO_NATIVE)
    #include <native/task.h>
    #include <native/timer.h>
@@ -41,12 +47,14 @@
    #define __PO_HI_MAIN_ARGS int argc , char *argv[] , char **arge
    #define __PO_HI_MAIN_RETURN 0
    #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
+
 #elif defined(RTEMS_PURE)
    #define __PO_HI_MAIN_NAME Init
    #define __PO_HI_MAIN_TYPE rtems_task
    #define __PO_HI_MAIN_ARGS rtems_task_argument argument
    #define __PO_HI_MAIN_RETURN 0
    #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
+
 #elif defined(RTEMS_POSIX)
    #define __PO_HI_MAIN_NAME POSIX_Init
    #define __PO_HI_MAIN_TYPE int
@@ -54,8 +62,6 @@
    #define __PO_HI_MAIN_RETURN 0
    #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
 #endif
-
-
 
 #if defined(POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    #include <semaphore.h>

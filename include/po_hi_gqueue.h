@@ -63,8 +63,10 @@ void __po_hi_gqueue_store_out (__po_hi_task_id id,
  * last argument is the request to store in the queue.
  */
 
+/*
 int __po_hi_gqueue_send_output (__po_hi_task_id id,
                                  __po_hi_port_t port);
+*/
 /*
  * Send a value for an out port.
  *

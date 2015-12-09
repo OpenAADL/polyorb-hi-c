@@ -389,3 +389,13 @@ gprof:
 	./$(BINARY)
 	gprof ./$(BINARY) > gprof.out
 endif
+
+################################################################################
+# Generate Python wrapper for generated code, suppose the generated
+# code uses the DLL target, and assumes a Linux OS for ld
+
+python_wrapper:
+	swig -python -I$(RUNTIME_PATH)/include -outdir . -o po_hi_c_python_wrap.c $(RUNTIME_PATH)/src/po_hi_c_python.i
+
+	$(CC) -fPIC -c po_hi_c_python_wrap.c $(INCLUDE) $(CFLAGS) `python-config --includes`
+	ld -dylib po_hi_c_python_wrap.o $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(PO_HI_CPPOBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) `python-config --libs` -o _po_hi_c_python.so

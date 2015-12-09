@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = no-dependencies
-SUBDIRS=drivers monitoring simulator
+SUBDIRS=drivers monitoring simulator python
 
 C_FILES = $(srcdir)/po_hi_task.c $(srcdir)/po_hi_main.c			\
              $(srcdir)/po_hi_marshallers.c $(srcdir)/po_hi_messages.c	\

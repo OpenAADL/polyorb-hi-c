@@ -87,7 +87,6 @@ int               __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t por
 #define __po_hi_transport_send_default __po_hi_transport_send
 #define __po_hi_send_output            __po_hi_transport_send
 
-
 /*
  * \fn      __po_hi_get_port_name
  * \brief   Return the name of the port similar to the name within the AADL model.
@@ -227,7 +226,7 @@ __po_hi_protocol_t         __po_hi_transport_get_protocol (const __po_hi_port_t 
 /*
  * \fn      __po_hi_transport_get_protocol_configuration
  * \brief   Retrieve the configuration of the given protocol identifier. Returns a pointer on the conf or NULL.
- *      
+ *
  *
  * Protocol identifier can be retrieve in the generated deployment.h file
  * under the type __po_hi_protocol_t. Invalid protocol identifier
@@ -273,7 +272,7 @@ int __po_hi_transport_call_sending_func_by_device (const __po_hi_device_id, __po
  * First argument is the task that is sending the data. The second
  * is the port associated with the task and the device. The device
  * to call is deduced from the port.
- * 
+ *
  * The function returns  __PO_HI_UNAVAILABLE is no sending function
  * has been set for this device or if the device identifier is invalid.
  * Otherwise, it returns the value returned by the sending function
