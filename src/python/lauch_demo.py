@@ -1,8 +1,10 @@
+#! /usr/bin/python
+
 import threading
 import time
 
 #Python module generated from runtime and example specific code using swig 
-import po_hi_gqueue
+import po_hi_c_python
 
 #Class used to run example in background
 class ThreadingExample(object):
@@ -38,6 +40,8 @@ class RequestFactory(object):
         return request
 
 #Creating and starting thread running example
+print "Start"
+
 example = ThreadingExample()
 
 #Instanciating request factory

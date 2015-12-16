@@ -6,37 +6,48 @@ import subprocess
 from xml.dom.minidom import parse
 from string import Template
 import xml.dom.minidom
-from xml.dom.minidom import parse
-from string import Template
-import xml.dom.minidom
+import os
 
 ##
 # Compute Cheddar Schedule from AADL specification. Three files are created :
 # - 'aadl_spec'_cheddar.xml
-# - bt.xml :
-# - et.xml :
+# - bt.xml 
+# - et.xml
 # @param aadl_spec The AADL source file name.
 
 def get_cheddar_schedule(aadl_spec):
+
+    print "**Cleaning old Cheddar xml files**"
+    p0 = subprocess.Popen("rm -rf cheddar_xml/ ",shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
+
     print "**Converting AADL to Cheddar xml**"
-    p1 = subprocess.Popen("ocarina -g cheddar -aadlv2 -y  -I\'./\' " + aadl_spec ,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
+    p1 = subprocess.Popen("ocarina -g cheddar -aadlv2 -o cheddar_xml -y  -I'./' " + aadl_spec ,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
 
     for line in p1.stdout.readlines():
         print line
 
+    print "**Looking for Cheddar xml file**"
+
+    
+    p4 = subprocess.Popen("find cheddar_xml/ -name '*cheddar.xml'" ,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
+
+    cheddar_xml_file_name = find_cheddar_xml()
+    #p4.stdout.readline().rstrip('\n')
+    print '' + cheddar_xml_file_name + " has been generated"
+
     print "**Computing hyperperiod from Cheddar xml**"
-    p2 = subprocess.Popen('~/AADLInspectorLinux64b1-4/bin.l64/cheddarkernel -file *cheddar.xml -request bt -xmloutput bt.xml', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p2 = subprocess.Popen('cheddarkernel -file ' + cheddar_xml_file_name + ' -request bt -xmloutput bt.xml', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     for line in p2.stdout.readlines():
         print line
 
     print "**Computing event table from Cheddar xml**"
-    p3 = subprocess.Popen('~/AADLInspectorLinux64b1-4/bin.l64/cheddarkernel -file *cheddar.xml -request et -etoutput et.xml', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p3 = subprocess.Popen('cheddarkernel -file ' + cheddar_xml_file_name + ' -request et -etoutput et.xml', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     for line in p3.stdout.readlines():
         print line
 
-
+    return cheddar_xml_file_name
 
 ##
 # This function has to be called once before using other functions
@@ -109,12 +120,9 @@ def get_task_dispatches(system_xml):
 
    return task_dispatches
 
-
-
 def parser_cheddar_et():
-
     # Open XML document using minidom parser
-    DOMTree = xml.dom.minidom.parse("res.xml")
+    DOMTree = xml.dom.minidom.parse("./et.xml")
     collection = DOMTree.documentElement
     if collection.hasAttribute("processor_scheduling"):
        print "Scheduling on processor : %s" % collection.getAttribute("processor_name")
@@ -142,4 +150,13 @@ def parser_cheddar_et():
     fname = 'hyperperiod_config.hh'
     with open(fname, 'w') as fout:
         fout.write('#define hyperperiod_size %i' % start_of_task_capacity_occ)
-        close(fname)
+        fout.close()
+        
+        
+
+def find_cheddar_xml():
+    for root, dirs, files in os.walk("./"):
+        for f in files:
+            if "cheddar.xml" in f:
+                print f
+                return os.path.join(root, f)

@@ -1,10 +1,12 @@
+#! /usr/bin/python
+
 import cheddar
 import sys
 
-cheddar.get_cheddar_schedule(sys.argv[1]+".aadl")
+generated_file_name = cheddar.get_cheddar_schedule(sys.argv[1])
 
-cheddar.clean_cheddar_xml(sys.argv[1]+"_cheddar.xml")
-cheddar.task_names = get_task_names(sys.argv[1]+"_cheddar.xml")
-cheddar.task_dispatches = get_task_dispatches(sys.argv[1]++"_cheddar.xml")
+cheddar.clean_cheddar_xml(generated_file_name)
+task_names = cheddar.get_task_names(generated_file_name)
+task_dispatches = cheddar.get_task_dispatches(generated_file_name)
 
 cheddar.parser_cheddar_et()
