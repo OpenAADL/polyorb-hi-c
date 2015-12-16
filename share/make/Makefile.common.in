@@ -202,8 +202,12 @@ check-linuxtaste:
 ################################################################################
 # TASTE-RUNTIME-MONITORING
 
+
+MONITORING_TARGET=
+
 ifeq ($(MONITORING), true)
 
+MONITORING_TARGET=hyperperiod-cheddar
 MONITORING_OBJS = trace_manager.o remote_configuration.o
 PO_HI_CPPOBJS += $(MONITORING_OBJS)
 PO_HI_OBJS += um_threads.o
@@ -215,12 +219,11 @@ INCLUDE += -I$(RUNTIME_PATH)/src \
 -I$(RUNTIME_PATH)/src/monitoring/cheddar_scheduling
 
 CPPFLAGS += -std=c++1y -g @BOOST_CPPFLAGS@
-LDFLAGS += -lstdc++
+#LDFLAGS += -lstdc++
 endif
 
 hyperperiod-cheddar:
-	python get_cheddar_schedule.py
-	python parser_cheddar_et.py
+	(cd ../.. ; cheddar_script.py $(AADL_SOURCE))
 
 ################################################################################
 # General compilation rules
@@ -326,7 +329,7 @@ endif
 
 ifeq ($(TARGET), $(filter $(TARGET), native bench linux32 linux64))
 EXE=$(BINARY)
-$(BINARY):
+$(BINARY): $(MONITORING_TARGET)
 	$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-cpp-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
 	$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(PO_HI_CPPOBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
 endif
@@ -398,4 +401,4 @@ python_wrapper:
 	swig -python -I$(RUNTIME_PATH)/include -outdir . -o po_hi_c_python_wrap.c $(RUNTIME_PATH)/src/po_hi_c_python.i
 
 	$(CC) -fPIC -c po_hi_c_python_wrap.c $(INCLUDE) $(CFLAGS) `python-config --includes`
-	ld -dylib po_hi_c_python_wrap.o $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(PO_HI_CPPOBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) `python-config --libs` -o _po_hi_c_python.so
+	g++ -shared po_hi_c_python_wrap.o $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(PO_HI_CPPOBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) `python-config --libs` -o _po_hi_c_python.so
