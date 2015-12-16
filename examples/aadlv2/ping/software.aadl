@@ -66,6 +66,7 @@ properties
   Deadline                           => 2000 ms;
   Priority                           => 2;
   Dispatch_Offset                    => 500 Ms;
+  Compute_Execution_Time => 1 ms .. 2 ms;   
 end P.Impl;
 
 thread Q
@@ -81,6 +82,7 @@ Mycalls: {
 connections
   parameter Data_Sink -> Q_Spg.Data_Sink;
 properties
+  Compute_Execution_Time => 1 ms .. 2 ms;   
   Dispatch_Protocol                  => Sporadic;
   Period                             => 10 Ms;
   deadline                           => 10 Ms;
