@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2015 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2016 ESA & ISAE.
  */
 
 #include <time.h>
@@ -143,7 +143,7 @@ int __po_hi_add_times (__po_hi_time_t* result, const __po_hi_time_t* left, const
 {
    result->sec    = left->sec + right->sec;
    result->nsec   = left->nsec + right->nsec;
-   if (result->nsec > 1000000000)
+   while (result->nsec > 1000000000)
    {
       result->sec = result->sec + 1;
       result->nsec = result->nsec - 1000000000;
