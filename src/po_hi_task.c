@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2015 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2016 ESA & ISAE.
  */
 
 #ifdef POSIX
@@ -165,6 +165,7 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
    __po_hi_add_times(&(tasks[task].timer), &mytime, &tasks[task].period );
 
   return (__PO_HI_SUCCESS);
+
 #elif defined (RTEMS_PURE)
    rtems_status_code ret;
    rtems_name name;
@@ -377,14 +378,12 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
    * the user is not root. On many systems, only root
    * can change the priority of the threads.
    */
-
+  __DEBUGMSG("ABOUT TO SET PRIORITY FOR TASK %d\n" , nb_tasks );
   if (pthread_setschedparam (tid, policy, &param)!=0)
     {
-#ifdef __PO_HI_DEBUG
       __DEBUGMSG("CANNOT SET PRIORITY FOR TASK %d\n" , nb_tasks );
       __DEBUGMSG("IF YOU ARE USING POSIX IMPLEMENTATION\n");
       __DEBUGMSG("BE SURE TO BE LOGGED AS ROOT\n");
-#endif
     }
 
   return tid;
@@ -606,7 +605,16 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
 
 void __po_hi_task_wait_offset (const __po_hi_time_t* time)
 {
-   return;
+
+  __po_hi_time_t mytime, offset_time;
+
+  if (__po_hi_get_time (&mytime) == __PO_HI_SUCCESS)
+    {
+      __po_hi_add_times(&offset_time, &mytime, time);
+      __po_hi_delay_until (&offset_time);
+    }
+  else
+    __DEBUGMSG ("ERROR %s %d\n", __FILE__, __LINE__);
 }
 
 int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
@@ -726,7 +734,7 @@ void __po_hi_tasks_killall ()
       rtems_task_delete (tasks[i].rtems_id);
 #elif defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
       pthread_cancel (tasks[i].tid);
-      __DEBUGMSG ("[TASKS] Cancel thread %d\n", (int) tasks[i].tid);
+      __DEBUGMSG ("[TASKS] Cancel thread %p\n", tasks[i].tid);
 #endif
     }
 }
