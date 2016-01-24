@@ -337,6 +337,13 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
     {
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
     }
+#elif defined (RTEMS_POSIX)
+  if (pthread_attr_setscope (&attr, PTHREAD_SCOPE_PROCESS) != 0)
+  {
+    return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
+  }
+#endif
+
   if (stack_size != 0)
     {
       if (pthread_attr_setstacksize (&attr, stack_size) != 0)
@@ -344,12 +351,6 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
 	  return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
         }
     }
-#elif defined (RTEMS_POSIX)
-  if (pthread_attr_setscope (&attr, PTHREAD_SCOPE_PROCESS) != 0)
-  {
-    return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
-  }
-#endif
 
   if (pthread_create (&tid, &attr, (void* (*)(void*))start_routine, arg) != 0)
     {
