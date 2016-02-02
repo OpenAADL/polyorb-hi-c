@@ -313,13 +313,10 @@ endif
 
 ifeq ($(TARGET), compcert)
 $(BINARY):
-	@if [ ! -f ccomp ]; then \
+	@if [ x"$(shell which ccomp)" = x ]; then \
 		echo "Compcert not installed, exiting" ; \
 	else \
 		$(MAKE) generate-asn1-deployment compile-c-files compile-cpp-files compile-ada-files target-objects compile-po-hi $(GENERATED_OBJS) $(TARGET_OBJECTS); \
-		for v in $(USER_OBJS); do mv ../../$$v . ; done ; \
- 		mkdir -p drivers; \
-		for v in $(PO_HI_OBJS); do mv $(RUNTIME_PATH)/src/$$v $$v ; done; \
 		$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS); \
 	fi
 endif
