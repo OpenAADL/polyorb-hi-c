@@ -319,6 +319,8 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
     }
 
 #if defined (POSIX) && defined (__linux__)
+
+#ifndef __COMPCERT__
   /* Thread affinity */
   cpu_set_t cpuset;
 
@@ -330,6 +332,9 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
       __DEBUGMSG("CANNOT SET AFFINTY\n");
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
     }
+#else
+#warning pthread_affinity managmeent disabled for Compcert
+#endif
 #endif
 
 #if defined (POSIX) || defined (XENO_POSIX)
