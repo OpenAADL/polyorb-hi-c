@@ -54,36 +54,31 @@ FRAMA_C_LIBC_SHARE = `$(FRAMA_C) -print-share-path`/libc
 FRAMA_C_OPT = -pp-annot
 CPP_PROOF_OPT = -cpp-extra-args="-I./include-proof -I./doc/code"
 _WP_RTE = $(if $(NO_RTE),,-wp-rte)
-WP_ARGS = -wp $(_WP_RTE) -wp-timeout 60 -wp-split -wp-prover alt-ergo
-WP_ARGS_INTERACTIVE = -wp $(_WP_RTE) -wp-timeout 60 -wp-split -wp-prover alt-ergo
+WP_ARGS = -wp $(_WP_RTE) -wp-timeout 60 -wp-split -wp-prover
 WHY_PROVER = alt-ergo
-WHY_ARGS = -wp $(_WP_RTE) -wp-timeout 60 -wp-split -wp-prover why3:$(WHY_PROVER)
-WHY_ARGS_INTERACTIVE = -wp $(_WP_RTE) -wp-timeout 60 -wp-split -wp-prover why3ide
-JESSIE_ARGS = -jessie -jessie-atp alt-ergo
-JESSIE_ARGS_INTERACTIVE = -jessie
 PROVER_OPTIONS =
 _WP_FILTER = $(if $(WP_FILTER),-wp-fct $(WP_FILTER),)
 _WP_VERBOSE = $(if $(WP_VERBOSE),-wp-print -wp-out proof-obligations,)
 
 proof-wp:
-	$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
+	$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) alt-ergo $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 
 proof-wp-report:
-	$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE) -then -report
+	$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) alt-ergo $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE) -then -report
 
 proof-wp-interactive:
-	$(FRAMA_C_INTERACTIVE) $(FRAMA_C_OPT) $(WP_ARGS_INTERACTIVE) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
+	$(FRAMA_C_INTERACTIVE) $(FRAMA_C_OPT) $(WP_ARGS) alt-ergo $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 
 proof-wp-pretty-print:
-	$(foreach file,$(FILES_TO_PROVE),$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) src/$(file) > report/report_$(subst .c,.txt,$(file)) ;)
+	$(foreach file,$(FILES_TO_PROVE),$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) alt-ergo $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) src/$(file) > report/report_$(subst .c,.txt,$(file)) ;)
 	cd report; ./format-cu.py $(FILES_TO_PROVE)
 
 proof-why:
-	$(FRAMA_C) $(FRAMA_C_OPT) $(WHY_ARGS) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
+	$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) "why3:$(WHY_PROVER)" $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 
 proof-why-report:
-	$(FRAMA_C) $(FRAMA_C_OPT) $(WHY_ARGS) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE) -then -report
+	$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) "why3:$(WHY_PROVER)" $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE) -then -report
 
 proof-why-interactive:
-	$(FRAMA_C) $(FRAMA_C_OPT) $(WHY_ARGS_INTERACTIVE) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
+	$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) why3ide $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 endif
