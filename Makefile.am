@@ -55,8 +55,6 @@ FRAMA_C_OPT = -pp-annot
 CPP_PROOF_OPT = -cpp-extra-args="-I./include -I./include-proof -I./doc/code"
 WP_ARGS = -wp -wp-rte -wp-timeout 60 -wp-split -wp-prover alt-ergo
 WP_ARGS_INTERACTIVE = -wp -wp-rte -wp-timeout 60 -wp-split -wp-prover why3ide
-JESSIE_ARGS = -jessie -jessie-atp alt-ergo
-JESSIE_ARGS_INTERACTIVE = -jessie
 PROVER_OPTIONS =
 _WP_FILTER = $(if $(WP_FILTER),-wp-fct $(WP_FILTER),)
 _WP_VERBOSE = $(if $(WP_VERBOSE),-wp-print -wp-out proof-obligations,)
@@ -73,10 +71,4 @@ proof-wp-interactive:
 proof-wp-pretty-print:
 	$(foreach file,$(FILES_TO_PROVE),$(FRAMA_C) $(FRAMA_C_OPT) $(WP_ARGS) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) src/$(file) > report/report_$(subst .c,.txt,$(file)) ;)
 	cd report; ./format-cu.py $(FILES_TO_PROVE)
-
-proof-jessie:
-	$(FRAMA_C) $(FRAMA_C_OPT) $(JESSIE_ARGS) $(CPP_PROOF_OPT) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
-
-proof-jessie-interactive:
-	$(FRAMA_C) $(FRAMA_C_OPT) $(JESSIE_ARGS_INTERACTIVE) $(CPP_PROOF_OPT) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 endif
