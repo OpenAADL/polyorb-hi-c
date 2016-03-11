@@ -86,10 +86,4 @@ proof-why-report:
 
 proof-why-interactive:
 	$(FRAMA_C) $(FRAMA_C_OPT) $(WHY_ARGS_INTERACTIVE) $(_WP_VERBOSE) $(CPP_PROOF_OPT) $(_WP_FILTER) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
-
-proof-jessie:
-	$(FRAMA_C) $(FRAMA_C_OPT) $(JESSIE_ARGS) $(CPP_PROOF_OPT) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
-
-proof-jessie-interactive:
-	$(FRAMA_C) $(FRAMA_C_OPT) $(JESSIE_ARGS_INTERACTIVE) $(CPP_PROOF_OPT) $(PROVER_OPTIONS) $(_FILES_TO_PROVE)
 endif

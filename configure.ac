@@ -164,7 +164,6 @@ AC_CHECK_PROGS([FRAMA_C_INTERACTIVE],  [frama-c-gui],  [:])
 # cpp version in Debian seems to be OK, no more need to use cpp
 # version <= 4.7
 AC_CHECK_PROGS([CPP_PROOF], [cpp], [:])
-AC_CHECK_PROGS([WHY],      [why],      [:])
 AC_CHECK_PROGS([WHY3],     [why3],     [:])
 
 HAS_PROOF_=
@@ -187,8 +186,6 @@ AC_ARG_ENABLE(proof,
         [AC_SUBST([FRAMA_C_INTERACTIVE])]
         [EXISTS_PROG_PROOF($CPP_PROOF, cpp)]
         [AC_SUBST([CPP_PROOF])]
-        [EXISTS_PROG_PROOF($WHY, why)]
-        [AC_SUBST([WHY])]
         [EXISTS_PROG_PROOF($WHY3, why3)]
         [AC_SUBST([WHY3])]
         [if [[ "$enableval" = "yes" ]]; then
