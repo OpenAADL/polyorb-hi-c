@@ -21,6 +21,10 @@ doc/version.texi
 support/mdate-sh
 support/texinfo.tex
 tools/Makefile.in
+support/config.guess
+support/config.sub
+support/install-sh
+support/missing
 tools/check-symbols/Makefile.in
 tools/check-symbols/examples/Makefile.in
 tools/check-symbols/examples/malloc/Makefile.in
@@ -28,6 +32,7 @@ tools/check-symbols/examples/strings/Makefile.in
 tools/check-symbols/src/Makefile.in
 /include/stamp-h1
 /share/make/Makefile.native
+share/make/Makefile.common
 /support/compile
 /config.log
 /config.status
@@ -36,3 +41,5 @@ report/*.txt
 report/try*
 report/auto
 tests-proof/
+.frama-c
+include-proof/time.h
