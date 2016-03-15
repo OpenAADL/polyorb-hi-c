@@ -79,28 +79,6 @@ void __po_hi_find_alignment (__po_hi_uint8_t align, __po_hi_msg_t* msg, __po_hi_
  * Operations Marshallers
  */
 
-/* @	requires \valid(msg);
-	requires \valid(msg->content+(0..(msg->length + sizeof(__po_hi_port_t))));
-
- 	assigns (msg->content+(msg->length..msg->length + sizeof(__po_hi_port_t) - 1));
-
- 	ensures msg->length == \old(msg->length) + sizeof(__po_hi_port_t);
- 	ensures ((__po_hi_port_t *) msg->content)[\old(msg->length)] == value;
- */
-
-/*@ requires \valid(msg);
-  @ requires \valid(msg->content+(msg->length..(msg->length + sizeof(__po_hi_port_t) - 1)));
-  @	requires \valid(((__po_hi_uint8_t*)value)+(0..(sizeof(__po_hi_port_t) - 1)));
-  @	requires \separated(msg->content+(msg->length..msg->length + sizeof(__po_hi_port_t) - 1), ((__po_hi_uint8_t*)value)+(0..(sizeof(__po_hi_port_t) - 1)));
-  @ requires \separated(msg->content+(msg->length..msg->length + sizeof(__po_hi_port_t) - 1), &(msg->length));
-  @ requires \separated(((__po_hi_uint8_t*)value)+(0..(sizeof(__po_hi_port_t) - 1)), &(msg->length));
-  @ requires msg->length + sizeof(__po_hi_port_t) <= 4294967295;
-  @	assigns msg->content[msg->length..(msg->length + sizeof(__po_hi_port_t) - 1)] \from ((unsigned char*)value)[0..(sizeof(__po_hi_port_t) - 1)];
-  @	assigns msg->length;
-  @ //ensures \forall int i; 0 <= i < \old(msg->length) ==> msg->content[i] == \old(msg->content[i]);
-  @	ensures \forall int i; 0 <= i < sizeof(__po_hi_port_t) ==> msg->content[\old(msg->length) + i] == ((__po_hi_uint8_t*)value) [i];
-  @ ensures msg->length == \old(msg->length) + sizeof(__po_hi_port_t);
-  */
 void __po_hi_marshall_port (__po_hi_port_t value, __po_hi_msg_t* msg)
 {
   __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_port_t));
