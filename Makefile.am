@@ -52,7 +52,7 @@ FILES_TO_PROVE =  po_hi_utils.c po_hi_time.c po_hi_marshallers.c \
 _FILES_TO_PROVE = $(patsubst %,$(SRCDIR_PROOF)/%,$(FILES_TO_PROVE))
 FRAMA_C_LIBC_SHARE = $(shell $(FRAMA_C) -print-share-path)/libc
 FRAMA_C_OPT = -pp-annot
-CPP_PROOF_OPT = -cpp-extra-args="-I./include-proof -I./doc/code"
+CPP_PROOF_OPT = -cpp-extra-args="-I./include-proof"
 _WP_RTE = $(if $(NO_RTE),,-wp-rte)
 WP_ARGS = -wp $(_WP_RTE) -wp-timeout 60 -wp-split -wp-prover
 WHY_PROVER = alt-ergo
