@@ -43,3 +43,4 @@ report/auto
 tests-proof/
 .frama-c
 include-proof/time.h
+.tramp_history
