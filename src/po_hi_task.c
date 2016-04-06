@@ -155,14 +155,8 @@ void __po_hi_wait_for_tasks ()
 int __po_hi_compute_next_period (__po_hi_task_id task)
 {
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX) || defined (_WIN32)
-  __po_hi_time_t mytime;
 
-  if (__po_hi_get_time (&mytime) != __PO_HI_SUCCESS)
-    {
-      return (__PO_HI_ERROR_CLOCK);
-    }
-
-   __po_hi_add_times(&(tasks[task].timer), &mytime, &tasks[task].period );
+   __po_hi_add_times(&(tasks[task].timer), &(tasks[task].timer), &tasks[task].period );
 
   return (__PO_HI_SUCCESS);
 
@@ -310,6 +304,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
   pthread_t          tid;
   pthread_attr_t     attr;
   struct sched_param param;
+  int err;
 
   /* Create attributes to store all configuration parameters */
 
@@ -357,8 +352,10 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
         }
     }
 
-  if (pthread_create (&tid, &attr, (void* (*)(void*))start_routine, arg) != 0)
+    err = pthread_create (&tid, &attr, (void* (*)(void*))start_routine, arg);
+    if (err != 0)
     {
+      __PO_HI_DEBUG_CRITICAL("Thread creation failed - pthread_create returned %d\n", err);
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_CREATE);
     }
 
