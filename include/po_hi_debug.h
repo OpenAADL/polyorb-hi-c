@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2016 ESA & ISAE.
  */
 
 #ifndef __PO_HI_DEBUG_H__
@@ -21,7 +21,7 @@
 #define __PO_HI_DEBUG_LEVEL_NONE     0
 
 #ifndef __PO_HI_DEBUG_LEVEL
-   #define __PO_HI_DEBUG_LEVEL __PO_HI_DEBUG_LEVEL_NONE
+   #define __PO_HI_DEBUG_LEVEL __PO_HI_DEBUG_LEVEL_CRITICAL
 #endif
 
 
@@ -30,28 +30,28 @@
 #endif
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_CRITICAL
-   #define __PO_HI_DEBUG_CRITICAL(s, args...) fprintf(stderr, s, ##args); fflush (stderr); 
+   #define __PO_HI_DEBUG_CRITICAL(s, args...) fprintf(stderr, s, ##args); fflush (stderr);
 #else
-   #define __PO_HI_DEBUG_CRITICAL(s, args...) 
+   #define __PO_HI_DEBUG_CRITICAL(s, args...)
 #endif
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_WARNING
-   #define __PO_HI_DEBUG_WARNING(s, args...) fprintf(stderr, s, ##args); fflush (stderr); 
+   #define __PO_HI_DEBUG_WARNING(s, args...) fprintf(stderr, s, ##args); fflush (stderr);
 #else
-   #define __PO_HI_DEBUG_WARNING(s, args...) 
+   #define __PO_HI_DEBUG_WARNING(s, args...)
 #endif
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_DEBUG
-   #define __PO_HI_DEBUG_DEBUG(s, args...) fprintf(stderr, s, ##args); fflush (stderr); 
+   #define __PO_HI_DEBUG_DEBUG(s, args...) fprintf(stderr, s, ##args); fflush (stderr);
 #else
-   #define __PO_HI_DEBUG_DEBUG(s, args...) 
+   #define __PO_HI_DEBUG_DEBUG(s, args...)
 #endif
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_INFO
-   #define __PO_HI_DEBUG_INFO(s, args...) fprintf(stderr, s, ##args); fflush (stderr); 
-   #define __DEBUGMSG(s, args...) fprintf(stderr, s, ##args); fflush (stderr); 
+   #define __PO_HI_DEBUG_INFO(s, args...) fprintf(stderr, s, ##args); fflush (stderr);
+   #define __DEBUGMSG(s, args...) fprintf(stderr, s, ##args); fflush (stderr);
 #else
-   #define __PO_HI_DEBUG_INFO(s, args...) 
+   #define __PO_HI_DEBUG_INFO(s, args...)
    #define __DEBUGMSG(s, args...)
 #endif
 
