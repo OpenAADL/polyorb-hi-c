@@ -288,3 +288,27 @@ int __po_hi_time_copy (__po_hi_time_t* dst, const __po_hi_time_t* src)
    dst->nsec = src->nsec;
    return (__PO_HI_SUCCESS);
 }
+
+__po_hi_time_t epoch = ORIGIN_OF_TIME;
+
+__po_hi_time_t get_epoch(void) {
+  return epoch;
+}
+
+void set_epoch (void) {
+  static bool initialized = false;
+
+  if (!initialized) {
+    __po_hi_get_time (&epoch);
+    initialized = true;
+  }
+}
+
+int milliseconds_since_epoch (void) {
+  __po_hi_time_t my_time;
+  __po_hi_get_time (&my_time);
+
+  return (my_time.sec - epoch.sec) * 1000 +
+    (int) (((int) my_time.nsec - (int)epoch.nsec)/1000000.0);
+
+}

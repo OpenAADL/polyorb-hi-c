@@ -56,6 +56,17 @@ typedef struct
  * The granularity of the time is in microsecond (10^-6)
  */
 
+#define ORIGIN_OF_TIME ((__po_hi_time_t) { 0, 0 })
+
+__po_hi_time_t get_epoch(void);
+void set_epoch (void);
+int milliseconds_since_epoch (void);
+/* Set/get PolyORB-HI/C runtime epoch: the common starting date of all
+   tasks.  Note: the epoch should be set relative to the completion of
+   the initialization of the runtime and all threads. See po_hi_main.h
+   for details.
+ */
+
 #define __PO_HI_TIME_TO_US(value) ((value.sec*1000000)+(value.nsec / 1000))
 
 #define __PO_HI_TIME_TO_MS(value) ((value.sec*1000)+(value.nsec / 1000000))
@@ -92,7 +103,7 @@ int __po_hi_milliseconds  (__po_hi_time_t* time,
  * argument milliseconds.
  */
 
-int __po_hi_microseconds  (__po_hi_time_t* time, 
+int __po_hi_microseconds  (__po_hi_time_t* time,
                            const __po_hi_uint32_t microseconds);
 /*
  * Build a __po_hi_time_t value which contains the

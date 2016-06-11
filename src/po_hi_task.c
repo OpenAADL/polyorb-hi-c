@@ -63,8 +63,10 @@
 /* Headers from run-time verification */
 
 #include <deployment.h>
-
 /* Header files from generated code */
+
+typedef enum __po_hi_task_category_t { TASK_PERIODIC, TASK_SPORADIC, TASK_BACKGROUND }
+    __po_hi_task_category;
 
 
 int nb_tasks; /* number of created tasks */
@@ -72,6 +74,7 @@ int nb_tasks; /* number of created tasks */
 typedef struct
 {
   __po_hi_task_id     id;       /* Identifier of the task in the system */
+  __po_hi_task_category task_category;
   __po_hi_time_t      period;
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
   __po_hi_time_t      timer;
@@ -150,13 +153,38 @@ void __po_hi_wait_for_tasks ()
 /*
  * compute next period for a task
  * The argument is the task-id
- * The task must be a periodic task
+ * The task must be a cyclic task (periodic or sporadic)
  */
 int __po_hi_compute_next_period (__po_hi_task_id task)
 {
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX) || defined (_WIN32)
 
-   __po_hi_add_times(&(tasks[task].timer), &(tasks[task].timer), &tasks[task].period );
+    /* If we call this function for the first time, we need to configure
+       +     the initial timer to epoch */
+  if (tasks[task].timer.sec == 0 && tasks[task].timer.nsec == 0) {
+    tasks[task].timer = get_epoch();
+    return (__PO_HI_SUCCESS);
+  }
+
+  /* Otherwise, we increment either using an absoulte timeline
+     (periodic), or relative to the latest dispatch time (sporadic task) */
+
+  switch (tasks[task].task_category) {
+  case TASK_PERIODIC:
+    __po_hi_add_times(&(tasks[task].timer), &(tasks[task].timer), &tasks[task].period );
+    break;
+
+  case TASK_SPORADIC: {
+      __po_hi_time_t mytime;
+
+      if (__po_hi_get_time (&mytime) != __PO_HI_SUCCESS) {
+        return (__PO_HI_ERROR_CLOCK);
+      }
+
+      __po_hi_add_times(&(tasks[task].timer), &mytime, &tasks[task].period );
+      break;
+   }
+  }
 
   return (__PO_HI_SUCCESS);
 
@@ -446,7 +474,7 @@ rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority,
 
 #ifdef RTEMS411
   /* Thread affinity API for SMP systems appeared in RTEMS 4.11,
-     section 25 of RTEMS Applications C User’s Guide */
+     section 25 of RTEMS Applications C User's Guide */
 
   cpu_set_t         cpuset;
 
@@ -530,6 +558,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
       my_task         = &(tasks[id]);
       __po_hi_time_copy (&(my_task->period), period);
       my_task->id     = id;
+      my_task->timer = ORIGIN_OF_TIME;
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
       my_task->tid    = __po_hi_posix_create_thread
@@ -582,10 +611,16 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
    *__po_hi_time* functions.
    */
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
-  if (__po_hi_compute_next_period (id) != __PO_HI_SUCCESS)
+
+  // XXX The following is (a priori) not necessary, it should be
+  // reviewed for all runtimes: the body of a periodic task already
+  // call __po_hi_compute_next_period() as part of its skeleton
+
+  /*if (__po_hi_compute_next_period (id) != __PO_HI_SUCCESS)
     {
       return (__PO_HI_ERROR_CLOCK);
     }
+  */
 
 #elif defined (XENO_NATIVE)
    int ret;
@@ -602,8 +637,8 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
       __DEBUGMSG ("ERROR when starting the task\n");
    }
 #endif
-
-  return (__PO_HI_SUCCESS);
+   tasks[id].task_category = TASK_PERIODIC;
+   return (__PO_HI_SUCCESS);
 }
 
 void __po_hi_task_wait_offset (const __po_hi_time_t* time)
@@ -659,8 +694,8 @@ int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
       __DEBUGMSG ("ERROR when starting the task\n");
    }
 #endif
-
-  return (__PO_HI_SUCCESS);
+   tasks[id].task_category = TASK_SPORADIC;
+   return (__PO_HI_SUCCESS);
 }
 
 int __po_hi_task_delay_until (__po_hi_time_t* time, __po_hi_task_id task)

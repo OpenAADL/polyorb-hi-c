@@ -5,12 +5,13 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2014 ESA & ISAE.
+ * Copyright (C) 2010-2016 ESA & ISAE.
  */
+
 
 #include <deployment.h>
 /* included files from the generated code */
-
+#include <po_hi_time.h>
 #include <po_hi_config.h>
 #include <po_hi_common.h>
 #include <po_hi_returns.h>
@@ -76,8 +77,6 @@ RT_TASK*  main_task_id;
  * initialization.
  */
 #endif
-
-
 
 int __po_hi_initialized_tasks = 0;
 /* The barrier is initialized with __PO_HI_NB_TASKS +1
@@ -166,6 +165,7 @@ int __po_hi_initialize_early ()
      return (__PO_HI_ERROR_PTHREAD_COND);
   }
 #endif
+
 
 #if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
   rtems_status_code ret;
@@ -287,19 +287,19 @@ int __po_hi_initialize ()
    }
 #endif
 
-
-/*!
- * Initialize the monitoring trace if needed
- */
+   /*!
+    * Initialize the monitoring trace if needed
+    */
 #if defined (MONITORING)
-  trace_initialize ();
+   trace_initialize ();
 #endif
 
-  return (__PO_HI_SUCCESS);
+   return (__PO_HI_SUCCESS);
 }
 
-int __po_hi_wait_initialization ()
+int __po_hi_wait_initialization (void)
 {
+
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    int cstate;
    if (pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, &cstate) != 0)
@@ -322,11 +322,16 @@ int __po_hi_wait_initialization ()
 
   __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
 
-  while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init)
-  {
+  if (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init) {
+    while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init) {
       pthread_cond_wait (&cond_init, &mutex_init);
+    }
   }
-  pthread_cond_broadcast (&cond_init);
+  else {
+    pthread_cond_broadcast (&cond_init);
+    set_epoch();
+  }
+
   pthread_mutex_unlock (&mutex_init);
 
    __PO_HI_INSTRUMENTATION_VCD_INIT
