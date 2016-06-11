@@ -36,28 +36,24 @@ thread Task
 end Task;
 
 thread implementation Task.impl_1
-calls 
+calls
 Mycalls: {
   P_Spg : subprogram Hello_Spg_1;
 };
 properties
    Dispatch_Protocol                  => periodic;
-   Period                             => 1000ms;
-   Compute_Execution_time             => 0 ms .. 3 ms;
-   Deadline                           => 1000 ms;
+   Period                             => 100ms;
    Priority => 1;
 end Task.impl_1;
 
 thread implementation Task.impl_2
-calls 
+calls
 Mycalls: {
   P_Spg : subprogram Hello_Spg_2;
 };
 properties
    Dispatch_Protocol                  => periodic;
-   Period                             => 500ms;
-   Compute_Execution_time             => 0 ms .. 3 ms;
-   Deadline                           => 500 ms;
+   Period                             => 50ms;
    Priority => 2;
 end Task.impl_2;
 
@@ -67,7 +63,7 @@ end Task.impl_2;
 
 processor cpurm
 properties
-  Deployment::Execution_Platform => leon_rtems;
+  Deployment::Execution_Platform => native;
 end cpurm;
 
 processor implementation cpurm.impl
@@ -92,7 +88,7 @@ end node_a.impl;
 -- System --
 ------------
 
-system rma 
+system rma
 end rma;
 
 system implementation rma.impl
