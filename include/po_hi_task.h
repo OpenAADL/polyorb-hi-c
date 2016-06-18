@@ -113,6 +113,11 @@ typedef size_t __po_hi_stack_t;
 int __po_hi_initialize_tasking(void);
 
 /*
+ * Get the id of a task
+ */
+__po_hi_task_id __po_hi_get_task_id (void);
+
+/*
  * Create a periodic task.
  *
  * The task created have the identifier given by the first

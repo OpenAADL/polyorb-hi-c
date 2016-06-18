@@ -109,6 +109,21 @@ __po_hi_task_t tasks[__PO_HI_NB_TASKS];
 HANDLE  __po_hi_tasks_array[__PO_HI_NB_TASKS];
 #endif
 
+__po_hi_task_id __po_hi_get_task_id (void) {
+
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
+  pthread_t pthread_id = pthread_self();
+
+  for (int i = 0; i < __PO_HI_NB_TASKS; i++) {
+    if (pthread_id == tasks[i].tid) {
+      return tasks[i].id;
+    }
+  }
+#endif
+
+  return (__PO_HI_ERROR_UNKNOWN);
+
+}
 
 void __po_hi_wait_for_tasks ()
 {
