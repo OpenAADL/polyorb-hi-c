@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2016 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -157,7 +157,7 @@ void __po_hi_instrumentation_vcd_init ()
          for (i = 0 ; i < __PO_HI_NB_TASKS ; i++)
          {
             memset (buf, '\0', 1024);
-            size_to_write = sprintf (buf, "1t%d\n", i);
+            size_to_write = sprintf (buf, "0t%d\n", i);
             write (__po_hi_vcd_file, buf, size_to_write);
          }
 #if __PO_HI_NB_PROTECTED > 0
