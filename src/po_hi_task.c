@@ -76,6 +76,8 @@ typedef struct
   __po_hi_task_id     id;       /* Identifier of the task in the system */
   __po_hi_task_category task_category;
   __po_hi_time_t      period;
+  __po_hi_time_t      offset;
+
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
   __po_hi_time_t      timer;
 #if defined (_WIN32)
@@ -176,9 +178,10 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX) || defined (_WIN32)
 
     /* If we call this function for the first time, we need to configure
-       +     the initial timer to epoch */
+       the initial timer to epoch */
   if (tasks[task].timer.sec == 0 && tasks[task].timer.nsec == 0) {
     tasks[task].timer = get_epoch();
+    __po_hi_add_times(&(tasks[task].timer), &(tasks[task].timer), &tasks[task].offset);
     return (__PO_HI_SUCCESS);
   }
 
@@ -660,15 +663,10 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
 void __po_hi_task_wait_offset (const __po_hi_time_t* time)
 {
 
-  __po_hi_time_t mytime, offset_time;
+  if (time->sec == 0 && time->nsec == 0)
+    return; // No need to wait, exit immediately
 
-  if (__po_hi_get_time (&mytime) == __PO_HI_SUCCESS)
-    {
-      __po_hi_add_times(&offset_time, &mytime, time);
-      __po_hi_delay_until (&offset_time);
-    }
-  else
-    __DEBUGMSG ("ERROR %s %d\n", __FILE__, __LINE__);
+  tasks[__po_hi_get_task_id()].offset = *time;
 }
 
 int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
