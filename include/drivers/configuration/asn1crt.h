@@ -1,16 +1,15 @@
-/*
- * This is a part of PolyORB-HI-C distribution, a minimal
- * middleware written for generated code from AADL models.
- * You should use it with the Ocarina toolsuite.
- *
- * For more informations, please visit http://taste.tuxfamily.org/wiki
- *
- * Copyright (C) 2014 ESA & ISAE.
- */
+#ifndef ASN1SCC_ASN1CRT_H_
+#define ASN1SCC_ASN1CRT_H_
 
-#ifndef _INC_PER_UTIL_H
-#define _INC_PER_UTIL_H
-
+#if (!defined(_MSC_VER) || _MSC_VER >= 1800)
+#  ifndef SWIG
+#    include <stdbool.h>
+#  endif
+#else
+typedef unsigned char bool;
+#define true 1
+#define false 0
+#endif
 
 #ifdef  __cplusplus
 extern "C" {
@@ -21,17 +20,17 @@ extern "C" {
 #endif
 
 #ifndef TRUE
-#define TRUE	1
+#define TRUE	true
 #endif
 
 #ifndef FALSE
-#define FALSE	0
+#define FALSE	false
 #endif
-
 
 #ifndef WORD_SIZE
 #define WORD_SIZE	8
 #endif
+
 
 typedef int asn1SccSint32;
 typedef unsigned int asn1SccUint32;
@@ -50,8 +49,16 @@ typedef asn1SccSint32 asn1SccSint;
 
 #endif
 
+#ifdef _MSC_VER
+#  ifndef INFINITY
+#    define INFINITY (DBL_MAX+DBL_MAX)
+#  endif
+#  ifndef NAN
+#    define NAN (INFINITY-INFINITY)
+#  endif
+#endif
 
-typedef int flag;
+typedef bool flag;
 
 typedef char NullType;
 
@@ -89,6 +96,7 @@ typedef struct {
 #define ERR_INSUFFICIENT_DATA	101
 #define ERR_INCORRECT_PER_STREAM	102
 #define ERR_INVALID_CHOICE_ALTERNATIVE	103
+#define ERR_INVALID_ENUM_VALUE	104
 #define ERR_INVALID_XML_FILE	200
 #define ERR_INVALID_BER_FILE	201
 #define ERR_BER_LENGTH_MISMATCH	202
@@ -237,6 +245,25 @@ flag Acn_Dec_Real_IEEE754_64_big_endian(BitStream* pBitStrm, double* pRealValue)
 flag Acn_Dec_Real_IEEE754_32_little_endian(BitStream* pBitStrm, double* pRealValue);
 flag Acn_Dec_Real_IEEE754_64_little_endian(BitStream* pBitStrm, double* pRealValue);
 
+/*String functions*/
+void Acn_Enc_String_Ascii_FixSize                       (BitStream* pBitStrm, asn1SccSint max, const char* strVal); 
+void Acn_Enc_String_Ascii_Null_Teminated                (BitStream* pBitStrm, asn1SccSint max, char null_character, const char* strVal); 
+void Acn_Enc_String_Ascii_External_Field_Determinant    (BitStream* pBitStrm, asn1SccSint max, const char* strVal); 
+void Acn_Enc_String_Ascii_Internal_Field_Determinant    (BitStream* pBitStrm, asn1SccSint max, asn1SccSint min, const char* strVal); 
+void Acn_Enc_String_CharIndex_FixSize                   (BitStream* pBitStrm, asn1SccSint max, byte allowedCharSet[], int charSetSize, const char* strVal); 
+void Acn_Enc_String_CharIndex_External_Field_Determinant(BitStream* pBitStrm, asn1SccSint max, byte allowedCharSet[], int charSetSize, const char* strVal); 
+void Acn_Enc_String_CharIndex_Internal_Field_Determinant(BitStream* pBitStrm, asn1SccSint max, byte allowedCharSet[], int charSetSize, asn1SccSint min, const char* strVal); 
+
+flag Acn_Dec_String_Ascii_FixSize                       (BitStream* pBitStrm, asn1SccSint max, char* strVal); 
+flag Acn_Dec_String_Ascii_Null_Teminated                (BitStream* pBitStrm, asn1SccSint max, char null_character, char* strVal); 
+flag Acn_Dec_String_Ascii_External_Field_Determinant    (BitStream* pBitStrm, asn1SccSint max, asn1SccSint extSizeDeterminatFld, char* strVal); 
+flag Acn_Dec_String_Ascii_Internal_Field_Determinant    (BitStream* pBitStrm, asn1SccSint max, asn1SccSint min, char* strVal); 
+flag Acn_Dec_String_CharIndex_FixSize                   (BitStream* pBitStrm, asn1SccSint max, byte allowedCharSet[], int charSetSize, char* strVal); 
+flag Acn_Dec_String_CharIndex_External_Field_Determinant(BitStream* pBitStrm, asn1SccSint max, byte allowedCharSet[], int charSetSize, asn1SccSint extSizeDeterminatFld, char* strVal); 
+flag Acn_Dec_String_CharIndex_Internal_Field_Determinant(BitStream* pBitStrm, asn1SccSint max, byte allowedCharSet[], int charSetSize, asn1SccSint min, char* strVal); 
+
+
+
 
 /* Length Determinant functions*/
 void Acn_Enc_Length(BitStream* pBitStrm, asn1SccSint lengthValue, int lengthSizeInBits);
@@ -252,6 +279,9 @@ void BitStream_EncodeNonNegativeIntegerNeg(BitStream* pBitStrm, asn1SccUint v, f
 flag BitStream_DecodeNonNegativeInteger(BitStream* pBitStrm, asn1SccUint* v, int nBits);
 flag BitStream_ReadPartialByte(BitStream* pBitStrm, byte *v, byte nbits);
 void BitStream_AppendPartialByte(BitStream* pBitStrm, byte v, byte nbits, flag negate);
+
+
+
 
 
 void Xer_EncodeXmlHeader(ByteStream* pByteStrm, const char* xmlHeader);
@@ -328,8 +358,8 @@ flag NextTagMatches(ByteStream* pByteStrm, BerTag tag);
 int GetStrmPos(ByteStream* pByteStrm);
 flag LA_Next_Two_Bytes_00(ByteStream* pByteStrm);
 
-
-
+asn1SccSint milbus_encode(asn1SccSint val);
+asn1SccSint milbus_decode(asn1SccSint val);
 
 #define CHECK_BIT_STREAM(pBitStrm)	assert((pBitStrm)->currentByte*8+(pBitStrm)->currentBit<=(pBitStrm)->count*8)
 
