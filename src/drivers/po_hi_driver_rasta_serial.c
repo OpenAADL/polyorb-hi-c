@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2014 ESA & ISAE.
+ * Copyright (C) 2010-2016 ESA & ISAE.
  */
 
 /*! \file po_hi_driver_rasta_serial.c
@@ -107,8 +107,14 @@ void __po_hi_c_driver_serial_rasta_poller (const __po_hi_device_id dev_id)
    }
    __po_hi_main_deliver (&__po_hi_c_driver_serial_rasta_request);
 }
-
+#ifdef RTEMS48
 extern amba_confarea_type* __po_hi_driver_rasta_common_get_bus ();
+#elif RTEMS411
+extern struct ambapp_bus * __po_hi_driver_rasta_common_get_bus ();
+#else
+#error "o<"
+#endif
+
 void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg);
 
 /*!

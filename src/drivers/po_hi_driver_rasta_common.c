@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2014 ESA & ISAE.
+ * Copyright (C) 2010-2016 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -50,11 +50,10 @@
 #define GAISLER_GPIO         0x01a
 #endif
 
-
-int apbuart_rasta_register(amba_confarea_type *bus);
-
 int __po_hi_c_driver_rasta_common_is_init = 0;
 
+#ifdef RTEMS48
+int apbuart_rasta_register(amba_confarea_type *bus);
 static amba_confarea_type abus;
 extern LEON3_IrqCtrl_Regs_Map *irq;
 extern LEON_Register_Map      *regs;
@@ -63,7 +62,20 @@ amba_confarea_type* __po_hi_driver_rasta_common_get_bus ()
 {
    return &abus;
 }
-
+#elif RTEMS411
+extern int apbuart_rasta_register(struct ambapp_bus *bus);
+static struct ambapp_bus  abus;
+/* Why do we have LEON3 specifics here ???
+extern LEON3_IrqCtrl_Regs_Map *irq;
+extern LEON_Register_Map      *regs;
+*/
+struct ambapp_bus * __po_hi_driver_rasta_common_get_bus ()
+{
+   return &abus;
+}
+#else
+#error "o<"
+#endif
 
 void *uart0_int_arg, *uart1_int_arg;
 void *spw0_int_arg, *spw1_int_arg, *spw2_int_arg;

@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2014 ESA & ISAE.
+ * Copyright (C) 2010-2016 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -96,7 +96,14 @@ extern rtems_isr __po_hi_rasta_interrupt_handler (rtems_vector_number v);
 extern unsigned int __po_hi_driver_rasta_bar0, __po_hi_driver_rasta_bar1;
 
 void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg);
+
+#ifdef RTEMS48
 extern amba_confarea_type* __po_hi_driver_rasta_common_get_bus ();
+#elif RTEMS411
+extern struct ambapp_bus * __po_hi_driver_rasta_common_get_bus ();
+#else
+#error "o<"
+#endif
 
 void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
 {
