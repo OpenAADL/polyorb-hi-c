@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2015 ESA & ISAE.
+ * Copyright (C) 2010-2016 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -422,8 +422,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
             __po_hi_unmarshall_request (&__po_hi_c_sockets_poller_received_request, &__po_hi_c_sockets_poller_msg);
 #endif
-
-            __DEBUGMSG ("[DRIVER SOCKETS] Delivering message to %d\n",__po_hi_c_sockets_poller_received_request.port );
+	    __DEBUGMSG ("[DRIVER SOCKETS] Delivering message to %d\n",__po_hi_c_sockets_poller_received_request.port );
             __po_hi_main_deliver (&__po_hi_c_sockets_poller_received_request);
          }
       }
@@ -528,8 +527,8 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
       __po_hi_initialize_add_task ();
       __po_hi_create_generic_task
-        (-1, 0,__PO_HI_MAX_PRIORITY, 0, 0, (void* (*)(void))__po_hi_sockets_poller, &dev_id);
-      // XXX Why forcing core id to 0 ?
+	(-1, 0,__PO_HI_MAX_PRIORITY, 0, 0, (void* (*)(void))__po_hi_sockets_poller, &dev_id);
+      /* For now, we force affinity to 0 */
    }
 
 
@@ -575,10 +574,10 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
             return;
          }
 
-         int NoDelayFlag = 1;
-         if(setsockopt(__po_hi_c_sockets_write_sockets[dev],IPPROTO_TCP,TCP_NODELAY,&NoDelayFlag,sizeof(NoDelayFlag))){
-           __DEBUGMSG ("[DRIVER SOCKETS] Unable to set TCP_NODELAY for dev %d\n", dev);
-         }
+	 int NoDelayFlag = 1;
+	 if(setsockopt(__po_hi_c_sockets_write_sockets[dev],IPPROTO_TCP,TCP_NODELAY,&NoDelayFlag,sizeof(NoDelayFlag))){
+	   __DEBUGMSG ("[DRIVER SOCKETS] Unable to set TCP_NODELAY for dev %d\n", dev);
+	 }
 
          __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d created, value=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
 
