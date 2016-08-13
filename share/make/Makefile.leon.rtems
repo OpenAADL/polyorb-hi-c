@@ -36,22 +36,28 @@ TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
 
 ifndef RTEMS_API
    TARGET_CFLAGS                +=  -DRTEMS48
-   TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.8/ -llua -lm
+   TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.8/ -lm
 endif
 
 ifeq ($(RTEMS_API),4.8)
    TARGET_CFLAGS                +=  -DRTEMS48
-   TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.8/ -llua -lm
-endif
-
-ifeq ($(RTEMS_API),4.11)
-   TARGET_CFLAGS                +=  -DRTEMS411
-   TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.11/ -llua -lm
+   TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.8/  -lm
 endif
 
 ifeq ($(RTEMS_API),4.10)
    TARGET_CFLAGS                +=  -DRTEMS410
 endif
+
+ifeq ($(RTEMS_API),4.11)
+   TARGET_CFLAGS                +=  -DRTEMS411
+   TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.11/ -lm
+endif
+
+ifeq ($(RTEMS_API),4.12)
+   TARGET_CFLAGS                +=  -DRTEMS412
+   TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.12/ -lm
+endif
+
 
 
 target-clean:
