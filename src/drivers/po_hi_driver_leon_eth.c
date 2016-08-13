@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2015 ESA & ISAE.
+ * Copyright (C) 2011-2016 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -418,7 +418,7 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
       __po_hi_initialize_add_task ();
 
       __po_hi_create_generic_task
-         (-1, 0,__PO_HI_MAX_PRIORITY, 0, (void* (*)(void)) __po_hi_c_driver_eth_leon_poller, NULL);
+        (-1, 0,__PO_HI_MAX_PRIORITY, 0, 0, (void* (*)(void)) __po_hi_c_driver_eth_leon_poller, NULL);
    }
 
    /*
