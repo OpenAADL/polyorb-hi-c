@@ -27,11 +27,13 @@
 #endif
 
 #if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
+#ifdef RTEMS412
 #include <sys/cpuset.h>
+#endif
 #endif
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
-#if defined (__CYGWIN__) || defined (__MINGW32__)
+#if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (RTEMS_PURE)
 #else
 #include <xlocale.h>
 #endif
@@ -360,7 +362,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
     }
 
-#if defined (POSIX) && defined (__linux__)
+#if ( (defined (POSIX) && defined (__linux__)) || (defined (RTEMS_POSIX) && defined (RTEMS412)))
 
 #ifndef __COMPCERT__
   /* Thread affinity */
@@ -491,9 +493,10 @@ rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority,
       return __PO_HI_ERROR_CREATE_TASK;
     }
 
-#ifdef RTEMS411
+#ifdef RTEMS412
   /* Thread affinity API for SMP systems appeared in RTEMS 4.11,
-     section 25 of RTEMS Applications C User's Guide */
+     section 25 of RTEMS Applications C User's Guide .
+  */
 
   cpu_set_t         cpuset;
 
@@ -577,11 +580,11 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
       my_task         = &(tasks[id]);
       __po_hi_time_copy (&(my_task->period), period);
       my_task->id     = id;
-      my_task->timer = ORIGIN_OF_TIME;
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
       my_task->tid    = __po_hi_posix_create_thread
         (priority, stack_size, core_id, start_routine, arg);
+      my_task->timer = ORIGIN_OF_TIME;
       __po_hi_posix_initialize_task (my_task);
 #elif defined (RTEMS_PURE)
       my_task->rtems_id = __po_hi_rtems_create_thread
