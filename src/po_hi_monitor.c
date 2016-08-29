@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2015 ESA & ISAE.
+ * Copyright (C) 2011-2016 ESA & ISAE.
  */
 
 /*
@@ -65,7 +65,7 @@ int __po_hi_monitor_get_status_port (const __po_hi_port_t port, __po_hi_monitor_
    associated_device = __po_hi_get_device_from_port (port);
    if (associated_device == invalid_device_id)
    {
-      __PO_HI_DEBUG_DEBUG ("[MONITOR] This port is not associated to a valid device (device-id=%d)\n", associated_device);
+      __PO_HI_DEBUG_CRITICAL ("[MONITOR] This port is not associated to a valid device (device-id=%d)\n", associated_device);
       return __PO_HI_UNAVAILABLE;
    }
    return __po_hi_monitor_get_status_device (associated_device, status);
@@ -83,7 +83,7 @@ int __po_hi_monitor_get_status_device (const __po_hi_device_id device,
 
    if ((device < 0) || (device >= __PO_HI_NB_DEVICES))
    {
-      __PO_HI_DEBUG_DEBUG ("[MONITOR] invalid device-id %d\n", device);
+      __PO_HI_DEBUG_CRITICAL ("[MONITOR] invalid device-id %d\n", device);
       return __PO_HI_UNAVAILABLE;
    }
 
@@ -129,7 +129,7 @@ int __po_hi_monitor_get_status_bus (const __po_hi_bus_id       bus,
 
    if ((bus < 0) || (bus >= __PO_HI_NB_BUSES))
    {
-      __PO_HI_DEBUG_DEBUG ("[MONITOR] invalid bus-id %d\n", bus);
+      __PO_HI_DEBUG_CRITICAL ("[MONITOR] invalid bus-id %d\n", bus);
       return __PO_HI_UNAVAILABLE;
    }
 
@@ -161,7 +161,7 @@ int __po_hi_monitor_report_failure_bus (const __po_hi_bus_id bus,
 
    if ((bus < 0) || (bus >= __PO_HI_NB_BUSES))
    {
-      __PO_HI_DEBUG_DEBUG ("[MONITOR] invalid bus-id %d\n", bus);
+      __PO_HI_DEBUG_CRITICAL ("[MONITOR] invalid bus-id %d\n", bus);
       return __PO_HI_UNAVAILABLE;
    }
 
@@ -187,7 +187,7 @@ int __po_hi_monitor_report_failure_device (const __po_hi_device_id device,
 
    if ((device < 0) || (device >= __PO_HI_NB_DEVICES))
    {
-      __PO_HI_DEBUG_DEBUG ("[MONITOR] invalid device-id %d\n", device);
+      __PO_HI_DEBUG_CRITICAL ("[MONITOR] invalid device-id %d\n", device);
       return __PO_HI_UNAVAILABLE;
    }
 
@@ -214,7 +214,7 @@ int __po_hi_monitor_report_failure_port (const __po_hi_port_t port,
    associated_device = __po_hi_get_device_from_port (port);
    if (associated_device == invalid_device_id)
    {
-      __PO_HI_DEBUG_DEBUG ("[MONITOR] This port is not associated to a valid device (device-id=%d)\n", associated_device);
+      __PO_HI_DEBUG_CRITICAL ("[MONITOR] This port is not associated to a valid device (device-id=%d)\n", associated_device);
       return __PO_HI_UNAVAILABLE;
    }
    return __po_hi_monitor_report_failure_device (associated_device, failure);
@@ -225,7 +225,7 @@ int __po_hi_monitor_recover_bus (const __po_hi_bus_id bus)
    __PO_HI_DEBUG_DEBUG ("[MONITOR] call __po_hi_monitor_recover_bus with argument %d\n", bus);
    if ((bus < 0) || (bus >= __PO_HI_NB_BUSES))
    {
-      __PO_HI_DEBUG_DEBUG ("[MONITOR] invalid bus-id %d\n", bus);
+      __PO_HI_DEBUG_CRITICAL ("[MONITOR] invalid bus-id %d\n", bus);
       return __PO_HI_UNAVAILABLE;
    }
 
@@ -239,7 +239,7 @@ int __po_hi_monitor_recover_device (const __po_hi_device_id device)
    __PO_HI_DEBUG_DEBUG ("[MONITOR] call __po_hi_monitor_recover_device with argument %d\n", device);
    if ((device < 0) || (device >= __PO_HI_NB_DEVICES))
    {
-      __PO_HI_DEBUG_DEBUG ("[MONITOR] invalid device-id %d\n", device);
+      __PO_HI_DEBUG_CRITICAL ("[MONITOR] invalid device-id %d\n", device);
       return __PO_HI_UNAVAILABLE;
    }
 
@@ -256,7 +256,7 @@ int __po_hi_monitor_recover_port (const __po_hi_port_t port)
    associated_device = __po_hi_get_device_from_port (port);
    if (associated_device == invalid_device_id)
    {
-      __PO_HI_DEBUG_DEBUG ("[MONITOR] This port is not associated to a valid device (device-id=%d)\n", associated_device);
+      __PO_HI_DEBUG_CRITICAL ("[MONITOR] This port is not associated to a valid device (device-id=%d)\n", associated_device);
       return __PO_HI_UNAVAILABLE;
    }
    return __po_hi_monitor_recover_device (associated_device);

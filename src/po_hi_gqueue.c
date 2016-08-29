@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2014 ESA & ISAE.
+ * Copyright (C) 2010-2016 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -154,14 +154,14 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
    ret = rtems_semaphore_create (rtems_build_name ('G', 'S', 'E' , 'A' + (char) id), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &(__po_hi_gqueues_semaphores[id]));
    if (ret != RTEMS_SUCCESSFUL)
    {
-      __PO_HI_DEBUG_WARNING ("[GQUEUE] Cannot create semaphore, error code=%d\n", ret);
+      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Cannot create semaphore, error code=%d\n", ret);
    }
 
    __PO_HI_DEBUG_INFO ("[GQUEUE] Create barrier for queue of task %d\n", id);
    ret = rtems_barrier_create (rtems_build_name ('G', 'S', 'I' , 'A' + (char) id),RTEMS_BARRIER_AUTOMATIC_RELEASE , 10, &(__po_hi_gqueues_barriers[id]));
    if (ret != RTEMS_SUCCESSFUL)
    {
-      __PO_HI_DEBUG_WARNING ("[GQUEUE] Cannot create barrier, error code=%d\n", ret);
+      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Cannot create barrier, error code=%d\n", ret);
    }
 #endif
 
@@ -170,14 +170,14 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 
    if (ret != 0)
    {
-      __PO_HI_DEBUG_WARNING ("[GQUEUE] Cannot create mutex code=%d\n", ret);
+      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Cannot create mutex code=%d\n", ret);
    }
 
    ret = rt_cond_create (&__po_hi_gqueues_conds[id], NULL);
 
    if (ret != 0)
    {
-      __PO_HI_DEBUG_WARNING ("[GQUEUE] Cannot create cond code=%d\n", ret);
+      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Cannot create cond code=%d\n", ret);
    }
 #endif
 
@@ -186,7 +186,7 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 
    if (__po_hi_gqueues_events[id] == NULL)
    {
-      __PO_HI_DEBUG_WARNING("CreateEvent failed (%d)\n", GetLastError());
+      __PO_HI_DEBUG_CRITICAL ("CreateEvent failed (%d)\n", GetLastError());
 
       return;
    }
@@ -413,7 +413,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
       ret = WaitForSingleObject (__po_hi_gqueues_events[id], INFINITE);
       if (ret == WAIT_FAILED)
         {
-          __PO_HI_DEBUG_DEBUG ("[GQUEUE] Wait failed\n");
+          __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Wait failed\n");
         }
       EnterCriticalSection(&__po_hi_gqueues_cs[id]);
 #endif
@@ -508,7 +508,7 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
    ret = WaitForSingleObject (__po_hi_gqueues_events[id], INFINITE);
    if (ret == WAIT_FAILED)
    {
-      __PO_HI_DEBUG_DEBUG ("[GQUEUE] Wait failed\n");
+      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Wait failed\n");
    }
    EnterCriticalSection(&__po_hi_gqueues_cs[id]);
 #endif
@@ -529,7 +529,6 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
       ptr = ((__po_hi_request_t *) &__po_hi_gqueues[id][port]) +  __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port];
       memcpy (request, ptr, sizeof (__po_hi_request_t));
    }
-
 
    __PO_HI_DEBUG_INFO ("[GQUEUE] Task %d get a value on port %d\n", id, port);
 
@@ -668,4 +667,3 @@ __po_hi_request_t* ptr;
       memcpy (request, ptr, sizeof (__po_hi_request_t));
    }      return request;
 }
-

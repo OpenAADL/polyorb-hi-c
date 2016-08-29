@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2015 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2016 ESA & ISAE.
  */
 
 #include<stddef.h>
@@ -144,7 +144,7 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 
          if (ret < 0)
          {
-            __PO_HI_DEBUG_DEBUG ("[GQUEUE] Cannot deliver the data using inter-partitions ports, return=%d\n", ret);
+            __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Cannot deliver the data using inter-partitions ports, return=%d\n", ret);
          }
          else
          {

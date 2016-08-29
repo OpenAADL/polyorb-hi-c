@@ -245,18 +245,18 @@ int __po_hi_delay_until (const __po_hi_time_t* time)
 
     if (!SetWaitableTimer(hTimer, &ularge, 0, NULL, NULL, 0))
     {
-        __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] SetWaitableTimer failed (%d)\n", GetLastError());
+        __PO_HI_DEBUG_CRITICAL("[DELAY UNTIL] SetWaitableTimer failed (%d)\n", GetLastError());
         return 2;
     }
 
     if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
     {
-        __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] WaitForSingleObject failed (%d)\n", GetLastError());
+        __PO_HI_DEBUG_CRITICAL("[DELAY UNTIL] WaitForSingleObject failed (%d)\n", GetLastError());
     }
 
     if (CloseHandle(hTimer) != TRUE)
     {
-        __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] CloseHandle failed (%d)\n", GetLastError());
+        __PO_HI_DEBUG_CRITICAL("[DELAY UNTIL] CloseHandle failed (%d)\n", GetLastError());
     }
 
   return __PO_HI_SUCCESS;

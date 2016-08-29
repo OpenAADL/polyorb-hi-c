@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2016 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -54,7 +54,7 @@ int __po_hi_protected_init ()
    {
       if (__po_hi_mutex_init (&__po_hi_protected_mutexes[i], __po_hi_protected_configuration[i], __po_hi_protected_priorities[i]) != __PO_HI_SUCCESS)
       {
-         __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when initialize protected resource %d\n", i);
+         __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when initialize protected resource %d\n", i);
       }
    }
    return (__PO_HI_SUCCESS);
@@ -62,15 +62,15 @@ int __po_hi_protected_init ()
 
 int __po_hi_protected_lock (__po_hi_protected_t protected_id)
 {
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("1w%d\n", protected_id); 
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("1w%d\n", protected_id);
    if (__po_hi_mutex_lock (&__po_hi_protected_mutexes[protected_id]) != __PO_HI_SUCCESS )
    {
-      __PO_HI_INSTRUMENTATION_VCD_WRITE("0w%d\n", protected_id); 
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when lock protected resource %d\n", protected_id);
+      __PO_HI_INSTRUMENTATION_VCD_WRITE("0w%d\n", protected_id);
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when lock protected resource %d\n", protected_id);
       return __PO_HI_ERROR_PROTECTED_LOCK;
    }
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("0w%d\n", protected_id); 
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("1l%d\n", protected_id); 
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("0w%d\n", protected_id);
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("1l%d\n", protected_id);
 
    return __PO_HI_SUCCESS;
 }
@@ -78,10 +78,10 @@ int __po_hi_protected_lock (__po_hi_protected_t protected_id)
 int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
 {
 
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("0l%d\n", protected_id); 
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("0l%d\n", protected_id);
   if (__po_hi_mutex_unlock (&__po_hi_protected_mutexes[protected_id]) != __PO_HI_SUCCESS )
     {
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when unlock protected resource %d\n", protected_id);
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when unlock protected resource %d\n", protected_id);
       return __PO_HI_ERROR_PROTECTED_UNLOCK;
     }
 
@@ -108,7 +108,7 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
    if (pthread_mutexattr_init (&mutex->posix_mutexattr) != 0)
    {
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when initializing the mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when initializing the mutex\n");
    }
 
    switch (protocol)
@@ -117,7 +117,7 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
          {
             if (pthread_mutexattr_setprotocol (&mutex->posix_mutexattr, PTHREAD_PRIO_PROTECT) != 0)
             {
-               __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while changing mutex protocol\n");
+               __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error while changing mutex protocol\n");
             }
 
             if (priority == 0)
@@ -131,7 +131,7 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
 
             if (pthread_mutexattr_setprioceiling (&mutex->posix_mutexattr, mutex->priority) != 0)
             {
-               __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while changing mutex priority\n");
+               __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error while changing mutex priority\n");
             }
             break;
          }
@@ -140,7 +140,7 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
          {
             if (pthread_mutexattr_setprotocol (&mutex->posix_mutexattr, PTHREAD_PRIO_INHERIT) != 0)
             {
-               __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while changing mutex protocol\n");
+               __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error while changing mutex protocol\n");
             }
             break;
          }
@@ -152,30 +152,30 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
 
     if (pthread_mutex_init (&mutex->posix_mutex, &mutex->posix_mutexattr) != 0)
     {
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while creating mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error while creating mutex\n");
         return __PO_HI_ERROR_UNKNOWN;
      }
 #endif
 #if defined (XENO_NATIVE)
     if (rt_mutex_create (&mutex->xeno_mutex, NULL) != 0)
     {
-       __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error while creating mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error while creating mutex\n");
       return __PO_HI_ERROR_UNKNOWN;
     }
 #endif
 #ifdef RTEMS_PURE
     if (rtems_semaphore_create (rtems_build_name ('P', 'S', 'E' , 'A' + (char) nb_mutex++), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &mutex->rtems_mutex) != RTEMS_SUCCESSFUL)
     {
-       __DEBUGMSG ("[PROTECTED] Cannot create RTEMS binary semaphore\n");
-       return __PO_HI_ERROR_PROTECTED_CREATE;
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Cannot create RTEMS binary semaphore\n");
+      return __PO_HI_ERROR_PROTECTED_CREATE;
     }
 #endif
 #ifdef _WIN32
     mutex->win32_mutex = CreateMutex (NULL, FALSE, NULL);
     if (mutex->win32_mutex == NULL)
     {
-       __DEBUGMSG ("[PROTECTED] Cannot create WIN32 mutex\n");
-       return __PO_HI_ERROR_PROTECTED_CREATE;
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Cannot create WIN32 mutex\n");
+      return __PO_HI_ERROR_PROTECTED_CREATE;
     }
 #endif
    return (__PO_HI_SUCCESS);
@@ -187,21 +187,21 @@ int __po_hi_mutex_lock (__po_hi_mutex_t* mutex)
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
    if (pthread_mutex_lock (&mutex->posix_mutex) != 0 )
    {
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when trying to lock mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to lock mutex\n");
       return __PO_HI_ERROR_MUTEX_LOCK;
    }
 #endif
 #ifdef RTEMS_PURE
    if (rtems_semaphore_obtain (mutex->rtems_mutex, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
    {
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when trying to lock mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to lock mutex\n");
       return __PO_HI_ERROR_MUTEX_LOCK;
    }
 #endif
 #ifdef XENO_NATIVE
    if (rt_mutex_acquire (&mutex->xeno_mutex, TM_INFINITE) != 0 )
    {
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when trying to lock mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to lock mutex\n");
       return __PO_HI_ERROR_MUTEX_LOCK;
    }
 #endif
@@ -211,12 +211,12 @@ int __po_hi_mutex_lock (__po_hi_mutex_t* mutex)
 
    if (status == WAIT_ABANDONED)
    {
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Lock failed (abandon)\n");
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Lock failed (abandon)\n");
       return __PO_HI_ERROR_MUTEX_LOCK;
    }
    if (status == WAIT_FAILED)
    {
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Lock failed (failure)\n");
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Lock failed (failure)\n");
       return __PO_HI_ERROR_MUTEX_LOCK;
    }
 
@@ -229,28 +229,28 @@ int __po_hi_mutex_unlock (__po_hi_mutex_t* mutex)
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
   if (pthread_mutex_unlock (&mutex->posix_mutex) != 0 )
     {
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when trying to unlock mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to unlock mutex\n");
       return __PO_HI_ERROR_MUTEX_UNLOCK;
     }
 #endif
 #ifdef RTEMS_PURE
    if (rtems_semaphore_release (mutex->rtems_mutex) != RTEMS_SUCCESSFUL)
    {
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when trying to unlock mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to unlock mutex\n");
       return __PO_HI_ERROR_MUTEX_UNLOCK;
    }
 #endif
 #ifdef XENO_NATIVE
   if (rt_mutex_release (&mutex->xeno_mutex) != 0 )
     {
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Error when trying to unlock mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to unlock mutex\n");
       return __PO_HI_ERROR_MUTEX_UNLOCK;
     }
 #endif
 #ifdef _WIN32
    if (ReleaseMutex (mutex->win32_mutex) == 0)
    {
-      __PO_HI_DEBUG_DEBUG ("[PROTECTED] Release failed\n");
+      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Release failed\n");
       return __PO_HI_ERROR_MUTEX_UNLOCK;
    }
 #endif

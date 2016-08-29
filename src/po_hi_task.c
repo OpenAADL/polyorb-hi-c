@@ -153,7 +153,7 @@ void __po_hi_wait_for_tasks ()
     ret = rt_task_join (&(tasks[0].xeno_id));
     if (ret != 0)
       {
-        __PO_HI_DEBUG_DEBUG ("Error while calling rt_task_suspend in __po_hi_wait_for_tasks (ret=%d)\n", ret);
+        __PO_HI_DEBUG_CRITICAL ("Error while calling rt_task_suspend in __po_hi_wait_for_tasks (ret=%d)\n", ret);
       }
   }
 #elif defined (SIMULATOR)
@@ -404,7 +404,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
     err = pthread_create (&tid, &attr, (void* (*)(void*))start_routine, arg);
     if (err != 0)
     {
-      __PO_HI_DEBUG_CRITICAL("Thread creation failed - pthread_create returned %d\n", err);
+      __PO_HI_DEBUG_CRITICAL ("Thread creation failed - pthread_create returned %d\n", err);
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_CREATE);
     }
 
@@ -750,18 +750,18 @@ int __po_hi_task_delay_until (__po_hi_time_t* time, __po_hi_task_id task)
 
     if (!SetWaitableTimer(hTimer, &ularge, 0, NULL, NULL, 0))
     {
-        __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] SetWaitableTimer failed (%d)\n", GetLastError());
+        __PO_HI_DEBUG_CRITICAL("[DELAY UNTIL] SetWaitableTimer failed (%d)\n", GetLastError());
         return 2;
     }
 
     if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
     {
-        __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] WaitForSingleObject failed (%d)\n", GetLastError());
+        __PO_HI_DEBUG_CRITICAL("[DELAY UNTIL] WaitForSingleObject failed (%d)\n", GetLastError());
     }
 
     if (CloseHandle(hTimer) != TRUE)
     {
-        __PO_HI_DEBUG_DEBUG("[DELAY UNTIL] CloseHandle failed (%d)\n", GetLastError());
+        __PO_HI_DEBUG_CRITICAL("[DELAY UNTIL] CloseHandle failed (%d)\n", GetLastError());
     }
 
 
