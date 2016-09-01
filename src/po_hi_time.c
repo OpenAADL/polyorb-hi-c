@@ -289,7 +289,7 @@ int __po_hi_time_copy (__po_hi_time_t* dst, const __po_hi_time_t* src)
    return (__PO_HI_SUCCESS);
 }
 
-__po_hi_time_t epoch = ORIGIN_OF_TIME;
+__po_hi_time_t epoch = { 0, 0}; /* ORIGIN_OF_TIME; */
 
 __po_hi_time_t get_epoch(void) {
   return epoch;
