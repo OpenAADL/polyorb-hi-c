@@ -97,9 +97,8 @@
    rtems_task Init (rtems_task_argument no_argument);
 #endif
 
-/*
-   #define CONFIGURE_EXTRA_TASK_STACKS                (20 * RTEMS_MINIMUM_STACK_SIZE)
-*/
+   #define CONFIGURE_EXTRA_TASK_STACKS                __PO_HI_TASKS_STACK
+
    #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
    #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
    #define CONFIGURE_MAXIMUM_BARRIERS                 1 + __PO_HI_NB_PORTS + 1
@@ -114,18 +113,18 @@ int rtems_bsdnet_loopattach(struct rtems_bsdnet_ifconfig*, int);
 
 static struct rtems_bsdnet_ifconfig loopback_config =
    {"lo0", rtems_bsdnet_loopattach,	NULL, "127.0.0.1", "255.0.0.0", };
-#undef RTEMS_BSP_NETWORK_DRIVER_NAME 
+#undef RTEMS_BSP_NETWORK_DRIVER_NAME
 #undef RTEMS_BSP_NETWORK_DRIVER_ATTACH
 #define RTEMS_BSP_NETWORK_DRIVER_NAME    "ne1"
 #define RTEMS_BSP_NETWORK_DRIVER_ATTACH  rtems_ne_driver_attach
 
-struct rtems_bsdnet_ifconfig netdriver_config = 
+struct rtems_bsdnet_ifconfig netdriver_config =
    {RTEMS_BSP_NETWORK_DRIVER_NAME,RTEMS_BSP_NETWORK_DRIVER_ATTACH,
 	&loopback_config,"192.168.0.1","255.255.255.0",
    (char[]){ 0x00, 0x1F, 0xC6, 0xBF, 0x74, 0x06},
 	0,0,0,0,0,9};
 
-struct rtems_bsdnet_config rtems_bsdnet_config = 
+struct rtems_bsdnet_config rtems_bsdnet_config =
    {&netdriver_config,NULL,0,256 * 1024,256 * 1024,};
 
 #endif /*(defined (X86_RTEMS) */
