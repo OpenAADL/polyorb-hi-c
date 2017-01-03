@@ -57,7 +57,7 @@
 
 @c $Id: polyorb-hi_ug.texi 419 2007-07-06 09:36:55Z zalila $
 
-@include version.texi
+@c @include version.texi
 
 @setfilename polyorb-hi-c_ug.info
 @settitle PolyORB-HI-C User's Guide
@@ -106,16 +106,16 @@ section entitled ``GNU Free Documentation License''.
 @end ifnottex
 
 @menu
-* About This Guide:: 
-* Introduction to PolyORB-HI-C:: 
-* Configuration:: 
-* Building a system:: 
-* Supported features:: 
-* AADL to C transformations:: 
-* PolyORB-HI-C API:: 
-* Porting PolyORB-HI-C to another architecture:: 
-* References:: 
-* GNU Free Documentation License:: 
+* About This Guide::
+* Introduction to PolyORB-HI-C::
+* Configuration::
+* Building a system::
+* Supported features::
+* AADL to C transformations::
+* PolyORB-HI-C API::
+* Porting PolyORB-HI-C to another architecture::
+* References::
+* GNU Free Documentation License::
 * The Index::
 
 @detailmenu
@@ -123,21 +123,21 @@ section entitled ``GNU Free Documentation License''.
 
 About This Guide
 
-* What This Guide Contains::    
-* Conventions::                 
+* What This Guide Contains::
+* Conventions::
 
 Configuration
 
-* Supported Platforms::         
-* Tree structure::              
-* Build requirements::          
-* Configuration instructions::  
-* Build instructions::          
+* Supported Platforms::
+* Tree structure::
+* Build requirements::
+* Configuration instructions::
+* Build instructions::
 
 Building a system
 
-* Building examples::           
-* Building a new system::       
+* Building examples::
+* Building a new system::
 
 Porting PolyORB-HI-C to another architecture
 * POSIX compliance::
@@ -148,33 +148,33 @@ Porting PolyORB-HI-C to another architecture
 
 Supported features
 
-* C constructions and restrictions::  
-* AADL features::       
+* C constructions and restrictions::
+* AADL features::
 
 
 AADL to C transformations
 
-* Whole distributed application::  
-* Distributed application nodes::  
-* Hosts::                       
-* Threads::                     
-* Connections::                 
-* Subprograms::                 
-* Data::                        
+* Whole distributed application::
+* Distributed application nodes::
+* Hosts::
+* Threads::
+* Connections::
+* Subprograms::
+* Data::
 * Devices::
 
 PolyORB-HI-C API
 
-* Tasking functions::           
-* Time functions::              
-* Marshallers functions::       
-* GIOP functions::              
-* Messages functions::          
-@c * Protocols functions::         
-* Transport functions::         
-* Protected types functions::   
-* Global queue functions::      
-* Types used in PolyORB-HI-C::  
+* Tasking functions::
+* Time functions::
+* Marshallers functions::
+* GIOP functions::
+* Messages functions::
+@c * Protocols functions::
+* Transport functions::
+* Protected types functions::
+* Global queue functions::
+* Types used in PolyORB-HI-C::
 
 
 @end detailmenu
@@ -203,8 +203,8 @@ in Ada is called PolyORB-HI-Ada, and the other, written in C, is
 called PolyORB-HI-C.  The following manual focuses on PolyORB-HI-C.
 
 @menu
-* What This Guide Contains::    
-* Conventions::                 
+* What This Guide Contains::
+* Conventions::
 @end menu
 
 @c -------------------------------------------------------------------
@@ -272,11 +272,11 @@ This manual describes the different elements parts of PolyORB-HI-C.
 @c -------------------------------------------------------------------
 
 @menu
-* Supported Platforms::         
-* Tree structure::              
-* Build requirements::          
-* Configuration instructions::  
-* Build instructions::          
+* Supported Platforms::
+* Tree structure::
+* Build requirements::
+* Configuration instructions::
+* Build instructions::
 @end menu
 
 @c -------------------------------------------------------------------
@@ -285,7 +285,7 @@ This manual describes the different elements parts of PolyORB-HI-C.
 @c -------------------------------------------------------------------
 
 @noindent
-PolyORB-HI-C has been compiled and sucessfully tested on 
+PolyORB-HI-C has been compiled and sucessfully tested on
 
 @itemize @bullet
 @item native platforms
@@ -311,7 +311,7 @@ PolyORB-HI-C has been compiled and sucessfully tested on
 
 
 When you are using RTEMS operating system, you have to define the @code{RTEMS_MAKEFILE_PATH} environment variable. This variable must point to the directory
-that contains the @code{Makefile.inc} file relevant to your platform. In a similar way, when you are using the linux distribution specific to @emph{TASTE}, you have to 
+that contains the @code{Makefile.inc} file relevant to your platform. In a similar way, when you are using the linux distribution specific to @emph{TASTE}, you have to
 set the variable @code{LINUXTASTE_PATH}. This variable should point to the directory where the linux-specific distribution was built. To be sure that
 the variable is well defined, you can check that the directory @code{$LINUXTASTE_PATH/output/staging/usr/bin/} exists and that the @code{$LINUXTASTE_PATH/output/staging/usr/bin/i386-linux-gcc}
 file exists and is executable (it corresponds to the cross-compiler for this distribution).
@@ -347,9 +347,9 @@ When installed with Ocarina, in @file{$OCARINA_PATH} directory (you can use the 
 
 @itemize @bullet
 @item docutmentation is in @file{$OCARINA_PATH/share/doc/ocarina};
-@item examples are in @file{$OCARINA_PATH/examples/ocarina/polyorb-hi-c/}: 
+@item examples are in @file{$OCARINA_PATH/examples/ocarina/polyorb-hi-c/}:
 set of examples to test PolyORB-HI-C
-@item runtime files are in 
+@item runtime files are in
 @file{$OCARINA_PATH/include/ocarina/runtime/polyorb-hi-c/}.
 @end itemize
 
@@ -387,16 +387,16 @@ possible, pick a unified archive that contains both tools.
 To install PolyORB-HI-C, please observe the following steps:
 
 @itemize
-@item 
+@item
 Install your C compiler and Ocarina as specified by their respective
 documentations and make sure their 'bin/' installation directories are
 located at the top of your PATH environment variable.
 
-@item 
+@item
 Issue @code{./configure}. The @code{configure} script can take several
 options: issue @code{./configure --help} to have a quick overview of
 them. For examples. @code{./configure --enable-debug} will configure
-the software to be built with all debug options (mainly additional output).  
+the software to be built with all debug options (mainly additional output).
 Also @code{./configure --enable-lua} will enable the LUA scripting engine
 within PolyORB-HI-C. At the end of the
 configuration process, a file with all parameters is created
@@ -418,7 +418,7 @@ and the RTEMS operating system. The LEON architecture is similar to
 the SPARC. In other words, we have to use a compiler that is different
 from the one used to compile native binaries. In our case, the
 compiler is called @code{sparc-rtems-gcc}. Consequently, the host name
-will be @code{sparc-rtems}. 
+will be @code{sparc-rtems}.
 
 @noindent
 @emph{Note: If you use RTEMS, you have to define the
@@ -452,10 +452,10 @@ Each example uses a makefile.
 For each example, a makefile is provided with the following rules:
 
 @itemize @bullet
-@item 
+@item
 @code{build-all}: generate code from the example and compile it;
 
-@item 
+@item
 @code{clean}: clean all generated files;
 
 @end itemize
@@ -470,8 +470,8 @@ In this chapter, we discuss the construction of an application, using
 PolyORB-HI-C and an AADL model of the application.
 
 @menu
-* Building examples::           
-* Building a new system::       
+* Building examples::
+* Building a new system::
 @end menu
 
 @c -------------------------------------------------------------------
@@ -526,7 +526,7 @@ Guide}. There are some PolyORB-HI-C specific flags :
 @enumerate
 
 @item @b{-perf} : enable performance traces. Using this flag, PolyORB-HI-C will execute
-your application during a fixed amount of time and then, produce a performance analysis 
+your application during a fixed amount of time and then, produce a performance analysis
 (indicating the Worst-Case Execution Time (WCET) and call traces (which functions was executed and when).
 
 @end enumerate
@@ -570,11 +570,11 @@ following files :
 @item @code{po_hi_task.c} : Create tasks and handle their properties
 (period, priority, ...). At this time, this file contains only POSIX
 calls to create and manage thread.
-  
+
 @item @code{po_hi_time.c} : Handle time and provide some functions to wait
 until an absolute time. The functions defined in this file make calls
 to POSIX functions like @code{clock_gettime()}.
-  
+
 @item @code{po_hi_transport_sockets.c} : All the functions defined in this
 file are used to send or receive data through sockets. It creates a
 task to receive data and put them on a stack. All the functions made
@@ -627,7 +627,7 @@ Actually, PolyORB-HI-C supports the following devices
 @enumerate
    @item
       @b{sockets}: a socket interface that uses PolyORB marshallers to send data accross an ethernet network.
-      It relies on the TCP/IP protocol and uses POSIX functions to send and receive data. 
+      It relies on the TCP/IP protocol and uses POSIX functions to send and receive data.
    @item
       @b{Linux serial}: provides function to send data accross the serial bus on a Linux host.
    @item
@@ -719,7 +719,7 @@ drivers configuration.
 To add a new driver, you need to add a file in the @file{src/drivers} directory. It would basically contain
 the implementation of your driver. Then, since all files are compiled, you need to add some C macro
 that will indicate that your file will be compiled only under some circumstances (when the device is used in the model).
-To do so, the code generator automatically generates a maccro called @code{__PO_HI_NEED_XXX} where @code{XXX} is the 
+To do so, the code generator automatically generates a maccro called @code{__PO_HI_NEED_XXX} where @code{XXX} is the
 driver name in uppercase. The driver name is specified in AADL models using the @code{Deployment::Driver_Name} property.
 
 If you are implementing your own driver, you can take existing drivers as an example.
@@ -746,8 +746,8 @@ driver in the generated code so that you can easily get configuration strings.
 @c -------------------------------------------------------------------
 
 @menu
-* C constructions and restrictions::  
-* AADL features::       
+* C constructions and restrictions::
+* AADL features::
 @end menu
 
 @c -------------------------------------------------------------------
@@ -757,7 +757,7 @@ driver in the generated code so that you can easily get configuration strings.
 
 @noindent
 PolyORB-HI-C introduces Ravenscar-like restrictions on C concurrent
-features.  
+features.
 
 Moreover, the code is compliant with the Application Environment
 Profile (AEP) defined by the OMG. If these constructions are warrant
@@ -792,7 +792,7 @@ This section lists AADL features supported by PolyORB-HI-C:
 @item on native platform, distribution can be tested using the native
 socket library.
 
-@item user-provided transport layer can be used, provided they follow 
+@item user-provided transport layer can be used, provided they follow
 guidelines discussed in section @b{XXX}.
 @end itemize
 @end itemize
@@ -805,14 +805,14 @@ guidelines discussed in section @b{XXX}.
 @c -------------------------------------------------------------------
 
 @menu
-* Whole distributed application::  
-* Distributed application nodes::  
-* Hosts::                       
-* Threads::                     
-* Connections::                 
-* Subprograms::                 
-* Data::                        
-* Devices::                        
+* Whole distributed application::
+* Distributed application nodes::
+* Hosts::
+* Threads::
+* Connections::
+* Subprograms::
+* Data::
+* Devices::
 @end menu
 
 In the following, and for each component of the distributed
@@ -983,14 +983,14 @@ the node @code{B} in the @code{Ping} example does not have a
 
 All the data types mapped from AADL data components and used by a
 particular node of a distributed application are gathered in a
-separate C file called @file{types.h}. 
+separate C file called @file{types.h}.
 
 For more detail on the mapping of data components, see @ref{Data}.
 
 @subsubsection Subprograms
 
 The mapping of all AADL subprogram components used by a particular
-node is generated in a separate file called @file{subprograms.c}. 
+node is generated in a separate file called @file{subprograms.c}.
 The content of the file is shown in the following example:
 
 For more detail on the mapping of subprogram components, see
@@ -1029,7 +1029,7 @@ The file @file{deployment.h} contains the following types
 
 More, this file contains the following maccros :
 @itemize @bullet
-         @item @code{__PO_HI_NB_ENTITIES} is the number of entities in 
+         @item @code{__PO_HI_NB_ENTITIES} is the number of entities in
          the whole distributed system.
          @item @code{__PO_HI_NB_TASKS} is the number of the tasks that will
          be started on the current node
@@ -1045,10 +1045,10 @@ More, this file contains the following maccros :
 
 The file @file{deployment.c} contains the following variables :
 @itemize @bullet
-         @item @code{mynode} variable which has the value of the 
+         @item @code{mynode} variable which has the value of the
          handled node.
-         
-         @item @code{__po_hi_entity_table} variable is used to know on 
+
+         @item @code{__po_hi_entity_table} variable is used to know on
          which node an entity runs.
 
          @item @code{__po_hi_port_global_to_local} variable is used
@@ -1064,7 +1064,7 @@ The file @file{deployment.c} contains the following variables :
 
          @item @code{__po_hi_port_to_device} is an array which size is @code{__PO_HI_NB_PORTS}.
          For each port, it indicates the value of the device identifier that handles
-         it. 
+         it.
 
          @item @code{__po_hi_port_global_model_names} is an array which size is
          @code{__PO_HI_NB_PORTS}. For each port, it contains the name of the port.
@@ -1117,7 +1117,7 @@ shows how the node @code{Node_A} is mapped to the processor
 
 The C generated code concerning the code generation to model host
 mapping is located in the @file{naming.c} file. More precisely,
-the @code{node_addr} and @code{node_port} contains, for each node, 
+the @code{node_addr} and @code{node_port} contains, for each node,
 the information related to its host. These information are dependant on the
 transport mechanism used in the distributed application.
 
@@ -1178,14 +1178,14 @@ event.
 
 The majority of the code generated for the periodic threads is put
 in the @file{activity.c} file generated for the application
-node containing the handled thread. Each periodic thread is created in the 
+node containing the handled thread. Each periodic thread is created in the
 main function (@file{main.c} file) with the @code{__po_hi_create_periodic_task}
-function-call. 
+function-call.
 
-The generated code in the @file{activity.c} file is a parameterless function 
-that represents the thread job. The defining identifier of the function 
-is mapped from the thread instance name in the process that models the node, 
-to which we append the string ``@code{_job}''. All the naming rules listed 
+The generated code in the @file{activity.c} file is a parameterless function
+that represents the thread job. The defining identifier of the function
+is mapped from the thread instance name in the process that models the node,
+to which we append the string ``@code{_job}''. All the naming rules listed
 in @ref{Whole distributed application} have to be respected. The body of this
 subprogram calls the subprograms mapped from the subprogram calls the
 thread performs. Then, it sends the request to the remote threads it
@@ -1195,12 +1195,12 @@ This call ensure that we wait the next period before we start the function
 again.
 
 The generated code in @file{main.c} file is a function-call that creates
-a periodic task. The task is created with the function 
-@code{__po_hi_create_periodic_task}. This creates a periodic task with 
+a periodic task. The task is created with the function
+@code{__po_hi_create_periodic_task}. This creates a periodic task with
 the wanted properties at the elaboration time of the node. The package
-instantiation name is mapped from the thread instance name in the process 
-that model the node, to which we append the string ``@code{_k}''. All the 
-naming rules listed in @ref{Whole distributed application} have to be 
+instantiation name is mapped from the thread instance name in the process
+that model the node, to which we append the string ``@code{_k}''. All the
+naming rules listed in @ref{Whole distributed application} have to be
 respected. The function-call takes the following parameters:
   @itemize @bullet
     @item the enumerator corresponding to the thread
@@ -1225,25 +1225,25 @@ event is called the period of the sporadic thread.
 @subsubsection Node activity
 The majority of the code generated for the sporadic threads is put
 in the @file{activity.c} file generated for the application
-node containing the handled thread. Each periodic thread is created in the 
+node containing the handled thread. Each periodic thread is created in the
 main function (@file{main.c} file) with the @code{__po_hi_create_sporadic_task}
-function-call. 
+function-call.
 
-The generated code in the @file{activity.c} file is a parameterless function 
-that represents the thread job. The defining identifier of the function 
-is mapped from the thread instance name in the process that models the node, 
-to which we append the string ``@code{_job}''. All the naming rules listed 
+The generated code in the @file{activity.c} file is a parameterless function
+that represents the thread job. The defining identifier of the function
+is mapped from the thread instance name in the process that models the node,
+to which we append the string ``@code{_job}''. All the naming rules listed
 in @ref{Whole distributed application} have to be respected. In the body
 of the function, the thread will wait for an event (most of the time : a
 message from another entity).
 
 The generated code in @file{main.c} file is a function-call that creates
-the sporadic task. The task is created with the function 
-@code{__po_hi_create_sporadic_task}. This creates a sporadic task with 
+the sporadic task. The task is created with the function
+@code{__po_hi_create_sporadic_task}. This creates a sporadic task with
 the wanted properties at the elaboration time of the node. The package
-instantiation name is mapped from the thread instance name in the process 
-that model the node, to which we append the string ``@code{_k}''. All the 
-naming rules listed in @ref{Whole distributed application} have to be 
+instantiation name is mapped from the thread instance name in the process
+that model the node, to which we append the string ``@code{_k}''. All the
+naming rules listed in @ref{Whole distributed application} have to be
 respected. The function-call takes the following parameters:
   @itemize @bullet
     @item the enumerator corresponding to the thread
@@ -1261,17 +1261,17 @@ The following example shows the generated code for the sporadic thread
 @subsection Deployment information
 
 As said in @ref{Distributed application nodes}, the files @file{deployment.h}
-and @file{deployment.c} are generated for each node in the distributed 
+and @file{deployment.c} are generated for each node in the distributed
 application. For each thread port in the whole distributed application, we declare an
 enumerator in this type. The defining identifier of the enumerator is
 mapped from the process subcomponent name and the thread subcomponent
-name as follows: @code{<Node_Name>_<Thread_Name>_K}. 
+name as follows: @code{<Node_Name>_<Thread_Name>_K}.
 For each that that may communicate, we generate the following elements
 @itemize @bullet
-   @item A variable called @code{__po_hi_<thread_name>_local_to_global} 
-   (in @code{deployment.c}) that is used to convert a local port 
+   @item A variable called @code{__po_hi_<thread_name>_local_to_global}
+   (in @code{deployment.c}) that is used to convert a local port
    identifier of the thread to a global one.
-   
+
    @item A type @code{__po_hi_<thread_name>_t} that will contain
    on local port identifier.
 
@@ -1293,7 +1293,7 @@ The listing above shows the generated @code{__po_hi_entity_server_t} and
 Threads can contain one or several ports. To handle them, we declared several
 arrays in the @code{activity.c}
 @itemize @bullet
-   @item @code{__po_hi_<port_name>_destinations} : array for each port of the 
+   @item @code{__po_hi_<port_name>_destinations} : array for each port of the
    thread which contains all destinations of the port.
    @item @code{__po_hi_<thread_name>_woffsets} : array (size = number of ports in the
    thread) used by \pohic for the global queue of the thread.
@@ -1307,7 +1307,7 @@ arrays in the @code{activity.c}
       thread) used by \pohic for the global queue of the thread.
    @item @code{__po_hi_<thread_name>_recent} : array (size = number of ports in the
       thread) used by \pohic for the global queue of the thread.
-   @item @code{__po_hi_<thread_name>_queue} : array (size = size of the global queue 
+   @item @code{__po_hi_<thread_name>_queue} : array (size = size of the global queue
    for the thread) used by \pohic to handle the global queue.
    @item @code{__po_hi_<thread_name>_total_fifo_size} : variable that contains
    the size of the global queue. It is the sum of all port size for the thread.
@@ -1454,8 +1454,8 @@ On the client side, A thread @code{sth_Job} begin by calling the
 subprogram in its call sequence. then it calls the stubs of all the
 subprogram it is connected to.
 
-On the server side, and in the function of the @code{process_request}, 
-the subprogram implementation corresponding to the operation 
+On the server side, and in the function of the @code{process_request},
+the subprogram implementation corresponding to the operation
 (coded in the message) is called.
 
 @c -------------------------------------------------------------------
@@ -1526,7 +1526,7 @@ of data component.
 @subsection C mapping rules
 
 Data component declaration are mapped into C type declaration in the
-file @code{types.h}. 
+file @code{types.h}.
 In the following we give the C type corresponding to each data component
 type that could be modeled.
 
@@ -1557,7 +1557,7 @@ time.
 
 @subsubsection Data structures
 
-Data structures are mapped into a C structure defined in the file @file{types.h}. 
+Data structures are mapped into a C structure defined in the file @file{types.h}.
 The identifier of the record type is mapped from the data component name
 with respect to the naming rules given in @ref{Whole distributed
 application}. Each field defining identifier is mapped from the
@@ -1572,15 +1572,15 @@ mapping of the data structure defined given earlier in this part.
 
 Protected object types are mapped into an a C structure. We add automatically a
 member in the structure with the type @code{__po_hi_protected_id} and the name
-@code{protected_id}. This member 
+@code{protected_id}. This member
 will identify the protected type in the distributed system. All other members of
 the object are declared as in Data Structures (see previous subsection). The
 features subprograms of the object types are declared in the @file{types.h}
 file, whereas the body of these functions are defined in the @file{types.c}
 file. Moreover, the value of the @code{protected_id} must be initialized. This
 is done in the main function (@file{main.c}), before the initialization.
-All the naming conventions given in @ref{Whole distributed application} have to 
-be respected. The following example shows the specification of the protected type 
+All the naming conventions given in @ref{Whole distributed application} have to
+be respected. The following example shows the specification of the protected type
 mapped from the @code{Protected_Object.Impl} shown earlier in this part. We show
 the files @file{types.h}, @file{types.c} and @file{main.c} (that initialize the
 @code{protected_id} member of the structure.
@@ -1610,7 +1610,7 @@ this function is described and associated with an AADL subprogram.
 
 Also, you can specify an initialization function for your device. In that case,
 you should associate an AADL subprogram with your device using the @code{Initialize_Entrypoint} property.
-This subprogram will then be called at the initialization of the system. The signature of your subprogram 
+This subprogram will then be called at the initialization of the system. The signature of your subprogram
 should be :
 
 @smallexample
@@ -1621,7 +1621,7 @@ In this function, the parameter @code{id} corresponds to the identifier bound to
 then be used to retrieve configuration parameters using the @code{__po_hi_get_device_naming} function
 of PolyORB.
 
-The following example illustrates the modeling of device drivers. It describes a serial device. It 
+The following example illustrates the modeling of device drivers. It describes a serial device. It
 calls an initialization function when the system is initialized. It also specify device drivers internals
 with an abstract device. This driver is composed of a @b{sending} function to send data across a bus, as well
 as a @b{poller} thread that receives incoming data.
@@ -1639,19 +1639,19 @@ as a @b{poller} thread that receives incoming data.
 
 This section lists the API of PolyORB-HI-C, used to support the basics
 of distribution features and concurrent interactions.
- 
+
 @menu
-* Tasking functions::           
-* Time functions::              
-* Marshallers functions::       
-* GIOP functions::              
-* Messages functions::          
-@c * Protocols functions::         
-* Transport functions::         
-* Protected types functions::   
-* Global queue functions::      
-* Types used in PolyORB-HI-C::  
-* Return types for PolyORB-HI-C functions::  
+* Tasking functions::
+* Time functions::
+* Marshallers functions::
+* GIOP functions::
+* Messages functions::
+@c * Protocols functions::
+* Transport functions::
+* Protected types functions::
+* Global queue functions::
+* Types used in PolyORB-HI-C::
+* Return types for PolyORB-HI-C functions::
 @end menu
 
 @c -------------------------------------------------------------------
