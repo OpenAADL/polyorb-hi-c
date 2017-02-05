@@ -1,11 +1,16 @@
-PolyORB-HI/C runtime
-====================
+# PolyORB-HI/C runtime
 
-[![Build Status](https://travis-ci.org/OpenAADL/polyorb-hi-c.svg?branch=master)](https://travis-ci.org/OpenAADL/polyorb-hi-c)
+## About
 
-This is the PolyORB-HI/C runtime, a high-integrity middleware used in
-conjunction with code generation from AADL models using Ocarina.
+PolyORB-HI/C is a high-integrity middleware. It provides core middleware constructs, and must be used in conjunction with code generation from AADL models by [Ocarina](https://github.com/OpenAADL/ocarina).
 
-The recommended installation process is through the proper
-configuration and installation of Ocarina, see Ocarina documentation
-for details.
+It is written in C99, and is compatible with the following APIs: RT-POSIX (Linux and OS X), RTEMS, FreeRTOs, Windows, Xenomai and XtratuM.
+
+## Installation
+
+The recommended installation process is through the proper configuration and installation of [Ocarina](https://github.com/OpenAADL/ocarina), see Ocarina documentation for details.
+
+## Q&A
+
+Build status for Linux and OS X: [![Build Status](https://travis-ci.org/OpenAADL/polyorb-hi-c.svg?branch=master)](https://travis-ci.org/OpenAADL/polyorb-hi-c)
+
