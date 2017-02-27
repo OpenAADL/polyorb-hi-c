@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2016 ESA & ISAE.
+ * Copyright (C) 2010-2017 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -24,6 +24,8 @@
 /* Headers from the generated code */
 
 #include <string.h>
+#include <assert.h>
+#include <stdlib.h>
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
 #include <pthread.h>
@@ -98,7 +100,6 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 {
    __po_hi_uint8_t      tmp;
    __po_hi_uint16_t     off;
-   __po_hi_request_t*   request;
    int err;
 
 #if defined (RTEMS_PURE)
@@ -133,20 +134,26 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
    err = pthread_mutexattr_init (&__po_hi_gqueues_mutexes_attr[id]);
    __DEBUGMSG("MUTEX_INIT %d %d\n", id, err);
+   assert(err == 0);
    err = pthread_condattr_init (&__po_hi_gqueues_conds_attr[id]);
    __DEBUGMSG("MUTEX_INIT %d %d\n", id, err);
+   assert(err == 0);
 #if defined (POSIX) || defined (XENO_POSIX)
    // XXX disabled for OS X
 
 #ifndef __MACH__ // OS X bugs on this attribute
    err = pthread_mutexattr_setpshared(&__po_hi_gqueues_mutexes_attr[id],PTHREAD_PROCESS_SHARED);
+   assert(err == 0);
 #endif
    __DEBUGMSG("MUTEX_INIT %d\n", err);
 #endif
    err = pthread_mutex_init (&__po_hi_gqueues_mutexes[id], &__po_hi_gqueues_mutexes_attr[id]);
    __DEBUGMSG("MUTEX_INIT %d %d\n", id, err);
+   assert(err == 0);
    err = pthread_cond_init (&__po_hi_gqueues_conds[id], &__po_hi_gqueues_conds_attr[id]);
    __DEBUGMSG("COND_INIT %d %d\n", id, err);
+   assert(err == 0);
+   
 #endif
 
 #ifdef RTEMS_PURE
@@ -194,7 +201,7 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 #endif
 
    off = 0;
-
+   
    for (tmp=0;tmp<nb_ports;tmp++)
    {
       __po_hi_gqueues_used_size[id][tmp] = 0;
@@ -208,9 +215,9 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
          __po_hi_gqueues_woffsets[id][tmp] = 0;
          __po_hi_gqueues_port_is_empty[id][tmp] = 1;
       }
-
+      
       /* Set invalid all recent values */
-      request = (__po_hi_request_t*)&__po_hi_gqueues_most_recent_values[id][tmp];
+      __po_hi_request_t* request = (__po_hi_request_t*)&__po_hi_gqueues_most_recent_values[id][tmp];
       request->port = __PO_HI_GQUEUE_INVALID_PORT;
    }
 
@@ -245,7 +252,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 {
    __po_hi_request_t* ptr;
    __po_hi_request_t* tmp;
-   __po_hi_uint32_t   size;
+   
 #ifdef RTEMS_PURE
    rtems_status_code ret;
 #endif
@@ -303,7 +310,8 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
         __DEBUGMSG ("[GQUEUE] Semaphore released (id=%d)\n", id);
         return __PO_HI_ERROR_QUEUE_FULL;
       }
-
+      
+      __po_hi_uint32_t   size;
       tmp = (__po_hi_request_t*) &__po_hi_gqueues[id][port];
       size = __po_hi_gqueues_woffsets[id][port] + __po_hi_gqueues_first[id][port];
 
@@ -330,6 +338,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
    int err = pthread_cond_signal (&__po_hi_gqueues_conds[id]);
+   assert(err == 0);   
    __DEBUGMSG("*** Releasing (%d) %d\n", id, err);
 #elif defined (XENO_NATIVE)
    rt_mutex_release (&__po_hi_gqueues_mutexes[id]);
@@ -367,6 +376,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
   int error = pthread_mutex_lock (&__po_hi_gqueues_mutexes[id]);
+  assert(error ==0);
   __DEBUGMSG("*** Locking (%d) %d\n", id, error);
 #elif defined (XENO_NATIVE)
   rt_mutex_acquire (&__po_hi_gqueues_mutexes[id], TM_INFINITE);
@@ -388,6 +398,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
       __DEBUGMSG("*** Waiting (%d)\n", id);
       int error = pthread_cond_wait (&__po_hi_gqueues_conds[id],
                                      &__po_hi_gqueues_mutexes[id]);
+      assert(error == 0);
       __DEBUGMSG("*** Done Waiting (%d) %d\n", id, error);
 #elif defined (XENO_NATIVE)
       rt_cond_wait (&__po_hi_gqueues_conds[id], &__po_hi_gqueues_mutexes[id], TM_INFINITE);
@@ -651,11 +662,14 @@ __po_hi_int8_t po_hi_gqueues_queue_is_empty( __po_hi_task_id id)
    return __po_hi_gqueues_queue_is_empty[id];
 }
 
-__po_hi_request_t*
- __po_hi_gqueues_get_request(__po_hi_task_id id, __po_hi_local_port_t port)
+__po_hi_request_t* 
+__po_hi_gqueues_get_request(__po_hi_task_id id, __po_hi_local_port_t port)
+
  {
- __po_hi_request_t* request;
-__po_hi_request_t* ptr;
+  __po_hi_request_t* request ;
+  __po_hi_request_t* ptr ;
+  request = calloc(1,sizeof(__po_hi_request_t));
+  ptr = &__po_hi_gqueues_most_recent_values[id][port];
    if (__po_hi_gqueues_used_size[id][port] == 0)
    {
       memcpy (request, ptr, sizeof (__po_hi_request_t));
@@ -665,5 +679,5 @@ __po_hi_request_t* ptr;
    {
       ptr = ((__po_hi_request_t *) &__po_hi_gqueues[id][port]) +  __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port];
       memcpy (request, ptr, sizeof (__po_hi_request_t));
-   }      return request;
+   }	return request;
 }

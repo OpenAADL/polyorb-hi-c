@@ -5,12 +5,11 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2016 ESA & ISAE.
+ * Copyright (C) 2010-2017 ESA & ISAE.
  */
 
 #include <deployment.h>
 #include <marshallers.h>
-
 
 #if (defined (__PO_HI_NEED_DRIVER_SOCKETS) || \
      defined (__PO_HI_NEED_DRIVER_RTEMS_NE2000_SOCKETS))
@@ -38,6 +37,7 @@
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 #ifndef _WIN32
 #include <netdb.h>
 #include <sys/types.h>
@@ -88,7 +88,6 @@ int      __po_hi_c_sockets_array_init_done = 0;
 int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
                                  __po_hi_port_t port)
 {
-   int                        len;
    int                        size_to_write;
 #ifndef _WIN32
    int                        optval = 0;
@@ -114,7 +113,6 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    protocol_id             = __po_hi_transport_get_protocol (port, destination_port);
    protocol_conf           = __po_hi_transport_get_protocol_configuration (protocol_id);
 
-
    __DEBUGMSG ("[DRIVER SOCKETS] Try to write from task=%d, port=%d, local_device=%d, remote device=%d, socket=%d\n", task_id, port, local_device, remote_device, __po_hi_c_sockets_write_sockets[remote_device]);
    if (request->port == -1)
    {
@@ -131,7 +129,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 
    if (device_status.status != po_hi_monitor_status_ok)
    {
-      __DEBUGMSG ("[DRIVER SOCKETS] Device has a problem and is not able to process the request, aborting (device-id=%d, status= %d)\n", local_device, device_status);
+      __DEBUGMSG ("[DRIVER SOCKETS] Device has a problem and is not able to process the request, aborting (device-id=%d, status= %d)\n", local_device, device_status.status);
       return __PO_HI_ERROR_TRANSPORT_SEND;
    }
 #endif
@@ -187,16 +185,17 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 #ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
       case virtual_bus_myprotocol_i:
       {
-         size_to_write = sizeof (int);
-         int datawritten;
-         protocol_conf->marshaller(request, &datawritten, &size_to_write);
+        int  len;
+        size_to_write = sizeof (int);
+        int datawritten;
+        protocol_conf->marshaller(request, &datawritten, &size_to_write);
 #ifdef _WIN32
-         len = send (__po_hi_c_sockets_write_sockets[remote_device], &datawritten, size_to_write, 0);
+        len = send (__po_hi_c_sockets_write_sockets[remote_device], &datawritten, size_to_write, 0);
 #else
-         len = write (__po_hi_c_sockets_write_sockets[remote_device], &datawritten, size_to_write);
+        len = write (__po_hi_c_sockets_write_sockets[remote_device], &datawritten, size_to_write);
 #endif
 
-         if (len != size_to_write)
+        if (len != size_to_write)
          {
             __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
             close (__po_hi_c_sockets_write_sockets[remote_device]);
@@ -206,9 +205,11 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
          break;
       }
 #endif
+      case invalid_protocol:
       default:
       {
-         request->port = destination_port;
+
+	 request->port = destination_port;
          __po_hi_msg_reallocate (&__po_hi_c_sockets_send_msg);
          __po_hi_marshall_request (request, &__po_hi_c_sockets_send_msg);
 
@@ -217,7 +218,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 #endif
          if (__po_hi_c_sockets_write_sockets[remote_device] != -1)
          {
-
+	    int  len;
 #ifdef _WIN32
             len = send (__po_hi_c_sockets_write_sockets[remote_device], (char*) &(__po_hi_c_sockets_send_msg.content), size_to_write, 0);
 #else
@@ -246,8 +247,9 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    return __PO_HI_SUCCESS;
 }
 
-
-
+/*pragma is for unused parameter "dev_id_addr"*/
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 {
 #ifdef _WIN32
@@ -264,10 +266,9 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
    struct sockaddr_in         sa;
    __po_hi_device_id          dev;
    __po_hi_node_t             dev_init;
-   int                        established = 0;
    int                        ret;
    __po_hi_device_id          dev_id;
-   __po_hi_uint32_t           n_connected;
+   __po_hi_int32_t            n_connected;
 
    socklen = sizeof (struct sockaddr);
 
@@ -278,6 +279,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
    __DEBUGMSG ("Poller launched, device-id=%d\n", dev_id);
 
    n_connected = 0;
+
    for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
    {
       if (__po_hi_transport_share_bus (dev, dev_id) == 1)
@@ -286,7 +288,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
       }
    }
 
-
+   assert (n_connected >= 0);
    __DEBUGMSG ("Number of devices that share the bus=%d\n", n_connected);
 
 
@@ -295,7 +297,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
     */
    for (dev = 0; dev < n_connected - 1; dev++)
    {
-         established = 0;
+         int established = 0;
 
          while (established == 0)
          {
@@ -320,7 +322,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
             if (ret != sizeof (__po_hi_device_id))
             {
                established = 0;
-               __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d, ret=%d, read size=%d, expected size=%d\n", dev, sock, ret, ret, sizeof (__po_hi_device_id));
+               __DEBUGMSG ("[DRIVER SOCKETS] Cannot read device-id for device %d, socket=%d, ret=%d, read size=%d, expected size=%lu\n", dev, sock, ret, ret, sizeof (__po_hi_device_id));
             }
             else
             {
@@ -429,6 +431,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
    }
    return NULL;
 }
+#pragma GCC diagnostic pop
 
 
 void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
@@ -469,7 +472,6 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
       __po_hi_c_sockets_array_init_done = 1;
    }
-
 
    __po_hi_transport_set_sending_func (dev_id, __po_hi_driver_sockets_send);
 
@@ -551,8 +553,6 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
       __DEBUGMSG ("[DRIVER SOCKETS] Will initialize connection with device %d\n", dev);
 
-      ip_port = 0;
-
       ipconf = (__po_hi_c_ip_conf_t*) __po_hi_get_device_configuration (dev);
       ip_port = (unsigned short)ipconf->port;
 
@@ -581,10 +581,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
          __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d created, value=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
 
-         hostinfo = NULL;
-
          hostinfo = gethostbyname ((char*)ipconf->address);
-
          if (hostinfo == NULL )
          {
             __DEBUGMSG ("[DRIVER SOCKETS] Error while getting host informations for device %d\n", dev);
@@ -644,7 +641,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 #endif
             if (ret != sizeof (__po_hi_device_id))
             {
-               __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id, expected size=%d, return value=%d\n", dev_id, sizeof (__po_hi_device_id), ret);
+               __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id, expected size=%lu, return value=%d\n", dev_id, sizeof (__po_hi_device_id), ret);
             }
             else
             {

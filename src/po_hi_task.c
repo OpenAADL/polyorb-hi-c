@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2016 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
 #ifdef POSIX
@@ -125,7 +125,7 @@ __po_hi_task_id __po_hi_get_task_id (void) {
     }
   }
 #endif
-
+  
   return (__PO_HI_ERROR_UNKNOWN);
 
 }
@@ -205,6 +205,8 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
       __po_hi_add_times(&(tasks[task].timer), &mytime, &tasks[task].period );
       break;
    }
+  case TASK_BACKGROUND:
+    break;
   }
 
   return (__PO_HI_SUCCESS);
@@ -354,7 +356,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
   pthread_attr_t     attr;
   struct sched_param param;
   int err;
-
+  
   /* Create attributes to store all configuration parameters */
 
   if (pthread_attr_init (&attr) != 0)
@@ -549,7 +551,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
                                  void*                      (*start_routine)(void),
                                  void*                      arg)
 {
-  __po_hi_task_t* my_task;
+
   if (id == -1)
     {
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
@@ -577,6 +579,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
     }
   else
     {
+      __po_hi_task_t* my_task;
       my_task         = &(tasks[id]);
       __po_hi_time_copy (&(my_task->period), period);
       my_task->id     = id;
@@ -789,7 +792,7 @@ void __po_hi_tasks_killall ()
       rtems_task_delete (tasks[i].rtems_id);
 #elif defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
       pthread_cancel (tasks[i].tid);
-      __DEBUGMSG ("[TASKS] Cancel thread %p\n", tasks[i].tid);
+      __DEBUGMSG ("[TASKS] Cancel thread %lu\n", tasks[i].tid);
 #endif
     }
 }

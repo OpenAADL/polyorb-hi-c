@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2014 ESA & ISAE.
+ * Copyright (C) 2011-2017 ESA & ISAE.
  */
 
 #if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (RTEMS_PURE)
@@ -85,7 +85,7 @@ int __po_hi_storage_file_close (__po_hi_storage_file_t* file)
 
    if ( close (file->fd))
    {
-      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_close: cannot close file\n", file->filename);
+      __DEBUGMSG ("[STORAGE] __po_hi_storage_file_close: %s cannot close file\n", file->filename);
       return __PO_HI_ERROR_UNKNOWN;
    }
 
@@ -131,7 +131,7 @@ int __po_hi_storage_file_create (__po_hi_storage_file_t* file)
 
    if (fd == -1)
    {
-      __DEBUGMSG ("[STORAGE] Warning, cannot open file %s with create attributes\n");
+      __DEBUGMSG ("[STORAGE] Warning, cannot open file %s with create attributes\n", file->filename);
       return __PO_HI_INVALID;
    }
 
@@ -320,21 +320,30 @@ int __po_hi_storage_file_append (const __po_hi_storage_file_t* file, char* buf, 
 #endif
    return __PO_HI_NOTIMPLEMENTED;
 }
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __po_hi_storage_file_replace (const __po_hi_storage_file_t* oldfile, const __po_hi_storage_file_t* newfile)
 {
    return __PO_HI_NOTIMPLEMENTED;
 }
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __po_hi_storage_file_lock (const __po_hi_storage_file_t* file)
 {
+   
    return __PO_HI_NOTIMPLEMENTED;
 }
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __po_hi_storage_file_unlock (const __po_hi_storage_file_t* file)
 {
    return __PO_HI_NOTIMPLEMENTED;
 }
+#pragma GCC diagnostic pop
 
 /*
  * Directory operations
@@ -474,8 +483,7 @@ int __po_hi_storage_directory_list (__po_hi_storage_dir_t* dir)
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    struct dirent* ent;
    DIR*           sdir;
-   int            n;
-   int            len;
+
 #endif
 
    if ((dir == NULL) || (dir->dirname == NULL))
@@ -485,7 +493,6 @@ int __po_hi_storage_directory_list (__po_hi_storage_dir_t* dir)
 
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   sdir = NULL;
    sdir = opendir (dir->dirname);
 
    if (sdir == NULL)
@@ -498,8 +505,8 @@ int __po_hi_storage_directory_list (__po_hi_storage_dir_t* dir)
 
    while ( ( ( ent = readdir (sdir) ) != NULL ) && (dir->nb_files < __PO_HI_STORAGE_DIRECTORY_MAXFILES) )
    {
-      n = dir->nb_files;
-      len = strlen (ent->d_name);
+      int n = dir->nb_files;
+      int len = strlen (ent->d_name);
       if (len < __PO_HI_STORAGE_FILENAME_MAXLENGTH)
       {
          n = dir->nb_files;
@@ -524,16 +531,21 @@ int __po_hi_storage_directory_list (__po_hi_storage_dir_t* dir)
 
    return __PO_HI_NOTIMPLEMENTED;
 }
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __po_hi_storage_directory_lock (const __po_hi_storage_dir_t* dir)
 {
    return __PO_HI_NOTIMPLEMENTED;
 }
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __po_hi_storage_directory_unlock (const __po_hi_storage_dir_t* dir)
 {
    return __PO_HI_NOTIMPLEMENTED;
 }
+#pragma GCC diagnostic pop
 
 int __po_hi_storage_change_cdir (__po_hi_storage_dir_t* new_current_directory)
 {
@@ -587,16 +599,21 @@ int __po_hi_storage_packet_store_new (__po_hi_storage_packet_store_t* store)
    store->write_off  = 0;
    return __PO_HI_SUCCESS;
 }
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __po_hi_storage_packet_store_new_from_file (__po_hi_storage_packet_store_t* store, __po_hi_storage_file_t* file)
 {
    return __PO_HI_NOTIMPLEMENTED;
 }
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __po_hi_storage_packet_store_write_to_file (__po_hi_storage_packet_store_t* store, __po_hi_storage_file_t* file)
 {
    return __PO_HI_NOTIMPLEMENTED;
 }
+#pragma GCC diagnostic pop
 
 int __po_hi_storage_packet_store_read (__po_hi_storage_packet_store_t* store, __po_hi_storage_packet_t* packet)
 {

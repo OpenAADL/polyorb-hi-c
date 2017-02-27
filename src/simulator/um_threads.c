@@ -1,3 +1,13 @@
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
+ *
+ * Copyright (C) 2017 ESA & ISAE.
+ */
+
 #include<signal.h>
 #include<stdlib.h>
 #include<stdio.h>
@@ -6,6 +16,7 @@
 
 #include<ucontext.h>
 #include<stdio.h>
+#include<assert.h>
 
 #include <po_hi_debug.h>
 #include <activity.h>
@@ -108,8 +119,8 @@ void start_scheduler (void) {
 
 void scheduler(void)
 {
-  um_thread_id previous = sched_current_context_id;
-
+  //um_thread_id previous = sched_current_context_id;
+  //assert(previous);
   threads[sched_current_context_id].state = READY;
   sched_current_context_id = the_scheduler ();
 
