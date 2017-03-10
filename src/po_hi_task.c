@@ -36,6 +36,7 @@
 #if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (RTEMS_PURE)
 #else
 #include <xlocale.h>
+#include <unistd.h>
 #endif
 
 #include <pthread.h>
@@ -339,6 +340,26 @@ int __po_hi_initialize_tasking( )
 }
 
 /*
+ * For multi-core aware systems, this function returns the number of
+ * core available
+ */
+
+#if defined (POSIX) || defined (RTEMS_POSIX)
+int __po_hi_number_of_cpus (void)
+{
+  int cores = 1;
+
+#if defined (__linux__)  || defined (__APPLE__)
+
+  cores = (int) sysconf (_SC_NPROCESSORS_ONLN);
+#endif
+
+  return cores;
+}
+
+#endif
+
+/*
  * For each kind of system, we declare a generic function that
  * create a thread. For POSIX-compliant systems, the function
  * is called __po_hi_posix_create_thread
@@ -369,6 +390,12 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
 #ifndef __COMPCERT__
   /* Thread affinity */
   cpu_set_t cpuset;
+
+  if ( core_id > __po_hi_number_of_cpus() )
+    {
+      __PO_HI_DEBUG_CRITICAL("Invalid CPU core id\n");
+      return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
+    }
 
   CPU_ZERO(&cpuset);
   CPU_SET(core_id, &cpuset);
