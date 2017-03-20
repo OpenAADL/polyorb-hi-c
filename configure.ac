@@ -92,8 +92,7 @@ AC_SUBST(SIMULINK_LDFLAGS)
 # Check for Ocarina
 ##########################################
 
-AM_PATH_OCARINA(1.1, ,AC_MSG_ERROR([Ocarina 1.1 or later is not installed on you
-r system]))
+AM_PATH_OCARINA(1.1, ,AC_MSG_ERROR([Ocarina 1.1 or later is not installed on your system]))
 
 AC_ARG_ENABLE(debug,
   [  --enable-debug[=level] specify debugging level.
