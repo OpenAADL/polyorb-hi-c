@@ -198,6 +198,27 @@ hyperperiod-cheddar:
 	python parser_cheddar_et.py
 
 ################################################################################
+# Code coverage + runtime-analysis
+
+# gcov
+ifeq ($(COVERAGE), gcov)
+CFLAGS  += -fprofile-arcs -ftest-coverage -lgcov -coverage
+LDFLAGS += -fprofile-arcs -ftest-coverage -lgcov -coverage
+endif
+
+# gnatcoverage
+ifeq ($(COVERAGE), gnatcov)
+CFLAGS  += -g -fpreserve-control-flow -fdump-scos -ffunction-sections -fdata-sections -Wl,--gc-sections
+LDFLAGS += -g -fpreserve-control-flow -fdump-scos -ffunction-sections -fdata-sections -Wl,--gc-sections
+endif
+
+# valgrind
+ifeq ($(VALGRIND_PROF), true)
+CFLAGS  += -g
+LDFLAGS += -g
+endif
+
+################################################################################
 # General compilation rules
 
 compile-po-hi:
