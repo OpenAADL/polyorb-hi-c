@@ -9,9 +9,9 @@ GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align -Wju
 
 all: build-node
 
-LOCAL_RUNTIME_PATH=$(PWD)/../polyorb-hi-c
+LOCAL_RUNTIME_PATH=$(shell pwd)/../polyorb-hi-c
 
--include $(LOCAL_RUNTIME_PATH)/make/Makefile.$(TARGET)
+include $(LOCAL_RUNTIME_PATH)/make/Makefile.$(TARGET)
 -include ../../userdefined.mk
 
 ifneq ($(USE_CPP_LINKER),)
@@ -252,7 +252,7 @@ endif
       fi ; \
 	done
 
-compile-node: copy_pohic $(BINARY)
+compile-node: $(BINARY)
 
 ifeq ($(TARGET), $(filter $(TARGET), leon3-scoc3 leon.rtems leon.rtems_posix))
 OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
@@ -392,9 +392,6 @@ python_wrapper:
 
 	$(CC) -fPIC -c po_hi_c_python_wrap.c $(INCLUDE) $(CFLAGS) `python-config --includes`
 	ld -dylib po_hi_c_python_wrap.o $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(PO_HI_CPPOBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) `python-config --libs` -o _po_hi_c_python.so
-
-copy_pohic:
-	cp -r --force $(RUNTIME_PATH) ..
 
 ################################################################################
 # Execution of scripts to collect information for sonarqube.
