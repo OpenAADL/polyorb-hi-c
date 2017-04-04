@@ -108,10 +108,10 @@ end PING.Impl;
 
 system implementation PING.local
 subcomponents
-  pktstore : process singleProcess.Impl;
+  node_a : process singleProcess.Impl;
   CPU_A : processor the_processor;
 properties
-  actual_processor_binding => reference (CPU_A) applies to pktstore;
+  actual_processor_binding => reference (CPU_A) applies to node_a;
 end PING.local;
 
 system implementation PING.Xenomai
