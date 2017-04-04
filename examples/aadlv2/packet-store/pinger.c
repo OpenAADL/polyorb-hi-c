@@ -63,3 +63,9 @@ void user_do_ping_spg ()
   }
   fflush (stdout);
 }
+
+void recover (void)
+{
+  printf ("*** RECOVER ACTION ***\n");
+  fflush (stdout);
+}
