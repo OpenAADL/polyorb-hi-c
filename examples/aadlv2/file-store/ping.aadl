@@ -102,10 +102,10 @@ public
 
   system implementation PING.Local
   subcomponents
-    filestore : process singleProcess.Impl;
+    Node_A : process singleProcess.Impl;
     CPU_A : processor the_processor;
   properties
-    actual_processor_binding => reference (CPU_A) applies to filestore;
+    actual_processor_binding => reference (CPU_A) applies to Node_A;
   end PING.Local;
 
   system implementation PING.Xenomai

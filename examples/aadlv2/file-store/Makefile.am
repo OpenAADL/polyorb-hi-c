@@ -1,11 +1,10 @@
-C_FILES = $(srcdir)/pinger.c $(srcdir)/pingme.c $(srcdir)/ping.h  $(srcdir)/devicesconf.c
-AADL_FILES = \
-	$(srcdir)/software.aadl  \
-	$(srcdir)/ping.aadl
+C_FILES = $(srcdir)/pinger.c $(srcdir)/pingme.c $(srcdir)/ping.h	\
+	$(srcdir)/devicesconf.c
 
-SCENARIO_FILES = $(srcdir)/scenario.aadl
+AADL_FILES = $(srcdir)/software.aadl $(srcdir)/ping.aadl
 
-# $(srcdir)/scenario_rtems.aadl $(srcdir)/scenario_local.aadl
+SCENARIO_FILES = $(srcdir)/scenario.aadl				\
+	$(srcdir)/scenario_rtems.aadl $(srcdir)/scenario_local.aadl
 
 include $(srcdir)/../../Makefile.common
 
