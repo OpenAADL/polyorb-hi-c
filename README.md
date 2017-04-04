@@ -4,7 +4,7 @@
 
 PolyORB-HI/C is a high-integrity middleware. It provides core middleware constructs, and must be used in conjunction with code generation from AADL models by [Ocarina](https://github.com/OpenAADL/ocarina).
 
-It is written in C99, and is compatible with the following APIs: RT-POSIX (Linux and OS X), RTEMS, FreeRTOs, Windows, Xenomai and XtratuM.
+It is written in C99, and is compatible with the following APIs: RT-POSIX (Linux and OS X), RTEMS, FreeRTOS, Windows, Xenomai and XtratuM.
 
 ## Installation
 
