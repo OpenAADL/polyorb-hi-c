@@ -14,4 +14,6 @@ include $(srcdir)/../../Makefile.common
 
 EXTRA_DIST = $(AADL_FILES) $(SCENARIO_FILES) $(C_FILES)
 
-CLEANDIRS = sunseekercontrolsystem_type_local sunseekercontrolsystem_type_dist
+CLEANDIRS = sunseekercontrolsystem_type_local	\
+	sunseekercontrolsystem_type_dist	\
+	sunseekercontrolsystem_type_rtems

@@ -10,4 +10,5 @@ include $(srcdir)/../../Makefile.common
 
 EXTRA_DIST = $(AADL_FILES) $(SCENARIO_FILES) $(C_FILES)
 
-CLEANDIRS = toy_example_native toy_example_xenomai toy_example_xenomai_posix
+CLEANDIRS = toy_example_native toy_example_xenomai	\
+	toy_example_xenomai_posix toy_example_rtems

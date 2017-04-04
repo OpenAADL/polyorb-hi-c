@@ -7,4 +7,5 @@ include $(srcdir)/../../Makefile.common
 
 EXTRA_DIST = $(AADL_FILES) $(SCENARIO_FILES) $(C_FILES)
 
-CLEANDIRS = cpp_test_impl
+CLEANDIRS = cpp_test_impl cpp_test_rtems
+

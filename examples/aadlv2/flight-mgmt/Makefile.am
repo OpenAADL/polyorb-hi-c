@@ -9,4 +9,5 @@ include $(srcdir)/../../Makefile.common
 
 EXTRA_DIST = $(AADL_FILES) $(SCENARIO_FILES) $(C_FILES)
 
-CLEANDIRS = flight_mgmt_native flight_mgmt_xenomai
+CLEANDIRS = flight_mgmt_native flight_mgmt_xenomai flight_mgmt_local	\
+	flight_mgmt_rtems

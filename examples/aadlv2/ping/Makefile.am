@@ -15,4 +15,5 @@ include $(srcdir)/../../Makefile.common
 
 EXTRA_DIST = $(AADL_FILES) $(SCENARIO_FILES) $(C_FILES)
 
-CLEANDIRS = ping_local ping_impl ping_ima ping_federated
+CLEANDIRS = ping_local ping_impl ping_ima ping_federated ping_rtems
+
