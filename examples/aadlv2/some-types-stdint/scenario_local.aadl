@@ -1,4 +1,9 @@
-system ping
+--  This is a scenario file describing the AADL 
+--  application some_types
+
+--  $Id: scenario.aadl 394 2007-05-31 18:59:00Z zalila $
+
+system some_types
 properties
   Ocarina_Config::Timeout_Property     => 4000ms;
   Ocarina_Config::Use_Components_Library => true;
@@ -6,17 +11,17 @@ properties
     ("node_a", "node_a.ref",
     "node_b", "node_b.ref");
   Ocarina_Config::AADL_Files           => 
-    ("ping.aadl" , "software.aadl");
-  Ocarina_Config::Root_System_Name => "PING.impl";
+    ("some_types_stdint.aadl", "software.aadl");
+  Ocarina_Config::Root_System_Name => "some_types_Local.impl";
   Ocarina_Config::Generator            => polyorb_hi_c;
   Ocarina_Config::Needed_Property_Sets => 
     (value (Ocarina_Config::Data_Model),
-     value (Ocarina_Config::ARINC653_Properties),
      value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::ARINC653_Properties),
      value (Ocarina_Config::Cheddar_Properties));
   Ocarina_Config::AADL_Version         => AADLv2;
-end ping;
+end some_types;
 
-system implementation ping.impl
-end  ping.impl;
+system implementation some_types.Impl
+end  some_types.Impl;
 

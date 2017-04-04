@@ -1,16 +1,16 @@
---  This is a scenario file describing the AADL 
---  application sunseeker
+--  This is a scenario file describing the AADL application Flight
+--  Management
 
---  $Id: scenario_local.aadl 394 2007-05-31 18:59:00Z zalila $
+--  $Id: scenario_local.aadl 424 2007-07-10 13:46:33Z zalila $
 
-system sunseeker
+system Flight_Management
 properties
   Ocarina_Config::Timeout_Property     => 1000ms;
   Ocarina_Config::Referencial_Files    =>
-    ("sunseeker", "sunseeker.ref");
+    ("mgmt", "mgmt.ref");
   Ocarina_Config::AADL_Files           => 
-    ("sunseeker.aadl", "sunseeker_dist.aadl");
-  Ocarina_Config::Root_System_Name => "Sunseekercontrolsystem_Type.Local";
+    ("flt_mgmt.aadl", "software.aadl");
+  Ocarina_Config::Root_System_Name => "Flight_Mgmt.RTEMS";
   Ocarina_Config::Generator            => polyorb_hi_c;
   Ocarina_Config::Needed_Property_Sets => 
     (value (Ocarina_Config::Data_Model),
@@ -18,8 +18,8 @@ properties
      value (Ocarina_Config::Cheddar_Properties));
   Ocarina_Config::AADL_Version         => AADLv2;
   Ocarina_Config::Use_Components_Library => true;
-end sunseeker;
+end Flight_Management;
 
-system implementation sunseeker.Impl
-end  sunseeker.Impl;
+system implementation Flight_Management.Impl
+end  Flight_Management.Impl;
 

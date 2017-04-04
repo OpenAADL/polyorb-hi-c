@@ -12,7 +12,8 @@ void user_produce_spg (int* data)
    *data = produce_data;
    printf ("At time %3lu:%3lu, produce : %d\n", mytime.tv_sec % 3600, mytime.tv_nsec/1000000,produce_data);
 #else
-   printf ("Produce %d\n", data);
+   *data = produce_data;
+   printf ("Produce %d\n", *data);
 #endif
    produce_data++;
 }

@@ -1,9 +1,10 @@
 C_FILES = $(srcdir)/toy.c
 AADL_FILES = $(srcdir)/toy_example.aadl
 
-SCENARIO_FILES = $(srcdir)/scenario_local.aadl \
-                 $(srcdir)/scenario_local_xenomai_posix.aadl \
-                 $(srcdir)/scenario_local_xenomai_native.aadl
+SCENARIO_FILES = $(srcdir)/scenario_local.aadl			\
+                 $(srcdir)/scenario_local_xenomai_posix.aadl	\
+                 $(srcdir)/scenario_local_xenomai_native.aadl	\
+                 $(srcdir)/scenario_rtems.aadl
 
 include $(srcdir)/../../Makefile.common
 

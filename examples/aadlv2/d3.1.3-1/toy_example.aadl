@@ -229,16 +229,20 @@ public
 
   system implementation toy_example.xenomai
       extends toy_example::toy_example.native
-
   properties
     Deployment::Execution_Platform => LINUX32_XENOMAI_NATIVE applies to P1;
   end toy_example.xenomai;
 
   system implementation toy_example.xenomai_posix
       extends toy_example::toy_example.native
-
   properties
     Deployment::Execution_Platform => LINUX32_XENOMAI_POSIX applies to P1;
   end toy_example.xenomai_posix;
+ 
+  system implementation toy_example.RTEMS
+      extends toy_example::toy_example.native
+  properties
+    Deployment::Execution_Platform => LEON_RTEMS applies to P1;
+  end toy_example.RTEMS;
 
 end Toy_Example;

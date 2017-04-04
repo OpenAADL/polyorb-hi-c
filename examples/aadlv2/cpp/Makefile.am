@@ -1,7 +1,7 @@
 C_FILES = $(srcdir)/hello.cc
 AADL_FILES = $(srcdir)/cpp_test.aadl
 
-SCENARIO_FILES =  $(srcdir)/scenario.aadl
+SCENARIO_FILES =  $(srcdir)/scenario.aadl $(srcdir)/scenario_rtems.aadl
 
 include $(srcdir)/../../Makefile.common
 

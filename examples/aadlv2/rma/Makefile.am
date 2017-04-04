@@ -6,10 +6,11 @@ AADL_FILES = $(srcdir)/rma.aadl \
              $(srcdir)/rma-xenomai-native.aadl
 
 
-SCENARIO_FILES =  $(srcdir)/scenario.aadl \
-                  $(srcdir)/scenario-compcert.aadl \
-                  $(srcdir)/scenario-xenomai-native.aadl \
-                  $(srcdir)/scenario-xenomai-posix.aadl
+SCENARIO_FILES = $(srcdir)/scenario.aadl			\
+                  $(srcdir)/scenario-compcert.aadl		\
+                  $(srcdir)/scenario-xenomai-native.aadl	\
+                  $(srcdir)/scenario-xenomai-posix.aadl		\
+                  $(srcdir)/scenario-rtems.aadl
 
 # remove target, linux specific
 #                  $(srcdir)/scenario-bench.aadl

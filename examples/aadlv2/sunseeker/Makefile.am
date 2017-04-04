@@ -7,7 +7,8 @@ AADL_FILES = \
            $(srcdir)/sunseeker_dist.aadl \
            $(srcdir)/sunseeker_local.aadl
 
-SCENARIO_FILES = $(srcdir)/scenario_local.aadl $(srcdir)/scenario_dist.aadl
+SCENARIO_FILES = $(srcdir)/scenario_local.aadl			\
+	$(srcdir)/scenario_dist.aadl $(srcdir)/scenario_rtems.aadl
 
 include $(srcdir)/../../Makefile.common
 

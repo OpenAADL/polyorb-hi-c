@@ -1,11 +1,10 @@
 #include <stdio.h>
-#include <request.h> 
-#include <deployment.h> 
+#include <request.h>
+#include <deployment.h>
 #include <po_hi_storage.h>
-
+#include <po_hi_gqueue.h>
 
 __po_hi_storage_packet_store_t packet_store;
-
 
 void user_produce_pkts_init ()
 {

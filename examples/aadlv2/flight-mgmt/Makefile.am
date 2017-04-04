@@ -1,7 +1,9 @@
 C_FILES = $(srcdir)/flight-mgmt.c
 AADL_FILES = $(srcdir)/flt_mgmt.aadl $(srcdir)/software.aadl
-SCENARIO_FILES = $(srcdir)/scenario_local.aadl	\
-	$(srcdir)/scenario_local_xenomai.aadl
+
+SCENARIO_FILES = $(srcdir)/scenario_local.aadl				\
+	$(srcdir)/scenario_local_xenomai.aadl				\
+	$(srcdir)/scenario_rtems.aadl
 
 include $(srcdir)/../../Makefile.common
 

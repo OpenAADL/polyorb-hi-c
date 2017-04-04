@@ -3,8 +3,9 @@ AADL_FILES = \
 	$(srcdir)/software.aadl  \
 	$(srcdir)/ping.aadl
 
-SCENARIO_FILES = \
-	$(srcdir)/scenario.aadl
+SCENARIO_FILES = $(srcdir)/scenario.aadl
+
+# $(srcdir)/scenario_local.aadl $(srcdir)/scenario_rtems.aadl
 
 include $(srcdir)/../../Makefile.common
 

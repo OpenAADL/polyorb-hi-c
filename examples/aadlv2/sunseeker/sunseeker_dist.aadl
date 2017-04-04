@@ -12,12 +12,24 @@ public
 processor Pentium_Type
 properties
   Deployment::Execution_Platform => Native;
+  Priority_Range                 => 0 .. 255;
+  Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
 end Pentium_Type;
 
 processor implementation Pentium_Type.Pentium
 properties
   none;
 end Pentium_Type.Pentium;
+
+processor LEON_Type
+properties
+  Deployment::Execution_Platform => Native;
+end LEON_Type;
+
+processor implementation LEON_Type.LEON
+properties
+  none;
+end LEON_Type.LEON;
 
 ---------
 -- Bus --
@@ -73,5 +85,26 @@ properties
   Actual_Processor_Binding => reference (Platform_B) 
     applies to Device_B;
 end Sunseekercontrolsystem_Type.Dist;
+
+system implementation Sunseekercontrolsystem_Type.Local
+subcomponents
+  Sunseeker : process Sunseeker::sunseeker_local.Impl;
+  Platform: processor LEON_Type.LEON;
+properties
+  Actual_Processor_Binding => reference (Platform) applies to Sunseeker;
+end Sunseekercontrolsystem_Type.Local;
+
+system implementation Sunseekercontrolsystem_Type.Xenomai
+   extends Sunseekercontrolsystem_Type.Local
+properties
+  Deployment::Execution_Platform => linux32_xenomai_native applies to Platform;
+end Sunseekercontrolsystem_Type.Xenomai;
+
+system implementation Sunseekercontrolsystem_Type.RTEMS
+   extends Sunseekercontrolsystem_Type.Local
+properties
+   Deployment::Execution_platform => LEON_RTEMS applies to Platform;
+end Sunseekercontrolsystem_Type.RTEMS;
+
 
 end Sunseeker_Dist;

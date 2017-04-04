@@ -10,7 +10,7 @@ properties
     ("gnc_tmtc_pos", "gnc_tmtc_pos.ref");
   Ocarina_Config::AADL_Files           =>
     ("toy_example.aadl");
-  Ocarina_Config::Root_System_Name => "toy_example.native";
+  Ocarina_Config::Root_System_Name => "toy_example.RTEMS";
   Ocarina_Config::Generator            => polyorb_hi_c;
   Ocarina_Config::Needed_Property_Sets =>
     (value (Ocarina_Config::Data_Model),
