@@ -8,7 +8,7 @@
  * Copyright (C) 2011-2017 ESA & ISAE.
  */
 
-#if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (RTEMS_PURE)
+#if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (RTEMS_PURE) || defined (FREERTOS)
 #else
 #include <xlocale.h>
 #endif
