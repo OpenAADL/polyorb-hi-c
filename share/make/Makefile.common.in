@@ -360,7 +360,7 @@ ifeq ($(TARGET), freertos)
 OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
 $(BINARY): generate-asn1-deployment compile-po-hi compile-c-files compile-cpp-files $(USER_OBJS) $(GENERATED_OBJS) $(COMPILE_FREERTOS_OBJ)
 	$(make-exe)
-	$(LD) $(LDFLAGS) -T $(AADL_FOLDER)/LinkerScript.ld -o $(EXE).elf $(PO_HI_OBJS) $(GENERATED_OBJS) $(COMPILE_FREERTOS_OBJ) $(USER_OBJS)  $(USER_LIBS)
+	$(LD) $(LDFLAGS) -o $(EXE).elf $(PO_HI_OBJS) $(GENERATED_OBJS) $(COMPILE_FREERTOS_OBJ) $(USER_OBJS)  $(USER_LIBS)
 endif
 
 %.o: %.cpp
