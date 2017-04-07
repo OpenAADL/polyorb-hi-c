@@ -5,7 +5,7 @@
 CYGPATH_U = @CYGPATH_U@
 CYGPATH_W = @CYGPATH_U@
 
-GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align -Wjump-misses-init -Wswitch-enum -fprofile-arcs -ftest-coverage
+GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align -Wjump-misses-init -Wswitch-enum
 
 all: build-node
 
@@ -41,9 +41,9 @@ ifneq ($(USER_LD),)
 LD=$(USER_LD)
 endif
 
-CFLAGS=$(TARGET_CFLAGS) $(USER_CFLAGS)$(GCC_GENERIC_CFLAGS)
+CFLAGS=$(TARGET_CFLAGS) $(USER_CFLAGS) $(GCC_GENERIC_CFLAGS)
 CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
-LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS) -lgcov
+LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS)
 
 ifdef USE_GPROF
 CFLAGS+=-D__PO_HI_USE_GPROF -pg
@@ -356,6 +356,13 @@ $(BINARY): check-linuxtaste generate-asn1-deployment target-objects compile-po-h
 	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
 endif
 
+ifeq ($(TARGET), freertos)
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
+$(BINARY): generate-asn1-deployment compile-po-hi compile-c-files compile-cpp-files $(USER_OBJS) $(GENERATED_OBJS) $(COMPILE_FREERTOS_OBJ)
+	$(make-exe)
+	$(LD) $(LDFLAGS) -T $(AADL_FOLDER)/LinkerScript.ld -o $(EXE).elf $(PO_HI_OBJS) $(GENERATED_OBJS) $(COMPILE_FREERTOS_OBJ) $(USER_OBJS)  $(USER_LIBS)
+endif
+
 %.o: %.cpp
 	$(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
 
@@ -364,6 +371,9 @@ endif
 
 %.o: %.c
 	$(CC) $(INCLUDE) $(CFLAGS) -c -o $@ $<
+
+%.o: %.s
+	$(AS) $(INCLUDE) $(CFLAGS) -c -o $@ $<
 
 clean: #target-clean
 	@-rm -f *~ *.o *.al temp.* *.metrix $(BINARY) $(BINARY).bin $(BINARY).bt $(BINARY).num $(BINARY).nxe b~*.* *.ali *.gcda *.gcno *.log *.xml
@@ -404,6 +414,10 @@ sonar_run: clean
 	   make sonarproperties
 	   make coverage
 	   sonar-scanner
+
+export SONAR_PROJECT_DIR=$(PWD)/..
+export SONAR_RESULTS_RELATIVE_PATH=$(shell echo "$(PWD)" | sed  's:$(SONAR_PROJECT_DIR)/::g')
+export TEMPLATE_PATH=$(shell sed -e 's:polyorb-hi-c/.*:polyorb-hi-c:' <<< $(PWD))
 
 ################################################################################
 # sonarproperties: generation of configuration file for sonarqube

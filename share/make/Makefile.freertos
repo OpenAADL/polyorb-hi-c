@@ -1,16 +1,4 @@
-## This file is a template of a specific Makefile 
-## for PolyORB-HI-C. The name of the file must respect
-## the form Makefile.targetname where targetname 
-## is the name of the execution platform in the model.
-
-## This file set some variables useful to compile
-## the source code to the target.
-
-CC       =   your_c_compiler
-CFLAGS   =   options and flags useful for your compiler
-LD       =   the linker used (not used at this time)
-LDFLAGS  =   flags useful for the link step
-
-## The target-clean rule is useful if you have to handle 
-## specific actions to clean the target.
-target-clean:
+# This file is an empty placeholder for the FreeRTOS target. Given the
+# many supported targets of FreeRTOS, and its model of compilation,
+# the user has to provide all information in a user-defined
+# makefile. See examples for more details.
