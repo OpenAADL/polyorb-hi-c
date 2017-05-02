@@ -1,5 +1,6 @@
 EXTRA_DIST=$(builddir)/Makefile.common $(srcdir)/Makefile.arm.dslinux	\
              $(srcdir)/Makefile.arm.n770 $(srcdir)/Makefile.leon.ork	\
+             $(srcdir)/Makefile.arm.crazyflie                           \
              $(srcdir)/Makefile.leon3-xm3				\
              $(srcdir)/Makefile.leon3-scoc3				\
              $(srcdir)/Makefile.leon3-xtratum				\

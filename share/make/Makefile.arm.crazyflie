@@ -1,0 +1,17 @@
+## This file is a part of PolyORB-HI-C software.
+## It sets some variables useful to compile generated
+## code to the Nokia N770 computer.
+
+## To get the toolchain, please visit http://www.maemo.org
+
+## FIXME : Set the right parameters
+
+CC              = /usr/gnat/bin/arm-eabi-gcc
+CPP             = /usr/gnat/bin/arm-eabi-g++
+TARGET_CFLAGS   = -DPOSIX=1 $(GCC_GENERIC_FLAGS)
+LD              = /usr/gnat/bin/arm-eabi-gcc
+TARGET_LDFLAGS  = -lpthread -lrt
+
+target-clean:
+
+target-objects:
