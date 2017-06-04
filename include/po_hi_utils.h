@@ -66,6 +66,4 @@ void __po_hi_instrumentation_vcd_init (void);
    #define __PO_HI_INSTRUMENTATION_VCD_INIT
 #endif
 
-
-
 #endif /* __PO_HI_UTILS_H__ */
