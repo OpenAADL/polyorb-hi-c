@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
 #ifndef __PO_HI_UTILS_H__
@@ -26,40 +26,55 @@ unsigned long __po_hi_swap_byte (unsigned long value);
 #include <pthread.h>
 #include <string.h>
 
+/* Variable keeping track of whether VCD tracing is enabled or not */
+#ifdef __PO_HI_USE_VCD
+enum tagVCD {
+    VCD_UNCHECKED,
+    VCD_DISABLED,
+    VCD_ENABLED
+} VCD_state = UNCHECKED;
+#endif
+
 void __po_hi_instrumentation_vcd_init (void);
 
 #define __PO_HI_INSTRUMENTATION_VCD_INIT __po_hi_instrumentation_vcd_init ();
 
-#define __PO_HI_INSTRUMENTATION_VCD_WRITE(s, args...)                 \
-   {                                                       \
- \
-      extern int               __po_hi_vcd_file; \
-      extern int               __po_hi_vcd_init;\
-      extern __po_hi_time_t    __po_hi_vcd_start_time; \
-      extern pthread_mutex_t   __po_hi_vcd_mutex; \
-      __po_hi_time_t           __po_hi_vcd_current_time; \
-      char                    buf[1024]; \
-      int                     size_to_write = 0; \
-      uint64_t                st,ct,et = 0; \
-      \
-      pthread_mutex_lock (&__po_hi_vcd_mutex); \
-      \
-      if (__po_hi_get_time(&__po_hi_vcd_current_time) != __PO_HI_SUCCESS)        \
-      {                                                   \
-         __DEBUGMSG("[POHIC-INSTRUMENTATION] Could not retrieve time\n");      \
-      }                                                   \
-      else                                                \
-      {                                                   \
-         st = __PO_HI_TIME_TO_US(__po_hi_vcd_start_time); ct = __PO_HI_TIME_TO_US(__po_hi_vcd_current_time); et = ct - st ; \
-         memset (buf, '\0', 1024); \
-         size_to_write = sprintf (buf, "#%llu\n", et); \
-         write (__po_hi_vcd_file, buf, size_to_write);\
-\
-         memset (buf, '\0', 1024); \
-         size_to_write = sprintf (buf, s, ##args); \
-         write (__po_hi_vcd_file, buf, size_to_write);  \
-      }                                                   \
-      pthread_mutex_unlock (&__po_hi_vcd_mutex); \
+#define __PO_HI_INSTRUMENTATION_VCD_WRITE(s, args...)                          \
+   {                                                                           \
+      if (VCD_state == VCD_UNCHECKED) {                                        \
+          VCD_state = NULL == getenv("VCD_ENABLED")?VCD_DISABLED:VCD_ENABLED;  \
+      }                                                                        \
+      if (VCD_state == VCD_ENABLED) {                                          \
+          extern int               __po_hi_vcd_file;                           \
+          extern int               __po_hi_vcd_init;                           \
+          extern __po_hi_time_t    __po_hi_vcd_start_time;                     \
+          extern pthread_mutex_t   __po_hi_vcd_mutex;                          \
+          __po_hi_time_t           __po_hi_vcd_current_time;                   \
+          char                    buf[1024];                                   \
+          int                     size_to_write = 0;                           \
+          uint64_t                st,ct,et = 0;                                \
+                                                                               \
+          pthread_mutex_lock (&__po_hi_vcd_mutex);                             \
+                                                                               \
+          if (__po_hi_get_time(&__po_hi_vcd_current_time) != __PO_HI_SUCCESS)  \
+          {                                                                    \
+             __DEBUGMSG("[POHIC-INSTRUMENTATION] Could not retrieve time\n");  \
+          }                                                                    \
+          else                                                                 \
+          {                                                                    \
+             st = __PO_HI_TIME_TO_US(__po_hi_vcd_start_time);                  \
+             ct = __PO_HI_TIME_TO_US(__po_hi_vcd_current_time);                \
+             et = ct - st ;                                                    \
+             memset (buf, '\0', 1024);                                         \
+             size_to_write = sprintf (buf, "#%llu\n", et);                     \
+             write (__po_hi_vcd_file, buf, size_to_write);                     \
+                                                                               \
+             memset (buf, '\0', 1024);                                         \
+             size_to_write = sprintf (buf, s, ##args);                         \
+             write (__po_hi_vcd_file, buf, size_to_write);                     \
+          }                                                                    \
+          pthread_mutex_unlock (&__po_hi_vcd_mutex);                           \
+      }
    }
 #else
    #define __PO_HI_INSTRUMENTATION_VCD_WRITE(s, args...)
