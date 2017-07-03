@@ -311,7 +311,7 @@ int __po_hi_storage_file_append (const __po_hi_storage_file_t* file, char* buf, 
    ret = write (file->fd, buf, bufsize);
 
    if (ret != bufsize)
-   { 
+   {
       __DEBUGMSG ("[STORAGE] __po_hi_storage_file_append: cannot write %d bytes\n", bufsize);
       return __PO_HI_ERROR_UNKNOWN;
    }
@@ -332,7 +332,7 @@ int __po_hi_storage_file_replace (const __po_hi_storage_file_t* oldfile, const _
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 int __po_hi_storage_file_lock (const __po_hi_storage_file_t* file)
 {
-   
+
    return __PO_HI_NOTIMPLEMENTED;
 }
 #pragma GCC diagnostic pop
@@ -525,7 +525,7 @@ int __po_hi_storage_directory_list (__po_hi_storage_dir_t* dir)
       __DEBUGMSG ("[STORAGE] __po_hi_storage_directory_list: fail to call closedir on %s\n", dir->dirname);
       return __PO_HI_ERROR_UNKNOWN;
    }
-   
+
    return __PO_HI_SUCCESS;
 #endif
 

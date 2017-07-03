@@ -9,4 +9,4 @@ include $(srcdir)/../../Makefile.common
 
 EXTRA_DIST = $(AADL_FILES) $(SCENARIO_FILES) $(C_FILES)
 
-CLEANDIRS = pc_simple_impl
+CLEANDIRS = pc_simple_impl pc_simple_local pc_simple_rtems

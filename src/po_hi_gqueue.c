@@ -47,59 +47,59 @@
 /* give a default value to the out port */
 
 __po_hi_port_t*        __po_hi_gqueues[__PO_HI_NB_TASKS];
-__po_hi_int8_t         __po_hi_gqueues_nb_ports[__PO_HI_NB_TASKS];
-__po_hi_int8_t*        __po_hi_gqueues_sizes[__PO_HI_NB_TASKS];
-__po_hi_uint8_t*       __po_hi_gqueues_used_size[__PO_HI_NB_TASKS];
-__po_hi_uint8_t*       __po_hi_gqueues_offsets[__PO_HI_NB_TASKS];
-__po_hi_uint8_t*       __po_hi_gqueues_woffsets[__PO_HI_NB_TASKS];
-__po_hi_uint8_t*       __po_hi_gqueues_n_destinations[__PO_HI_NB_TASKS];
+__po_hi_port_id_t      __po_hi_gqueues_nb_ports[__PO_HI_NB_TASKS];
+__po_hi_port_id_t*     __po_hi_gqueues_sizes[__PO_HI_NB_TASKS];
+__po_hi_port_id_t*     __po_hi_gqueues_used_size[__PO_HI_NB_TASKS];
+__po_hi_port_id_t*     __po_hi_gqueues_offsets[__PO_HI_NB_TASKS];
+__po_hi_port_id_t*     __po_hi_gqueues_woffsets[__PO_HI_NB_TASKS];
+__po_hi_port_id_t*     __po_hi_gqueues_n_destinations[__PO_HI_NB_TASKS];
 __po_hi_port_t**       __po_hi_gqueues_destinations[__PO_HI_NB_TASKS];
-__po_hi_uint16_t       __po_hi_gqueues_total_fifo_size[__PO_HI_NB_TASKS];
+__po_hi_uint32_t       __po_hi_gqueues_total_fifo_size[__PO_HI_NB_TASKS];
 __po_hi_request_t*     __po_hi_gqueues_most_recent_values[__PO_HI_NB_TASKS];
-__po_hi_uint8_t*       __po_hi_gqueues_first[__PO_HI_NB_TASKS];
+__po_hi_port_id_t*     __po_hi_gqueues_first[__PO_HI_NB_TASKS];
 
-__po_hi_uint8_t        __po_hi_gqueues_global_size[__PO_HI_NB_TASKS];
-__po_hi_local_port_t*  __po_hi_gqueues_global_history[__PO_HI_NB_TASKS];
-__po_hi_uint16_t       __po_hi_gqueues_global_history_offset[__PO_HI_NB_TASKS];
-__po_hi_uint16_t       __po_hi_gqueues_global_history_woffset[__PO_HI_NB_TASKS];
+__po_hi_port_id_t       __po_hi_gqueues_global_size[__PO_HI_NB_TASKS];
+__po_hi_local_port_t*   __po_hi_gqueues_global_history[__PO_HI_NB_TASKS];
+__po_hi_uint32_t        __po_hi_gqueues_global_history_offset[__PO_HI_NB_TASKS];
+__po_hi_uint32_t        __po_hi_gqueues_global_history_woffset[__PO_HI_NB_TASKS];
 
-__po_hi_uint8_t*       __po_hi_gqueues_port_is_empty[__PO_HI_NB_TASKS];
-__po_hi_uint8_t        __po_hi_gqueues_queue_is_empty[__PO_HI_NB_TASKS];
-__po_hi_uint8_t        __po_hi_gqueues_n_empty[__PO_HI_NB_TASKS];
+__po_hi_port_id_t*       __po_hi_gqueues_port_is_empty[__PO_HI_NB_TASKS];
+__po_hi_port_id_t        __po_hi_gqueues_queue_is_empty[__PO_HI_NB_TASKS];
+__po_hi_port_id_t        __po_hi_gqueues_n_empty[__PO_HI_NB_TASKS];
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
-pthread_mutex_t        __po_hi_gqueues_mutexes[__PO_HI_NB_TASKS];
-pthread_cond_t         __po_hi_gqueues_conds[__PO_HI_NB_TASKS];
-pthread_mutexattr_t    __po_hi_gqueues_mutexes_attr[__PO_HI_NB_TASKS];
-pthread_condattr_t     __po_hi_gqueues_conds_attr[__PO_HI_NB_TASKS];
+pthread_mutex_t          __po_hi_gqueues_mutexes[__PO_HI_NB_TASKS];
+pthread_cond_t           __po_hi_gqueues_conds[__PO_HI_NB_TASKS];
+pthread_mutexattr_t      __po_hi_gqueues_mutexes_attr[__PO_HI_NB_TASKS];
+pthread_condattr_t       __po_hi_gqueues_conds_attr[__PO_HI_NB_TASKS];
 #elif defined (RTEMS_PURE)
-rtems_id                __po_hi_gqueues_semaphores[__PO_HI_NB_TASKS];
-rtems_id                __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
+rtems_id                 __po_hi_gqueues_semaphores[__PO_HI_NB_TASKS];
+rtems_id                 __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
 #elif defined (XENO_NATIVE)
-RT_MUTEX                __po_hi_gqueues_mutexes[__PO_HI_NB_TASKS];
-RT_COND                 __po_hi_gqueues_conds[__PO_HI_NB_TASKS];
+RT_MUTEX                 __po_hi_gqueues_mutexes[__PO_HI_NB_TASKS];
+RT_COND                  __po_hi_gqueues_conds[__PO_HI_NB_TASKS];
 #elif defined (_WIN32)
-HANDLE                  __po_hi_gqueues_events[__PO_HI_NB_TASKS];
-CRITICAL_SECTION        __po_hi_gqueues_cs[__PO_HI_NB_TASKS];
+HANDLE                   __po_hi_gqueues_events[__PO_HI_NB_TASKS];
+CRITICAL_SECTION         __po_hi_gqueues_cs[__PO_HI_NB_TASKS];
 #endif
 
 void __po_hi_gqueue_init (__po_hi_task_id       id,
-                          __po_hi_uint8_t       nb_ports,
+                          __po_hi_port_id_t     nb_ports,
                           __po_hi_port_t        queue[],
-                          __po_hi_int8_t        sizes[],
-                          __po_hi_uint8_t       first[],
-                          __po_hi_uint8_t       offsets[],
-                          __po_hi_uint8_t       woffsets[],
-                          __po_hi_uint8_t       n_dest[],
+                          __po_hi_port_id_t     sizes[],
+                          __po_hi_port_id_t     first[],
+                          __po_hi_port_id_t     offsets[],
+                          __po_hi_port_id_t     woffsets[],
+                          __po_hi_port_id_t     n_dest[],
                           __po_hi_port_t*       destinations[],
-                          __po_hi_uint8_t       used_size[],
+                          __po_hi_port_id_t     used_size[],
                           __po_hi_local_port_t  history[],
                           __po_hi_request_t     recent[],
-                          __po_hi_uint8_t       empties[],
-                          __po_hi_uint16_t      total_fifo_size)
+                          __po_hi_port_id_t     empties[],
+                          __po_hi_uint32_t      total_fifo_size)
 {
-   __po_hi_uint8_t      tmp;
-   __po_hi_uint16_t     off;
+   __po_hi_port_id_t      tmp;
+   __po_hi_uint32_t     off; /* XXX May overflow for large value .. */
    int err;
 
 #if defined (RTEMS_PURE)
@@ -153,7 +153,7 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
    err = pthread_cond_init (&__po_hi_gqueues_conds[id], &__po_hi_gqueues_conds_attr[id]);
    __DEBUGMSG("COND_INIT %d %d\n", id, err);
    assert(err == 0);
-   
+
 #endif
 
 #ifdef RTEMS_PURE
@@ -201,7 +201,7 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 #endif
 
    off = 0;
-   
+
    for (tmp=0;tmp<nb_ports;tmp++)
    {
       __po_hi_gqueues_used_size[id][tmp] = 0;
@@ -215,7 +215,7 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
          __po_hi_gqueues_woffsets[id][tmp] = 0;
          __po_hi_gqueues_port_is_empty[id][tmp] = 1;
       }
-      
+
       /* Set invalid all recent values */
       __po_hi_request_t* request = (__po_hi_request_t*)&__po_hi_gqueues_most_recent_values[id][tmp];
       request->port = __PO_HI_GQUEUE_INVALID_PORT;
@@ -246,13 +246,13 @@ void __po_hi_gqueue_store_out (__po_hi_task_id id,
    __PO_HI_DEBUG_DEBUG ("__po_hi_gqueue_store_out() from task %d on port %d\n", id, port);
 }
 
-__po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
+__po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
                                          __po_hi_local_port_t port,
                                          __po_hi_request_t* request)
 {
    __po_hi_request_t* ptr;
    __po_hi_request_t* tmp;
-   
+
 #ifdef RTEMS_PURE
    rtems_status_code ret;
 #endif
@@ -310,7 +310,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
         __DEBUGMSG ("[GQUEUE] Semaphore released (id=%d)\n", id);
         return __PO_HI_ERROR_QUEUE_FULL;
       }
-      
+
       __po_hi_uint32_t   size;
       tmp = (__po_hi_request_t*) &__po_hi_gqueues[id][port];
       size = __po_hi_gqueues_woffsets[id][port] + __po_hi_gqueues_first[id][port];
@@ -338,7 +338,7 @@ __po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
    int err = pthread_cond_signal (&__po_hi_gqueues_conds[id]);
-   assert(err == 0);   
+   assert(err == 0);
    __DEBUGMSG("*** Releasing (%d) %d\n", id, err);
 #elif defined (XENO_NATIVE)
    rt_mutex_release (&__po_hi_gqueues_mutexes[id]);
@@ -645,24 +645,24 @@ __po_hi_port_t __po_hi_gqueue_get_destination (const __po_hi_task_id task_id, co
       return (__po_hi_gqueues_destinations[task_id][local_port][destination_number]);
 }
 
-__po_hi_int8_t __po_hi_gqueue_get_port_size( __po_hi_task_id id, __po_hi_local_port_t port)
+__po_hi_port_id_t __po_hi_gqueue_get_port_size( __po_hi_task_id id, __po_hi_local_port_t port)
 {
    return __po_hi_gqueues_sizes[id][port];
 
 }
 
-__po_hi_int8_t __po_hi_gqueue_used_size( __po_hi_task_id id, __po_hi_local_port_t port)
+__po_hi_port_id_t __po_hi_gqueue_used_size( __po_hi_task_id id, __po_hi_local_port_t port)
 {
    return __po_hi_gqueues_used_size[id][port];
 
 }
 
-__po_hi_int8_t po_hi_gqueues_queue_is_empty( __po_hi_task_id id)
+__po_hi_port_id_t po_hi_gqueues_queue_is_empty( __po_hi_task_id id)
 {
    return __po_hi_gqueues_queue_is_empty[id];
 }
 
-__po_hi_request_t* 
+__po_hi_request_t*
 __po_hi_gqueues_get_request(__po_hi_task_id id, __po_hi_local_port_t port)
 
  {
