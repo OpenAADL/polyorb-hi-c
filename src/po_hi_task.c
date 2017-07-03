@@ -126,7 +126,7 @@ __po_hi_task_id __po_hi_get_task_id (void) {
     }
   }
 #endif
-  
+
   return (__PO_HI_ERROR_UNKNOWN);
 
 }
@@ -377,7 +377,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
   pthread_attr_t     attr;
   struct sched_param param;
   int err;
-  
+
   /* Create attributes to store all configuration parameters */
 
   if (pthread_attr_init (&attr) != 0)
@@ -386,7 +386,6 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
     }
 
 #if ( (defined (POSIX) && defined (__linux__)) || (defined (RTEMS_POSIX) && defined (RTEMS412)))
-
 #ifndef __COMPCERT__
   /* Thread affinity */
   cpu_set_t cpuset;
@@ -408,6 +407,14 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
 #else
 #warning pthread_affinity managmeent disabled for Compcert
 #endif
+
+#else
+  if ( core_id != 0 )
+    {
+      __PO_HI_DEBUG_CRITICAL("This platform does not support CPU affinity setting\n");
+      return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
+    }
+
 #endif
 
 #if defined (POSIX) || defined (XENO_POSIX)
