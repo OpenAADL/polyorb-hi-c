@@ -826,7 +826,7 @@ void __po_hi_tasks_killall ()
       rtems_task_delete (tasks[i].rtems_id);
 #elif defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
       pthread_cancel (tasks[i].tid);
-      __DEBUGMSG ("[TASKS] Cancel thread %lu\n", tasks[i].tid);
+      __DEBUGMSG ("[TASKS] Cancel thread %p\n", tasks[i].tid);
 #endif
     }
 }
