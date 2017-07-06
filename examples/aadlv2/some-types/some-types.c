@@ -43,7 +43,8 @@ void user_emit_integer (int* integer)
 
 void user_emit_array (software__array_type* data_source)
 {
-  for (int i = 0; i < 16384; i++)
+  int i;
+  for (i = 0; i < 16384; i++)
     (*data_source)[i]=i;
 
   printf ("Emetting array\n");
@@ -77,8 +78,9 @@ void user_receive_struct (software__struct_type_impl i)
 
 void user_receive_array (software__array_type data)
 {
+  int i;
   printf("Receive array: ");
-  for (int i = 0; i < 16; i++)
+  for (i = 0; i < 16; i++)
     assert (data[i] == i);
 
   printf (" OK \n");
