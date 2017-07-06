@@ -43,7 +43,7 @@ features
 end P;
 
 thread implementation P.Impl
-calls 
+calls
 Mycalls: {
   P_Spg : subprogram Produce_Spg;
 };
@@ -60,7 +60,7 @@ features
 end Q;
 
 thread implementation Q.Impl
-calls 
+calls
 Mycalls: {
   Q_Spg : subprogram Consume_Spg;
 };
