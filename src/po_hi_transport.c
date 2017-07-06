@@ -67,7 +67,6 @@ int                           __po_hi_xtratum_port[__PO_HI_NB_PORTS];
 
 int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 {
-   __po_hi_msg_t         msg;
    __po_hi_request_t*    request;
    __po_hi_uint8_t       ndest;
    __po_hi_uint8_t       i;
@@ -112,7 +111,6 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
       destination_entity   = __po_hi_get_entity_from_global_port (destination_port);
       assert(destination_entity != -1);
       __PO_HI_DEBUG_DEBUG ("\t%d (entity=%d)", destination_port, destination_entity);
-      __po_hi_msg_reallocate (&msg);
 
       request->port = destination_port;
 
