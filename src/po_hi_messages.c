@@ -99,9 +99,9 @@ int __po_hi_msg_should_swap (__po_hi_msg_t* msg)
         return 0;
 }
 
-void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size)
+void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint32_t size)
 {
-        __po_hi_uint8_t tmp;
+        __po_hi_uint32_t tmp;
         __po_hi_uint8_t* udest;
         __po_hi_uint8_t* ufrom;
 
