@@ -104,6 +104,6 @@ typedef enum
    __PO_HI_INVALID_PORT_KIND                 = 50
 }__po_hi_port_kind_t;
 
-void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size);
+void __po_hi_copy_array (void* dst, void* src, __po_hi_uint32_t size);
 
 #endif /* __PO_HI_TYPES_H_ */
