@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2016 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
 #ifdef POSIX
@@ -36,6 +36,7 @@
 #if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (RTEMS_PURE)
 #else
 #include <xlocale.h>
+#include <unistd.h>
 #endif
 
 #include <pthread.h>
@@ -205,6 +206,8 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
       __po_hi_add_times(&(tasks[task].timer), &mytime, &tasks[task].period );
       break;
    }
+  case TASK_BACKGROUND:
+    break;
   }
 
   return (__PO_HI_SUCCESS);
@@ -337,6 +340,26 @@ int __po_hi_initialize_tasking( )
 }
 
 /*
+ * For multi-core aware systems, this function returns the number of
+ * core available
+ */
+
+#if defined (POSIX) || defined (RTEMS_POSIX)
+int __po_hi_number_of_cpus (void)
+{
+  int cores = 1;
+
+#if defined (__linux__)  || defined (__APPLE__)
+
+  cores = (int) sysconf (_SC_NPROCESSORS_ONLN);
+#endif
+
+  return cores;
+}
+
+#endif
+
+/*
  * For each kind of system, we declare a generic function that
  * create a thread. For POSIX-compliant systems, the function
  * is called __po_hi_posix_create_thread
@@ -363,10 +386,15 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
     }
 
 #if ( (defined (POSIX) && defined (__linux__)) || (defined (RTEMS_POSIX) && defined (RTEMS412)))
-
 #ifndef __COMPCERT__
   /* Thread affinity */
   cpu_set_t cpuset;
+
+  if ( core_id > __po_hi_number_of_cpus() )
+    {
+      __PO_HI_DEBUG_CRITICAL("Invalid CPU core id\n");
+      return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
+    }
 
   CPU_ZERO(&cpuset);
   CPU_SET(core_id, &cpuset);
@@ -379,6 +407,14 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
 #else
 #warning pthread_affinity managmeent disabled for Compcert
 #endif
+
+#else
+  if ( core_id != 0 )
+    {
+      __PO_HI_DEBUG_CRITICAL("This platform does not support CPU affinity setting\n");
+      return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
+    }
+
 #endif
 
 #if defined (POSIX) || defined (XENO_POSIX)
@@ -549,7 +585,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
                                  void*                      (*start_routine)(void),
                                  void*                      arg)
 {
-  __po_hi_task_t* my_task;
+
   if (id == -1)
     {
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
@@ -577,6 +613,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
     }
   else
     {
+      __po_hi_task_t* my_task;
       my_task         = &(tasks[id]);
       __po_hi_time_copy (&(my_task->period), period);
       my_task->id     = id;

@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2016 ESA & ISAE.
+ * Copyright (C) 2011-2017 ESA & ISAE.
  */
 
 /*
@@ -60,7 +60,7 @@ void __po_hi_monitor_init (void)
 int __po_hi_monitor_get_status_port (const __po_hi_port_t port, __po_hi_monitor_status_t* status)
 {
    __po_hi_device_id associated_device;
-   __PO_HI_DEBUG_DEBUG ("[MONITOR] call __po_hi_monitor_get_status_port with argument %d (port) and 0x%x (status pointer)\n", port, status);
+   __PO_HI_DEBUG_DEBUG ("[MONITOR] call __po_hi_monitor_get_status_port with argument %d (port) and 0x%p (status pointer)\n", port, status);
 
    associated_device = __po_hi_get_device_from_port (port);
    if (associated_device == invalid_device_id)
@@ -79,7 +79,7 @@ int __po_hi_monitor_get_status_device (const __po_hi_device_id device,
    __po_hi_bus_id*   buses;
    uint32_t i;
 
-   __PO_HI_DEBUG_DEBUG ("[MONITOR] call __po_hi_monitor_get_status_device with argument %d (device) and 0x%x (status pointer)\n", device, status);
+   __PO_HI_DEBUG_DEBUG ("[MONITOR] call __po_hi_monitor_get_status_device with argument %d (device) and 0x%p (status pointer)\n", device, status);
 
    if ((device < 0) || (device >= __PO_HI_NB_DEVICES))
    {
@@ -125,7 +125,7 @@ int __po_hi_monitor_get_status_bus (const __po_hi_bus_id       bus,
 {
    int               n_failure;
 
-   __PO_HI_DEBUG_DEBUG ("[MONITOR] call __po_hi_monitor_get_status_bus with argument %d (bus) and 0x%x (status pointer)\n", bus, status);
+   __PO_HI_DEBUG_DEBUG ("[MONITOR] call __po_hi_monitor_get_status_bus with argument %d (bus) and 0x%p (status pointer)\n", bus, status);
 
    if ((bus < 0) || (bus >= __PO_HI_NB_BUSES))
    {

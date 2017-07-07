@@ -1,6 +1,7 @@
-EXTRA_DIST=$(srcdir)/x86-rtems-boot.img \
-           $(srcdir)/gumstix-uboot.bin \
-           $(srcdir)/xpath
+EXTRA_DIST=$(srcdir)/x86-rtems-boot.img $(srcdir)/gumstix-uboot.bin	\
+           $(srcdir)/template_sonar-project.properties			\
+           $(srcdir)/template_lcov_gen.sh				\
+           $(srcdir)/template_prof_gen.sh $(srcdir)/xpath
 
 CLEANFILES = *~
 
@@ -13,5 +14,3 @@ install-data-local:
 
 uninstall-local:
 	rm -rf $(DESTDIR)$(utilssrc)
-
-

@@ -1,7 +1,8 @@
 #include <stdio.h>
-#include <request.h> 
-#include <deployment.h> 
+#include <request.h>
+#include <deployment.h>
 #include <po_hi_storage.h>
+#include <po_hi_gqueue.h>
 
 #define FILENAME "pinger.dat"
 
@@ -26,7 +27,6 @@ void user_produce_pkts_init ()
   {
       printf ("*** /!\\ ERROR WHEN OPENING THE FILE %s /!\\ ***\n", FILENAME);
   }
-
 
   fflush (stdout);
 }
@@ -80,6 +80,7 @@ void user_do_ping_spg ()
   }
   fflush (stdout);
 }
+
 
 void recover (void)
 {

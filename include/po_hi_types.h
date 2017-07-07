@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
 #ifndef __PO_HI_TYPES_H_
@@ -85,6 +85,8 @@ typedef double __po_hi_float64_t;
 
 typedef unsigned char            __po_hi_byte_t;
 
+typedef __po_hi_int32_t          __po_hi_port_id_t;
+
 typedef enum
 {
    __PO_HI_IN_DATA_INTER_PROCESS             = 0,
@@ -102,6 +104,6 @@ typedef enum
    __PO_HI_INVALID_PORT_KIND                 = 50
 }__po_hi_port_kind_t;
 
-void __po_hi_copy_array (void* dst, void* src, __po_hi_uint16_t size);
+void __po_hi_copy_array (void* dst, void* src, __po_hi_uint32_t size);
 
 #endif /* __PO_HI_TYPES_H_ */

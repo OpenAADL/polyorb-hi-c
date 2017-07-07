@@ -8,10 +8,11 @@ properties
   Ocarina_Config::Timeout_Property     => 1000ms;
   Ocarina_Config::Referencial_Files    =>
     ("mgmt", "mgmt.ref");
-  Ocarina_Config::AADL_Files           => 
-    ("flt_mgmt_xenomai_native.aadl", "software.aadl");
+  Ocarina_Config::AADL_Files           =>
+    ("flt_mgmt.aadl", "software.aadl");
+  Ocarina_Config::Root_System_Name => "flight_mgmt.xenomai";
   Ocarina_Config::Generator            => polyorb_hi_c;
-  Ocarina_Config::Needed_Property_Sets => 
+  Ocarina_Config::Needed_Property_Sets =>
     (value (Ocarina_Config::Data_Model),
      value (Ocarina_Config::Deployment));
   Ocarina_Config::AADL_Version         => AADLv2;
@@ -19,4 +20,3 @@ end Flight_Management;
 
 system implementation Flight_Management.Impl
 end  Flight_Management.Impl;
-

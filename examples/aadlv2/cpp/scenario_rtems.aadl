@@ -1,0 +1,25 @@
+--  This is a scenario file describing the AADL application Flight
+--  Management
+
+--  $Id: scenario_local.aadl 424 2007-07-10 13:46:33Z zalila $
+
+system cpptest
+properties
+  Ocarina_Config::Timeout_Property     => 1000ms;
+  Ocarina_Config::Referencial_Files    =>
+    ("cpptest", "cpptest.ref");
+  Ocarina_Config::AADL_Files           => 
+    ("cpp_test.aadl");
+  Ocarina_Config::Root_System_Name => "cpp_test.RTEMS";
+  Ocarina_Config::Generator            => polyorb_hi_c;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::Cheddar_Properties));
+  Ocarina_Config::AADL_Version         => AADLv2;
+  Ocarina_Config::Use_Components_Library => true;
+end cpptest;
+
+system implementation cpptest.Impl
+end  cpptest.Impl;
+

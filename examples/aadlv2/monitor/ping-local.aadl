@@ -1,0 +1,65 @@
+--  This model completes the PING example by adding deployment
+--  information.
+--
+--  In this deployment, two nodes are defined, one task per node.
+
+package PING
+public
+  with Software;
+  with Deployment;
+
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+properties
+  Deployment::Execution_Platform => Native;
+  Priority_Range                 => 0 .. 255;
+  Scheduling_Protocol            => (Posix_1003_Highest_Priority_First_Protocol);
+end the_processor;
+
+---------------
+-- Processes --
+---------------
+
+process A
+end A;
+
+process implementation A.Impl
+subcomponents
+  Pinger        : thread Software::P.Impl;
+  Ping_Me       : thread Software::Q.Impl;
+connections
+  cx : port Pinger.Data_Source -> Ping_Me.Data_Sink;
+end A.Impl;
+
+------------
+-- System --
+------------
+
+system PING
+end PING;
+
+system implementation PING.Impl
+subcomponents
+  Node_A : process A.Impl;
+  CPU : processor the_processor;
+properties
+  actual_processor_binding => reference (CPU_A) applies to Node_A;
+end PING.Impl;
+
+system implementation PING.Xenomai
+   extends PING.Impl
+properties
+  Deployment::Execution_Platform => linux32_xenomai_native applies to CPU;
+end PING.Xenomai;
+
+system implementation PING.RTEMS
+   extends PING.Impl
+properties
+   Deployment::Execution_platform => LEON_RTEMS applies to CPU ;
+end PING.RTEMS;
+
+end PING;

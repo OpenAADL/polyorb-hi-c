@@ -61,7 +61,7 @@ thread packet_producer
 end packet_producer;
 
 thread implementation packet_producer.i
-calls 
+calls
 Mycalls: {
   produce : subprogram produce_packet_spg;
 };
@@ -79,7 +79,7 @@ features
 end P;
 
 thread implementation P.Impl
-calls 
+calls
 Mycalls: {
   P_Spg : subprogram Do_Ping_Spg;
 };
@@ -97,7 +97,7 @@ features
 end Q;
 
 thread implementation Q.Impl
-calls 
+calls
 Mycalls: {
   Q_Spg : subprogram Ping_Spg;
 };

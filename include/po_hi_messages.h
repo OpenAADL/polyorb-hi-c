@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
 #ifndef __PO_HI_MESSAGES_H_
@@ -99,7 +99,7 @@ int __po_hi_msg_should_swap (__po_hi_msg_t* msg);
  * it returns 0.
  */
 
-void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size);
+void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint32_t size);
 /*
  * The function __po_hi_msg_swap_value swap the bytes of the from
  * value and put it to the dest argument. The size of the value is

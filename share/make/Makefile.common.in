@@ -3,13 +3,15 @@
 # You should use it with the Ocarina toolsuite.
 
 CYGPATH_U = @CYGPATH_U@
-CYGPATH_W = @CYGPATH_W@
+CYGPATH_W = @CYGPATH_U@
 
-GCC_GENERIC_CFLAGS=-Wall -g
+GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align -Wjump-misses-init -Wswitch-enum
 
 all: build-node
 
-include $(RUNTIME_PATH)/make/Makefile.$(TARGET)
+LOCAL_RUNTIME_PATH=$(shell pwd)/../polyorb-hi-c
+
+include $(LOCAL_RUNTIME_PATH)/make/Makefile.$(TARGET)
 -include ../../userdefined.mk
 
 ifneq ($(USE_CPP_LINKER),)
@@ -39,7 +41,7 @@ ifneq ($(USER_LD),)
 LD=$(USER_LD)
 endif
 
-CFLAGS=$(TARGET_CFLAGS) $(USER_CFLAGS)
+CFLAGS=$(TARGET_CFLAGS) $(USER_CFLAGS) $(GCC_GENERIC_CFLAGS)
 CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
 LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS)
 
@@ -55,7 +57,7 @@ ifeq ($(NEED_TRANSPORT),yes)
 CFLAGS+=-D__PO_HI_USE_TRANSPORT
 endif
 
-INCLUDE=-I. -I"${shell $(CYGPATH_W) "${RUNTIME_PATH}/include"}"
+INCLUDE=-I. -I"${shell $(CYGPATH_W) "${LOCAL_RUNTIME_PATH}/include"}"
 
 ifdef TARGET_INCLUDE
 INCLUDE += $(TARGET_INCLUDE)
@@ -77,63 +79,36 @@ INCLUDE+=-DTARGET=$(TARGET_NAME)
 # Files to be compiled
 
 ifeq ($(NEED_TRANSPORT), yes)
-   PO_HI_OBJS =                              \
-	po_hi_task.o                              \
-	po_hi_time.o                              \
-	po_hi_protected.o                         \
-	po_hi_main.o                              \
-	po_hi_messages.o                          \
-	po_hi_marshallers.o                       \
-	po_hi_giop.o                              \
-	po_hi_utils.o                             \
-	po_hi_types.o                             \
-   po_hi_monitor.o                           \
-   po_hi_storage.o                           \
-	po_hi_gqueue.o                            \
-   drivers/po_hi_driver_exarm.o              \
-   drivers/po_hi_driver_keyboard.o           \
-   drivers/po_hi_driver_exarm_ni_6071e_analog.o \
-   drivers/po_hi_driver_exarm_ni_6071e_digital.o \
-   drivers/po_hi_driver_usbbrick_spacewire.o \
-   drivers/po_hi_driver_linux_serial.o       \
-   drivers/po_hi_driver_leon_serial.o        \
-   drivers/po_hi_driver_leon_eth.o           \
-   drivers/po_hi_driver_serial_common.o      \
-   drivers/po_hi_driver_sockets.o            \
-   drivers/po_hi_driver_rtems_ne2000.o       \
-   drivers/po_hi_driver_rasta_serial.o       \
-   drivers/po_hi_driver_rasta_common.o       \
-   drivers/po_hi_driver_rasta_1553.o         \
-   drivers/po_hi_driver_xc4v_fpga.o          \
-   drivers/po_hi_driver_rasta_1553_brmlib.o  \
-   drivers/po_hi_driver_rasta_spacewire.o    \
-	$(ACTUAL_TRANSPORT) \
+   PO_HI_OBJS = po_hi_task.o po_hi_time.o po_hi_protected.o		\
+	po_hi_main.o po_hi_messages.o po_hi_marshallers.o		\
+	po_hi_giop.o po_hi_utils.o po_hi_types.o po_hi_monitor.o	\
+	po_hi_storage.o po_hi_gqueue.o drivers/po_hi_driver_exarm.o	\
+	drivers/po_hi_driver_keyboard.o					\
+	drivers/po_hi_driver_exarm_ni_6071e_analog.o			\
+	drivers/po_hi_driver_exarm_ni_6071e_digital.o			\
+	drivers/po_hi_driver_usbbrick_spacewire.o			\
+	drivers/po_hi_driver_linux_serial.o				\
+	drivers/po_hi_driver_leon_serial.o				\
+	drivers/po_hi_driver_leon_eth.o					\
+	drivers/po_hi_driver_serial_common.o				\
+	drivers/po_hi_driver_sockets.o					\
+	drivers/po_hi_driver_rtems_ne2000.o				\
+	drivers/po_hi_driver_rasta_serial.o				\
+	drivers/po_hi_driver_rasta_common.o				\
+	drivers/po_hi_driver_rasta_1553.o				\
+	drivers/po_hi_driver_xc4v_fpga.o				\
+	drivers/po_hi_driver_rasta_1553_brmlib.o			\
+	drivers/po_hi_driver_rasta_spacewire.o $(ACTUAL_TRANSPORT)	\
 	po_hi_transport.o $(TARGET_TRANSPORT_SOURCES)
 
-   GENERATED_OBJS =                 \
-	activity.o                       \
-	subprograms.o                    \
-	types.o                          \
-	request.o                        \
-	marshallers.o                    \
-	deployment.o                     \
-	naming.o                         \
-	main.o
+   GENERATED_OBJS = activity.o subprograms.o types.o request.o	\
+	marshallers.o deployment.o naming.o main.o
 else
-   PO_HI_OBJS =                     \
-	po_hi_task.o                     \
-	po_hi_time.o                     \
-	po_hi_utils.o                    \
-	po_hi_protected.o                \
-   po_hi_monitor.o                  \
-   po_hi_storage.o                  \
+   PO_HI_OBJS = po_hi_task.o po_hi_time.o po_hi_utils.o		\
+	po_hi_protected.o po_hi_monitor.o po_hi_storage.o	\
 	po_hi_main.o
 
-   GENERATED_OBJS =                 \
-	activity.o                       \
-	subprograms.o                    \
-	deployment.o                     \
-	types.o                          \
+   GENERATED_OBJS = activity.o subprograms.o deployment.o types.o	\
 	main.o
 endif
 
@@ -187,8 +162,8 @@ endif
 # SCADE
 
 ifdef SCADE_DIR
-   INCLUDE += -I$(SCADE_DIR)
-	USER_OBJS += $(SCADE_DIR)/*.o
+INCLUDE += -I$(SCADE_DIR)
+USER_OBJS += $(SCADE_DIR)/*.o
 endif
 
 ################################################################################
@@ -208,11 +183,11 @@ MONITORING_OBJS = trace_manager.o remote_configuration.o
 PO_HI_CPPOBJS += $(MONITORING_OBJS)
 PO_HI_OBJS += um_threads.o
 
-INCLUDE += -I$(RUNTIME_PATH)/src \
--I$(RUNTIME_PATH)/src/monitoring \
--I$(RUNTIME_PATH)/include \
--I$(RUNTIME_PATH)/include/monitoring \
--I$(RUNTIME_PATH)/src/monitoring/cheddar_scheduling
+INCLUDE += -I$(LOCAL_RUNTIME_PATH)/src \
+-I$(LOCAL_RUNTIME_PATH)/src/monitoring \
+-I$(LOCAL_RUNTIME_PATH)/include \
+-I$(LOCAL_RUNTIME_PATH)/include/monitoring \
+-I$(LOCAL_RUNTIME_PATH)/src/monitoring/cheddar_scheduling
 
 CPPFLAGS += -std=c++1y -g @BOOST_CPPFLAGS@
 LDFLAGS += -lstdc++
@@ -221,6 +196,27 @@ endif
 hyperperiod-cheddar:
 	python get_cheddar_schedule.py
 	python parser_cheddar_et.py
+
+################################################################################
+# Code coverage + runtime-analysis
+
+# gcov
+ifeq ($(COVERAGE), gcov)
+CFLAGS  += -fprofile-arcs -ftest-coverage -lgcov -coverage
+LDFLAGS += -fprofile-arcs -ftest-coverage -lgcov -coverage
+endif
+
+# gnatcoverage
+ifeq ($(COVERAGE), gnatcov)
+CFLAGS  += -g -fpreserve-control-flow -fdump-scos -ffunction-sections -fdata-sections -Wl,--gc-sections
+LDFLAGS += -g -fpreserve-control-flow -fdump-scos -ffunction-sections -fdata-sections -Wl,--gc-sections
+endif
+
+# valgrind
+ifeq ($(VALGRIND_PROF), true)
+CFLAGS  += -g
+LDFLAGS += -g
+endif
 
 ################################################################################
 # General compilation rules
@@ -239,9 +235,9 @@ endif
 	   c_file_dirname="`dirname $$f`"; \
       if [ -n "$$c_file_dirname" ]; then \
          if [ ! -d $$c_file_dirname ]; then mkdir -p $$c_file_dirname ; fi ; \
-	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
+	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(LOCAL_RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
       else \
-	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file || exit 1 ; \
+	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(LOCAL_RUNTIME_PATH)/src/'$$c_file || exit 1 ; \
       fi ; \
 	done
 
@@ -250,9 +246,9 @@ endif
 	   c_file_dirname="`dirname $$f`"; \
       if [ -n "$$c_file_dirname" ]; then \
          if [ ! -d $$c_file_dirname ]; then mkdir -p $$c_file_dirname ; fi ; \
-	      $(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
+	      $(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(LOCAL_RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
       else \
-	      $(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(RUNTIME_PATH)/src/'$$c_file || exit 1 ; \
+	      $(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(LOCAL_RUNTIME_PATH)/src/'$$c_file || exit 1 ; \
       fi ; \
 	done
 
@@ -286,15 +282,15 @@ $(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(
 ifeq ($(NEED_TRANSPORT), yes)
 run: $(BINARY)
 	pidof qemu >/dev/null 2>&1 ; if [ $$?  -eq 0 ]; then \
-		( sleep 5 ; qemu -net nic,model=ne2k_pci,macaddr=52:54:00:12:34:93 -net socket,connect=127.0.0.1:12345 -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a -serial /dev/stdout ; )& \
+		( sleep 5 ; qemu -net nic,model=ne2k_pci,macaddr=52:54:00:12:34:93 -net socket,connect=127.0.0.1:12345 -fda $(LOCAL_RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a -serial /dev/stdout ; )& \
 		echo "Launching QEMU in connect mode" ; \
 	else \
-		qemu -net nic,model=ne2k_pci,macaddr=52:54:00:12:34:92 -net socket,listen=:12345 -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a -serial /dev/stdout; \
+		qemu -net nic,model=ne2k_pci,macaddr=52:54:00:12:34:92 -net socket,listen=:12345 -fda $(LOCAL_RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a -serial /dev/stdout; \
 		echo "Launching QEMU in listen mode" ; \
 	fi
 else
 run: $(BINARY)
-	qemu -fda $(RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a
+	qemu -fda $(LOCAL_RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a
 endif #NEED_TRANSPORT
 endif #TARGET=x86qemu
 
@@ -360,6 +356,13 @@ $(BINARY): check-linuxtaste generate-asn1-deployment target-objects compile-po-h
 	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
 endif
 
+ifeq ($(TARGET), freertos)
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
+$(BINARY): generate-asn1-deployment compile-po-hi compile-c-files compile-cpp-files $(USER_OBJS) $(GENERATED_OBJS) $(COMPILE_FREERTOS_OBJ)
+	$(make-exe)
+	$(LD) $(LDFLAGS) -o $(EXE).elf $(PO_HI_OBJS) $(GENERATED_OBJS) $(COMPILE_FREERTOS_OBJ) $(USER_OBJS)  $(USER_LIBS)
+endif
+
 %.o: %.cpp
 	$(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
 
@@ -369,8 +372,11 @@ endif
 %.o: %.c
 	$(CC) $(INCLUDE) $(CFLAGS) -c -o $@ $<
 
-clean: target-clean
-	@-rm -f *~ *.o *.al temp.* *.metrix $(BINARY) $(BINARY).bin $(BINARY).bt $(BINARY).num $(BINARY).nxe b~*.* *.ali
+%.o: %.s
+	$(AS) $(INCLUDE) $(CFLAGS) -c -o $@ $<
+
+clean: #target-clean
+	@-rm -f *~ *.o *.al temp.* *.metrix $(BINARY) $(BINARY).bin $(BINARY).bt $(BINARY).num $(BINARY).nxe b~*.* *.ali *.gcda *.gcno *.log *.xml
 	@-rm -rf drivers
 	if test ! "$(CLEANDIRS)" = "";  then \
 	  rm -rf $(CLEANDIRS); \
@@ -392,7 +398,85 @@ endif
 # code uses the DLL target, and assumes a Linux OS for ld
 
 python_wrapper:
-	swig -python -I$(RUNTIME_PATH)/include -outdir . -o po_hi_c_python_wrap.c $(RUNTIME_PATH)/src/po_hi_c_python.i
+	swig -python -I$(LOCAL_RUNTIME_PATH)/include -outdir . -o po_hi_c_python_wrap.c $(LOCAL_RUNTIME_PATH)/src/po_hi_c_python.i
 
 	$(CC) -fPIC -c po_hi_c_python_wrap.c $(INCLUDE) $(CFLAGS) `python-config --includes`
 	ld -dylib po_hi_c_python_wrap.o $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(PO_HI_CPPOBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) `python-config --libs` -o _po_hi_c_python.so
+
+################################################################################
+# Execution of scripts to collect information for sonarqube.
+# Note: it assumes a complete and running installation of sonarqube
+
+sonar_run: clean
+	   make all > build.log
+	   make cppcheck
+	   make --ignore-errors valgrind_xml
+	   make sonarproperties
+	   make coverage
+	   sonar-scanner
+
+export SONAR_PROJECT_DIR=$(PWD)/..
+export SONAR_RESULTS_RELATIVE_PATH=$(shell echo "$(PWD)" | sed  's:$(SONAR_PROJECT_DIR)/::g')
+export TEMPLATE_PATH=$(shell sed -e 's:polyorb-hi-c/.*:polyorb-hi-c:' <<< $(PWD))
+
+################################################################################
+# sonarproperties: generation of configuration file for sonarqube
+#
+
+export SONAR_PROJECT_DIR=$(PWD)/..
+export SONAR_RESULTS_RELATIVE_PATH=$(shell echo "$(PWD)" | sed  's:$(SONAR_PROJECT_DIR)/::g')
+
+sonarproperties:
+	cp $(RUNTIME_PATH)/utils/template_sonar-project.properties tmpsonar-project.properties
+	sed -i 's/@PROJECT_KEY@/$(MAINAPP):$(BINARY)/g' tmpsonar-project.properties
+	sed -i 's/@PROJECT_NAME@/$(MAINAPP)::$(BINARY)/g' tmpsonar-project.properties
+	sed -i 's:@MASTER_PROJECT_DIR@:$(SONAR_PROJECT_DIR):g' tmpsonar-project.properties
+	echo "#sources files for analysis" >> tmpsonar-project.properties
+	echo "sonar.sources = $(PWD), $(LOCAL_RUNTIME_PATH)/src" >> tmpsonar-project.properties
+	echo "#Include files" >> tmpsonar-project.properties
+	echo "sonar.cxx.includeDirectories=$(LOCAL_RUNTIME_PATH)/include, $(LOCAL_RUNTIME_PATH)/include/silulator, $(LOCAL_RUNTIME_PATH)/include/monitoring, $(LOCAL_RUNTIME_PATH)/include/drivers, $(LOCAL_RUNTIME_PATH)/include/drivers/configuration, $(PWD)" >> tmpsonar-project.properties
+	echo "#Reports to sonarqube" >> tmpsonar-project.properties
+	sed  's:$(SONAR_PROJECT_DIR)/::g' <<< $(PWD)
+	echo "sonar.cxx.cppcheck.reportPath=$(SONAR_RESULTS_RELATIVE_PATH)/cppcheck.xml" >> tmpsonar-project.properties
+	echo "sonar.cxx.compiler.reportPath=$(SONAR_RESULTS_RELATIVE_PATH)/build.log" >> tmpsonar-project.properties
+	echo "sonar.cxx.valgrind.reportPath=$(SONAR_RESULTS_RELATIVE_PATH)/valgrind*.xml" >> tmpsonar-project.properties
+	echo "sonar.cxx.coverage.reportPath=$(SONAR_RESULTS_RELATIVE_PATH)/gcovr*.xml" >> tmpsonar-project.properties
+	echo "sonar.cxx.coverage.itReportPat=$(SONAR_RESULTS_RELATIVE_PATH)/gcovr*.xml" >> tmpsonar-project.properties
+	echo "sonar.cxx.coverage.overallReportPath=$(SONAR_RESULTS_RELATIVE_PATH)/gcovr*.xml" >> tmpsonar-project.properties
+	cp tmpsonar-project.properties sonar-project.properties
+
+################################################################################
+# cppcheck: run the static code analyser, see http://cppcheck.sourceforge.net
+#
+
+CPPCHECK_FLAGS= -v --enable=all --xml-version=2 --std=c99 --platform=unix64 --rule-file=gnu.cfg --rule-file=std.cfg --rule-file=posix.cfg
+
+cppcheck:
+	cppcheck $(CPPCHECK_FLAGS) $(INCLUDE) -I$(LOCAL_RUNTIME_PATH)/include  $(TARGET_CFLAGS) $(USER_CFLAGS) $(LOCAL_RUNTIME_PATH)/src $(PWD) 2> cppcheck.xml
+
+################################################################################
+# valgrind: run the valgrind binary analyser
+#
+
+valgrind:
+	cp $(RUNTIME_PATH)/utils/template_prof_gen.sh prof_gen.sh
+	chmod +x+w prof_gen.sh
+	sed -i 's/@PROGRAM_NAME@/$(BINARY)/g' prof_gen.sh
+	sh prof_gen.sh --output-dir-name=valgrind_output --check=call
+	sh prof_gen.sh --output-dir-name=valgrind_output --check=cache
+	sh prof_gen.sh --output-dir-name=valgrind_output --check=mem
+
+valgrind_xml:
+	valgrind --tool=memcheck --leak-check=full --xml=yes --xml-file=valgrind_memcheck.xml ./$(BINARY)
+
+valgrind_log:
+	valgrind --tool=memcheck --leak-check=full --log-file=valgrind_memcheck.log ./$(BINARY)
+
+################################################################################
+# collect code coverage metrics
+
+coverage:
+	cp $(RUNTIME_PATH)/utils/template_lcov_gen.sh lcov_gen.sh
+	chmod +x+w lcov_gen.sh
+	sh lcov_gen.sh --output-dir-name=govcoverage_output
+	gcovr -r $(SONAR_PROJECT_DIR) -s -x -o gcovr_report.xml

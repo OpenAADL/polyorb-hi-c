@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
 #ifndef __PO_HI_GQUEUE_H__
@@ -24,19 +24,19 @@
 #include <po_hi_types.h>
 
 void __po_hi_gqueue_init (__po_hi_task_id       id,
-			  __po_hi_uint8_t       nb_ports,
+			  __po_hi_port_id_t     nb_ports,
 			  __po_hi_port_t        queue[],
-			  __po_hi_int8_t        sizes[],
-			  __po_hi_uint8_t       first[],
-			  __po_hi_uint8_t       offsets[],
-			  __po_hi_uint8_t       woffsets[],
-			  __po_hi_uint8_t       n_dest[],
+			  __po_hi_port_id_t     sizes[],
+			  __po_hi_port_id_t     first[],
+			  __po_hi_port_id_t     offsets[],
+			  __po_hi_port_id_t     woffsets[],
+			  __po_hi_port_id_t     n_dest[],
 			  __po_hi_port_t*       destinations[],
-			  __po_hi_uint8_t       used_size[],
+			  __po_hi_port_id_t     used_size[],
 			  __po_hi_local_port_t  history[],
 			  __po_hi_request_t     recent[],
-			  __po_hi_uint8_t       empties[],
-			  __po_hi_uint16_t      total_fifo_size);
+			  __po_hi_port_id_t     empties[],
+			  __po_hi_uint32_t      total_fifo_size);
 /*
  * Initialize a global queue. In a distributed system, each task has
  * its own global queue. This function is invoked by each thead to
@@ -116,7 +116,7 @@ void __po_hi_gqueue_wait_for_incoming_event(__po_hi_task_id id,
  * the event.
  */
 
-__po_hi_uint8_t __po_hi_gqueue_store_in (__po_hi_task_id id,
+__po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 					 __po_hi_local_port_t port,
 					 __po_hi_request_t* request);
 /*
@@ -144,7 +144,7 @@ uint8_t __po_hi_gqueue_get_destinations_number (const __po_hi_task_id task_id,
  * identifier for the local thread.
  */
 
-__po_hi_int8_t __po_hi_gqueue_get_port_size(const __po_hi_task_id id,
+__po_hi_port_id_t __po_hi_gqueue_get_port_size(const __po_hi_task_id id,
                                             const __po_hi_local_port_t port);
 
 /*
@@ -153,9 +153,9 @@ __po_hi_int8_t __po_hi_gqueue_get_port_size(const __po_hi_task_id id,
  * identifier for the local thread.
  */
 
-__po_hi_int8_t __po_hi_gqueue_used_size( __po_hi_task_id id, __po_hi_local_port_t port);
+__po_hi_port_id_t __po_hi_gqueue_used_size( __po_hi_task_id id, __po_hi_local_port_t port);
 
-__po_hi_int8_t  po_hi_gqueues_queue_is_empty(__po_hi_task_id id);
+__po_hi_port_id_t  po_hi_gqueues_queue_is_empty(__po_hi_task_id id);
 
 __po_hi_request_t* __po_hi_gqueues_get_request(__po_hi_task_id id, __po_hi_local_port_t port);
 

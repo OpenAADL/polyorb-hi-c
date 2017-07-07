@@ -1,3 +1,13 @@
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
+ *
+ * Copyright (C) 2017 ESA & ISAE.
+ */
+
 
 // STL
 #include <iostream>  // for std::cout
@@ -23,7 +33,10 @@
 
 class state
 {
-
+state()
+{
+;
+}
 public:
 
 //Graph elements definitions

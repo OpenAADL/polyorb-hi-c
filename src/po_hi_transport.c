@@ -5,10 +5,11 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2016 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
 #include<stddef.h>
+#include<assert.h>
 
 #include <po_hi_config.h>
 #include <po_hi_types.h>
@@ -66,7 +67,6 @@ int                           __po_hi_xtratum_port[__PO_HI_NB_PORTS];
 
 int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 {
-   __po_hi_msg_t         msg;
    __po_hi_request_t*    request;
    __po_hi_uint8_t       ndest;
    __po_hi_uint8_t       i;
@@ -84,7 +84,7 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
    }
 
    ndest          = __po_hi_gqueue_get_destinations_number (id, local_port);
-
+   assert(ndest);
    __PO_HI_DEBUG_DEBUG ("Send value, emitter task %d, emitter port %d, emitter entity %d, destination ports :\n", id,  port, __po_hi_port_global_to_entity[port]);
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_INFO
@@ -109,8 +109,8 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
    {
       destination_port     = __po_hi_gqueue_get_destination (id, local_port, i);
       destination_entity   = __po_hi_get_entity_from_global_port (destination_port);
+      assert(destination_entity != -1);
       __PO_HI_DEBUG_DEBUG ("\t%d (entity=%d)", destination_port, destination_entity);
-      __po_hi_msg_reallocate (&msg);
 
       request->port = destination_port;
 
@@ -244,6 +244,8 @@ int __po_hi_transport_set_sending_func (const __po_hi_device_id device, const __
    }
 
    __po_hi_transport_devices_sending_funcs[device] = func;
+
+   return 0;
 }
 
 
@@ -377,6 +379,7 @@ __po_hi_node_t    __po_hi_transport_get_node_from_device (const __po_hi_device_i
 #else
 int __po_hi_transport_call_sending_func_by_port (__po_hi_task_id task_id, __po_hi_port_t port)
 {
+   __DEBUGMSG ("[TRANSPORT] task id %d port %d, nb protocols is less than or equal to zero\n", task_id,port);
    return __PO_HI_UNAVAILABLE;
 }
 #endif /* __PO_HI_NB_DEVICES > 0 */
@@ -445,23 +448,29 @@ __po_hi_port_kind_t __po_hi_transport_get_port_kind (const __po_hi_port_t portno
 
 __po_hi_protocol_t __po_hi_transport_get_protocol (const __po_hi_port_t src, const __po_hi_port_t dst)
 {
-#if __PO_HI_NB_PROTOCOLS > 0
-   return (__po_hi_ports_protocols[src][dst]);
-#else
-   return invalid_protocol;
-#endif
+__po_hi_protocol_t protocol;
 
+#if __PO_HI_NB_PROTOCOLS > 0
+   protocol= (__po_hi_ports_protocols[src][dst]);
+#else
+   __DEBUGMSG ("[TRANSPORT] port SRC=%d DST=%d, nb protocols is less than or equal to zero\n", src,dst);
+   protocol= invalid_protocol;
+#endif
+return protocol;
 }
 
 __po_hi_protocol_conf_t*    __po_hi_transport_get_protocol_configuration (const __po_hi_protocol_t p)
 {
+
 #if __PO_HI_NB_PROTOCOLS > 0
    if (p == invalid_protocol)
    {
-      return NULL;
+	return NULL;
    }
-   return &(__po_hi_protocols_configuration[p]);
+   else
+	return &(__po_hi_protocols_configuration[p]);
 #else
+   __DEBUGMSG ("[TRANSPORT] protocol %d, nb protocols is less than or equal to zero\n", p);
    return NULL;
 #endif
 }

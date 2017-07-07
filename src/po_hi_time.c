@@ -33,10 +33,23 @@
 #include <mach/mach.h>
 #endif
 
-#if defined (POSIX) && defined (NEED_CLOCK_GETTIME)
+#if defined (POSIX) && !defined (HAVE_CLOCK_GETTIME)
 #include <sys/time.h>
 int clock_gettime(int clk_id, struct timespec *tp)
 {
+#ifdef __MACH__
+  /* OS X prior to Sierra (10.12) does not have clock_gettime, use
+     clock_get_time
+   */
+   clock_serv_t cclock;
+   mach_timespec_t mts;
+   host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+   clock_get_time(cclock, &mts);
+   mach_port_deallocate(mach_task_self(), cclock);
+   ts.tv_sec = mts.tv_sec;
+   ts.tv_nsec = mts.tv_nsec;
+
+#else
    struct timeval now;
    int rv = gettimeofday(&now, NULL);
 
@@ -47,6 +60,7 @@ int clock_gettime(int clk_id, struct timespec *tp)
 
    tp->tv_sec = now.tv_sec;
    tp->tv_nsec = now.tv_usec * 1000;
+#endif
 
    return 0;
 }
@@ -82,22 +96,10 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    struct timespec ts;
 
-
-#ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
-   clock_serv_t cclock;
-   mach_timespec_t mts;
-   host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-   clock_get_time(cclock, &mts);
-   mach_port_deallocate(mach_task_self(), cclock);
-   ts.tv_sec = mts.tv_sec;
-   ts.tv_nsec = mts.tv_nsec;
-
-#else
    if (clock_gettime (CLOCK_REALTIME, &ts)!=0)
    {
       return (__PO_HI_ERROR_CLOCK);
    }
-#endif
 
    mytime->sec    = ts.tv_sec;
    mytime->nsec   = ts.tv_nsec;

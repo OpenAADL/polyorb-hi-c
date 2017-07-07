@@ -4,83 +4,117 @@ public
   with ocarina_drivers;
   with ocarina_buses;
 
----------------
--- Processor --
----------------
+  ---------------
+  -- Processor --
+  ---------------
 
-processor the_processor
-properties
-  Deployment::Execution_Platform => Native;
-end the_processor;
+  processor the_processor
+  properties
+    Deployment::Execution_Platform => Native;
+  end the_processor;
 
-processor implementation the_processor.i
-end the_processor.i;
+  processor implementation the_processor.i
+  end the_processor.i;
 
----------------
--- Processes --
----------------
+  ---------------
+  -- Processes --
+  ---------------
 
-process A
-features
-  Alpha : out data port Software::Alpha_Type;
-  Beta  : in data port Software::Alpha_Type;
-end A;
+  process A
+  features
+    Alpha : out data port Software::Alpha_Type;
+    Beta  : in data port Software::Alpha_Type;
+  end A;
 
-process implementation A.Impl
-subcomponents
-  Producer        : thread Software::P.Impl;
-  Result_Consumer : thread Software::Q.Impl;
-connections
-  port Producer.Data_Source -> Alpha;
-  port Beta -> Result_Consumer.Data_Sink;
-end A.Impl;
+  process implementation A.Impl
+  subcomponents
+    Producer        : thread Software::P.Impl;
+    Result_Consumer : thread Software::Q.Impl;
+  connections
+    port Producer.Data_Source -> Alpha;
+    port Beta -> Result_Consumer.Data_Sink;
+  end A.Impl;
 
-process B
-features
-  Alpha : out data port Software::Alpha_Type;
-  Beta  : in data port Software::Alpha_Type;
-end B;
+  process B
+  features
+    Alpha : out data port Software::Alpha_Type;
+    Beta  : in data port Software::Alpha_Type;
+  end B;
 
-process implementation B.Impl
-subcomponents
-  Consumer        : thread Software::Q.Impl;
-  Result_Producer : thread Software::P.Impl;
-connections
-  port Beta -> Consumer.Data_Sink;
-  port Result_Producer.Data_Source -> Alpha;
-end B.Impl;
+  process implementation B.Impl
+  subcomponents
+    Consumer        : thread Software::Q.Impl;
+    Result_Producer : thread Software::P.Impl;
+  connections
+    port Beta -> Consumer.Data_Sink;
+    port Result_Producer.Data_Source -> Alpha;
+  end B.Impl;
 
-------------
--- System --
-------------
+  process singleProcess
+  end singleProcess;
 
-system PC_Simple
-end PC_Simple;
+  process implementation singleProcess.Impl
+  subcomponents
+    ProducerA        : thread Software::P.Impl;
+    Result_ConsumerA : thread Software::Q.Impl;
+    ConsumerB        : thread Software::Q.Impl;
+    Result_ProducerB : thread Software::P.Impl;
+  connections
+    port ProducerA.Data_Source -> ConsumerB.Data_Sink;
+    port Result_ProducerB.Data_Source -> Result_ConsumerA.Data_Sink;
+  end singleProcess.Impl;
 
-system implementation PC_Simple.Impl
-subcomponents
-  pr_A : process A.Impl {Deployment::port_number => 4001;};
-  pr_B : process B.Impl {Deployment::port_number => 4002;};
-  Device_A : device ocarina_drivers::generic_sockets_ip.pohic
-               {Source_Text => ("devicesconf.c");};
-  Device_B : device ocarina_drivers::generic_sockets_ip.pohic
-               {Source_Text => ("devicesconf.c");};
-  CPU_A : processor the_processor.i;
-  CPU_B : processor the_processor.i;
-  the_bus : bus ocarina_buses::ip.i;
-connections
-  bus access the_bus -> Device_A.link;
-  bus access the_bus -> Device_B.link;
+  ------------
+  -- System --
+  ------------
 
-  port pr_A.Alpha -> pr_B.Beta
+  system PC_Simple
+  end PC_Simple;
+
+  system implementation PC_Simple.Impl
+  subcomponents
+    pr_A : process A.Impl {Deployment::port_number => 4001;};
+    pr_B : process B.Impl {Deployment::port_number => 4002;};
+    Device_A : device ocarina_drivers::generic_sockets_ip.pohic
+    {Source_Text => ("devicesconf.c");};
+    Device_B : device ocarina_drivers::generic_sockets_ip.pohic
+    {Source_Text => ("devicesconf.c");};
+    CPU_A : processor the_processor.i;
+    CPU_B : processor the_processor.i;
+    the_bus : bus ocarina_buses::ip.i;
+  connections
+    bus access the_bus -> Device_A.link;
+    bus access the_bus -> Device_B.link;
+
+    port pr_A.Alpha -> pr_B.Beta
     {Actual_Connection_Binding => (reference (the_bus));};
-  port pr_B.Alpha -> pr_A.Beta
+    port pr_B.Alpha -> pr_A.Beta
     {Actual_Connection_Binding => (reference (the_bus));};
-properties
-  actual_processor_binding => reference (CPU_A) applies to pr_A;
-  actual_processor_binding => reference (CPU_B) applies to pr_B;
-  actual_processor_binding => (reference (CPU_A)) applies to Device_A;
-  actual_processor_binding => (reference (CPU_B)) applies to Device_B;
-end PC_Simple.Impl;
+  properties
+    actual_processor_binding => reference (CPU_A) applies to pr_A;
+    actual_processor_binding => reference (CPU_B) applies to pr_B;
+    actual_processor_binding => (reference (CPU_A)) applies to Device_A;
+    actual_processor_binding => (reference (CPU_B)) applies to Device_B;
+  end PC_Simple.Impl;
+
+  system implementation PC_Simple.local
+  subcomponents
+    prodr_cons : process singleProcess.Impl;
+    CPU_A : processor the_processor.i;
+  properties
+    actual_processor_binding => reference (CPU_A) applies to prodr_cons;
+  end PC_Simple.local;
+
+  system implementation PC_Simple.Xenomai
+  extends PC_Simple.local
+  properties
+    Deployment::Execution_Platform => linux32_xenomai_native applies to CPU_A;
+  end PC_Simple.Xenomai;
+
+  system implementation PC_Simple.RTEMS
+  extends PC_Simple.local
+  properties
+    Deployment::Execution_platform => LEON_RTEMS applies to CPU_A ;
+  end PC_Simple.RTEMS;
 
 end Producer::Consumer;

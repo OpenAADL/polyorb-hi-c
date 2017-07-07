@@ -1,0 +1,25 @@
+--  This is a scenario file describing the AADL 
+--  application sunseeker
+
+--  $Id: scenario_local.aadl 394 2007-05-31 18:59:00Z zalila $
+
+system sunseeker
+properties
+  Ocarina_Config::Timeout_Property     => 1000ms;
+  Ocarina_Config::Referencial_Files    =>
+    ("sunseeker", "sunseeker.ref");
+  Ocarina_Config::AADL_Files           => 
+    ("sunseeker.aadl", "sunseeker_dist.aadl");
+  Ocarina_Config::Root_System_Name => "Sunseekercontrolsystem_Type.RTEMS";
+  Ocarina_Config::Generator            => polyorb_hi_c;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::Cheddar_Properties));
+  Ocarina_Config::AADL_Version         => AADLv2;
+  Ocarina_Config::Use_Components_Library => true;
+end sunseeker;
+
+system implementation sunseeker.Impl
+end  sunseeker.Impl;
+

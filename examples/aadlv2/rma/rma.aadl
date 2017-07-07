@@ -10,93 +10,106 @@ package RMAAadl
 public
   with Deployment;
 
------------------
--- Subprograms --
------------------
+  -----------------
+  -- Subprograms --
+  -----------------
 
-subprogram Hello_Spg_1
-properties
-  source_language => C;
-  source_name     => "user_Hello_Spg_1";
-  source_text     => ("hello.c");
-end Hello_Spg_1;
+  subprogram Hello_Spg_1
+  properties
+    source_language => C;
+    source_name     => "user_Hello_Spg_1";
+    source_text     => ("hello.c");
+  end Hello_Spg_1;
 
-subprogram Hello_Spg_2
-properties
-  source_language => C;
-  source_name     => "user_Hello_Spg_2";
-  source_text     => ("hello.c");
-end Hello_Spg_2;
+  subprogram Hello_Spg_2
+  properties
+    source_language => C;
+    source_name     => "user_Hello_Spg_2";
+    source_text     => ("hello.c");
+  end Hello_Spg_2;
 
--------------
--- Threads --
--------------
+  -------------
+  -- Threads --
+  -------------
 
-thread Task
-end Task;
+  thread Task
+  end Task;
 
-thread implementation Task.impl_1
-calls
-Mycalls: {
-  P_Spg : subprogram Hello_Spg_1;
-};
-properties
-   Dispatch_Protocol                  => periodic;
-   Period                             => 100ms;
-   Priority => 1;
-end Task.impl_1;
+  thread implementation Task.impl_1
+  calls
+    Mycalls: {
+    P_Spg : subprogram Hello_Spg_1;
+    };
+  properties
+    Dispatch_Protocol                  => periodic;
+    Period                             => 1000ms;
+    Priority => 1;
+  end Task.impl_1;
 
-thread implementation Task.impl_2
-calls
-Mycalls: {
-  P_Spg : subprogram Hello_Spg_2;
-};
-properties
-   Dispatch_Protocol                  => periodic;
-   Period                             => 50ms;
-   Priority => 2;
-end Task.impl_2;
+  thread implementation Task.impl_2
+  calls
+    Mycalls: {
+    P_Spg : subprogram Hello_Spg_2;
+    };
+  properties
+    Dispatch_Protocol                  => periodic;
+    Period                             => 500ms;
+    Priority => 2;
+  end Task.impl_2;
 
----------------
--- Processor --
----------------
+  ---------------
+  -- Processor --
+  ---------------
 
-processor cpurm
-properties
-  Deployment::Execution_Platform => native;
-end cpurm;
+  processor cpurm
+  properties
+    Deployment::Execution_Platform => native;
+  end cpurm;
 
-processor implementation cpurm.impl
-properties
-   Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
-end cpurm.impl;
+  processor implementation cpurm.impl
+  properties
+    Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
+    Priority_Range => 0 .. 255;
+  end cpurm.impl;
 
----------------
--- Processes --
----------------
+  ---------------
+  -- Processes --
+  ---------------
 
-process node_a
-end node_a;
+  process node_a
+  end node_a;
 
-process implementation node_a.impl
-subcomponents
-   Task1 : thread Task.impl_1;
-   Task2 : thread Task.impl_2;
-end node_a.impl;
+  process implementation node_a.impl
+  subcomponents
+    Task1 : thread Task.impl_1;
+    Task2 : thread Task.impl_2;
+  end node_a.impl;
 
-------------
--- System --
-------------
+  ------------
+  -- System --
+  ------------
 
-system rma
-end rma;
+  system rma
+  end rma;
 
-system implementation rma.impl
-subcomponents
-   node_a : process node_a.impl;
-   cpu_rm : processor cpurm.impl;
-properties
-   Actual_Processor_Binding => (reference (cpu_rm)) applies to node_a;
-end rma.impl;
+  system implementation rma.impl
+  subcomponents
+    rma : process node_a.impl;
+    cpu_rm : processor cpurm.impl;
+  properties
+    Actual_Processor_Binding => (reference (cpu_rm)) applies to rma;
+  end rma.impl;
+
+  system implementation rma.Xenomai
+  extends rma.impl
+  properties
+    Deployment::Execution_Platform => linux32_xenomai_native applies to cpu_rm;
+  end rma.Xenomai;
+
+  system implementation rma.RTEMS
+  extends rma.impl
+  properties
+    Deployment::Execution_platform => LEON_RTEMS applies to cpu_rm;
+  end rma.RTEMS;
 
 end RMAAadl;

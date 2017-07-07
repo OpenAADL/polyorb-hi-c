@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2016 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -14,7 +14,7 @@
 
 /* Headers from PolyORB-HI-C */
 
-#if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (RTEMS_PURE)
+#if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (RTEMS_PURE) || defined (FREERTOS)
 #else
 #include <xlocale.h>
 #endif
@@ -99,9 +99,9 @@ int __po_hi_msg_should_swap (__po_hi_msg_t* msg)
         return 0;
 }
 
-void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint8_t size)
+void __po_hi_msg_swap_value (void* from, void* dest, __po_hi_uint32_t size)
 {
-        __po_hi_uint8_t tmp;
+        __po_hi_uint32_t tmp;
         __po_hi_uint8_t* udest;
         __po_hi_uint8_t* ufrom;
 

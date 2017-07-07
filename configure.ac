@@ -1,5 +1,5 @@
 AC_PREREQ(2.60)
-AC_INIT(PolyORB-HI/C, 2017.1)
+AC_INIT(PolyORB-HI/C, 2017.x)
 AC_CONFIG_SRCDIR(src)
 AC_CONFIG_AUX_DIR(support)
 
@@ -59,7 +59,7 @@ SIMULINK_LDFLAGS=""
 
 case ${host_os} in
 	*darwin*)
-		NATIVE_CFLAGS="${NATIVE_CFLAGS} -DPOSIX -DNEED_CLOCK_GETTIME"
+		NATIVE_CFLAGS="${NATIVE_CFLAGS} -DPOSIX -D_XOPEN_SOURCE"
 		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread"
 		;;
 	*solaris*10*)
@@ -92,8 +92,7 @@ AC_SUBST(SIMULINK_LDFLAGS)
 # Check for Ocarina
 ##########################################
 
-AM_PATH_OCARINA(1.1, ,AC_MSG_ERROR([Ocarina 1.1 or later is not installed on you
-r system]))
+AM_PATH_OCARINA(1.1, ,AC_MSG_ERROR([Ocarina 1.1 or later is not installed on your system]))
 
 AC_ARG_ENABLE(debug,
   [  --enable-debug[=level] specify debugging level.

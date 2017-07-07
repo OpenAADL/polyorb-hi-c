@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2015 ESA & ISAE.
+ * Copyright (C) 2010-2017 ESA & ISAE.
  */
 
 #ifndef __PO_HI_TASK_H__
@@ -61,6 +61,13 @@
    #define __PO_HI_MAIN_ARGS
    #define __PO_HI_MAIN_RETURN 0
    #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
+
+#elif defined (FREERTOS)
+   #define __PO_HI_MAIN_NAME main
+   #define __PO_HI_MAIN_TYPE int
+   #define __PO_HI_MAIN_ARGS int argc , char *argv[] , char **arge
+   #define __PO_HI_MAIN_RETURN 0
+   #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
 #endif
 
 #if defined(POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
@@ -98,7 +105,14 @@
    #define __PO_HI_DEFAULT_PRIORITY 50
    #define __PO_HI_MAX_PRIORITY 99
    #define __PO_HI_MIN_PRIORITY 0
+#elif defined(FREERTOS)
+   #include <po_hi_time.h>
+   #define __PO_HI_DEFAULT_PRIORITY 50
+   #define __PO_HI_MAX_PRIORITY 99
+   #define __PO_HI_MIN_PRIORITY 0
 #endif
+
+#include <stddef.h>
 
 #include <po_hi_types.h>
 #include <deployment.h>
