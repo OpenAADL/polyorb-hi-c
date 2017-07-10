@@ -5,19 +5,24 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2016 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
 #include <po_hi_time.h>
 #include <po_hi_types.h>
 #include <po_hi_debug.h>
+#include <po_hi_utils.h>
 /* Header files in PolyORB-HI */
 
 #include <deployment.h>
 /* Header files from generated code */
 
 #include <stdlib.h>
+
+#ifdef __PO_HI_USE_VCD
+enum tagVCD VCD_state;
+#endif
 
 int __po_hi_compute_miss (__po_hi_uint8_t rate)
 {

@@ -19,21 +19,19 @@
  */
 int __po_hi_compute_miss (__po_hi_uint8_t rate);
 
-
 unsigned long __po_hi_swap_byte (unsigned long value);
 
 #ifdef __PO_HI_USE_VCD
+
 #include <pthread.h>
 #include <string.h>
 
 /* Variable keeping track of whether VCD tracing is enabled or not */
-#ifdef __PO_HI_USE_VCD
 enum tagVCD {
     VCD_UNCHECKED,
     VCD_DISABLED,
     VCD_ENABLED
-} VCD_state = UNCHECKED;
-#endif
+};
 
 void __po_hi_instrumentation_vcd_init (void);
 
@@ -41,12 +39,12 @@ void __po_hi_instrumentation_vcd_init (void);
 
 #define __PO_HI_INSTRUMENTATION_VCD_WRITE(s, args...)                          \
    {                                                                           \
+      extern enum tagVCD VCD_state;                                            \
       if (VCD_state == VCD_UNCHECKED) {                                        \
           VCD_state = NULL == getenv("VCD_ENABLED")?VCD_DISABLED:VCD_ENABLED;  \
       }                                                                        \
       if (VCD_state == VCD_ENABLED) {                                          \
           extern int               __po_hi_vcd_file;                           \
-          extern int               __po_hi_vcd_init;                           \
           extern __po_hi_time_t    __po_hi_vcd_start_time;                     \
           extern pthread_mutex_t   __po_hi_vcd_mutex;                          \
           __po_hi_time_t           __po_hi_vcd_current_time;                   \
@@ -74,7 +72,7 @@ void __po_hi_instrumentation_vcd_init (void);
              write (__po_hi_vcd_file, buf, size_to_write);                     \
           }                                                                    \
           pthread_mutex_unlock (&__po_hi_vcd_mutex);                           \
-      }
+      }                                                                        \
    }
 #else
    #define __PO_HI_INSTRUMENTATION_VCD_WRITE(s, args...)
