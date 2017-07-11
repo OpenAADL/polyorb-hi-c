@@ -11,7 +11,17 @@ all: build-node
 
 LOCAL_RUNTIME_PATH=$(shell pwd)/../polyorb-hi-c
 
+# Test whether we are simply including this makefile, e.g. to get some
+# configuration parameters, or used as part of the general build from
+# an Ocarina generated makefile
+
+ifneq ($strip ($(wildcard $(LOCAL_RUNTIME_PATH)/config)),)
+include $(RUNTIME_PATH)/make/Makefile.$(TARGET)
+else
 include $(LOCAL_RUNTIME_PATH)/make/Makefile.$(TARGET)
+endif
+
+# Include user-defined makefile
 -include ../../userdefined.mk
 
 ifneq ($(USE_CPP_LINKER),)
