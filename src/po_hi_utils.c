@@ -20,7 +20,7 @@
 
 #include <stdlib.h>
 
-#ifdef __PO_HI_USE_VCD
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
 enum tagVCD VCD_state;
 #endif
 
