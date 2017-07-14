@@ -21,7 +21,7 @@ int __po_hi_compute_miss (__po_hi_uint8_t rate);
 
 unsigned long __po_hi_swap_byte (unsigned long value);
 
-#ifdef __PO_HI_USE_VCD
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
 
 #include <pthread.h>
 #include <string.h>
