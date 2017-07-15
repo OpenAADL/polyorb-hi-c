@@ -8,18 +8,18 @@
  * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
-#ifdef POSIX
-
-#ifdef __linux__
+#if defined (__linux__) || defined (RTEMS412)
 /*  We need GNU extensions to support thread affinify.
-    These are Linux specific
+    These are Linux or RTEMS specific
  */
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
 #endif /* _GNU_SOURCE */
+#endif /* __linux__ || RTEMS412 */
+
+#ifdef __linux__
 #include <sched.h>
 #endif /* __linux__ */
-#endif /* POSIX */
 
 #if defined (SIMULATOR)
 #include <um_threads.h>
@@ -385,7 +385,11 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
     }
 
-#if ( (defined (POSIX) && defined (__linux__)) || (defined (RTEMS_POSIX) && defined (RTEMS412)))
+#if (defined (POSIX) && defined (__linux__))
+
+  /* The following is disabled pending further investigation on affinity support in 4.11.99 */
+  /*|| (defined (RTEMS_POSIX) && defined (RTEMS412))) */
+
 #ifndef __COMPCERT__
   /* Thread affinity */
   cpu_set_t cpuset;

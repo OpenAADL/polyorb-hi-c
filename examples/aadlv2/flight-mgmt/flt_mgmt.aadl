@@ -1,3 +1,5 @@
+--  Model of a basic flight management system, contributed by Irfan Hamid
+
 package flight::mgmt
 public
   with Deployment, Software;

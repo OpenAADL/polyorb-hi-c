@@ -27,10 +27,10 @@
  * we deduce it from generated statements.
  */
 #if defined(RTEMS_POSIX)
+
    #include <rtems.h>
    #include <inttypes.h>
 
-   #define CONFIGURE_INIT
    #include <bsp.h>
    #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
@@ -43,11 +43,6 @@
    #define CONFIGURE_MAXIMUM_SEMAPHORES                  20
    #define CONFIGURE_MAXIMUM_TASKS                       __PO_HI_NB_TASKS + 2
    #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS      20
-
-   #define CONFIGURE_SMP_APPLICATION
-   #ifndef CONFIGURE_SMP_MAXIMUM_PROCESSORS
-   #define CONFIGURE_SMP_MAXIMUM_PROCESSORS              1
-   #endif
 
    int POSIX_Init ();
    #define CONFIGURE_MAXIMUM_POSIX_THREADS               __PO_HI_NB_TASKS + 10
@@ -62,7 +57,10 @@
 #endif
    #define CONFIGURE_POSIX_INIT_THREAD_TABLE
    #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
+
+   #define CONFIGURE_INIT
    #include <rtems/confdefs.h>
+
 #endif  /* RTEMS_POSIX */
 
 #if defined(RTEMS_PURE)

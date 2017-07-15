@@ -81,7 +81,11 @@ extern __po_hi_int8_t         __po_hi_gqueues_nb_ports[__PO_HI_NB_TASKS];
 
 void __po_hi_instrumentation_vcd_init ()
 {
-   int                     port, task, i;
+#if __PO_HI_NB_PORTS > 0
+   int                     port, task;
+#endif
+
+   int i;
    char                    buf[1024];
    int                     size_to_write = 0;
    time_t                  current_time;
