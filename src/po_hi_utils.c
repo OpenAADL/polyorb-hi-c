@@ -21,7 +21,7 @@
 #include <stdlib.h>
 
 #if defined(__PO_HI_USE_VCD) && defined(__unix__)
-enum tagVCD VCD_state;
+enum tagVCD VCD_state = VCD_UNCHECKED;
 #endif
 
 int __po_hi_compute_miss (__po_hi_uint8_t rate)
@@ -89,6 +89,18 @@ void __po_hi_instrumentation_vcd_init ()
    char                    buf[1024];
    int                     size_to_write = 0;
    time_t                  current_time;
+
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+   if (VCD_state == VCD_UNCHECKED)
+   {
+          VCD_state = NULL == getenv("VCD_ENABLED")?VCD_DISABLED:VCD_ENABLED;
+   }
+
+   if (VCD_state != VCD_ENABLED)
+   {
+       return;
+   }
+#endif
 
    if (__po_hi_vcd_init == 0)
    {
