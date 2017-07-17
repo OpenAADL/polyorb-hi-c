@@ -40,9 +40,6 @@ void __po_hi_instrumentation_vcd_init (void);
 #define __PO_HI_INSTRUMENTATION_VCD_WRITE(s, args...)                          \
    {                                                                           \
       extern enum tagVCD VCD_state;                                            \
-      if (VCD_state == VCD_UNCHECKED) {                                        \
-          VCD_state = NULL == getenv("VCD_ENABLED")?VCD_DISABLED:VCD_ENABLED;  \
-      }                                                                        \
       if (VCD_state == VCD_ENABLED) {                                          \
           extern int               __po_hi_vcd_file;                           \
           extern __po_hi_time_t    __po_hi_vcd_start_time;                     \

@@ -20,10 +20,6 @@
 
 #include <stdlib.h>
 
-#if defined(__PO_HI_USE_VCD) && defined(__unix__)
-enum tagVCD VCD_state;
-#endif
-
 int __po_hi_compute_miss (__po_hi_uint8_t rate)
 {
    int v;
@@ -52,7 +48,8 @@ unsigned long __po_hi_swap_byte (unsigned long value)
    return (vn.ni);
 }
 
-#ifdef __PO_HI_USE_VCD
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -66,6 +63,8 @@ unsigned long __po_hi_swap_byte (unsigned long value)
 #include <po_hi_returns.h>
 
 #include <deployment.h>
+
+enum tagVCD             VCD_state = VCD_UNCHECKED;
 
 int                     __po_hi_vcd_file;
 int                     __po_hi_vcd_init = 0;
@@ -89,6 +88,14 @@ void __po_hi_instrumentation_vcd_init ()
    char                    buf[1024];
    int                     size_to_write = 0;
    time_t                  current_time;
+
+   if (VCD_state == VCD_UNCHECKED) {
+     VCD_state = NULL == getenv("VCD_ENABLED")?VCD_DISABLED:VCD_ENABLED;
+   }
+
+   if (VCD_state != VCD_ENABLED) {
+     return;
+   }
 
    if (__po_hi_vcd_init == 0)
    {
