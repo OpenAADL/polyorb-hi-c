@@ -43,14 +43,23 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
  * create its global queue, according to its information (number of
  * ports, destination of each port ...).
  *
- * The first argument is the task-id in the distributed system. The
- * second argument is the number of ports for the task. The argument
- * sizes contains the size of the FIFO for each port. The offsets
- * argument contains the offset position for each queue in the global
- * queue.  The n_dest argument correspond to the number of
- * destinations for an OUT port. The argument destinations tells what
- * are the ports connected to an OUT port.  Finally, the argument
- * total_fifo_size gives the total size of the global queue
+ *
+ * id : id of the task associated to this queue
+ * nb_ports : number of ports for task 'id'
+ * queue : XXX
+ * sizes : size of the FIFO for each port, or __PO_HI_GQUEUE_FIFO_OUT
+ *         if this is an out port;
+ * first
+ * ofssets: offset position for each queue in the global
+ *          queue
+ * woffsets :
+ * n_dest : number of destinations for each port;
+ * destinations : destination for each port;
+ * used_size : XXX
+ * history : XXX
+ * recent : XXX
+ * empties : XXX
+ * total_fifo_sizes: XXX
  */
 
 void __po_hi_gqueue_store_out (__po_hi_task_id id,
