@@ -30,6 +30,7 @@
 #include <po_hi_main.h>
 #include <po_hi_task.h>
 #include <po_hi_gqueue.h>
+#include <po_hi_protected.h>
 #include <drivers/po_hi_driver_sockets.h>
 
 #include <activity.h>
@@ -49,6 +50,7 @@
 #include <sys/time.h>
 #endif
 
+/******************************************************************************/
 /*
  * This file (po_hi_sockets.c) provides function to handle
  * communication between nodes in PolyORB-HI-C.  We don't use a
@@ -67,24 +69,33 @@
 #define __PO_HI_NB_NODES 1
 #endif
 
-/*
- * We have two arrays of sockets. The first array (nodes) is used to
- * send data to other nodes. A special socket if nodes[__po_hi_mynode] : this
- * socket is used to listen others processes.  The second array
- * (rnodes), is used to store all socket that are created by the
- * listen socket. This array is used only by the receiver_task
- */
+/* The following elements are configured during initilization phase,
+   and then reuse by the poller thread
+*/
+__po_hi_device_id    __po_hi_c_sockets_device_id;
+/* id of the device we are bound to */
 
 int                  __po_hi_c_sockets_listen_socket;
+/* Listen socket */
+
 int                  __po_hi_c_sockets_read_sockets[__PO_HI_NB_DEVICES];
-int                  __po_hi_c_sockets_write_sockets[__PO_HI_NB_DEVICES];
+/* Socket we read from, used by the __po_hi_sockets_poller task */
+
 __po_hi_request_t    __po_hi_c_sockets_poller_received_request;
+/* Request, heap allocated, used by the __po_hi_sockets_poller task */
+
 __po_hi_msg_t        __po_hi_c_sockets_poller_msg;
+/* Message, heap allocated, used by the __po_hi_sockets_poller task */
+
+int                  __po_hi_c_sockets_write_sockets[__PO_HI_NB_DEVICES];
+/* Sockets we write to, used by the __po_hi_drivers_socket_send() function */
+
 __po_hi_msg_t        __po_hi_c_sockets_send_msg;
-__po_hi_device_id    __po_hi_c_sockets_device_id;
+/* Message, heap allocated, used by the __po_hi_sockets_send() funtion */
 
-int      __po_hi_c_sockets_array_init_done = 0;
+__po_hi_mutex_t      __po_hi_c_sockets_send_mutex;
 
+/******************************************************************************/
 int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
                                  __po_hi_port_t port)
 {
@@ -113,7 +124,8 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    protocol_id             = __po_hi_transport_get_protocol (port, destination_port);
    protocol_conf           = __po_hi_transport_get_protocol_configuration (protocol_id);
 
-   __DEBUGMSG ("[DRIVER SOCKETS] Try to write from task=%d, port=%d, local_device=%d, remote device=%d, socket=%d\n", task_id, port, local_device, remote_device, __po_hi_c_sockets_write_sockets[remote_device]);
+   __DEBUGMSG ("[DRIVER SOCKETS] Try to write from task=%d, port=%d, local_device=%d, remote device=%d, socket=%d\n",
+               task_id, port, local_device, remote_device, __po_hi_c_sockets_write_sockets[remote_device]);
    if (request->port == -1)
    {
       __DEBUGMSG (" [DRIVER SOCKETS] No data to write on port %d\n", port);
@@ -208,8 +220,9 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
       case invalid_protocol:
       default:
       {
-
 	 request->port = destination_port;
+         __po_hi_mutex_lock (&__po_hi_c_sockets_send_mutex);
+
          __po_hi_msg_reallocate (&__po_hi_c_sockets_send_msg);
          __po_hi_marshall_request (request, &__po_hi_c_sockets_send_msg);
 
@@ -224,6 +237,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 #else
             len = write (__po_hi_c_sockets_write_sockets[remote_device], &(__po_hi_c_sockets_send_msg.content), size_to_write);
 #endif
+            __po_hi_mutex_unlock (&__po_hi_c_sockets_send_mutex);
 
             if (len != size_to_write)
             {
@@ -247,6 +261,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    return __PO_HI_SUCCESS;
 }
 
+/******************************************************************************/
 /*pragma is for unused parameter "dev_id_addr"*/
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -290,7 +305,6 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
    assert (n_connected >= 0);
    __DEBUGMSG ("Number of devices that share the bus=%d\n", n_connected);
-
 
    /*
     * Create a socket for each node that will communicate with us.
@@ -401,7 +415,6 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 #else
             memset (__po_hi_c_sockets_poller_msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
 
-
 #ifdef _WIN32
             len = recv (__po_hi_c_sockets_read_sockets[dev], __po_hi_c_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, 0);
 #else
@@ -433,9 +446,10 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 }
 #pragma GCC diagnostic pop
 
-
+/******************************************************************************/
 void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 {
+   static int      __po_hi_c_sockets_array_init_done = 0;
    int                     ret;
 #ifdef _WIN32
    char FAR                reuse;
@@ -462,7 +476,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
    __po_hi_c_sockets_device_id     = dev_id;
 
-   if (__po_hi_c_sockets_array_init_done == 0)
+   if (__po_hi_c_sockets_array_init_done == 0) /* XXX */
    {
       for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++)
       {
@@ -472,6 +486,8 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
       __po_hi_c_sockets_array_init_done = 1;
    }
+
+   __po_hi_mutex_init (&__po_hi_c_sockets_send_mutex,__PO_HI_MUTEX_REGULAR, 0);
 
    __po_hi_transport_set_sending_func (dev_id, __po_hi_driver_sockets_send);
 
@@ -488,7 +504,6 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
    if (ip_port != 0)
    {
       __po_hi_c_sockets_listen_socket = socket (AF_INET, SOCK_STREAM, 0);
-
 
       if (__po_hi_c_sockets_listen_socket == -1 )
       {
@@ -532,7 +547,6 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 	(-1, 0,__PO_HI_MAX_PRIORITY, 0, 0, (void* (*)(void))__po_hi_sockets_poller, &dev_id);
       /* For now, we force affinity to 0 */
    }
-
 
    /*
     * For each node in the sytem that may communicate with the current
@@ -605,7 +619,6 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
          {
             tmp[i] = hostinfo->h_addr[i];
          }
-
 
          /*
           * We try to connect on the remote host. We try every
