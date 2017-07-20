@@ -37,8 +37,6 @@
 #include <windows.h>
 #endif
 
-
-
 typedef enum
 {
    __PO_HI_PROTECTED_REGULAR     = 1,
@@ -53,7 +51,6 @@ typedef enum
 }__po_hi_protected_protocol_t;
 
 typedef __po_hi_protected_protocol_t __po_hi_mutex_protocol_t;
-
 
 typedef struct
 {
@@ -74,9 +71,6 @@ typedef struct
 #endif
 }__po_hi_mutex_t;
 
-
-
-
 typedef uint8_t __po_hi_protected_t;
 
 /*
@@ -92,10 +86,10 @@ int __po_hi_protected_lock (__po_hi_protected_t protected_id);
 /**
  * \fn __po_hi_protected_lock
  *
- * Unlock the variable which has he id given 
+ * Unlock the variable which has he id given
  * by the argument.
  * Return __PO_HI_SUCCESS if it is successfull.
- * If there is an error, it can return 
+ * If there is an error, it can return
  * __PO_HI_ERROR_PTHREAD_MUTEX value
  */
 int __po_hi_protected_unlock (__po_hi_protected_t protected_id);
@@ -111,11 +105,11 @@ int __po_hi_protected_init (void);
 /**
  * \fn __po_hi_mutex_init
  *
- * \brief Initialize a mutex no matter the underlying executive 
+ * \brief Initialize a mutex no matter the underlying executive
  *
  * This function allocate all the resources to the mutex so that it can be
  * used with __po_hi_mutex_lock() and __po_hi_mutex_unlock(). The second
- * parameter is the locking protocol of the mutex that is mapped on the 
+ * parameter is the locking protocol of the mutex that is mapped on the
  * appropriate underlyign OS directives if supported. The third argument
  * is the priority ceiling used, only relevant if the protocol
  * needs such an option. Otherwise, any value can be used.
@@ -131,7 +125,7 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
 /**
  * \fn __po_hi_mutex_lock
  *
- * \brief Lock a mutex no matter the underlying executive 
+ * \brief Lock a mutex no matter the underlying executive
  *
  * This function locks the mutex so that it ensures that only one task
  * acquired it. Note that if the mutex was previously acquired, the caller
@@ -148,7 +142,7 @@ int __po_hi_mutex_lock (__po_hi_mutex_t* mutex);
 /**
  * \fn __po_hi_mutex_unlock
  *
- * \brief Unlock a mutex no matter the underlying executive 
+ * \brief Unlock a mutex no matter the underlying executive
  *
  * This function unlocks the mutex so that other tasks can acquire it
  * again.
