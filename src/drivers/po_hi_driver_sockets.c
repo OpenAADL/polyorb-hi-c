@@ -237,10 +237,10 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 #else
             len = write (__po_hi_c_sockets_write_sockets[remote_device], &(__po_hi_c_sockets_send_msg.content), size_to_write);
 #endif
-            __po_hi_mutex_unlock (&__po_hi_c_sockets_send_mutex);
 
             if (len != size_to_write)
             {
+              __po_hi_mutex_unlock (&__po_hi_c_sockets_send_mutex);
 
 #if __PO_HI_MONITOR_ENABLED
                __po_hi_monitor_report_failure_device (remote_device, po_hi_monitor_failure_value);
@@ -252,6 +252,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
                return __PO_HI_ERROR_TRANSPORT_SEND;
             }
          }
+         __po_hi_mutex_unlock (&__po_hi_c_sockets_send_mutex);
 
          request->port = __PO_HI_GQUEUE_INVALID_PORT;
          break;
