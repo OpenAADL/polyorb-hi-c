@@ -130,7 +130,7 @@ endif
 ifeq ($(USE_ASN1_DEPLOYMENT), yes)
 generate-asn1-deployment:
 	if [ ! -d ../asn-types ]; then mkdir -p ../asn-types ; fi
-	asn1.exe -c -uPER $(ASN_SOURCES) -o ../asn-types
+	mono $(which asn1.exe) -c -uPER $(ASN_SOURCES) -o ../asn-types
 	for f in real.o asn1crt.o acn.o ber.o xer.o; do \
 	   c_file="`basename $$f .o`.c"; \
 	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f ../asn-types/$$c_file || exit 1 ; \
