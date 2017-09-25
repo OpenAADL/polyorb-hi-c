@@ -29,7 +29,7 @@
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
 #include <pthread.h>
-#elif defined(RTEMS_PURE)
+#elif defined(__PO_HI_RTEMS_CLASSIC_API)
 #include <rtems.h>
 #include <inttypes.h>
 #include <po_hi_time.h>
@@ -72,7 +72,7 @@ pthread_mutex_t          __po_hi_gqueues_mutexes[__PO_HI_NB_TASKS];
 pthread_cond_t           __po_hi_gqueues_conds[__PO_HI_NB_TASKS];
 pthread_mutexattr_t      __po_hi_gqueues_mutexes_attr[__PO_HI_NB_TASKS];
 pthread_condattr_t       __po_hi_gqueues_conds_attr[__PO_HI_NB_TASKS];
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
 rtems_id                 __po_hi_gqueues_semaphores[__PO_HI_NB_TASKS];
 rtems_id                 __po_hi_gqueues_barriers[__PO_HI_NB_TASKS];
 #elif defined (XENO_NATIVE)
@@ -102,7 +102,7 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
    __po_hi_uint32_t     off; /* XXX May overflow for large value .. */
    int err;
 
-#if defined (RTEMS_PURE)
+#if defined (__PO_HI_RTEMS_CLASSIC_API)
    rtems_status_code    ret;
 #elif defined (XENO_NATIVE)
    int                  ret;
@@ -156,7 +156,7 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 
 #endif
 
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
    __PO_HI_DEBUG_INFO ("[GQUEUE] Create semaphore for queue of task %d\n", id);
    ret = rtems_semaphore_create (rtems_build_name ('G', 'S', 'E' , 'A' + (char) id), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &(__po_hi_gqueues_semaphores[id]));
    if (ret != RTEMS_SUCCESSFUL)
@@ -253,7 +253,7 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
    __po_hi_request_t* ptr;
    __po_hi_request_t* tmp;
 
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
    rtems_status_code ret;
 #endif
    ptr = &__po_hi_gqueues_most_recent_values[id][port];
@@ -268,7 +268,7 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
    pthread_mutex_lock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (XENO_NATIVE)
    rt_mutex_acquire (&__po_hi_gqueues_mutexes[id], TM_INFINITE);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
    __DEBUGMSG ("[GQUEUE] Try to obtain semaphore for queue of task %d\n", id);
    ret = rtems_semaphore_obtain (__po_hi_gqueues_semaphores[id], RTEMS_WAIT, RTEMS_NO_TIMEOUT);
    if (ret != RTEMS_SUCCESSFUL)
@@ -296,7 +296,7 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
         pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (XENO_NATIVE)
         rt_mutex_release (&__po_hi_gqueues_mutexes[id]);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
         ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
         if (ret != RTEMS_SUCCESSFUL)
           {
@@ -349,7 +349,7 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
    {
       __DEBUGMSG("SetEvent failed (%d)\n", GetLastError());
    }
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
    ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
    if (ret != RTEMS_SUCCESSFUL)
    {
@@ -366,7 +366,7 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
                                              __po_hi_local_port_t* port)
 {
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
   rtems_status_code ret;
 #endif
 
@@ -380,7 +380,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
   __DEBUGMSG("*** Locking (%d) %d\n", id, error);
 #elif defined (XENO_NATIVE)
   rt_mutex_acquire (&__po_hi_gqueues_mutexes[id], TM_INFINITE);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
   ret = rtems_semaphore_obtain (__po_hi_gqueues_semaphores[id], RTEMS_WAIT, RTEMS_NO_TIMEOUT);
   if (ret != RTEMS_SUCCESSFUL)
     {
@@ -402,7 +402,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
       __DEBUGMSG("*** Done Waiting (%d) %d\n", id, error);
 #elif defined (XENO_NATIVE)
       rt_cond_wait (&__po_hi_gqueues_conds[id], &__po_hi_gqueues_mutexes[id], TM_INFINITE);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
       ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
       if (ret != RTEMS_SUCCESSFUL)
         {
@@ -442,7 +442,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
   rt_mutex_release (&__po_hi_gqueues_mutexes[id]);
 #elif defined (_WIN32)
   LeaveCriticalSection(&__po_hi_gqueues_cs[id]);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
   ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
   if (ret != RTEMS_SUCCESSFUL)
     {
@@ -473,7 +473,7 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
                               __po_hi_request_t*   request)
 {
    __po_hi_request_t* ptr;
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
    rtems_status_code ret;
 #endif
 
@@ -487,7 +487,7 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
    pthread_mutex_lock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (XENO_NATIVE)
    rt_mutex_acquire (&__po_hi_gqueues_mutexes[id], TM_INFINITE);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
    ret = rtems_semaphore_obtain (__po_hi_gqueues_semaphores[id], RTEMS_WAIT, RTEMS_NO_TIMEOUT);
    if (ret != RTEMS_SUCCESSFUL)
    {
@@ -511,7 +511,7 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
 
 #elif defined (XENO_NATIVE)
    rt_cond_wait (&__po_hi_gqueues_conds[id], &__po_hi_gqueues_mutexes[id], TM_INFINITE);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
          rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
 #elif defined (_WIN32)
    LeaveCriticalSection(&__po_hi_gqueues_cs[id]);
@@ -547,7 +547,7 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (XENO_NATIVE)
    rt_mutex_release (&__po_hi_gqueues_mutexes[id]);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
    ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
    if (ret != RTEMS_SUCCESSFUL)
    {
@@ -562,7 +562,7 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
 
 int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
 {
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
    rtems_status_code ret;
 #endif
 
@@ -581,7 +581,7 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
    rt_mutex_acquire (&__po_hi_gqueues_mutexes[id], TM_INFINITE);
 #elif defined (_WIN32)
   EnterCriticalSection(&__po_hi_gqueues_cs[id]);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
    ret = rtems_semaphore_obtain (__po_hi_gqueues_semaphores[id], RTEMS_WAIT, RTEMS_NO_TIMEOUT);
   if (ret != RTEMS_SUCCESSFUL)
   {
@@ -617,7 +617,7 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
    pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
 #elif defined (XENO_NATIVE)
    rt_mutex_release (&__po_hi_gqueues_mutexes[id]);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
    ret = rtems_semaphore_release (__po_hi_gqueues_semaphores[id]);
    if (ret != RTEMS_SUCCESSFUL)
    {

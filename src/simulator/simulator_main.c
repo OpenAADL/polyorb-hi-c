@@ -34,12 +34,12 @@ pthread_cond_t cond_init;
 pthread_mutex_t mutex_init;
 #endif
 
-#if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
+#if defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API)
 #include <rtems.h>
 #include <rtems/rtems/clock.h>
 #endif
 
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
 rtems_id __po_hi_main_initialization_barrier;
 #endif
 
@@ -168,7 +168,7 @@ int __po_hi_initialize_early ()
 #endif
 
 
-#if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
+#if defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API)
   rtems_status_code ret;
   rtems_time_of_day time;
 
@@ -188,7 +188,7 @@ int __po_hi_initialize_early ()
   }
 #endif
 
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
   __DEBUGMSG ("[MAIN] Create a barrier that wait for %d tasks\n", __po_hi_nb_tasks_to_init);
 
   ret = rtems_barrier_create (rtems_build_name ('B', 'A', 'R', 'M'), RTEMS_BARRIER_AUTOMATIC_RELEASE, __po_hi_nb_tasks_to_init, &__po_hi_main_initialization_barrier);
@@ -351,7 +351,7 @@ int __po_hi_wait_initialization ()
   LeaveCriticalSection (&__po_hi_main_initialization_critical_section);
   return (__PO_HI_SUCCESS);
 
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
   rtems_status_code ret;
 
   __DEBUGMSG ("[MAIN] Task wait for the barrier\n");
@@ -404,7 +404,7 @@ int __po_hi_wait_initialization ()
 #ifdef __PO_HI_USE_GPROF
 void __po_hi_wait_end_of_instrumentation ()
 {
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
    rtems_task_wake_after (10000000 / _TOD_Microseconds_per_tick);
 #else
    #include <po_hi_time.h>
@@ -423,7 +423,7 @@ void __po_hi_wait_end_of_instrumentation ()
    exit (1);
 
   __DEBUGMSG ("exit() called\n");
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
   rtems_task_delete (rtems_self ());
 #endif
 }

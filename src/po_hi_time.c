@@ -18,7 +18,7 @@
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
 #include <pthread.h>
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
 #include <bsp.h>
 #endif
 
@@ -120,7 +120,7 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
    mytime->nsec *= 100;
 
    return (__PO_HI_SUCCESS);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
    rtems_time_of_day    current_time;
 
    if (rtems_clock_get (RTEMS_CLOCK_GET_TOD, &current_time) != RTEMS_SUCCESSFUL)
@@ -225,7 +225,7 @@ int __po_hi_delay_until (const __po_hi_time_t* time)
    }
    return (ret);
 
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
    return (__PO_HI_UNAVAILABLE);
 
 #elif defined (XENO_NATIVE)

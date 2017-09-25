@@ -22,7 +22,7 @@ TARGET_SOURCES               =
 #TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
 TARGET_TRANSPORT_SOURCES     = 
 
-TARGET_CFLAGS                = -DRTEMS_PURE -DNDS_RTEMS -mstructure-size-boundary=8 -mcpu=arm9tdmi -mfpu=vfp -mfloat-abi=soft $(GCC_GENERIC_FLAGS) -mthumb-interwork -g
+TARGET_CFLAGS                = -D__PO_HI_RTEMS_CLASSIC_API -DNDS_RTEMS -mstructure-size-boundary=8 -mcpu=arm9tdmi -mfpu=vfp -mfloat-abi=soft $(GCC_GENERIC_FLAGS) -mthumb-interwork -g
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
 LD                           = $(LD_FOR_TARGET)

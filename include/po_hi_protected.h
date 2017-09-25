@@ -25,7 +25,7 @@
    #include <pthread.h>
 #endif
 
-#if defined (RTEMS_PURE)
+#if defined (__PO_HI_RTEMS_CLASSIC_API)
    #include <rtems.h>
 #endif
 
@@ -60,7 +60,7 @@ typedef struct
    pthread_mutex_t      posix_mutex;
    pthread_mutexattr_t  posix_mutexattr;
 #endif
-#if defined (RTEMS_PURE)
+#if defined (__PO_HI_RTEMS_CLASSIC_API)
    rtems_id             rtems_mutex;
 #endif
 #if defined (XENO_NATIVE)
