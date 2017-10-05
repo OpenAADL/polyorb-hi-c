@@ -31,7 +31,7 @@
 #include <native/mutex.h>
 #endif
 
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
 #include <rtems.h>
 #endif
 
@@ -93,7 +93,7 @@ int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
 
 int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t protocol, const int priority)
 {
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
    static int nb_mutex = 0;
 #endif
 
@@ -166,7 +166,7 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
       return __PO_HI_ERROR_UNKNOWN;
     }
 #endif
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
     if (rtems_semaphore_create (rtems_build_name ('P', 'S', 'E' , 'A' + (char) nb_mutex++), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &mutex->rtems_mutex) != RTEMS_SUCCESSFUL)
     {
       __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Cannot create RTEMS binary semaphore\n");
@@ -194,7 +194,7 @@ int __po_hi_mutex_lock (__po_hi_mutex_t* mutex)
       return __PO_HI_ERROR_MUTEX_LOCK;
    }
 #endif
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
    if (rtems_semaphore_obtain (mutex->rtems_mutex, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
    {
       __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to lock mutex\n");
@@ -236,7 +236,7 @@ int __po_hi_mutex_unlock (__po_hi_mutex_t* mutex)
       return __PO_HI_ERROR_MUTEX_UNLOCK;
     }
 #endif
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
    if (rtems_semaphore_release (mutex->rtems_mutex) != RTEMS_SUCCESSFUL)
    {
       __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to unlock mutex\n");

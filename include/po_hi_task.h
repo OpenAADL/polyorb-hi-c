@@ -48,7 +48,7 @@
    #define __PO_HI_MAIN_RETURN 0
    #define __ERRORMSG(s, args...) fprintf(stderr, s, ##args)
 
-#elif defined(RTEMS_PURE)
+#elif defined(__PO_HI_RTEMS_CLASSIC_API)
    #define __PO_HI_MAIN_NAME Init
    #define __PO_HI_MAIN_TYPE rtems_task
    #define __PO_HI_MAIN_ARGS rtems_task_argument argument
@@ -92,7 +92,7 @@
    #define __PO_HI_MAX_PRIORITY 2
    #define __PO_HI_MIN_PRIORITY 0
 
-#elif defined(RTEMS_PURE)
+#elif defined(__PO_HI_RTEMS_CLASSIC_API)
    #include <rtems.h>
    #include <inttypes.h>
    #include <po_hi_time.h>

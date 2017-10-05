@@ -13,7 +13,7 @@
 
 #include <deployment.h>
 
-#if (defined (RTEMS_POSIX) || defined (RTEMS_PURE))
+#if (defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API))
    #if defined (__PO_HI_NEED_DRIVER_ETH_LEON) || \
        defined (__PO_HI_NEED_DRIVER_ETH_LEON_SENDER) || \
        defined (__PO_HI_NEED_DRIVER_ETH_LEON_RECEIVER)
@@ -63,7 +63,7 @@
 
 #endif  /* RTEMS_POSIX */
 
-#if defined(RTEMS_PURE)
+#if defined(__PO_HI_RTEMS_CLASSIC_API)
    #include <rtems.h>
    #include <inttypes.h>
    #define CONFIGURE_INIT
@@ -105,7 +105,7 @@
    #define CONFIGURE_MAXIMUM_BARRIERS                 1 + __PO_HI_NB_PORTS + 1
 
    #include <rtems/confdefs.h>
-#endif  /* RTEMS_PURE */
+#endif  /* __PO_HI_RTEMS_CLASSIC_API */
 
 #if defined (X86_RTEMS) && defined (__PO_HI_USE_TRANSPORT) && __PO_HI_NB_DEVICES > 1
 #include <rtems/rtems_bsdnet.h>

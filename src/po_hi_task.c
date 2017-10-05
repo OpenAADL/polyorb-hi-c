@@ -26,14 +26,14 @@
 #undef POSIX
 #endif
 
-#if defined (RTEMS_POSIX) || defined (RTEMS_PURE)
+#if defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API)
 #ifdef RTEMS412
 #include <sys/cpuset.h>
 #endif
 #endif
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
-#if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (RTEMS_PURE)
+#if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API)
 #else
 #include <xlocale.h>
 #include <unistd.h>
@@ -94,7 +94,7 @@ typedef struct
 #elif defined (_WIN32)
   __po_hi_time_t      timer;
   DWORD               tid;
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
   rtems_id            ratemon_period;
   rtems_id            rtems_id;
 #elif defined(XENO_NATIVE)
@@ -141,7 +141,7 @@ void __po_hi_wait_for_tasks ()
       pthread_join( tasks[i].tid , NULL );
     }
 
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
   rtems_task_suspend(RTEMS_SELF);
 
 #elif defined (_WIN32)
@@ -212,7 +212,7 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
 
   return (__PO_HI_SUCCESS);
 
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
    rtems_status_code ret;
    rtems_name name;
 
@@ -276,7 +276,7 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
 
   return (__PO_HI_SUCCESS);
 
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
    rtems_status_code ret;
    ret = rtems_rate_monotonic_period (tasks[task].ratemon_period, (rtems_interval)__PO_HI_TIME_TO_US(tasks[task].period) / rtems_configuration_get_microseconds_per_tick());
    /*
@@ -329,7 +329,7 @@ int __po_hi_initialize_tasking( )
   {
      __po_hi_seconds (&(tasks[i].period), 0);
      tasks[i].id     = invalid_task_id;
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
       tasks[i].ratemon_period = RTEMS_INVALID_ID;
 #endif
   }
@@ -514,7 +514,7 @@ DWORD __po_hi_win32_create_thread (__po_hi_task_id    id,
 }
 #endif
 
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
 rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority,
                                       __po_hi_stack_t    stack_size,
                                       __po_hi_int8_t       core_id,
@@ -607,7 +607,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
          __DEBUGMSG ("ERROR when starting the task\n");
       }
       return (__PO_HI_SUCCESS);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
       (void) arg;
       __po_hi_rtems_create_thread (priority, stack_size, core_id, start_routine, arg);
       return (__PO_HI_SUCCESS);
@@ -627,7 +627,7 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
         (priority, stack_size, core_id, start_routine, arg);
       my_task->timer = ORIGIN_OF_TIME;
       __po_hi_posix_initialize_task (my_task);
-#elif defined (RTEMS_PURE)
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
       my_task->rtems_id = __po_hi_rtems_create_thread
         (priority, stack_size, core_id, start_routine, arg);
 #elif defined (_WIN32)
@@ -826,7 +826,7 @@ void __po_hi_tasks_killall ()
    for (i = 0; i < __PO_HI_NB_TASKS; i++)
     {
        __DEBUGMSG ("Kill task %d\n", i);
-#ifdef RTEMS_PURE
+#ifdef __PO_HI_RTEMS_CLASSIC_API
       rtems_task_delete (tasks[i].rtems_id);
 #elif defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
       pthread_cancel (tasks[i].tid);

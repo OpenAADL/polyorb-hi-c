@@ -14,7 +14,7 @@
 
 /* Headers from PolyORB-HI-C */
 
-#if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (RTEMS_PURE) || defined (FREERTOS)
+#if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API) || defined (FREERTOS)
 #else
 #include <xlocale.h>
 #endif
