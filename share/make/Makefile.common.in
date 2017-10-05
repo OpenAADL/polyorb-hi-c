@@ -5,7 +5,9 @@
 CYGPATH_U = @CYGPATH_U@
 CYGPATH_W = @CYGPATH_U@
 
-GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align -Wjump-misses-init -Wswitch-enum
+# Gaisler's RTEMS 4.10 doesn't currently support Wjump-misses-init
+# GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align -Wjump-misses-init -Wswitch-enum
+GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align -Wswitch-enum
 
 all: build-node
 
