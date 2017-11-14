@@ -31,7 +31,7 @@ public
   properties
     Data_Model::Data_Representation => Array;
     Data_Model::Base_Type => (classifier (Base_Types::Integer));
-    Data_Model::Dimension => (50_000);
+    Data_Model::Dimension => (500_000);
   end Array_Type;
 
   -----------------
