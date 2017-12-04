@@ -416,7 +416,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
         }
       else
         {
-          __PO_HI_DEBUG_CRITICAL ("[GQUEUE] semaphore %d obtained\n", id);
+          __PO_HI_DEBUG_DEBUG ("[GQUEUE] semaphore %d obtained\n", id);
         }
 #elif defined (_WIN32)
       LeaveCriticalSection(&__po_hi_gqueues_cs[id]);
@@ -449,7 +449,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
       __DEBUGMSG ("[GQUEUE] Cannot release semaphore in __po_hi_gqueue_store_in()\n");
     }
 
-  __PO_HI_DEBUG_CRITICAL ("[GQUEUE] semaphore %d released\n", id);
+  __PO_HI_DEBUG_DEBUG ("[GQUEUE] semaphore %d released\n", id);
 #endif
 
 }
