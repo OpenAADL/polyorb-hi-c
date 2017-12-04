@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2014 ESA & ISAE.
+ * Copyright (C) 2010-2017 ESA & ISAE.
  */
 
 #include <drivers/po_hi_driver_linux_serial.h>
@@ -28,7 +28,7 @@
 #include <marshallers.h>
 #include <deployment.h>
 /* generated files */
-
+#include <linux/ioctl.h>
 #include <termios.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -59,12 +59,14 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Hello, i'm the serial poller , must read %d bytes!\n", __PO_HI_MESSAGES_MAX_SIZE);
 
    __po_hi_msg_reallocate (&__po_hi_c_driver_serial_linux_poller_msg);
+
    n = 0;
+
    while (n < __PO_HI_MESSAGES_MAX_SIZE)
    {
        if (read (po_hi_c_driver_serial_fd_read, &(__po_hi_c_driver_serial_linux_poller_msg.content[n]), 1) != 1)
 	{
-	    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Cannot read on socket !\n");
+	    __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Cannot read !\n");
 	    return;
 	}
 
@@ -86,6 +88,7 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] read() returns %d\n", n);
 
+   /*Swap only the first 2 bytes of data*/
    swap_pointer  = (unsigned long*) &__po_hi_c_driver_serial_linux_poller_msg.content[0];
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
@@ -204,7 +207,7 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
       __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcsetattr()\n");
    }
 
-    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] End of init\n");
+    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] End of sender init\n");
 }
 #endif
 
@@ -285,7 +288,7 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
       __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcsetattr()\n");
    }
 
-    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] End of init\n");
+    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] End of receiver init\n");
 }
 #endif
 
@@ -300,7 +303,6 @@ void __po_hi_c_driver_serial_linux_init (__po_hi_device_id id)
    return;
 }
 #endif
-
 
 #if defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_SENDER)
@@ -323,7 +325,7 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    if (request->port == -1)
    {
-      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Send output task %d, port %d (local_port=%d): no value to send\n", task_id, port, local_port);
+      __PO_HI_DEBUG_DEBUG("[LINUX SERIAL] Send output task %d, port %d (local_port=%d): no value to send\n", task_id, port, local_port);
       return __PO_HI_SUCCESS;
    }
 
@@ -335,7 +337,7 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
 
    __po_hi_marshall_request (request, &__po_hi_c_driver_serial_linux_sender_msg);
 
-   /* Swap only the port (first 32 bytes) */
+   /* Swap only the port (first 32 bits) */
    swap_pointer  = (unsigned long*) &__po_hi_c_driver_serial_linux_sender_msg.content[0];
    swap_value    = *swap_pointer;
    *swap_pointer = __po_hi_swap_byte (swap_value);
@@ -346,12 +348,35 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
       {
          write (po_hi_c_driver_serial_fd_write, &(__po_hi_c_driver_serial_linux_sender_msg.content[n]), 1);
          usleep (po_hi_c_driver_serial_sending_wait);
+
+         fsync(po_hi_c_driver_serial_fd_write);
+
+         if (n <= 0)
+   	   {
+      	    __PO_HI_DEBUG_DEBUG (" [LINUX SERIAL] failed to write !\n");
+   	   }
       }
 
    }
    else
    {
-      n = write (po_hi_c_driver_serial_fd_write, &__po_hi_c_driver_serial_linux_sender_msg, __PO_HI_MESSAGES_MAX_SIZE);
+      n = write (po_hi_c_driver_serial_fd_write, &(__po_hi_c_driver_serial_linux_sender_msg.content[0]), __PO_HI_MESSAGES_MAX_SIZE);
+
+      fsync(po_hi_c_driver_serial_fd_write);
+
+      if (n < 0)
+   	{
+      	 __PO_HI_DEBUG_CRITICAL (" [LINUX SERIAL] failed !\n");
+   	}
+      else if((0 <= n)&(n < __PO_HI_MESSAGES_MAX_SIZE))
+   	{
+      	 __PO_HI_DEBUG_CRITICAL (" [LINUX SERIAL] Unable write !\n");
+   	}
+      else
+   	{
+      	 __PO_HI_DEBUG_DEBUG (" [LINUX SERIAL] OK !\n");
+   	}
+
    }
 
    __PO_HI_DEBUG_DEBUG  ("[LINUX SERIAL] write() returns %d, message sent: 0x", n);

@@ -5,14 +5,15 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2014 ESA & ISAE.
+ * Copyright (C) 2010-2017 ESA & ISAE.
  */
 
 #include <deployment.h>
 /* Generated code header */
 
 #if ((defined __PO_HI_NEED_DRIVER_SPACEWIRE_RASTA) || \
-     (defined __PO_HI_NEED_DRIVER_SERIAL_RASTA))
+     (defined __PO_HI_NEED_DRIVER_SERIAL_RASTA) || \
+     (defined __PO_HI_NEED_DRIVER_ETH_LEON ))
 
 void __po_hi_c_driver_rasta_common_init ();
 

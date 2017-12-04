@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2016 ESA & ISAE.
+ * Copyright (C) 2011-2017 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -22,6 +22,9 @@
 #include <po_hi_transport.h>
 #include <po_hi_returns.h>
 #include <po_hi_gqueue.h>
+#include <po_hi_main.h>
+#include <drivers/po_hi_driver_rasta_common.h>
+#include <drivers/po_hi_rtems_utils.h>
 #include <drivers/po_hi_driver_leon_eth.h>
 #include <drivers/po_hi_driver_sockets.h>
 #include <drivers/configuration/ip.h>
@@ -50,7 +53,7 @@ __po_hi_inetnode_t nodes[__PO_HI_NB_DEVICES];
 __po_hi_inetnode_t rnodes[__PO_HI_NB_DEVICES];
 
 __po_hi_device_id leon_eth_device_id;
-
+extern void rtems_stack_checker_report_usage(void);
 
 #if defined (__PO_HI_NEED_DRIVER_ETH_LEON) || \
     defined (__PO_HI_NEED_DRIVER_ETH_LEON_RECEIVER)
@@ -60,22 +63,34 @@ __po_hi_device_id leon_eth_device_id;
                                             timeout.tv_usec = 0; \
                                             setsockopt (mysocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,sizeof (timeout)); }
 
+
+#if ((defined GRLEON3)||((defined GRLEON2)&&(RTEMS412)))
+
+#define RTEMS_BSP_NETWORK_DRIVER_ATTACH RTEMS_BSP_NETWORK_DRIVER_ATTACH_GRETH
+
+#define RTEMS_BSP_NETWORK_DRIVER_NAME RTEMS_BSP_NETWORK_DRIVER_NAME_GRETH
+
+#elif GRLEON2
+
 #define RTEMS_BSP_NETWORK_DRIVER_ATTACH RTEMS_BSP_NETWORK_DRIVER_ATTACH_SMC91111
 
 #define RTEMS_BSP_NETWORK_DRIVER_NAME "open_eth1"
 
+#endif
+
 #include <bsp.h>
 #include <rtems/rtems_bsdnet.h>
 
-#ifdef RTEMS48
+#if defined RTEMS48 || defined RTEMS410
 extern void rtems_bsdnet_loopattach();
 #else
 extern void rtems_bsdnet_initialize_loop();
 #endif
 
+
 static struct rtems_bsdnet_ifconfig loopback_config = {
    "lo0",            /* name */
-#ifdef RTEMS48
+#if defined RTEMS48 || defined RTEMS410
    rtems_bsdnet_loopattach,   /* attach function */
 #else
    rtems_bsdnet_initialize_loop,
@@ -86,13 +101,16 @@ static struct rtems_bsdnet_ifconfig loopback_config = {
    "255.0.0.0",         /* IP net mask */
 };
 
+#if defined RTEMS48 || defined RTEMS410
 /*
  * Default network interface
  */
 static struct rtems_bsdnet_ifconfig netdriver_config = {
-   RTEMS_BSP_NETWORK_DRIVER_NAME,      /* name */
-   RTEMS_BSP_NETWORK_DRIVER_ATTACH, /* attach function */
-   0, /* link to next interface */
+   RTEMS_BSP_NETWORK_DRIVER_NAME,      /* name  */
+   RTEMS_BSP_NETWORK_DRIVER_ATTACH, /* attach function  greth_interface_driver_attach */
+//   0, /* link to next interface */
+   loopback_config,   
+   
    /*
 #ifdef RTEMS48
    loopback_config,
@@ -105,6 +123,16 @@ static struct rtems_bsdnet_ifconfig netdriver_config = {
    NULL,                           /* Driver supplies hardware address */
    0           /* Use default driver parameters */
 };
+#elif defined RTEMS412
+#include <bsp/network_interface_add.h>
+
+struct ethernet_config interface_configs[]=
+{
+        { "255.255.255.255", "255.255.255.255", {0x80,0x80,0x80,0x80,0x80,0x80}},// NULL - take PHY address and IP from device 
+        {NULL, NULL, {0,0,0,0,0,0}}  // NULL - used for BOOTP
+};
+
+#endif
 
 /*
  * Network configuration
@@ -114,12 +142,14 @@ static struct rtems_bsdnet_ifconfig netdriver_config = {
  * for details on each field
  *
  */
-
-
 struct rtems_bsdnet_config rtems_bsdnet_config = {
-   &netdriver_config,
-   NULL,
-#ifdef RTEMS48
+#ifdef RTEMS412
+  NULL,        
+#else
+  &netdriver_config,
+#endif
+   NULL,        /* Bootp */ 
+#if defined RTEMS48 || defined RTEMS410
    100,        /* Default network task priority */
 #else
    150,
@@ -174,6 +204,9 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
       rnodes[dev].socket = -1;
    }
 
+   __po_hi_bus_id bus_current_node, bus_connect_node;
+   bus_current_node = *__po_hi_transport_get_accessed_buses(leon_eth_device_id);
+
    /*
     * Create a socket for each node that will communicate with us.
     */
@@ -181,7 +214,9 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
    {
       if (dev != leon_eth_device_id)
       {
-
+         bus_connect_node = *__po_hi_transport_get_accessed_buses(dev);
+         if (bus_current_node == bus_connect_node)
+         {
          __PO_HI_SET_SOCKET_TIMEOUT(nodes[leon_eth_device_id].socket,500000);
 
          established = 0;
@@ -220,7 +255,8 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
          {
             max_socket = sock;
          }
-      }
+      } /* check the bus */
+      } /* check the device */
    }
    __DEBUGMSG ("[DRIVER ETH] Poller initialization finished, waiting for other tasks\n");
    __po_hi_wait_initialization ();
@@ -333,12 +369,22 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 
    ipconf = (__po_hi_c_ip_conf_t*)__po_hi_get_device_configuration (id);
 
+#if defined RTEMS48 || defined RTEMS410
    netdriver_config.ip_address = ipconf->address;
 
    if (ipconf->exist.netmask == 1)
    {
       netdriver_config.ip_netmask = ipconf->netmask;
    }
+#elif defined RTEMS412
+   interface_configs[0].ip_addr = ipconf->address;
+   
+   if (ipconf->exist.netmask == 1)
+   {
+      interface_configs[0].ip_netmask= ipconf->netmask;
+   }
+
+#endif
 
    if (ipconf->exist.gateway == 1)
    {
@@ -350,16 +396,17 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
       rtems_bsdnet_config.name_server[0] = ipconf->dns;
    }
 
-
-  rtems_bsdnet_initialize_network ();
-  /*
-#ifdef __PO_HI_DEBUG_INFO
+  __po_hi_c_driver_rasta_common_init();
+  
+  rtems_bsdnet_initialize_network();
+/*
+  #ifdef __PO_HI_DEBUG_INFO
    rtems_bsdnet_show_if_stats ();
    rtems_bsdnet_show_inet_routes ();
    rtems_bsdnet_show_ip_stats ();
+   rtems_bsdnet_show_mbuf_stats ();
 #endif
 */
-
    leon_eth_device_id = id;
 
 
@@ -417,17 +464,33 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 
       __po_hi_initialize_add_task ();
 
-      __po_hi_create_generic_task
-        (-1, 0,__PO_HI_MAX_PRIORITY, 0, 0, (void* (*)(void)) __po_hi_c_driver_eth_leon_poller, NULL);
+//       __po_hi_create_generic_task
+//         (-1, 0,__PO_HI_MAX_PRIORITY, 0, 0, (void* (*)(void)) __po_hi_c_driver_eth_leon_poller, NULL);
+      __po_hi_create_generic_task(-1, 0, 2, 2*RTEMS_MINIMUM_STACK_SIZE, 0, (void* (*)(void)) __po_hi_c_driver_eth_leon_poller, NULL);
    }
 
    /*
     * For each node in the sytem that may communicate with the current
     * node we create a socket. This socket will be used to send data.
     */
+   __po_hi_bus_id bus_current_node, bus_connect_node;
+
+   bus_current_node = *__po_hi_transport_get_accessed_buses(id);
+
+   __DEBUGMSG("[DRIVER ETH] Device %d is connected to bus: %d\n", id,bus_current_node);
+
    for (dev = 0 ; dev < __PO_HI_NB_DEVICES ; dev++ )
    {
       if (dev == id)
+      {
+         continue;
+      }
+      
+      bus_connect_node= *__po_hi_transport_get_accessed_buses(dev);
+
+      __DEBUGMSG("[DRIVER ETH] Device %d is connected to bus: %d\n", dev, bus_connect_node);
+   
+      if (bus_current_node != bus_connect_node)
       {
          continue;
       }

@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2016 ESA & ISAE.
+ * Copyright (C) 2010-2017 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -32,20 +32,29 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 /* POSIX-style files */
 
 
 #include <rtems/bspIo.h>
 #include <ambapp.h>
 
+#ifdef GRLEON2
 #include <pci.h>
 #include <rasta.h>
 #include <grspw_rasta.h>
 #include <apbuart_rasta.h>
-/* Rasta includes from GAISLER drivers */
+#endif
 
-#define __PO_HI_DRIVER_SPACEWIRE_RASTA_DEVICE "/dev/grspwrasta0"
+#if defined GRLEON3 && defined RTEMS412
+#include <rtems.h> 
+#include <bsp/grspw.h>
+#endif 
+
+
+/* Rasta includes from GAISLER drivers */
 
  __po_hi_request_t   __po_hi_c_driver_spacewire_rasta_request;
 __po_hi_msg_t        __po_hi_c_driver_spacewire_rasta_poller_msg;
@@ -70,7 +79,7 @@ void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
    __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Poller received a message, len=%d\n", len);
    if (len < 0)
    {
-      __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Error while reading\n");
+      __PO_HI_DEBUG_CRITICAL ("[RASTA SPACEWIRE] Error while reading\n");
    }
    else
    {
@@ -82,11 +91,10 @@ void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
       }
       __PO_HI_DEBUG_DEBUG ("|\n");
 
-
       __po_hi_c_driver_spacewire_rasta_poller_msg.length = __PO_HI_MESSAGES_MAX_SIZE;
       __po_hi_unmarshall_request (&__po_hi_c_driver_spacewire_rasta_request, &__po_hi_c_driver_spacewire_rasta_poller_msg);
 
-      __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Destination port: %d\n", __po_hi_c_driver_spacewire_rasta_request.port);
+      __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Destination port: %d\n",__po_hi_c_driver_spacewire_rasta_request.port);
       __po_hi_main_deliver (&__po_hi_c_driver_spacewire_rasta_request);
    }
 }
@@ -97,10 +105,12 @@ extern unsigned int __po_hi_driver_rasta_bar0, __po_hi_driver_rasta_bar1;
 
 void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg);
 
-#ifdef RTEMS48
+#if defined RTEMS48 || defined RTEMS410
 extern amba_confarea_type* __po_hi_driver_rasta_common_get_bus ();
 #elif RTEMS411
 extern struct ambapp_bus * __po_hi_driver_rasta_common_get_bus ();
+#elif RTEMS412
+ ;
 #else
 #error "o<"
 #endif
@@ -146,17 +156,51 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_TXBLOCK_ON_FULL, 1);          // Blocking write if full
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_PROMISCUOUS, 1);              // Receive from any source
 */
+
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_STOP,NULL); 
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_DISCONNECT,43);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_COREFREQ,30000); 
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_RXBLOCK,1);
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_TXBLOCK,1);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_NODEADDR, node_addr);
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_RXBLOCK,0);
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_TXBLOCK,0);
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_PROMISCUOUS,1);
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_CLKDIV, 0);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_TXBLOCK_ON_FULL,1);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_RM_PROT_ID,0);
-
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id], SPACEWIRE_IOCTRL_SET_PROMISCUOUS, 1);              // Receive from any source
-
-
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_START,2000);
+   
+
+#ifdef RTEMS412
+   spw_config *cnf = (spw_config *)malloc(sizeof(spw_config));
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_GET_CONFIG,cnf);
+   __PO_HI_DEBUG_DEBUG("******** SPW_CONFIG ********  \n");
+   __PO_HI_DEBUG_DEBUG("Node Address: %i\n", cnf->nodeaddr);
+   __PO_HI_DEBUG_DEBUG("Destination Key: %i\n", cnf->destkey);
+   __PO_HI_DEBUG_DEBUG("Clock Divider: %i\n", cnf->clkdiv);
+   __PO_HI_DEBUG_DEBUG("Rx Maximum Packet: %i\n", cnf->rxmaxlen);
+   __PO_HI_DEBUG_DEBUG("Timer: %i\n", cnf->timer);
+   __PO_HI_DEBUG_DEBUG("Disconnect: %i\n", cnf->disconnect);
+   __PO_HI_DEBUG_DEBUG("Promiscuous: %i\n", cnf->promiscuous);
+   __PO_HI_DEBUG_DEBUG("RMAP Enable: %i\n", cnf->rmapen);
+   __PO_HI_DEBUG_DEBUG("RMAP Buffer Disable: %i\n", cnf->rmapbufdis);
+   __PO_HI_DEBUG_DEBUG("Linkdisabled: %i\n", cnf->linkdisabled);
+   __PO_HI_DEBUG_DEBUG("Linkstart: %i\n", cnf->linkstart);
+   __PO_HI_DEBUG_DEBUG("Check Rmap Error: %i\n", cnf->check_rmap_err);
+   __PO_HI_DEBUG_DEBUG("Remove Protocol ID: %i\n", cnf->rm_prot_id);
+   __PO_HI_DEBUG_DEBUG("Blocking Transmit: %i\n", cnf->tx_blocking);
+   __PO_HI_DEBUG_DEBUG("Blocking Tx when buffer full: %i\n", cnf->tx_block_on_full);
+   __PO_HI_DEBUG_DEBUG("Blocking Receive: %i\n", cnf->rx_blocking);
+   __PO_HI_DEBUG_DEBUG("Disable when Link Error: %i\n", cnf->disable_err);
+   __PO_HI_DEBUG_DEBUG("Link Error IRQ Enabled: %i\n", cnf->link_err_irq);
+   __PO_HI_DEBUG_DEBUG("Link Error Event Task ID: %i\n", cnf->event_id);
+   __PO_HI_DEBUG_DEBUG("RMAP Available: %i\n", cnf->is_rmap);
+   __PO_HI_DEBUG_DEBUG("RMAP CRC Available: %i\n", cnf->is_rmapcrc);
+   __PO_HI_DEBUG_DEBUG("Unaligned Receive Buffer Support: %i\n", cnf->is_rxunaligned);
+   __PO_HI_DEBUG_DEBUG("Read Nodemask: %i\n", cnf->nodemask);
+   __PO_HI_DEBUG_DEBUG("Read Timeout: %i\n", cnf->rtimeout);
+   __PO_HI_DEBUG_DEBUG("Keep source address in userbuffer: %i\n", cnf->keep_source);
+   __PO_HI_DEBUG_DEBUG("\n");
+#endif
 }
 
 
@@ -216,14 +260,20 @@ int __po_hi_c_driver_spacewire_rasta_sender (const __po_hi_task_id task_id, cons
    {
       len = write (po_hi_c_driver_rasta_spacewire_fd[dev_id], __po_hi_c_driver_spacewire_rasta_sender_msg.content, __PO_HI_MESSAGES_MAX_SIZE);
    }
-   
+
+   fsync(po_hi_c_driver_rasta_spacewire_fd[dev_id]);   
+
    if (len < 0)
    {
-      __PO_HI_DEBUG_DEBUG (" failed !\n");
+      __PO_HI_DEBUG_CRITICAL (" [RASTA SPACEWIRE] failed !\n");
+   }
+   else if((0 <= len)&(len < __PO_HI_MESSAGES_MAX_SIZE))
+   {
+      __PO_HI_DEBUG_CRITICAL (" [RASTA SPACEWIRE] Unable write !\n");
    }
    else
    {
-      __PO_HI_DEBUG_DEBUG (" OK !\n");
+      __PO_HI_DEBUG_DEBUG (" [RASTA SPACEWIRE] OK !\n");
    }
 
    request->port = __PO_HI_GQUEUE_INVALID_PORT;

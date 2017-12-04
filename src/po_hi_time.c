@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2016 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
 #include <time.h>
@@ -123,10 +123,17 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
    rtems_time_of_day    current_time;
 
-   if (rtems_clock_get (RTEMS_CLOCK_GET_TOD, &current_time) != RTEMS_SUCCESSFUL)
+#if defined (RTEMS412)
+   if (rtems_clock_get_tod (&current_time) != RTEMS_SUCCESSFUL)
    {
       __DEBUGMSG ("Error when trying to get the clock on RTEMS\n");
    }
+#else
+   if (rtems_clock_get (RTEMS_CLOCK_GET_TOD, &current_time) != RTEMS_SUCCESSFUL) //this directive is depreciated in rtems 4.12
+   {
+      __DEBUGMSG ("Error when trying to get the clock on RTEMS\n");
+   }
+#endif
 
    mytime->sec  = _TOD_To_seconds (&current_time);
    mytime->nsec =  current_time.ticks * rtems_configuration_get_microseconds_per_tick() * 1000;
