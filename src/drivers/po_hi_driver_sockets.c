@@ -39,6 +39,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <assert.h>
+
 #ifndef _WIN32
 #include <netdb.h>
 #include <sys/types.h>
@@ -48,7 +49,7 @@
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <sys/time.h>
-#endif
+#endif // _WIN32
 
 /******************************************************************************/
 /*
@@ -148,9 +149,8 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 
    if (__po_hi_c_sockets_write_sockets[remote_device] == -1 )
    {
-#ifdef __PO_HI_DEBUG
       __DEBUGMSG (" [DRIVER SOCKETS] Invalid socket for port-id %d, device-id %d\n", destination_port, remote_device);
-#endif
+
       return __PO_HI_ERROR_TRANSPORT_SEND;
    }
 
@@ -226,15 +226,28 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
          __po_hi_msg_reallocate (&__po_hi_c_sockets_send_msg);
          __po_hi_marshall_request (request, &__po_hi_c_sockets_send_msg);
 
+         size_to_write =  __po_hi_msg_length ( &__po_hi_c_sockets_send_msg);
+
 #ifdef __PO_HI_DEBUG
          __po_hi_messages_debug (&__po_hi_c_sockets_send_msg[remote_device]);
 #endif
          if (__po_hi_c_sockets_write_sockets[remote_device] != -1)
          {
 	    int  len;
+
+            /* Note: in the following, we send first the size of the
+               message, then the subset of the message buffer we
+               actually used. */
+
+            int msg_size_network = __po_hi_swap_byte (size_to_write);
+
 #ifdef _WIN32
+            len = send (__po_hi_c_sockets_write_sockets[remote_device], (char*) &msg_size_network,
+                        sizeof (int), 0);
             len = send (__po_hi_c_sockets_write_sockets[remote_device], (char*) &(__po_hi_c_sockets_send_msg.content), size_to_write, 0);
 #else
+            len = write (__po_hi_c_sockets_write_sockets[remote_device], &msg_size_network,
+                         sizeof (int));
             len = write (__po_hi_c_sockets_write_sockets[remote_device], &(__po_hi_c_sockets_send_msg.content), size_to_write);
 #endif
 
@@ -331,6 +344,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 #ifdef _WIN32
             ret = recv (sock, (char*) &dev_init, sizeof (__po_hi_device_id), 0);
 #else
+
             ret = read (sock, &dev_init, sizeof (__po_hi_device_id));
 #endif
 
@@ -402,6 +416,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
                int datareceived;
                len = recv (__po_hi_c_sockets_read_sockets[dev], &datareceived, sizeof (int), MSG_WAITALL);
+
                __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",(int)len);
                if (len == 0)
                {
@@ -419,7 +434,14 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 #ifdef _WIN32
             len = recv (__po_hi_c_sockets_read_sockets[dev], __po_hi_c_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, 0);
 #else
-            len = recv (__po_hi_c_sockets_read_sockets[dev], __po_hi_c_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+
+            /* In the following, we first retrieve the size of the
+               payload, then the payload itself */
+
+            int datareceived;
+            len = recv (__po_hi_c_sockets_read_sockets[dev], &datareceived, sizeof (int), MSG_WAITALL);
+            datareceived  = __po_hi_swap_byte (datareceived);
+            len = recv (__po_hi_c_sockets_read_sockets[dev], __po_hi_c_sockets_poller_msg.content, datareceived, MSG_WAITALL);
 #endif
 
             __po_hi_c_sockets_poller_msg.length = len;

@@ -522,9 +522,9 @@ rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority,
                                       void*              arg)
 {
   rtems_id rid;
-  if (rtems_task_create (rtems_build_name( 'T', 'A', nb_tasks, ' ' ),
-                         1,
-                         RTEMS_MINIMUM_STACK_SIZE,
+  if (rtems_task_create (rtems_build_name( 'T', 'A', '0' + nb_tasks, ' '),
+                         priority,
+                         stack_size,
                          RTEMS_DEFAULT_MODES,
                          RTEMS_DEFAULT_ATTRIBUTES | RTEMS_FLOATING_POINT, &rid)
       != RTEMS_SUCCESSFUL)
@@ -550,7 +550,7 @@ rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority,
     }
 #endif
 
-  if (rtems_task_start (rid, (rtems_task_entry)start_routine, 0 ) != RTEMS_SUCCESSFUL)
+  if (rtems_task_start (rid, (rtems_task_entry)start_routine, arg ) != RTEMS_SUCCESSFUL)
     {
       __DEBUGMSG ("ERROR when starting the task\n");
       return __PO_HI_ERROR_CREATE_TASK;
