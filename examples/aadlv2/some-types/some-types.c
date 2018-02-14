@@ -44,10 +44,18 @@ void user_emit_integer (int* integer)
 void user_emit_array (software__array_type* data_source)
 {
   int i;
-  for (i = 0; i < 16384; i++)
+  for (i = 0; i < 16; i++)
     (*data_source)[i]=i;
+}
 
-  printf ("Emetting array\n");
+void user_emit_bounded_array (software__bounded_array_type* data_source)
+{
+  int i;
+  for (i = 0; i < 16; i++)
+    (*data_source).data[i]=i;
+  data_source->length = 16;
+
+  printf ("Emetting bounded array\n");
   printf ("\n");
 }
 
@@ -82,6 +90,17 @@ void user_receive_array (software__array_type data)
   printf("Receive array: ");
   for (i = 0; i < 16; i++)
     assert (data[i] == i);
+
+  printf (" OK \n");
+  fflush(stdout);
+}
+
+void user_receive_bounded_array (software__bounded_array_type data)
+{
+  int i;
+  printf("Receive bounded array: %d", data.length);
+  for (i = 0; i < data.length; i++)
+    assert (data.data[i] == i);
 
   printf (" OK \n");
   fflush(stdout);

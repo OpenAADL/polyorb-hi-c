@@ -20,10 +20,11 @@ public
 
   process A
   features
-    Out_Boolean : out event data port Software::Boolean_Type;
-    Out_Integer : out event data port Software::Integer_Type;
-    Out_Struct  : out event data port Software::Struct_Type.Impl;
-    Out_Array  : out event data port Software::Array_Type;
+    Out_Boolean       : out event data port Software::Boolean_Type;
+    Out_Integer       : out event data port Software::Integer_Type;
+    Out_Struct        : out event data port Software::Struct_Type.Impl;
+    Out_Array         : out event data port Software::Array_Type;
+    Out_Bounded_Array : out event data port Software::Bounded_Array_Type;
   end A;
 
   process implementation A.Impl
@@ -34,14 +35,16 @@ public
     port Emitter_Thread.Integer_Source -> Out_Integer;
     port Emitter_Thread.Struct_Source -> Out_Struct;
     port Emitter_Thread.Array_Source -> Out_Array;
+    port Emitter_Thread.Bounded_Array_Source -> Out_Bounded_Array;
   end A.Impl;
 
   process B
   features
-    In_Boolean  : in event data port Software::Boolean_Type;
-    In_Integer  : in event data port Software::Integer_Type;
-    In_Struct   : in event data port Software::Struct_Type.Impl;
-    in_array    : in event data port Software::Array_Type;
+    In_Boolean       : in event data port Software::Boolean_Type;
+    In_Integer       : in event data port Software::Integer_Type;
+    In_Struct        : in event data port Software::Struct_Type.Impl;
+    In_Array         : in event data port Software::Array_Type;
+    In_Bounded_Array : in event data port Software::Bounded_Array_Type;
   end B;
 
   process implementation B.Impl
@@ -50,11 +53,14 @@ public
     Integer_Rcv_Thread : thread Software::Integer_Receiver.Impl;
     Struct_Rcv_Thread  : thread Software::Struct_Receiver.Impl;
     Array_Rcv_Thread  : thread Software::Array_Receiver.Impl;
+    Bounded_Array_Rcv_Thread  : thread Software::Bounded_Array_Receiver.Impl;
+
   connections
-    port In_Boolean -> Boolean_Rcv_Thread.Data_Sink;
-    port In_Integer -> Integer_Rcv_Thread.Data_Sink;
-    port In_Struct  -> Struct_Rcv_Thread.Data_Sink;
-    port In_Array  -> Array_Rcv_Thread.Data_Sink;
+    port In_Boolean       -> Boolean_Rcv_Thread.Data_Sink;
+    port In_Integer       -> Integer_Rcv_Thread.Data_Sink;
+    port In_Struct        -> Struct_Rcv_Thread.Data_Sink;
+    port In_Array         -> Array_Rcv_Thread.Data_Sink;
+    port In_Bounded_Array -> Bounded_Array_Rcv_Thread.Data_Sink;
   end B.Impl;
 
   process singleProcess
@@ -62,16 +68,19 @@ public
 
   process implementation singleProcess.impl
   subcomponents
-    Emitter_Thread     : thread Software::Emitter.Impl;
-    Boolean_Rcv_Thread : thread Software::Boolean_Receiver.Impl;
-    Integer_Rcv_Thread : thread Software::Integer_Receiver.Impl;
-    Struct_Rcv_Thread  : thread Software::Struct_Receiver.Impl;
-    Array_Rcv_Thread  : thread Software::Array_Receiver.Impl;
+    Emitter_Thread           : thread Software::Emitter.Impl;
+    Boolean_Rcv_Thread       : thread Software::Boolean_Receiver.Impl;
+    Integer_Rcv_Thread       : thread Software::Integer_Receiver.Impl;
+    Struct_Rcv_Thread        : thread Software::Struct_Receiver.Impl;
+    Array_Rcv_Thread         : thread Software::Array_Receiver.Impl;
+    Bounded_Array_Rcv_Thread : thread Software::Bounded_Array_Receiver.Impl;
+
   connections
-    port Emitter_Thread.Boolean_Source -> Boolean_Rcv_Thread.Data_Sink;
-    port Emitter_Thread.Integer_Source -> Integer_Rcv_Thread.Data_Sink;
-    port Emitter_Thread.Struct_Source -> Struct_Rcv_Thread.Data_Sink;
-    port Emitter_Thread.Array_Source -> Array_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Boolean_Source       -> Boolean_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Integer_Source       -> Integer_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Struct_Source        -> Struct_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Array_Source         -> Array_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Bounded_Array_Source -> Bounded_Array_Rcv_Thread.Data_Sink;
   end singleProcess.impl;
 
   ------------
@@ -92,17 +101,21 @@ public
     CPU_A : processor the_processor;
     CPU_B : processor the_processor;
     the_bus : bus ocarina_buses::ip.i;
+
   connections
     bus access the_bus -> Device_A.link;
     bus access the_bus -> Device_B.link;
     port Node_A.Out_Boolean -> Node_B.In_Boolean
-    {Actual_Connection_Binding => (reference (the_bus));};
+       {Actual_Connection_Binding => (reference (the_bus));};
     port Node_A.Out_Integer -> Node_B.In_Integer
-    {Actual_Connection_Binding => (reference (the_bus));};
+       {Actual_Connection_Binding => (reference (the_bus));};
     port Node_A.Out_Struct -> Node_B.In_Struct
-    {Actual_Connection_Binding => (reference (the_bus));};
+       {Actual_Connection_Binding => (reference (the_bus));};
     port Node_A.Out_Array -> Node_B.In_Array
-    {Actual_Connection_Binding => (reference (the_bus));};
+       {Actual_Connection_Binding => (reference (the_bus));};
+    port Node_A.Out_Bounded_Array -> Node_B.In_Bounded_Array
+       {Actual_Connection_Binding => (reference (the_bus));};
+
   properties
     actual_processor_binding => (reference (CPU_A)) applies to Node_A;
     actual_processor_binding => (reference (CPU_B)) applies to Node_B;
@@ -115,17 +128,15 @@ public
     CPU_A: processor the_processor;
     sometypes: process singleProcess.impl;
   properties
-    Actual_Processor_Binding => reference (CPU_A) applies to sometypes;
+    Actual_Processor_Binding => (reference (CPU_A)) applies to sometypes;
   end Some_Types.local;
 
-  system implementation Some_Types.Xenomai
-  extends Some_Types.local
+  system implementation Some_Types.Xenomai extends Some_Types.local
   properties
     Deployment::Execution_Platform => linux32_xenomai_native applies to CPU_A;
   end Some_Types.Xenomai;
 
-  system implementation Some_Types.RTEMS
-  extends Some_Types.local
+  system implementation Some_Types.RTEMS extends Some_Types.local
   properties
     Deployment::Execution_platform => LEON_RTEMS applies to CPU_A ;
   end Some_Types.RTEMS;

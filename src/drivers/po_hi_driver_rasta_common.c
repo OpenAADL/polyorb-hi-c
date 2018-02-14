@@ -5,25 +5,91 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2016 ESA & ISAE.
+ * Copyright (C) 2010-2017 ESA & ISAE.
  */
 
 #include <deployment.h>
 /* Generated code header */
 
 #if ((defined __PO_HI_NEED_DRIVER_SPACEWIRE_RASTA) || \
-     (defined __PO_HI_NEED_DRIVER_SERIAL_RASTA))
-
+     (defined __PO_HI_NEED_DRIVER_SERIAL_RASTA) || \
+     (defined __PO_HI_NEED_DRIVER_ETH_LEON ))
+     
+#include <rtems.h>
 #include <rtems/bspIo.h>
-#include <pci.h>
-#include <rasta.h>
 #include <ambapp.h>
-#include <grspw_rasta.h>
 
+#ifdef GRLEON2
+#include <grspw_rasta.h>
 #include <pci.h>
 #include <rasta.h>
 #include <apbuart_rasta.h>
+#endif
+
 /* Rasta includes from GAISLER drivers */
+
+#if defined GRLEON3 && defined RTEMS412 
+#include <amba.h>
+#include <ambapp.h>
+#include <drvmgr/drvmgr.h>
+#include <drvmgr/ambapp_bus_grlib.h>
+#include <drvmgr/ambapp_bus.h>
+/* GRSPW0 resources  */
+struct drvmgr_key grlib_grspw0_res[] =
+
+{
+	{"txDesc", DRVMGR_KT_INT, {(unsigned int)16}},
+	{"rxDesc", DRVMGR_KT_INT, {(unsigned int)32}},
+	DRVMGR_KEY_EMPTY
+};
+/* GRSPW1 and GRSPW2 resources */
+struct drvmgr_key grlib_grspw1_res[] =
+
+{
+	{"txDesc", DRVMGR_KT_INT, {(unsigned int)16}},
+	{"rxDesc", DRVMGR_KT_INT, {(unsigned int)32}},
+	DRVMGR_KEY_EMPTY
+};
+/* GRSPW1 and GRSPW2 resources */
+struct drvmgr_key grlib_grspw2_res[] =
+
+{
+	{"txDesc", DRVMGR_KT_INT, {(unsigned int)16}},
+	{"rxDesc", DRVMGR_KT_INT, {(unsigned int)32}},
+	DRVMGR_KEY_EMPTY
+};
+struct drvmgr_key grlib_greth0_res[] =
+
+{
+	{"txDescs", DRVMGR_KT_INT, {(unsigned int)16}},
+	{"rxDescs", DRVMGR_KT_INT, {(unsigned int)32}},
+	DRVMGR_KEY_EMPTY
+};
+struct drvmgr_key grlib_grcan0_res[] =
+
+{
+	{"txDescs", DRVMGR_KT_INT, {(unsigned int)16}},
+	{"rxDescs", DRVMGR_KT_INT, {(unsigned int)32}},
+	DRVMGR_KEY_EMPTY
+};
+/* GRLIB Plug & Play bus driver resources */
+struct drvmgr_drv_res grlib_drv_resources[] =
+
+{
+	{DRIVER_AMBAPP_GAISLER_GRSPW2_ID, 0, &grlib_grspw0_res[0]},
+	{DRIVER_AMBAPP_GAISLER_GRSPW2_ID, 1, &grlib_grspw1_res[0]},
+	{DRIVER_AMBAPP_GAISLER_GRSPW2_ID, 2, &grlib_grspw2_res[0]},
+	{DRIVER_AMBAPP_GAISLER_GRCAN_ID, 0, &grlib_grcan0_res[0]},
+	{DRIVER_AMBAPP_GAISLER_GRETH_ID, 0, &grlib_greth0_res[0]},
+	DRVMGR_RES_EMPTY
+};
+
+struct grlib_config grlib_bus_config = 
+{
+	&ambapp_plb,		/* AMBAPP bus setup */
+	&grlib_drv_resources,	/* Driver configuration */
+};
+#endif
 
 #include <po_hi_debug.h>
 /* PolyORB-HI-C includes */
@@ -52,7 +118,7 @@
 
 int __po_hi_c_driver_rasta_common_is_init = 0;
 
-#ifdef RTEMS48
+#if defined RTEMS48 || defined RTEMS410
 int apbuart_rasta_register(amba_confarea_type *bus);
 static amba_confarea_type abus;
 extern LEON3_IrqCtrl_Regs_Map *irq;
@@ -73,6 +139,8 @@ struct ambapp_bus * __po_hi_driver_rasta_common_get_bus ()
 {
    return &abus;
 }
+#elif RTEMS412
+ ;
 #else
 #error "o<"
 #endif
@@ -322,6 +390,24 @@ void __po_hi_c_driver_rasta_common_init ()
       return;
    }
 
+#if defined GRLEON3 && defined RTEMS412
+   /* Register GRLIB root bus */
+   ambapp_grlib_root_register(&grlib_bus_config);
+
+   /* Initializing Driver Manager if not alread performed by BSP */
+   __PO_HI_DEBUG_DEBUG("Initializing Driver manager...\n");
+   if ( drvmgr_init() ) {
+        __PO_HI_DEBUG_DEBUG ("Driver manager Failed to initialize\n");
+        exit(-1);
+        }
+#if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_DEBUG
+   /* Print Driver manager drivers and their assigned devices */
+   __PO_HI_DEBUG_DEBUG("[drvmgr] ");
+   drvmgr_summary();
+#endif
+
+#elif GRLEON2
+   
    __PO_HI_DEBUG_DEBUG ("[RASTA COMMON] Init\n");
    init_pci();
    __PO_HI_DEBUG_DEBUG ("[RASTA COMMON] Initializing RASTA ...");
@@ -336,7 +422,7 @@ void __po_hi_c_driver_rasta_common_init ()
     __PO_HI_DEBUG_DEBUG(" ERROR !\n");
     return;
   }
-
+#endif   
     __PO_HI_DEBUG_DEBUG (" OK !\n");
 
    __po_hi_c_driver_rasta_common_is_init = 1;

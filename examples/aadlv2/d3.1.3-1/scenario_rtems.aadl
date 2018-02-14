@@ -17,7 +17,6 @@ properties
      value (Ocarina_Config::Deployment),
      value (Ocarina_Config::Cheddar_Properties));
   Ocarina_Config::AADL_Version         => AADLv2;
-  Ocarina_Config::Use_Components_Library => true;
 end d3_1_3_1;
 
 system implementation d3_1_3_1.Impl

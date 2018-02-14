@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
 #ifndef __PO_HI_COMMON_H__
@@ -31,10 +31,19 @@
    #include <rtems.h>
    #include <inttypes.h>
 
+#if defined GRLEON3 && defined RTEMS412
+   #include <drvmgr/drvmgr.h>
+   #include <amba.h>
+   #include <bsp/grspw.h>
+   #include <drvmgr/ambapp_bus.h>
+   #define CONFIGURE_INIT
+   #include <bsp.h> 
+#endif
+   
    #include <bsp.h>
    #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
    #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
-   #define CONFIGURE_APPLICATION_NEEDS_NULL_DRIVER
+   #define CONFIGURE_APPLICATION_NEEDS_NULL_DRIVER 
 //   #define CONFIGURE_APPLICATION_NEEDS_TIMER_DRIVER
    #define CONFIGURE_MAXIMUM_DRIVERS                     10
    #define CONFIGURE_MAXIMUM_POSIX_TIMERS                40
@@ -61,12 +70,35 @@
    #define CONFIGURE_INIT
    #include <rtems/confdefs.h>
 
+/* Driver Manager configuration for rtems 4.12*/
+#if defined GRLEON3 && defined RTEMS412 
+
+#ifdef __PO_HI_NEED_DRIVER_ETH_LEON
+   #define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRETH   /* GRETH Driver enabled*/
+#endif
+
+#ifdef __PO_HI_NEED_DRIVER_SPACEWIRE_RASTA
+   #define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRSPW   /* GRSPW Driver enabled*/
+#endif
+   #include <drvmgr/drvmgr_confdefs.h>
+
+   #include <drvmgr/ambapp_bus.h>
+   #include <ambapp_ids.h>
+   #include <drvmgr/drvmgr.h>
+   
+#endif  /*GRLEON3 && RTEMS412*/
+
 #endif  /* RTEMS_POSIX */
 
 #if defined(__PO_HI_RTEMS_CLASSIC_API)
    #include <rtems.h>
    #include <inttypes.h>
    #define CONFIGURE_INIT
+   #define CONFIGURE_INIT_TASK_STACK_SIZE 2*RTEMS_MINIMUM_STACK_SIZE
+   #define CONFIGURE_INIT_TASK_INITIAL_MODES (RTEMS_PREEMPT | \
+                                              RTEMS_NO_TIMESLICE | \
+                                              RTEMS_NO_ASR | \
+                                              RTEMS_INTERRUPT_LEVEL(0))
    #include <bsp.h>
 
    #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
@@ -77,7 +109,7 @@
    #define CONFIGURE_MAXIMUM_TIMERS                   40
 
 #ifndef XM3_RTEMS_MODE
-   #define CONFIGURE_EXECUTIVE_RAM_SIZE               (512*1024)
+   #define CONFIGURE_EXECUTIVE_RAM_SIZE               (512*1024) //either RAM SIZE or Stack_extras Macro should be present Rtems4.12
 #endif
    /*
    #define CONFIGURE_MAXIMUM_SEMAPHORES               __PO_HI_NB_TASKS + (__PO_HI_NB_PORTS + 1) * 2 + __PO_HI_NB_PROTECTED + 1
@@ -97,7 +129,7 @@
 #ifndef RTEMS411
    rtems_task Init (rtems_task_argument no_argument);
 #endif
-
+   #define CONFIGURE_STACK_CHECKER_ENABLED
    #define CONFIGURE_EXTRA_TASK_STACKS                __PO_HI_TASKS_STACK
 
    #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
@@ -110,6 +142,9 @@
 #if defined (X86_RTEMS) && defined (__PO_HI_USE_TRANSPORT) && __PO_HI_NB_DEVICES > 1
 #include <rtems/rtems_bsdnet.h>
 #include <bsp.h>
+
+   
+/*   
 int rtems_bsdnet_loopattach(struct rtems_bsdnet_ifconfig*, int);
 
 static struct rtems_bsdnet_ifconfig loopback_config =
@@ -127,6 +162,8 @@ struct rtems_bsdnet_ifconfig netdriver_config =
 
 struct rtems_bsdnet_config rtems_bsdnet_config =
    {&netdriver_config,NULL,0,256 * 1024,256 * 1024,};
+*/
+
 
 #endif /*(defined (X86_RTEMS) */
 

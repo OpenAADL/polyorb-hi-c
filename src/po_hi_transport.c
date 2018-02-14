@@ -363,7 +363,7 @@ __po_hi_device_id __po_hi_get_device_from_port (const __po_hi_port_t port)
       return __po_hi_port_to_device[port];
 }
 
-__po_hi_uint32_t* __po_hi_get_device_configuration (const __po_hi_device_id dev)
+void* __po_hi_get_device_configuration (const __po_hi_device_id dev)
 {
    if (dev > __PO_HI_NB_DEVICES)
    {
