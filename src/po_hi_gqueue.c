@@ -432,7 +432,6 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
       __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", id);
     }
 
-  __DEBUGMSG ("[GQUEUE] Gogo kiki\n");
   *port = __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_offset[id]];
 
 
