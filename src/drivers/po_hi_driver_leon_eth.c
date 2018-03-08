@@ -169,6 +169,7 @@ struct rtems_bsdnet_config rtems_bsdnet_config = {
    128 * 1024            /* TCP RX */
 };
 
+/******************************************************************************/
 __po_hi_request_t          __po_hi_c_driver_eth_leon_poller_received_request;
 __po_hi_msg_t              __po_hi_c_driver_eth_leon_poller_msg;
 
@@ -188,10 +189,6 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
    __po_hi_node_t             dev_init;
    int                        established = 0;
    __po_hi_protocol_conf_t*   protocol_conf;
-
-   unsigned long* swap_pointer;
-   unsigned long swap_value;
-
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
 
@@ -263,9 +260,11 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
    __DEBUGMSG ("[DRIVER ETH] Other tasks are initialized, let's start the polling !\n");
 
    /*
-    * Then, listen and receive data on the socket, identify the node
-    * which send the data and put it in its message queue
+    * Main body of the poller function: listen and receive data on the
+    * socket, identify the node which send the data and put it in its
+    * message queue.
     */
+
    while (1)
    {
       FD_ZERO( &selector );
@@ -287,17 +286,15 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
       __DEBUGMSG ("[DRIVER ETH] Receive message\n");
 #endif
 
-      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
-      {
-         __DEBUGMSG ("[DRIVER ETH] Try to watch if it comes from device %d (socket=%d)\n", dev, rnodes[dev].socket);
-         if ( (rnodes[dev].socket != -1 ) && FD_ISSET(rnodes[dev].socket, &selector))
-         {
+      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++) {
+        __DEBUGMSG ("[DRIVER ETH] Try to watch if it comes from device %d (socket=%d)\n", dev, rnodes[dev].socket);
+        if ( (rnodes[dev].socket != -1 ) && FD_ISSET(rnodes[dev].socket, &selector))
+          {
             __DEBUGMSG ("[DRIVER ETH] Receive message from dev %d\n", dev);
+
 #ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
             {
-
                protocol_conf = __po_hi_transport_get_protocol_configuration (virtual_bus_myprotocol_i);
-
 
                int datareceived;
                len = recv (rnodes[dev].socket, &datareceived, sizeof (int), MSG_WAITALL);
@@ -313,29 +310,36 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
             }
 
 #else
-            memset (__po_hi_c_driver_eth_leon_poller_msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
-            len = recv (rnodes[dev].socket, __po_hi_c_driver_eth_leon_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+            memset (__po_hi_c_driver_eth_leon_poller_msg.content, '\0',
+                    __PO_HI_MESSAGES_MAX_SIZE);
+
+            /* In the following, we first retrieve the size of the
+               payload, then the payload itself */
+
+            int datareceived;
+            len = recv (__po_hi_c_sockets_read_sockets[dev],
+                        &datareceived, sizeof (int),
+                        MSG_WAITALL);
+            datareceived  = __po_hi_swap_byte (datareceived); /* XXXX */
+            __DEBUGMSG ("[DRIVER SOCKETS] Waiting for a message of size=%d\n",
+                        (int)datareceived);
+
+            len = recv (rnodes[dev].socket,
+                        __po_hi_c_driver_eth_leon_poller_msg.content,
+                        datareceived,
+                        MSG_WAITALL);
             __po_hi_c_driver_eth_leon_poller_msg.length = len;
             __DEBUGMSG ("[DRIVER ETH] Message received len=%d\n",(int)len);
 
-#ifdef __PO_HI_DEBUG
-   __po_hi_messages_debug (&msg);
-#endif
-
-
-            if (len == 0)
-            {
-
-               __DEBUGMSG ("[DRIVER ETH] Zero size from device %d\n",dev);
-               rnodes[dev].socket = -1;
-               continue;
+            if (len <= 0) {
+              __DEBUGMSG ("[DRIVER ETH] Zero size from device %d\n",dev);
+              rnodes[dev].socket = -1;
+              continue;
             }
-            swap_pointer  = (unsigned long*) &__po_hi_c_driver_eth_leon_poller_msg.content[0];
-            swap_value    = *swap_pointer;
-            *swap_pointer = __po_hi_swap_byte (swap_value);
 
-            __po_hi_unmarshall_request (& __po_hi_c_driver_eth_leon_poller_received_request, &__po_hi_c_driver_eth_leon_poller_msg);
-
+            __po_hi_unmarshall_request
+              (& __po_hi_c_driver_eth_leon_poller_received_request,
+               &__po_hi_c_driver_eth_leon_poller_msg);
 #endif
 
             __po_hi_main_deliver (& __po_hi_c_driver_eth_leon_poller_received_request);
@@ -718,18 +722,29 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
       default:
       {
          request->port = destination_port;
+
          __po_hi_msg_reallocate (&__po_hi_c_driver_eth_leon_sender_msg);
-         __po_hi_marshall_request (request, &__po_hi_c_driver_eth_leon_sender_msg);
+         __po_hi_marshall_request
+           (request, &__po_hi_c_driver_eth_leon_sender_msg);
+
+         size_to_write =  __po_hi_msg_length ( &__po_hi_c_sockets_send_msg);
 
 #ifdef __PO_HI_DEBUG
          __po_hi_messages_debug (&__po_hi_c_driver_eth_leon_sender_msg);
 #endif
 
-         swap_pointer  = (unsigned long*) &__po_hi_c_driver_eth_leon_sender_msg.content[0];
-         swap_value    = *swap_pointer;
-         *swap_pointer = __po_hi_swap_byte (swap_value);
+         /* Note: in the following, we send first the size of the
+            message, then the subset of the message buffer we
+            actually used. */
+
+         int msg_size_network = __po_hi_swap_byte (size_to_write);
+
          len = write (nodes[associated_device].socket,
-                      &(__po_hi_c_driver_eth_leon_sender_msg.content), size_to_write);
+                      &msg_size_network, sizeof (int));
+
+         len = write (nodes[associated_device].socket,
+                      &(__po_hi_c_driver_eth_leon_sender_msg.content),
+                      size_to_write);
 
          if (len != size_to_write)
          {
