@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2017 ESA & ISAE.
+ * Copyright (C) 2011-2018 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -108,8 +108,8 @@ static struct rtems_bsdnet_ifconfig netdriver_config = {
    RTEMS_BSP_NETWORK_DRIVER_NAME,      /* name  */
    RTEMS_BSP_NETWORK_DRIVER_ATTACH, /* attach function  greth_interface_driver_attach */
 //   0, /* link to next interface */
-   loopback_config,   
-   
+   loopback_config,
+
    /*
 #ifdef RTEMS48
    loopback_config,
@@ -127,7 +127,7 @@ static struct rtems_bsdnet_ifconfig netdriver_config = {
 
 struct ethernet_config interface_configs[]=
 {
-        { "255.255.255.255", "255.255.255.255", {0x80,0x80,0x80,0x80,0x80,0x80}},// NULL - take PHY address and IP from device 
+        { "255.255.255.255", "255.255.255.255", {0x80,0x80,0x80,0x80,0x80,0x80}},// NULL - take PHY address and IP from device
         {NULL, NULL, {0,0,0,0,0,0}}  // NULL - used for BOOTP
 };
 
@@ -143,11 +143,11 @@ struct ethernet_config interface_configs[]=
  */
 struct rtems_bsdnet_config rtems_bsdnet_config = {
 #ifdef RTEMS412
-  NULL,        
+  NULL,
 #else
   &netdriver_config,
 #endif
-   NULL,        /* Bootp */ 
+   NULL,        /* Bootp */
 #if defined RTEMS48 || defined RTEMS410
    100,        /* Default network task priority */
 #else
@@ -168,6 +168,7 @@ struct rtems_bsdnet_config rtems_bsdnet_config = {
    128 * 1024            /* TCP RX */
 };
 
+/******************************************************************************/
 __po_hi_request_t          __po_hi_c_driver_eth_leon_poller_received_request;
 __po_hi_msg_t              __po_hi_c_driver_eth_leon_poller_msg;
 
@@ -187,10 +188,6 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
    __po_hi_node_t             dev_init;
    int                        established = 0;
    __po_hi_protocol_conf_t*   protocol_conf;
-
-   unsigned long* swap_pointer;
-   unsigned long swap_value;
-
 
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
 
@@ -262,9 +259,11 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
    __DEBUGMSG ("[DRIVER ETH] Other tasks are initialized, let's start the polling !\n");
 
    /*
-    * Then, listen and receive data on the socket, identify the node
-    * which send the data and put it in its message queue
+    * Main body of the poller function: listen and receive data on the
+    * socket, identify the node which send the data and put it in its
+    * message queue.
     */
+
    while (1)
    {
       FD_ZERO( &selector );
@@ -286,17 +285,15 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
       __DEBUGMSG ("[DRIVER ETH] Receive message\n");
 #endif
 
-      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
-      {
-         __DEBUGMSG ("[DRIVER ETH] Try to watch if it comes from device %d (socket=%d)\n", dev, rnodes[dev].socket);
-         if ( (rnodes[dev].socket != -1 ) && FD_ISSET(rnodes[dev].socket, &selector))
-         {
+      for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++) {
+        __DEBUGMSG ("[DRIVER ETH] Try to watch if it comes from device %d (socket=%d)\n", dev, rnodes[dev].socket);
+        if ( (rnodes[dev].socket != -1 ) && FD_ISSET(rnodes[dev].socket, &selector))
+          {
             __DEBUGMSG ("[DRIVER ETH] Receive message from dev %d\n", dev);
+
 #ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
             {
-
                protocol_conf = __po_hi_transport_get_protocol_configuration (virtual_bus_myprotocol_i);
-
 
                int datareceived;
                len = recv (rnodes[dev].socket, &datareceived, sizeof (int), MSG_WAITALL);
@@ -312,27 +309,36 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
             }
 
 #else
-            memset (__po_hi_c_driver_eth_leon_poller_msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
-            len = recv (rnodes[dev].socket, __po_hi_c_driver_eth_leon_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, MSG_WAITALL);
+            memset (__po_hi_c_driver_eth_leon_poller_msg.content, '\0',
+                    __PO_HI_MESSAGES_MAX_SIZE);
+
+            /* In the following, we first retrieve the size of the
+               payload, then the payload itself */
+
+            int datareceived;
+            len = recv (__po_hi_c_sockets_read_sockets[dev],
+                        &datareceived, sizeof (int),
+                        MSG_WAITALL);
+            datareceived  = __po_hi_swap_byte (datareceived); /* XXXX */
+            __DEBUGMSG ("[DRIVER SOCKETS] Waiting for a message of size=%d\n",
+                        (int)datareceived);
+
+            len = recv (rnodes[dev].socket,
+                        __po_hi_c_driver_eth_leon_poller_msg.content,
+                        datareceived,
+                        MSG_WAITALL);
             __po_hi_c_driver_eth_leon_poller_msg.length = len;
             __DEBUGMSG ("[DRIVER ETH] Message received len=%d\n",(int)len);
 
-#ifdef __PO_HI_DEBUG
-   __po_hi_messages_debug (&msg);
-#endif
-
-            if (len == 0)
-            {
-               __DEBUGMSG ("[DRIVER ETH] Zero size from device %d\n",dev);
-               rnodes[dev].socket = -1;
-               continue;
+            if (len <= 0) {
+              __DEBUGMSG ("[DRIVER ETH] Zero size from device %d\n",dev);
+              rnodes[dev].socket = -1;
+              continue;
             }
-            swap_pointer  = (unsigned long*) &__po_hi_c_driver_eth_leon_poller_msg.content[0];
-            swap_value    = *swap_pointer;
-            *swap_pointer = __po_hi_swap_byte (swap_value);
 
-            __po_hi_unmarshall_request (& __po_hi_c_driver_eth_leon_poller_received_request, &__po_hi_c_driver_eth_leon_poller_msg);
-
+            __po_hi_unmarshall_request
+              (& __po_hi_c_driver_eth_leon_poller_received_request,
+               &__po_hi_c_driver_eth_leon_poller_msg);
 #endif
 
             __po_hi_main_deliver (& __po_hi_c_driver_eth_leon_poller_received_request);
@@ -374,7 +380,7 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
    }
 #elif defined RTEMS412
    interface_configs[0].ip_addr = ipconf->address;
-   
+
    if (ipconf->exist.netmask == 1)
    {
       interface_configs[0].ip_netmask= ipconf->netmask;
@@ -392,15 +398,24 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
    }
 
   __po_hi_c_driver_rasta_common_init();
-  
+
   rtems_bsdnet_initialize_network();
 
+<<<<<<< HEAD
 #ifdef __PO_HI_DEBUG_INFO
+=======
+  #ifdef __PO_HI_DEBUG_INFO
+>>>>>>> POHIC-GitHub/master
    rtems_bsdnet_show_if_stats ();
    rtems_bsdnet_show_inet_routes ();
    rtems_bsdnet_show_ip_stats ();
    rtems_bsdnet_show_mbuf_stats ();
 #endif
+<<<<<<< HEAD
+=======
+
+   leon_eth_device_id = id;
+>>>>>>> POHIC-GitHub/master
 
    leon_eth_device_id = id;
    __po_hi_transport_set_sending_func (leon_eth_device_id, __po_hi_c_driver_eth_leon_sender);
@@ -478,11 +493,11 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
       {
          continue;
       }
-      
+
       bus_connect_node= *__po_hi_transport_get_accessed_buses(dev);
 
       __DEBUGMSG("[DRIVER ETH] Device %d is connected to bus: %d\n", dev, bus_connect_node);
-   
+
       if (bus_current_node != bus_connect_node)
       {
          continue;
@@ -712,21 +727,34 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
       default:
       {
          request->port = destination_port;
+
          __po_hi_msg_reallocate (&__po_hi_c_driver_eth_leon_sender_msg);
-         __po_hi_marshall_request (request, &__po_hi_c_driver_eth_leon_sender_msg);
+         __po_hi_marshall_request
+           (request, &__po_hi_c_driver_eth_leon_sender_msg);
+
+         size_to_write =  __po_hi_msg_length ( &__po_hi_c_sockets_send_msg);
 
 #ifdef __PO_HI_DEBUG
          __po_hi_messages_debug (&__po_hi_c_driver_eth_leon_sender_msg);
 #endif
 
-         swap_pointer  = (unsigned long*) &__po_hi_c_driver_eth_leon_sender_msg.content[0];
-         swap_value    = *swap_pointer;
-         *swap_pointer = __po_hi_swap_byte (swap_value);
-         len = write (nodes[associated_device].socket, &(__po_hi_c_driver_eth_leon_sender_msg.content), size_to_write);
+         /* Note: in the following, we send first the size of the
+            message, then the subset of the message buffer we
+            actually used. */
+
+         int msg_size_network = __po_hi_swap_byte (size_to_write);
+
+         len = write (nodes[associated_device].socket,
+                      &msg_size_network, sizeof (int));
+
+         len = write (nodes[associated_device].socket,
+                      &(__po_hi_c_driver_eth_leon_sender_msg.content),
+                      size_to_write);
 
          if (len != size_to_write)
          {
-            __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
+            __DEBUGMSG (" [error write() length in file %s, line%d ]\n",
+                        __FILE__, __LINE__);
             close (nodes[associated_device].socket);
             nodes[associated_device].socket = -1;
             return __PO_HI_ERROR_TRANSPORT_SEND;
