@@ -401,21 +401,12 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 
   rtems_bsdnet_initialize_network();
 
-<<<<<<< HEAD
 #ifdef __PO_HI_DEBUG_INFO
-=======
-  #ifdef __PO_HI_DEBUG_INFO
->>>>>>> POHIC-GitHub/master
    rtems_bsdnet_show_if_stats ();
    rtems_bsdnet_show_inet_routes ();
    rtems_bsdnet_show_ip_stats ();
    rtems_bsdnet_show_mbuf_stats ();
 #endif
-<<<<<<< HEAD
-=======
-
-   leon_eth_device_id = id;
->>>>>>> POHIC-GitHub/master
 
    leon_eth_device_id = id;
    __po_hi_transport_set_sending_func (leon_eth_device_id, __po_hi_c_driver_eth_leon_sender);
