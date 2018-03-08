@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
  */
 
 #ifndef __PO_HI_TRANSPORT__
@@ -134,7 +134,7 @@ char* __po_hi_get_device_naming (const __po_hi_device_id dev);
  * The configuration data can be either a string of a more complex
  * data structure, such as an instance of an ASN1 type.
  */
-__po_hi_uint32_t* __po_hi_get_device_configuration (const __po_hi_device_id);
+void* __po_hi_get_device_configuration (const __po_hi_device_id);
 
 
 /*
