@@ -87,7 +87,6 @@ extern void rtems_bsdnet_loopattach();
 extern void rtems_bsdnet_initialize_loop();
 #endif
 
-
 static struct rtems_bsdnet_ifconfig loopback_config = {
    "lo0",            /* name */
 #if defined RTEMS48 || defined RTEMS410
@@ -322,10 +321,8 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
    __po_hi_messages_debug (&msg);
 #endif
 
-
             if (len == 0)
             {
-
                __DEBUGMSG ("[DRIVER ETH] Zero size from device %d\n",dev);
                rnodes[dev].socket = -1;
                continue;
@@ -361,7 +358,6 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
    struct sockaddr_in sa;
    struct hostent*    hostinfo;
 
-
    __po_hi_c_ip_conf_t* ipconf;
    char ip_addr[16];
    unsigned short ip_port;
@@ -383,7 +379,6 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
    {
       interface_configs[0].ip_netmask= ipconf->netmask;
    }
-
 #endif
 
    if (ipconf->exist.gateway == 1)
@@ -399,17 +394,15 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
   __po_hi_c_driver_rasta_common_init();
   
   rtems_bsdnet_initialize_network();
-/*
-  #ifdef __PO_HI_DEBUG_INFO
+
+#ifdef __PO_HI_DEBUG_INFO
    rtems_bsdnet_show_if_stats ();
    rtems_bsdnet_show_inet_routes ();
    rtems_bsdnet_show_ip_stats ();
    rtems_bsdnet_show_mbuf_stats ();
 #endif
-*/
+
    leon_eth_device_id = id;
-
-
    __po_hi_transport_set_sending_func (leon_eth_device_id, __po_hi_c_driver_eth_leon_sender);
 
    for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)
@@ -738,7 +731,6 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
             nodes[associated_device].socket = -1;
             return __PO_HI_ERROR_TRANSPORT_SEND;
          }
-
          request->port = __PO_HI_GQUEUE_INVALID_PORT;
          break;
       }

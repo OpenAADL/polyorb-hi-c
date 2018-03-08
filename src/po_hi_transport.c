@@ -88,7 +88,7 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
    __PO_HI_DEBUG_DEBUG ("Send value, emitter task %d, emitter port %d, emitter entity %d, destination ports :\n", id,  port, __po_hi_port_global_to_entity[port]);
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_INFO
-   __DEBUGMSG ("SENT Value: |");
+   __DEBUGMSG ("Packet to send: |");
    {
          int s;
          int i;
@@ -220,7 +220,7 @@ int __po_hi_transport_call_sending_func_by_device (const __po_hi_device_id devic
 
    if (send_func == NULL)
    {
-      return __PO_HI_UNAVAILABLE;
+     return __PO_HI_UNAVAILABLE;
    }
    return send_func (task_id, port);
 }
