@@ -54,21 +54,35 @@ void __po_hi_unmarshall_##THE_TYPE (__po_hi_##THE_TYPE##_t* value, __po_hi_msg_t
 
 void __po_hi_marshall_port (__po_hi_port_t value, __po_hi_msg_t* msg)
 {
-  __po_hi_msg_append_data (msg, &value, sizeof(__po_hi_port_t));
+  __po_hi_port_t tmpvalue = value;
+
+  if (sizeof (__po_hi_port_t) > 1
+      && __po_hi_get_endianness (__PO_HI_MY_NODE) == __PO_HI_BIGENDIAN) {
+    __po_hi_msg_swap_value (&value, &tmpvalue, sizeof (__po_hi_port_t));
+  }
+  __po_hi_msg_append_data (msg, &tmpvalue, sizeof(__po_hi_port_t));
 }
 
 void __po_hi_unmarshall_port (__po_hi_port_t* value, __po_hi_msg_t* msg)
 {
-  /* The operation is always written by the local machine, or received
-   * with the raw protocol. So, we don't have to check byte order */
 
-  __po_hi_msg_get_data (value, msg, 0, sizeof (__po_hi_port_t));
+  __po_hi_port_t tmpvalue;
+
+  __po_hi_msg_get_data (value, msg, 0, sizeof(__po_hi_port_t));
+
+  if (sizeof (__po_hi_port_t) > 1
+      && __po_hi_get_endianness (__PO_HI_MY_NODE) == __PO_HI_BIGENDIAN)
+    {
+      __po_hi_msg_swap_value (value, &tmpvalue, sizeof (__po_hi_port_t));
+      *value = tmpvalue;
+    }
 }
 
 /* array marshallers */
 
 void __po_hi_marshall_array (void* value, __po_hi_msg_t* msg,__po_hi_uint32_t size, __po_hi_uint32_t* offset)
 {
+
   __po_hi_msg_append_data (msg, value, size);
   *offset = *offset + size;
 }
@@ -136,7 +150,7 @@ void __po_hi_marshall_float (float value, __po_hi_msg_t* msg,__po_hi_uint32_t* o
 {
   float tmpvalue = value;
 
-  if (sizeof (int) > 1 && __po_hi_get_endianness (__PO_HI_MY_NODE) == __PO_HI_BIGENDIAN)
+  if (sizeof (float) > 1 && __po_hi_get_endianness (__PO_HI_MY_NODE) == __PO_HI_BIGENDIAN)
     {
       __po_hi_msg_swap_value (&value, &tmpvalue, sizeof (float));
     }
