@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2017 ESA & ISAE.
+ * Copyright (C) 2011-2018 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -109,8 +109,8 @@ static struct rtems_bsdnet_ifconfig netdriver_config = {
    RTEMS_BSP_NETWORK_DRIVER_NAME,      /* name  */
    RTEMS_BSP_NETWORK_DRIVER_ATTACH, /* attach function  greth_interface_driver_attach */
 //   0, /* link to next interface */
-   loopback_config,   
-   
+   loopback_config,
+
    /*
 #ifdef RTEMS48
    loopback_config,
@@ -128,7 +128,7 @@ static struct rtems_bsdnet_ifconfig netdriver_config = {
 
 struct ethernet_config interface_configs[]=
 {
-        { "255.255.255.255", "255.255.255.255", {0x80,0x80,0x80,0x80,0x80,0x80}},// NULL - take PHY address and IP from device 
+        { "255.255.255.255", "255.255.255.255", {0x80,0x80,0x80,0x80,0x80,0x80}},// NULL - take PHY address and IP from device
         {NULL, NULL, {0,0,0,0,0,0}}  // NULL - used for BOOTP
 };
 
@@ -144,11 +144,11 @@ struct ethernet_config interface_configs[]=
  */
 struct rtems_bsdnet_config rtems_bsdnet_config = {
 #ifdef RTEMS412
-  NULL,        
+  NULL,
 #else
   &netdriver_config,
 #endif
-   NULL,        /* Bootp */ 
+   NULL,        /* Bootp */
 #if defined RTEMS48 || defined RTEMS410
    100,        /* Default network task priority */
 #else
@@ -378,7 +378,7 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
    }
 #elif defined RTEMS412
    interface_configs[0].ip_addr = ipconf->address;
-   
+
    if (ipconf->exist.netmask == 1)
    {
       interface_configs[0].ip_netmask= ipconf->netmask;
@@ -397,18 +397,17 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
    }
 
   __po_hi_c_driver_rasta_common_init();
-  
+
   rtems_bsdnet_initialize_network();
-/*
+
   #ifdef __PO_HI_DEBUG_INFO
    rtems_bsdnet_show_if_stats ();
    rtems_bsdnet_show_inet_routes ();
    rtems_bsdnet_show_ip_stats ();
    rtems_bsdnet_show_mbuf_stats ();
 #endif
-*/
-   leon_eth_device_id = id;
 
+   leon_eth_device_id = id;
 
    __po_hi_transport_set_sending_func (leon_eth_device_id, __po_hi_c_driver_eth_leon_sender);
 
@@ -485,11 +484,11 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
       {
          continue;
       }
-      
+
       bus_connect_node= *__po_hi_transport_get_accessed_buses(dev);
 
       __DEBUGMSG("[DRIVER ETH] Device %d is connected to bus: %d\n", dev, bus_connect_node);
-   
+
       if (bus_current_node != bus_connect_node)
       {
          continue;
@@ -729,11 +728,13 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
          swap_pointer  = (unsigned long*) &__po_hi_c_driver_eth_leon_sender_msg.content[0];
          swap_value    = *swap_pointer;
          *swap_pointer = __po_hi_swap_byte (swap_value);
-         len = write (nodes[associated_device].socket, &(__po_hi_c_driver_eth_leon_sender_msg.content), size_to_write);
+         len = write (nodes[associated_device].socket,
+                      &(__po_hi_c_driver_eth_leon_sender_msg.content), size_to_write);
 
          if (len != size_to_write)
          {
-            __DEBUGMSG (" [error write() length in file %s, line%d ]\n", __FILE__, __LINE__);
+            __DEBUGMSG (" [error write() length in file %s, line%d ]\n",
+                        __FILE__, __LINE__);
             close (nodes[associated_device].socket);
             nodes[associated_device].socket = -1;
             return __PO_HI_ERROR_TRANSPORT_SEND;
