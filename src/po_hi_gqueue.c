@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2017 ESA & ISAE.
+ * Copyright (C) 2010-2018 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -432,9 +432,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
       __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", id);
     }
 
-  __DEBUGMSG ("[GQUEUE] Gogo kiki\n");
   *port = __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_offset[id]];
-
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
   pthread_mutex_unlock (&__po_hi_gqueues_mutexes[id]);
