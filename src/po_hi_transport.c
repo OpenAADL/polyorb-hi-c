@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2018 ESA & ISAE.
  */
 
 #include<stddef.h>
@@ -88,7 +88,7 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
    __PO_HI_DEBUG_DEBUG ("Send value, emitter task %d, emitter port %d, emitter entity %d, destination ports :\n", id,  port, __po_hi_port_global_to_entity[port]);
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_INFO
-   __DEBUGMSG ("SENT Value: |");
+   __DEBUGMSG ("Packet to send: |");
    {
          int s;
          int i;
