@@ -87,7 +87,6 @@ extern void rtems_bsdnet_loopattach();
 extern void rtems_bsdnet_initialize_loop();
 #endif
 
-
 static struct rtems_bsdnet_ifconfig loopback_config = {
    "lo0",            /* name */
 #if defined RTEMS48 || defined RTEMS410
@@ -317,10 +316,9 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
                payload, then the payload itself */
 
             int datareceived;
-            len = recv (__po_hi_c_sockets_read_sockets[dev],
+            len = recv (rnodes[dev].socket,
                         &datareceived, sizeof (int),
                         MSG_WAITALL);
-            datareceived  = __po_hi_swap_byte (datareceived); /* XXXX */
             __DEBUGMSG ("[DRIVER SOCKETS] Waiting for a message of size=%d\n",
                         (int)datareceived);
 
@@ -365,7 +363,6 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
    struct sockaddr_in sa;
    struct hostent*    hostinfo;
 
-
    __po_hi_c_ip_conf_t* ipconf;
    char ip_addr[16];
    unsigned short ip_port;
@@ -387,7 +384,6 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
    {
       interface_configs[0].ip_netmask= ipconf->netmask;
    }
-
 #endif
 
    if (ipconf->exist.gateway == 1)
@@ -404,7 +400,7 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 
   rtems_bsdnet_initialize_network();
 
-  #ifdef __PO_HI_DEBUG_INFO
+#if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_DEBUG
    rtems_bsdnet_show_if_stats ();
    rtems_bsdnet_show_inet_routes ();
    rtems_bsdnet_show_ip_stats ();
@@ -412,7 +408,6 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 #endif
 
    leon_eth_device_id = id;
-
    __po_hi_transport_set_sending_func (leon_eth_device_id, __po_hi_c_driver_eth_leon_sender);
 
    for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)
@@ -632,9 +627,6 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
    int                        optval = 0;
    socklen_t                  optlen = 0;
 
-   unsigned long* swap_pointer;
-   unsigned long swap_value;
-
    __po_hi_device_id          associated_device;
    __po_hi_local_port_t       local_port;
    __po_hi_request_t*         request;
@@ -727,7 +719,8 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
          __po_hi_marshall_request
            (request, &__po_hi_c_driver_eth_leon_sender_msg);
 
-         size_to_write =  __po_hi_msg_length ( &__po_hi_c_sockets_send_msg);
+         size_to_write =  __po_hi_msg_length
+           (&__po_hi_c_driver_eth_leon_sender_msg);
 
 #ifdef __PO_HI_DEBUG
          __po_hi_messages_debug (&__po_hi_c_driver_eth_leon_sender_msg);
@@ -737,7 +730,7 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
             message, then the subset of the message buffer we
             actually used. */
 
-         int msg_size_network = __po_hi_swap_byte (size_to_write);
+         int msg_size_network = size_to_write;
 
          len = write (nodes[associated_device].socket,
                       &msg_size_network, sizeof (int));
@@ -754,7 +747,6 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
             nodes[associated_device].socket = -1;
             return __PO_HI_ERROR_TRANSPORT_SEND;
          }
-
          request->port = __PO_HI_GQUEUE_INVALID_PORT;
          break;
       }
