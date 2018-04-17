@@ -1,0 +1,30 @@
+################################################################################
+# GNU indent configuration
+# ========================
+#
+# -bacc  : blank line around conditional compilation block
+# -bad   : blank line after block of declarations
+# -bap   : blank link after procedure body
+# -bfda  : break the line before all arguments in a declaration
+# -nbc   : no blank line after each comma in declaration
+# -br    : move braces closer to the if
+# -brf   : put braces on function definition line
+# -ncdb  : no comment delimiters on blank lines
+# -ce    : cuddle else and preceding '}'
+# -ci<n> : sets the continuation indent to n
+# -di<n> : put variables in column n
+# -lp    : line up continued lines at parentheses
+# -nfc1  : do not format comments that start in column 1
+# -npcs  : do not put space after the function in function calls
+# -npsl  : put the type of a procedure on the same line as its name
+# -nut   : disable the use of tab
+# -i2    : 2 spaces per indentation level
+# -l78   : length of an output line set to 78
+# -npro  : ignore profile file
+
+INDENT_FLAGS= -bacc -bad -bap -nbc -br -brf -ncdb -ce -ci2 -cli2	\
+        -nfc1 -npcs -npsl -nut -lp -i2 -l78 -npro -bfda
+
+.PHONY: indent-local
+indent-local:
+	VERSION_CONTROL=none ; for f in $(shell ls *.?); do gindent $(INDENT_FLAGS) $$f ; done

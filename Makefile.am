@@ -5,6 +5,8 @@ CLEANFILES = config-stamp svn-commit*.tmp* *~
 SUBDIRS = src support tools share include doc
 DIST_SUBDIRS = $(SUBDIRS) examples
 
+EXTRA_DIST = $(top_srcdir)/Makefile.common
+
 check-local:: examples
 
 examples:: install
