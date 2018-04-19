@@ -97,6 +97,23 @@ public
     actual_processor_binding => (reference (CPU_B)) applies to Device_B;
   end PC_Simple.Impl;
 
+  system implementation PC_Simple.Loopback
+  subcomponents
+    pr_A : process A.Impl {Deployment::port_number => 4001;};
+    Device_A : device ocarina_drivers::generic_sockets_ip.pohic
+    {Source_Text => ("devicesconf.c");};
+    CPU_A : processor the_processor.i;
+    the_bus : bus ocarina_buses::ip.i;
+  connections
+    bus access the_bus -> Device_A.link;
+
+    port pr_A.Alpha -> pr_A.Beta
+    {Actual_Connection_Binding => (reference (the_bus));};
+  properties
+    actual_processor_binding => reference (CPU_A) applies to pr_A;
+    actual_processor_binding => (reference (CPU_A)) applies to Device_A;
+  end PC_Simple.Loopback;
+
   system implementation PC_Simple.local
   subcomponents
     prodr_cons : process singleProcess.Impl;

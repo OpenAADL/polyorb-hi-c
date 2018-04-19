@@ -2,8 +2,10 @@ C_FILES = $(srcdir)/producer-consumer.c  $(srcdir)/devicesconf.c
 
 AADL_FILES = $(srcdir)/producer_consumer.aadl $(srcdir)/software.aadl
 
-SCENARIO_FILES = $(srcdir)/scenario.aadl				\
-	$(srcdir)/scenario_local.aadl $(srcdir)/scenario_rtems.aadl
+SCENARIO_FILES = $(srcdir)/scenario.aadl	\
+	$(srcdir)/scenario_local.aadl		\
+	$(srcdir)/scenario_loopback.aadl	\
+	$(srcdir)/scenario_rtems.aadl
 
 include $(srcdir)/../../Makefile.common
 
