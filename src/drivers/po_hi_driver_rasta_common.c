@@ -5,16 +5,18 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2017 ESA & ISAE.
+ * Copyright (C) 2010-2018 ESA & ISAE.
  */
-
-#include <deployment.h>
-/* Generated code header */
 
 #if ((defined __PO_HI_NEED_DRIVER_SPACEWIRE_RASTA) || \
      (defined __PO_HI_NEED_DRIVER_SERIAL_RASTA) || \
      (defined __PO_HI_NEED_DRIVER_ETH_LEON ))
-     
+
+#include <stdlib.h>
+
+#include <deployment.h>
+/* Generated code header */
+
 #include <rtems.h>
 #include <rtems/bspIo.h>
 #include <ambapp.h>
