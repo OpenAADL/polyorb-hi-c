@@ -19,7 +19,7 @@ public
   features
     Data_Source : out parameter Alpha_Type;
   properties
-    Source_Language => C;
+    Source_Language => (C);
     Source_Name     => "user_produce_spg";
     Source_Text     => ("producer-consumer.c");
   end Produce_Spg;
@@ -28,7 +28,7 @@ public
   features
     Data_Sink : in parameter Alpha_Type;
   properties
-    Source_Language => C;
+    Source_Language => (C);
     Source_Name     => "user_consume_spg";
     Source_Text     => ("producer-consumer.c");
   end Consume_Spg;
