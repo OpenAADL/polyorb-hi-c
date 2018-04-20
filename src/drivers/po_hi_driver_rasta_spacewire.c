@@ -5,13 +5,16 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2017 ESA & ISAE.
+ * Copyright (C) 2010-2018 ESA & ISAE.
  */
+
+#ifdef __PO_HI_NEED_DRIVER_SPACEWIRE_RASTA
+
+#include <string.h> // for memcpy
 
 #include <deployment.h>
 /* Generated code header */
 
-#ifdef __PO_HI_NEED_DRIVER_SPACEWIRE_RASTA
 
 #include <activity.h>
 #include <marshallers.h>
@@ -56,7 +59,7 @@
 
 /* Rasta includes from GAISLER drivers */
 
- __po_hi_request_t   __po_hi_c_driver_spacewire_rasta_request;
+__po_hi_request_t    __po_hi_c_driver_spacewire_rasta_request;
 __po_hi_msg_t        __po_hi_c_driver_spacewire_rasta_poller_msg;
 int                  po_hi_c_driver_rasta_spacewire_fd[__PO_HI_NB_DEVICES];
 char                 __po_hi_c_driver_rasta_spacewire_sndbuf[__PO_HI_MESSAGES_MAX_SIZE + 1];
@@ -64,9 +67,7 @@ char                 __po_hi_c_driver_rasta_spacewire_sndbuf[__PO_HI_MESSAGES_MA
 void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
 {
    int len;
-   int j;
    int ts;
-
 
    __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Hello, i'm the spacewire poller !\n");
 
@@ -202,7 +203,6 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
    __PO_HI_DEBUG_DEBUG("\n");
 #endif
 }
-
 
 __po_hi_msg_t           __po_hi_c_driver_spacewire_rasta_sender_msg;
 
