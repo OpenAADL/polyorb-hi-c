@@ -10,7 +10,7 @@ properties
     ("sunseeker", "sunseeker.ref");
   Ocarina_Config::AADL_Files           =>
     ("sunseeker.aadl", "sunseeker_dist.aadl",
-    "devices.aadl", "buses", "base_types", "exarm-ni-6071e-analog.aadl", "grspw.aadl", "rasta-serial.aadl", "sockets-rtems-ne2000.aadl", "exarm-ni-6071e-digital.aadl", "gruart.aadl", "rasta-spacewire.aadl", "tcp_protocol.aadl", "generic-keyboard.aadl", "leon-eth.aadl", "scoc3-spacewire.aadl", "udp-exarm.aadl", "generic_bus.aadl", "leon-serial.aadl", "sd-spw-usb.aadl", "generic_native.aadl", "native_uart.aadl", "serial-raw.aadl", "gr_cpci_x4cv.aadl", "rasta-1553.aadl", "sockets-raw.aadl");
+    "devices.aadl", "buses", "base_types", "exarm-ni-6071e-analog.aadl", "grspw.aadl", "rasta-serial.aadl", "sockets-rtems-ne2000.aadl", "exarm-ni-6071e-digital.aadl", "gruart.aadl", "rasta-spacewire.aadl", "tcp_protocol.aadl", "generic-keyboard.aadl", "leon-eth.aadl", "scoc3-spacewire.aadl", "udp-exarm.aadl", "generic_bus.aadl", "leon-serial.aadl", "sd-spw-usb.aadl", "generic_native.aadl", "native_uart.aadl", "serial-raw.aadl", "gr_cpci_x4cv.aadl", "rasta-1553.aadl", "sockets-raw.aadl", "grspw_packet.aadl");
   Ocarina_Config::Root_System_Name => "Sunseekercontrolsystem_Type.Local";
   Ocarina_Config::Generator            => polyorb_hi_c;
   Ocarina_Config::Needed_Property_Sets =>
@@ -22,4 +22,3 @@ end sunseeker;
 
 system implementation sunseeker.Impl
 end  sunseeker.Impl;
-

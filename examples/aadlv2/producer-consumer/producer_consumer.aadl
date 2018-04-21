@@ -3,7 +3,8 @@ public
   with Deployment, Software;
   with ocarina_drivers;
   with ocarina_buses;
-
+  with ocarina_drivers_grspw_packet;
+  
   ---------------
   -- Processor --
   ---------------
@@ -91,8 +92,8 @@ public
     port pr_B.Alpha -> pr_A.Beta
     {Actual_Connection_Binding => (reference (the_bus));};
   properties
-    actual_processor_binding => reference (CPU_A) applies to pr_A;
-    actual_processor_binding => reference (CPU_B) applies to pr_B;
+    actual_processor_binding => (reference (CPU_A)) applies to pr_A;
+    actual_processor_binding => (reference (CPU_B)) applies to pr_B;
     actual_processor_binding => (reference (CPU_A)) applies to Device_A;
     actual_processor_binding => (reference (CPU_B)) applies to Device_B;
   end PC_Simple.Impl;
@@ -110,16 +111,33 @@ public
     port pr_A.Alpha -> pr_A.Beta
     {Actual_Connection_Binding => (reference (the_bus));};
   properties
-    actual_processor_binding => reference (CPU_A) applies to pr_A;
+    actual_processor_binding => (reference (CPU_A)) applies to pr_A;
     actual_processor_binding => (reference (CPU_A)) applies to Device_A;
   end PC_Simple.Loopback;
+
+  system implementation PC_Simple.Loopback_Spw
+  subcomponents
+    pr_A : process A.Impl {Deployment::port_number => 4001;};
+    Device_A : device ocarina_drivers::rasta_spacewire.grspw_pohic
+    {Source_Text => ("devicesconf.c");};
+    CPU_A : processor the_processor.i;
+    the_bus : bus ocarina_buses::spacewire.generic;
+  connections
+    bus access the_bus -> Device_A.link;
+
+    port pr_A.Alpha -> pr_A.Beta
+    {Actual_Connection_Binding => (reference (the_bus));};
+  properties
+    actual_processor_binding => (reference (CPU_A)) applies to pr_A;
+    actual_processor_binding => (reference (CPU_A)) applies to Device_A;
+  end PC_Simple.Loopback_Spw;
 
   system implementation PC_Simple.local
   subcomponents
     prodr_cons : process singleProcess.Impl;
     CPU_A : processor the_processor.i;
   properties
-    actual_processor_binding => reference (CPU_A) applies to prodr_cons;
+    actual_processor_binding => (reference (CPU_A)) applies to prodr_cons;
   end PC_Simple.local;
 
   system implementation PC_Simple.Xenomai
