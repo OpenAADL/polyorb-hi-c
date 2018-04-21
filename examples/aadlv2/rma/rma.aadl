@@ -109,7 +109,7 @@ public
   system implementation rma.RTEMS
   extends rma.impl
   properties
-    Deployment::Execution_platform => LEON_RTEMS applies to cpu_rm;
+    Deployment::Execution_platform => LEON_RTEMS_POSIX applies to cpu_rm;
   end rma.RTEMS;
 
 end RMAAadl;
