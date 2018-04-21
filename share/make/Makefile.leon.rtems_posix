@@ -6,6 +6,8 @@
 
 ## This file has been built for a generic RTEMS integration
 
+MANAGERS = all
+LIBS = -lrtemsall -lc
 
 -include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
 -include $(RTEMS_CUSTOM)
@@ -15,10 +17,6 @@ define bsp-post-link
    $(NM) -g -n $@ > $(basename $@).num
    $(SIZE) $@
 endef
-
-
-MANAGERS = all
-LIBS = -lrtemsall -lc
 
 CC                           = $(CC_FOR_TARGET)
 CPP                          = $(CXX_FOR_TARGET)
@@ -34,6 +32,13 @@ TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS $(GCC_GENERIC_FLAGS) $
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
 TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
+
+##############################################################################
+# RTEMS_API is defined as part of RTEMS BSP Makefile. It reports the
+# version of RTEMS used
+#
+# The following adjusts the configuration of PolyORB-HI/C for each
+# variant of RTEMS.
 
 ifndef RTEMS_API
    TARGET_CFLAGS                +=  -DRTEMS48
@@ -58,12 +63,31 @@ ifeq ($(RTEMS_API),4.12)
    TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.12/ -lm
 endif
 
+ifeq ($(RTEMS_API),5)
+   TARGET_CFLAGS                +=  -DRTEMS412
+   TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.12/ -lm
+endif
+
+##############################################################################
+# RTEMS_BSP is defined as part of RTEMS BSP Makefile. It reports the
+# BSP used.
+#
+# Depending on the BSP, we select specific variant of the drivers API
+
+# GRLEON3: PolyORB-HI/C variant of the driver
+# LEON3: RCC 1.3 macro to enables LEON3 peripherals.
+
 ifeq ($(RTEMS_BSP),gr740)
    TARGET_CFLAGS                +=  -DGRLEON3
 endif
 
 ifeq ($(RTEMS_BSP),leon3)
-   TARGET_CFLAGS                +=  -DGRLEON3
+   TARGET_CFLAGS                +=  -DGRLEON3 -DLEON3
+endif
+
+# leon3_sf is provided by RCC 1.3
+ifeq ($(RTEMS_BSP),leon3_sf)
+   TARGET_CFLAGS                +=  -DGRLEON3 -DLEON3
 endif
 
 ifeq ($(RTEMS_BSP),leon2)
