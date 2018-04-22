@@ -22,7 +22,7 @@
 
 #define DEVS_MAX 32 /** Maximum number of devices supported */
 
-#define PKT_SIZE __PO_HI_MESSAGES_MAX_SIZE /** Size of the packets exchanged */
+#define PKT_SIZE __PO_HI_MESSAGES_MAX_SIZE + 42 /** Size of the packets exchanged */
 
 /** Structure representing a GRPSW device */
 struct grspw_device {

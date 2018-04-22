@@ -57,12 +57,6 @@ void __po_hi_c_driver_drvmgr_grspw_poller (const __po_hi_device_id dev_id) {
 
     /* Call GRSPW driver wrapper */
 
-    /*
-      len = read (po_hi_c_driver_rasta_spacewire_fd[dev_id],
-      &__po_hi_c_driver_drvmgr_grspw_poller_msg.content[0],
-      __PO_HI_MESSAGES_MAX_SIZE);
-    */
-
     len = grspw_receiving
       (1, // XXX Hardcoded value for receiving
        &__po_hi_c_driver_drvmgr_grspw_poller_msg.content[0]);
@@ -109,6 +103,7 @@ int __po_hi_c_driver_drvmgr_grspw_sender
 {
    int len = -1;
    int i;
+   int ts;
 
    __po_hi_c_spacewire_conf_t* sender_conf;
    __po_hi_c_spacewire_conf_t* receiver_conf;
@@ -156,7 +151,18 @@ int __po_hi_c_driver_drvmgr_grspw_sender
      (request, &__po_hi_c_driver_drvmgr_grspw_sender_msg);
 
    len = -1;
+
+   memset(&route, 0, sizeof(route));
    route.dstadr[0]= 1;
+
+#if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_DEBUG
+      __PO_HI_DEBUG_DEBUG ("Message content: |0x");
+      for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++) {
+        __PO_HI_DEBUG_DEBUG
+          ("%x", __po_hi_c_driver_drvmgr_grspw_sender_msg.content[ts]);
+      }
+      __PO_HI_DEBUG_DEBUG ("|\n");
+#endif
 
    len = grspw_sending
      (0, // XXX hardcoded
@@ -175,7 +181,7 @@ int __po_hi_c_driver_drvmgr_grspw_sender
 
    request->port = __PO_HI_GQUEUE_INVALID_PORT;
 
-   return 1; // ?????
+   return __PO_HI_SUCCESS;
 }
 
 /******************************************************************************/
