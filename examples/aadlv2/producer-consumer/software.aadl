@@ -52,6 +52,7 @@ public
   properties
     Dispatch_Protocol => Periodic;
     Period            => 5 sec;
+    Priority => 110;
   end P.Impl;
 
   thread Q
@@ -69,6 +70,7 @@ public
   properties
     Dispatch_Protocol => Periodic;
     Period            => 5 sec;
+    Priority => 100;
   end Q.Impl;
 
 end Software;

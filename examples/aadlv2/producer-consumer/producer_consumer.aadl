@@ -190,18 +190,28 @@ public
     actual_processor_binding => (reference (CPU_A)) applies to Device_A;
   end PC_Simple.Loopback;
 
-  system implementation PC_Simple.Loopback_Spw extends PC_Simple.Loopback
+  system implementation PC_Simple.Loopback_Spw
     --  Loopback variant using SpaceWire
     --
     --  Note; does not work properly, as we cannot perform loopback
     --  with rasta_spacewire.pohic driver. Used only to test proper
     --  sending.
   subcomponents
-    Device_A : refined to device ocarina_drivers::rasta_spacewire.pohic
+    pr_A : process A.Impl;
+    Device_A : device ocarina_drivers::rasta_spacewire.grspw_pohic
     {Source_Text => ("devicesconf_spw.c");};
-    the_bus : refined to bus ocarina_buses::spacewire.generic;
 
+    CPU_A : processor the_processor.i;
+    the_bus : bus ocarina_buses::spacewire.generic;
+  connections
+    bus access the_bus -> Device_A.link;
+
+    port pr_A.Alpha -> pr_A.Beta
+    {Actual_Connection_Binding => (reference (the_bus));};
   properties
+    actual_processor_binding => (reference (CPU_A)) applies to pr_A;
+    actual_processor_binding => (reference (CPU_A)) applies to Device_A;
+
     Deployment::Execution_Platform => LEON_RTEMS_POSIX applies to CPU_A;
   end PC_Simple.Loopback_Spw;
 
