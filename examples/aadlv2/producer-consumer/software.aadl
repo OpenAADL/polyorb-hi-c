@@ -51,7 +51,7 @@ public
     parameter P_Spg.Data_Source -> Data_Source;
   properties
     Dispatch_Protocol => Periodic;
-    Period            => 200 ms;
+    Period            => 5 sec;
   end P.Impl;
 
   thread Q
@@ -68,7 +68,7 @@ public
     parameter Data_Sink -> Q_Spg.Data_Sink;
   properties
     Dispatch_Protocol => Periodic;
-    Period            => 100 ms;
+    Period            => 5 sec;
   end Q.Impl;
 
 end Software;
