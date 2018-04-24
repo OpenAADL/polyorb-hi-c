@@ -1,3 +1,8 @@
+/* Note, this file is from RCC1.3rc4 sample directory.
+ *
+ * Any modification there should be carefully weighted.
+ */
+
 /* Configuration file for LEON2, GRLIB-LEON2 and LEON3 systems
  *
  * Defines driver resources in separate files,
