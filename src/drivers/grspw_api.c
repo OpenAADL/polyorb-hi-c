@@ -1,10 +1,19 @@
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
+ *
+ * Copyright (C) 2018 ESA & ISAE.
+ */
+
 /* This driver relies on the GRSPW2 Packet library proposed in RTEMS
  * 4.11 and 5. It supports a more sophisticated way to handle packets
- * in memory, coupled with DMA.
+ * in memory, coupled with DMA. See RCC manuals for more details.
  *
  * Note: this implementation relies on elements from the grspw-test
- * sample program provided in RCC 1.3rc4 by Cobham Gaisler, and the
- * grspw_pkt_lib auxiliary library.
+ * sample programs provided in RCC 1.3rc4 by Cobham Gaisler.
  */
 
 #include "grspw_api.h"
@@ -47,7 +56,7 @@ rtems_task dma_task_tx(rtems_task_argument unused);
 rtems_id tid_dma_rx, tid_dma_tx;
 
 /******************************************************************************/
-/* Driver internal data structures
+/* Driver internal data structures */
 
 /** Structure used as a bridge in the grspw_pkt data and header
 implementation. */
@@ -521,15 +530,15 @@ size_t grspw_sending
  * The function is called in the test_app Task, used qith the receiving command (r command).
 */
 size_t grspw_receiving(int device,void *message){
+  rtems_semaphore_obtain(dma_sync_rx, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
   rtems_semaphore_obtain(dma_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
   size_t message_size_received = 0;
 
   struct grspw_pkt *pkt;
-  /* Get a RX packet buffer */
-  /* Taking a packet at the head */
+  /* Get a RX packet buffer from the HEAD */
+
   pkt = devs[device].rx_buf_list.head;
   if (pkt != NULL) {
-    rtems_semaphore_obtain(dma_sync_rx, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
     /* The new head is the following pkt, pkt->next */
     devs[device].rx_buf_list.head = pkt->next;
     devs[device].rx_buf_list_cnt--;
@@ -634,9 +643,7 @@ rtems_task dma_task_rx(rtems_task_argument unused){
         continue;
       dma_process_rx(dev);
     }
-    rtems_semaphore_release(dma_sync_rx);
     rtems_semaphore_release(dma_sem);
-    //rtems_task_wake_after(200);
   }
 
   printf(" DMA task shutdown\n");
@@ -771,6 +778,14 @@ int dma_process_rx(struct grspw_device *dev){
 
     grspw_list_append_list(&dev->rx_buf_list, &lst);
     dev->rx_buf_list_cnt += cnt;
+  }
+
+  /* Release the semaphore blocking task in grspw_receiving() if
+   * something is found in the buffer
+   */
+  pkt = (&dev->rx_buf_list)->head;
+  if (pkt != NULL) {
+    rtems_semaphore_release(dma_sync_rx);
   }
 
   /* Prepare receiver with packet buffers */
