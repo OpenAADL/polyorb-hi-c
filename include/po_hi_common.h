@@ -114,7 +114,7 @@ void *POSIX_Init (void);
 #undef ENABLE_NETWORK
 #undef ENABLE_NETWORK_SMC_LEON3
 
-#include "config.c"
+#include "../config.c"
 
 #endif  /* RTEMS_POSIX */
 
