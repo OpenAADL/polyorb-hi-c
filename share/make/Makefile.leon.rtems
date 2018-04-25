@@ -59,10 +59,15 @@ ifeq ($(RTEMS_API),4.12)
    TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.12/ -lm
 endif
 
+ifeq ($(RTEMS_API),5)
+   TARGET_CFLAGS                +=  -DRTEMS412
+   TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.12/ -lm
+endif
+
 ifeq ($(RTEMS_BSP),leon3)
    TARGET_CFLAGS                +=  -DGRLEON3
 endif
- 
+
 ifeq ($(RTEMS_BSP),leon2)
    TARGET_CFLAGS                +=  -DGRLEON2
 endif

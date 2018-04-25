@@ -319,7 +319,6 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
             len = recv (rnodes[dev].socket,
                         &datareceived, sizeof (int),
                         MSG_WAITALL);
-	    //            datareceived  = __po_hi_swap_byte (datareceived); /* XXXX */
             __DEBUGMSG ("[DRIVER SOCKETS] Waiting for a message of size=%d\n",
                         (int)datareceived);
 
@@ -628,9 +627,6 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
    int                        optval = 0;
    socklen_t                  optlen = 0;
 
-   unsigned long* swap_pointer;
-   unsigned long swap_value;
-
    __po_hi_device_id          associated_device;
    __po_hi_local_port_t       local_port;
    __po_hi_request_t*         request;
@@ -724,7 +720,7 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
            (request, &__po_hi_c_driver_eth_leon_sender_msg);
 
          size_to_write =  __po_hi_msg_length
-	   (&__po_hi_c_driver_eth_leon_sender_msg);
+           (&__po_hi_c_driver_eth_leon_sender_msg);
 
 #ifdef __PO_HI_DEBUG
          __po_hi_messages_debug (&__po_hi_c_driver_eth_leon_sender_msg);
@@ -735,7 +731,6 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
             actually used. */
 
          int msg_size_network = size_to_write;
-	 //__po_hi_swap_byte (size_to_write);
 
          len = write (nodes[associated_device].socket,
                       &msg_size_network, sizeof (int));

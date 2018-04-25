@@ -94,23 +94,23 @@ ifeq ($(NEED_TRANSPORT), yes)
    PO_HI_OBJS = po_hi_task.o po_hi_time.o po_hi_protected.o		\
 	po_hi_main.o po_hi_messages.o po_hi_marshallers.o		\
 	po_hi_giop.o po_hi_utils.o po_hi_types.o po_hi_monitor.o	\
-	po_hi_storage.o po_hi_gqueue.o drivers/po_hi_driver_exarm.o	\
-	drivers/po_hi_driver_keyboard.o					\
-	drivers/po_hi_driver_exarm_ni_6071e_analog.o			\
-	drivers/po_hi_driver_exarm_ni_6071e_digital.o			\
-	drivers/po_hi_driver_usbbrick_spacewire.o			\
-	drivers/po_hi_driver_linux_serial.o				\
-	drivers/po_hi_driver_leon_serial.o				\
-	drivers/po_hi_driver_leon_eth.o					\
-	drivers/po_hi_driver_serial_common.o				\
-	drivers/po_hi_driver_sockets.o					\
-	drivers/po_hi_driver_rtems_ne2000.o				\
-	drivers/po_hi_driver_rasta_serial.o				\
-	drivers/po_hi_driver_rasta_common.o				\
-	drivers/po_hi_driver_rasta_1553.o				\
-	drivers/po_hi_driver_xc4v_fpga.o				\
-	drivers/po_hi_driver_rasta_1553_brmlib.o			\
-	drivers/po_hi_driver_rasta_spacewire.o $(ACTUAL_TRANSPORT)	\
+	po_hi_storage.o po_hi_gqueue.o po_hi_driver_exarm.o	\
+	po_hi_driver_keyboard.o					\
+	po_hi_driver_exarm_ni_6071e_analog.o			\
+	po_hi_driver_exarm_ni_6071e_digital.o			\
+	po_hi_driver_usbbrick_spacewire.o			\
+	po_hi_driver_linux_serial.o				\
+	po_hi_driver_leon_serial.o				\
+	po_hi_driver_leon_eth.o					\
+	po_hi_driver_serial_common.o				\
+	po_hi_driver_sockets.o					\
+	po_hi_driver_rtems_ne2000.o				\
+	po_hi_driver_rasta_serial.o				\
+	po_hi_driver_rasta_common.o				\
+	po_hi_driver_rasta_1553.o				\
+	po_hi_driver_xc4v_fpga.o				\
+	po_hi_driver_rasta_1553_brmlib.o			\
+	po_hi_driver_rasta_spacewire.o $(ACTUAL_TRANSPORT)	\
 	po_hi_transport.o $(TARGET_TRANSPORT_SOURCES)
 
    GENERATED_OBJS = activity.o subprograms.o types.o request.o	\
@@ -161,11 +161,11 @@ endif
 
 ifdef SIMULINK_DIR
    INCLUDE += -I$(SIMULINK_DIR) \
-              -I$(SIMULINK_DIRECTORY)/simulink/include \
-              -I$(SIMULINK_DIRECTORY)/extern/include \
-              -I$(SIMULINK_DIRECTORY)/rtw/c/src \
-              -I$(SIMULINK_DIRECTORY)/rtw/c/src/ext_mode/common \
-              -I$(SIMULINK_DIRECTORY)/rtw/c/libsrc
+	      -I$(SIMULINK_DIRECTORY)/simulink/include \
+	      -I$(SIMULINK_DIRECTORY)/extern/include \
+	      -I$(SIMULINK_DIRECTORY)/rtw/c/src \
+	      -I$(SIMULINK_DIRECTORY)/rtw/c/src/ext_mode/common \
+	      -I$(SIMULINK_DIRECTORY)/rtw/c/libsrc
    CFLAGS += -DRT -DUSE_RTMODEL -DMODEL=$(SIMULINK_NODE) -DRT -DNUMST=2 -DTID01EQ=1 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO
    LDFLAGS += $(SIMULINK_LDFLAGS)
 endif
@@ -246,7 +246,7 @@ endif
 	   c_file="`basename $$f .o`.c"; \
 	   c_file_dirname="`dirname $$f`"; \
       if [ -n "$$c_file_dirname" ]; then \
-         if [ ! -d $$c_file_dirname ]; then mkdir -p $$c_file_dirname ; fi ; \
+	 if [ ! -d $$c_file_dirname ]; then mkdir -p $$c_file_dirname ; fi ; \
 	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(LOCAL_RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
       else \
 	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(LOCAL_RUNTIME_PATH)/src/'$$c_file || exit 1 ; \
@@ -257,7 +257,7 @@ endif
 	   c_file="`basename $$f .o`.cc"; \
 	   c_file_dirname="`dirname $$f`"; \
       if [ -n "$$c_file_dirname" ]; then \
-         if [ ! -d $$c_file_dirname ]; then mkdir -p $$c_file_dirname ; fi ; \
+	 if [ ! -d $$c_file_dirname ]; then mkdir -p $$c_file_dirname ; fi ; \
 	      $(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(LOCAL_RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
       else \
 	      $(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(LOCAL_RUNTIME_PATH)/src/'$$c_file || exit 1 ; \

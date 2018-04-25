@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2017 ESA & ISAE.
+ * Copyright (C) 2010-2018 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -13,6 +13,7 @@
 
 #ifdef __PO_HI_NEED_DRIVER_SPACEWIRE_RASTA
 
+#include <string.h> // for memcpy
 #include <activity.h>
 #include <marshallers.h>
 #include <deployment.h>
@@ -49,14 +50,14 @@
 #endif
 
 #if defined GRLEON3 && defined RTEMS412
-#include <rtems.h> 
+#include <rtems.h>
 #include <bsp/grspw.h>
-#endif 
+#endif
 
 
 /* Rasta includes from GAISLER drivers */
 
- __po_hi_request_t   __po_hi_c_driver_spacewire_rasta_request;
+__po_hi_request_t    __po_hi_c_driver_spacewire_rasta_request;
 __po_hi_msg_t        __po_hi_c_driver_spacewire_rasta_poller_msg;
 int                  po_hi_c_driver_rasta_spacewire_fd[__PO_HI_NB_DEVICES];
 char                 __po_hi_c_driver_rasta_spacewire_sndbuf[__PO_HI_MESSAGES_MAX_SIZE + 1];
@@ -64,9 +65,7 @@ char                 __po_hi_c_driver_rasta_spacewire_sndbuf[__PO_HI_MESSAGES_MA
 void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
 {
    int len;
-   int j;
    int ts;
-
 
    __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Hello, i'm the spacewire poller !\n");
 
@@ -157,9 +156,9 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd, SPACEWIRE_IOCTRL_SET_PROMISCUOUS, 1);              // Receive from any source
 */
 
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_STOP,NULL);  //
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_STOP,NULL);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_DISCONNECT,43);
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_COREFREQ,30000); 
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_COREFREQ,30000);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_RXBLOCK,1);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_TXBLOCK,1);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_NODEADDR, (unsigned char)node_addr); //
@@ -167,8 +166,7 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_CLKDIV, 0);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_TXBLOCK_ON_FULL,1);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_RM_PROT_ID,0);
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_START,2000); //
-   
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_START,2000);
 
 #ifdef RTEMS412
    spw_config *cnf = (spw_config *)malloc(sizeof(spw_config));
@@ -202,7 +200,6 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
    __PO_HI_DEBUG_DEBUG("\n");
 #endif
 }
-
 
 __po_hi_msg_t           __po_hi_c_driver_spacewire_rasta_sender_msg;
 
@@ -261,7 +258,7 @@ int __po_hi_c_driver_spacewire_rasta_sender (const __po_hi_task_id task_id, cons
       len = write (po_hi_c_driver_rasta_spacewire_fd[dev_id], __po_hi_c_driver_spacewire_rasta_sender_msg.content, __PO_HI_MESSAGES_MAX_SIZE);
    }
 
-   fsync(po_hi_c_driver_rasta_spacewire_fd[dev_id]);   
+   fsync(po_hi_c_driver_rasta_spacewire_fd[dev_id]);
 
    if (len < 0)
    {

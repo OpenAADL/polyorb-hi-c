@@ -58,28 +58,28 @@ NATIVE_LDFLAGS=""
 SIMULINK_LDFLAGS=""
 
 case ${host_os} in
-	*darwin*)
-		NATIVE_CFLAGS="${NATIVE_CFLAGS} -DPOSIX -D_XOPEN_SOURCE"
-		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread"
-		;;
-	*solaris*10*)
-		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lrt"
-		;;
-	*freebsd*)
-		NATIVE_CFLAGS="${NATIVE_CFLAGS} -DPOSIX -D_GNU_SOURCE"
-		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lrt"
-		SIMULINK_LDFLAGS="-lm"
-		;;
-	*cygwin*)
-		NATIVE_CFLAGS="${NATIVE_CFLAGS} -D_GNU_SOURCE"
-		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lwsock32"
-		SIMULINK_LDFLAGS="-lm"
-		;;
-	*)
-		NATIVE_CFLAGS="${NATIVE_CFLAGS} -DPOSIX -D_POSIX_SOURCE -D_GNU_SOURCE"
-		NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lrt"
-		SIMULINK_LDFLAGS="-lm"
-		;;
+        *darwin*)
+                NATIVE_CFLAGS="${NATIVE_CFLAGS} -DPOSIX -D_XOPEN_SOURCE"
+                NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread"
+                ;;
+        *solaris*10*)
+                NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lrt"
+                ;;
+        *freebsd*)
+                NATIVE_CFLAGS="${NATIVE_CFLAGS} -DPOSIX -D_GNU_SOURCE"
+                NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lrt"
+                SIMULINK_LDFLAGS="-lm"
+                ;;
+        *cygwin*)
+                NATIVE_CFLAGS="${NATIVE_CFLAGS} -D_GNU_SOURCE"
+                NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lwsock32"
+                SIMULINK_LDFLAGS="-lm"
+                ;;
+        *)
+                NATIVE_CFLAGS="${NATIVE_CFLAGS} -DPOSIX -D_POSIX_SOURCE -D_GNU_SOURCE"
+                NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lpthread -lrt"
+                SIMULINK_LDFLAGS="-lm"
+                ;;
 esac
 
 AC_CHECK_LIB(socket, socket, [NATIVE_LDFLAGS="${NATIVE_LDFLAGS} -lsocket"])
@@ -102,21 +102,21 @@ AC_ARG_ENABLE(debug,
                              * debug    - useful for debugging purpose
                              * info     - ALL informations about the system],
   [ case ${enableval} in
-	info)
+        info)
       AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 12, "Debug level - show ALL potential informations.")
-		;;
-	debug)
+                ;;
+        debug)
       AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 10, "Warning - information that can show errors but are not so important")
-		;;
-	warning)
+                ;;
+        warning)
       AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 6, "Warning - Errors that will imply a minor error at run-tine")
-		;;
-	critical)
+                ;;
+        critical)
       AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 4, "Critical - Errors that will imply a fault or a crash")
-		;;
-	*)
+                ;;
+        *)
       AC_DEFINE_UNQUOTED(__PO_HI_DEBUG_LEVEL, 0, "None - Do not print anything")
-		;;
+                ;;
    esac])
 
 AC_ARG_ENABLE(giop,
@@ -186,64 +186,59 @@ dnl may, one day, be edited automatically to remove
 dnl some entries.
 
 AC_OUTPUT([
-	Makefile
-	doc/Makefile
-	src/Makefile
-	src/drivers/Makefile
-	src/drivers/configuration/Makefile
+        Makefile
+        doc/Makefile
+        src/Makefile
+        src/drivers/Makefile
+        src/drivers/configuration/Makefile
         src/monitoring/Makefile
         src/monitoring/cheddar_scheduling/Makefile
         src/python/Makefile
         src/simulator/Makefile
-	include/Makefile
-	include/drivers/Makefile
-	include/drivers/configuration/Makefile
+        include/Makefile
+        include/drivers/Makefile
+        include/drivers/configuration/Makefile
         include/monitoring/Makefile
         include/simulator/Makefile
-	examples/Makefile
-	examples/aadlv1/Makefile
-	examples/aadlv1/d3.1.3-1/Makefile
-	examples/aadlv1/ping/Makefile
-	examples/aadlv1/flight-mgmt/Makefile
-	examples/aadlv1/rma/Makefile
-	examples/aadlv1/sunseeker/Makefile
-	examples/aadlv2/Makefile
-	examples/aadlv2/cpp/Makefile
-	examples/aadlv2/d3.1.3-1/Makefile
-	examples/aadlv2/import/Makefile
-	examples/aadlv2/ping/Makefile
-	examples/aadlv2/lua/Makefile
-	examples/aadlv2/producer-consumer/Makefile
-	examples/aadlv2/flight-mgmt/Makefile
-	examples/aadlv2/monitor/Makefile
-	examples/aadlv2/packet-store/Makefile
-	examples/aadlv2/file-store/Makefile
-	examples/aadlv2/rma/Makefile
-	examples/aadlv2/some-types/Makefile
-	examples/aadlv2/some-types-stdint/Makefile
-	examples/aadlv2/sunseeker/Makefile
-	tools/Makefile
-	tools/check-symbols/Makefile
-	tools/check-symbols/examples/Makefile
-	tools/check-symbols/examples/malloc/Makefile
-	tools/check-symbols/examples/strings/Makefile
-	tools/check-symbols/src/Makefile
-	share/Makefile
-	share/lua/Makefile
-	share/lua/libs/Makefile
-	share/lua/include/Makefile
-	share/cheddar/Makefile
-	share/models/Makefile
-	share/ocarina/Makefile
-	share/tsim/Makefile
-	share/make/Makefile
-	share/utils/Makefile
-	share/make/Makefile.common
-	share/make/Makefile.native
-	share/config/Makefile
-	share/config/spif-rtems/Makefile
-	share/config/leon-rtems/Makefile
-	share/config/nds-rtems/Makefile
-	share/config/gumstix-rtems/Makefile
-	support/Makefile
+        examples/Makefile
+        examples/aadlv1/Makefile
+        examples/aadlv1/d3.1.3-1/Makefile
+        examples/aadlv1/ping/Makefile
+        examples/aadlv1/flight-mgmt/Makefile
+        examples/aadlv1/rma/Makefile
+        examples/aadlv1/sunseeker/Makefile
+        examples/aadlv2/Makefile
+        examples/aadlv2/cpp/Makefile
+        examples/aadlv2/d3.1.3-1/Makefile
+        examples/aadlv2/import/Makefile
+        examples/aadlv2/ping/Makefile
+        examples/aadlv2/lua/Makefile
+        examples/aadlv2/producer-consumer/Makefile
+        examples/aadlv2/flight-mgmt/Makefile
+        examples/aadlv2/monitor/Makefile
+        examples/aadlv2/packet-store/Makefile
+        examples/aadlv2/file-store/Makefile
+        examples/aadlv2/rma/Makefile
+        examples/aadlv2/some-types/Makefile
+        examples/aadlv2/some-types-stdint/Makefile
+        examples/aadlv2/sunseeker/Makefile
+        tools/Makefile
+        tools/check-symbols/Makefile
+        tools/check-symbols/examples/Makefile
+        tools/check-symbols/examples/malloc/Makefile
+        tools/check-symbols/examples/strings/Makefile
+        tools/check-symbols/src/Makefile
+        share/Makefile
+        share/lua/Makefile
+        share/lua/libs/Makefile
+        share/lua/include/Makefile
+        share/cheddar/Makefile
+        share/models/Makefile
+        share/ocarina/Makefile
+        share/tsim/Makefile
+        share/make/Makefile
+        share/utils/Makefile
+        share/make/Makefile.common
+        share/make/Makefile.native
+        support/Makefile
 ])

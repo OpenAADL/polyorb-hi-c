@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2018 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -65,7 +65,6 @@ void __po_hi_marshall_port (__po_hi_port_t value, __po_hi_msg_t* msg)
 
 void __po_hi_unmarshall_port (__po_hi_port_t* value, __po_hi_msg_t* msg)
 {
-
   __po_hi_port_t tmpvalue;
 
   __po_hi_msg_get_data (value, msg, 0, sizeof(__po_hi_port_t));
@@ -82,7 +81,7 @@ void __po_hi_unmarshall_port (__po_hi_port_t* value, __po_hi_msg_t* msg)
 
 void __po_hi_marshall_array (void* value, __po_hi_msg_t* msg,__po_hi_uint32_t size, __po_hi_uint32_t* offset)
 {
-
+  // XXX
   __po_hi_msg_append_data (msg, value, size);
   *offset = *offset + size;
 }
