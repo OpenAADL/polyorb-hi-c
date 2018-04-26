@@ -13,14 +13,6 @@
 
 #ifndef __PO_HI_DRIVER_SERIAL_COMMON_H__
 
-#if defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX) || \
-    defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_RECEIVER) || \
-    defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_SENDER) || \
-    defined (__PO_HI_NEED_DRIVER_SERIAL_RASTA) || \
-    defined (__PO_HI_NEED_DRIVER_SERIAL_LEON) || \
-    defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_SENDER) || \
-    defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_RECEIVER)
-
 #include <po_hi_debug.h>
 #include <drivers/configuration/serial.h>
 
@@ -42,7 +34,5 @@ int __po_hi_c_driver_serial_common_get_speed (const __po_hi_device_id id);
  * __PO_HI_DRIVER_SERIAL_COMMON_SPEED_DEFAULT. If the configuration is not
  * valid, it returns __PO_HI_DRIVER_SERIAL_COMMON_SPEED_UNKNWON
  */
-
-#endif 
 
 #endif
