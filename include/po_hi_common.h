@@ -75,9 +75,9 @@
 
 #ifdef __PO_HI_NEED_DRIVER_ETH_LEON
    #define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRETH   /* GRETH Driver enabled*/
-#else
-   #undef ENABLE_NETWORK
-   #undef ENABLE_NETWORK_SMC_LEON3
+//#else
+//   #undef ENABLE_NETWORK
+//   #undef ENABLE_NETWORK_SMC_LEON3
 #endif
 
 #ifdef __PO_HI_NEED_DRIVER_SPACEWIRE_RASTA
@@ -102,6 +102,10 @@ void *POSIX_Init (void);
 
 #define CONFIGURE_DRIVER_AMBAPP_GAISLER_SPW_ROUTER /* SpaceWire Router  */
 #define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRSPW2     /* SpaceWire Packet driver */
+#define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRETH   /* GRETH Driver enabled*/
+#define CONFIGURE_DRIVER_PCI_GR_LEON4_N2X       /* GR-CPCI-LEON4-N2X has two GRETH network MACs */
+
+#define ENABLE_NETWORK
 
 #endif  /*GRLEON3 && RTEMS412*/
 
@@ -111,8 +115,6 @@ void *POSIX_Init (void);
 /* config.c is directly provided by RCC1.3 and initialized drivers per
  * drvmgr convention for RASTA (LEON3), N2X and GR740 boards
  */
-#undef ENABLE_NETWORK
-#undef ENABLE_NETWORK_SMC_LEON3
 
 #include "../src/config.c"
 

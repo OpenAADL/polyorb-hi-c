@@ -26,7 +26,9 @@ C_FILES = $(srcdir)/po_hi_driver_linux_serial.c			\
 	    $(srcdir)/spwrouter_custom_config.c			\
 	    $(srcdir)/po_hi_driver_drvmgr_common.c		\
 	    $(srcdir)/po_hi_driver_rtems_drvmgr_spacewire.c	\
-	    $(srcdir)/po_hi_driver_rtems_drvmgr_serial.c
+	    $(srcdir)/po_hi_driver_rtems_drvmgr_serial.c	\
+	    $(srcdir)/po_hi_driver_rtems_drvmgr_ethernet.c	\
+	    $(srcdir)/config_leon4_n2x.c
 
 csrc = ${shell $(CYGPATH_U) '$(OCARINA_RUNTIME)/polyorb-hi-c/src/drivers'}
 csrc2 = ${shell $(CYGPATH_U) '$(OCARINA_RUNTIME)/polyorb-hi-c/src'}
