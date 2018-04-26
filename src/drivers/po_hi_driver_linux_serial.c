@@ -46,6 +46,7 @@ uint32_t po_hi_c_driver_serial_sending_wait;
 
 __po_hi_request_t __po_hi_c_driver_serial_linux_request;
 __po_hi_msg_t     __po_hi_c_driver_serial_linux_poller_msg;
+
 void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
 {
    (void) dev_id;
@@ -55,8 +56,8 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
    unsigned long* swap_pointer;
    unsigned long swap_value;
 
-
-   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Hello, i'm the serial poller , must read %d bytes!\n", __PO_HI_MESSAGES_MAX_SIZE);
+   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Hello, i'm the serial poller , must read %d bytes!\n",
+			__PO_HI_MESSAGES_MAX_SIZE);
 
    __po_hi_msg_reallocate (&__po_hi_c_driver_serial_linux_poller_msg);
 
@@ -88,14 +89,9 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] read() returns %d\n", n);
 
-   /*Swap only the first 2 bytes of data*/
-   swap_pointer  = (unsigned long*) &__po_hi_c_driver_serial_linux_poller_msg.content[0];
-   swap_value    = *swap_pointer;
-   *swap_pointer = __po_hi_swap_byte (swap_value);
-
    __po_hi_c_driver_serial_linux_poller_msg.length = n;
 
-   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Message after swapped port: 0x");
+   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Message after swapped port:  0x");
    for (ts = 0 ; ts < __po_hi_c_driver_serial_linux_poller_msg.length ; ts++)
    {
         __PO_HI_DEBUG_DEBUG ("%x", __po_hi_c_driver_serial_linux_poller_msg.content[ts]);
@@ -108,7 +104,8 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
 
    if (__po_hi_c_driver_serial_linux_request.port > __PO_HI_NB_PORTS)
    {
-      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Invalid port number !\n");
+      __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Invalid port number %d !\n",
+			   __po_hi_c_driver_serial_linux_request.port);
       return;
    }
 
@@ -278,12 +275,12 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
          break;
    }
 
-   if (tcflush (po_hi_c_driver_serial_fd_read, TCIOFLUSH) == -1)
+   if (tcflush (po_hi_c_driver_serial_fd_read, TCIOFLUSH) < 0)
    {
       __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcflush()\n");
    }
 
-   if (tcsetattr (po_hi_c_driver_serial_fd_read, TCSANOW, &newtio) == -1)
+   if (tcsetattr (po_hi_c_driver_serial_fd_read, TCSANOW, &newtio) < 0)
    {
       __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Error in tcsetattr()\n");
    }
