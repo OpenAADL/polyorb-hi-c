@@ -26,7 +26,7 @@
 #include <rtems.h>
 
 /** SpaceWire parameters */
-#define SPW_PROT_ID 155
+#define SPW_PROT_ID 3
 
 /*****************************************************************************/
 /* Configuration of the driver */
