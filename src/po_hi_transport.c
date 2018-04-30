@@ -43,7 +43,6 @@ extern __po_hi_protocol_conf_t   __po_hi_protocols_configuration[__PO_HI_NB_PROT
 #if __PO_HI_NB_DEVICES > 0
 __po_hi_transport_sending_func            __po_hi_transport_devices_sending_funcs[__PO_HI_NB_DEVICES];
 extern __po_hi_port_t                     __po_hi_devices_to_nodes[__PO_HI_NB_DEVICES];
-extern __po_hi_port_t                     __po_hi_devices_to_nodes[__PO_HI_NB_DEVICES];
 extern __po_hi_device_id                  __po_hi_port_to_device[__PO_HI_NB_PORTS];
 extern char*                              __po_hi_devices_naming[__PO_HI_NB_DEVICES];
 extern __po_hi_uint32_t*                  __po_hi_devices_configuration_values[__PO_HI_NB_DEVICES];
@@ -117,6 +116,9 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
       if (__po_hi_transport_get_node_from_entity (__po_hi_get_entity_from_global_port (port)) ==
           __po_hi_transport_get_node_from_entity (__po_hi_get_entity_from_global_port (destination_port)))
       {
+#if __PO_HI_NB_DEVICES > 0
+        /* If the application defines devices for communication, and
+           the port uses one, forces remote delivery */
         if (__po_hi_port_to_device[port] != -1) {
             __PO_HI_DEBUG_DEBUG (" [deliver remotely]\n");
             __po_hi_transport_call_sending_func_by_port (id, port);
@@ -124,6 +126,11 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
             __PO_HI_DEBUG_DEBUG (" [deliver locally]\n");
             __po_hi_main_deliver (request);
         }
+#else
+        __PO_HI_DEBUG_DEBUG (" [deliver locally]\n");
+        __po_hi_main_deliver (request);
+#endif
+
       }
 #ifndef XM3_RTEMS_MODE
       else
