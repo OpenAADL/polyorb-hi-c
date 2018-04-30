@@ -117,8 +117,13 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
       if (__po_hi_transport_get_node_from_entity (__po_hi_get_entity_from_global_port (port)) ==
           __po_hi_transport_get_node_from_entity (__po_hi_get_entity_from_global_port (destination_port)))
       {
+        if (__po_hi_port_to_device[port] != -1) {
+            __PO_HI_DEBUG_DEBUG (" [deliver remotely]\n");
+            __po_hi_transport_call_sending_func_by_port (id, port);
+        } else {
             __PO_HI_DEBUG_DEBUG (" [deliver locally]\n");
             __po_hi_main_deliver (request);
+        }
       }
 #ifndef XM3_RTEMS_MODE
       else
@@ -465,10 +470,10 @@ __po_hi_protocol_conf_t*    __po_hi_transport_get_protocol_configuration (const 
 #if __PO_HI_NB_PROTOCOLS > 0
    if (p == invalid_protocol)
    {
-	return NULL;
+        return NULL;
    }
    else
-	return &(__po_hi_protocols_configuration[p]);
+        return &(__po_hi_protocols_configuration[p]);
 #else
    __DEBUGMSG ("[TRANSPORT] protocol %d, nb protocols is less than or equal to zero\n", p);
    return NULL;
