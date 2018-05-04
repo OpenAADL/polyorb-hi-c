@@ -533,55 +533,37 @@ size_t grspw_receiving(int device,void *message){
   rtems_semaphore_obtain(dma_sync_rx, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
   rtems_semaphore_obtain(dma_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
   size_t message_size_received = 0;
-  int actual_device;
-  
+
   struct grspw_pkt *pkt;
   /* Get a RX packet buffer from the HEAD */
 
-  /* For the time being, we ignore device and scan all devices, this disable routing for the moment */
-  
-  for (actual_device = 0; actual_device < nospw; actual_device++) {
-    pkt = devs[actual_device].rx_buf_list.head;
-    if (pkt != NULL) {
-      /* The new head is the following pkt, pkt->next */
-      devs[actual_device].rx_buf_list.head = pkt->next;
-      devs[actual_device].rx_buf_list_cnt--;
-      if (pkt->next == NULL){
-	/* It was the last RX packet */
-	devs[actual_device].rx_buf_list.tail = NULL;
-      }
-      
-      /* Assuming 1 byte = 1 char */
-      int offset = HEADER_SIZE - 1;
-      while ( ( ((char *) pkt->data)[offset] != SPW_PROT_ID) && (offset >= 0))
-	offset--;
-      
-      offset += 3;
-      
-      /*
-	computation of the offset to determine where is value '155'
-	we need to add two bytes after the 155 for the offset
-	
-      */
-      
-      /* The header is included in the dlen on HEADER_SIZE bytes */
-      message_size_received = pkt->dlen - offset;
-      
-      if (message_size_received <= PKT_SIZE - HEADER_SIZE){
-	memcpy (message,pkt->data + offset, message_size_received);
-      }
-      else{
-	printf("Message too long not received ");
-      }
-      /* Reschedule packet by adding it to the rx_list */
-      grspw_list_append(&devs[actual_device].rx_list, pkt);
-      devs[actual_device].rx_list_cnt++;
-
-      rtems_semaphore_release(dma_sem);
-      return message_size_received;
+  pkt = devs[device].rx_buf_list.head;
+  if (pkt != NULL) {
+    /* The new head is the following pkt, pkt->next */
+    devs[device].rx_buf_list.head = pkt->next;
+    devs[device].rx_buf_list_cnt--;
+    if (pkt->next == NULL){
+      /* It was the last RX packet */
+      devs[device].rx_buf_list.tail = NULL;
     }
+    /* Assuming 1 byte = 1 char */
+    /* The header is included in the dlen on HEADER_SIZE bytes */
+    message_size_received = pkt->dlen - HEADER_SIZE;
+    if (message_size_received <= PKT_SIZE - HEADER_SIZE){
+      memcpy (message,pkt->data + HEADER_SIZE, message_size_received);
+    }
+    else{
+      printf("Message too long not received ");
+    }
+    /* Reschedule packet by adding it to the rx_list */
+    grspw_list_append(&devs[device].rx_list, pkt);
+    devs[device].rx_list_cnt++;
   }
-
+  else{
+    /* rx_buf_list is empty */
+    printf(" No free received buffers available, size 0\n");
+    //continue;
+  }
   rtems_semaphore_release(dma_sem);
   return message_size_received;
 }
