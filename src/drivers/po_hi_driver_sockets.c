@@ -405,17 +405,14 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
       for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
       {
-         __DEBUGMSG ("[DRIVER SOCKETS] Try to watch if it comes from device %d (socket=%d)\n",
-		     dev, __po_hi_c_sockets_read_sockets[dev]);
-         if ( (__po_hi_c_sockets_read_sockets[dev] != -1 ) &&
-	      FD_ISSET(__po_hi_c_sockets_read_sockets[dev], &selector))
+         __DEBUGMSG ("[DRIVER SOCKETS] Try to watch if it comes from device %d (socket=%d)\n", dev, __po_hi_c_sockets_read_sockets[dev]);
+         if ( (__po_hi_c_sockets_read_sockets[dev] != -1 ) && FD_ISSET(__po_hi_c_sockets_read_sockets[dev], &selector))
          {
             __DEBUGMSG ("[DRIVER SOCKETS] Receive message from dev %d\n", dev);
 #ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
             {
 
-               protocol_conf = __po_hi_transport_get_protocol_configuration
-		 (virtual_bus_myprotocol_i);
+               protocol_conf = __po_hi_transport_get_protocol_configuration (virtual_bus_myprotocol_i);
 
                int datareceived;
                len = recv (__po_hi_c_sockets_read_sockets[dev], &datareceived, sizeof (int), MSG_WAITALL);
@@ -435,19 +432,16 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
             memset (__po_hi_c_sockets_poller_msg.content, '\0', __PO_HI_MESSAGES_MAX_SIZE);
 
 #ifdef _WIN32
-            len = recv (__po_hi_c_sockets_read_sockets[dev],
-			__po_hi_c_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, 0);
+            len = recv (__po_hi_c_sockets_read_sockets[dev], __po_hi_c_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, 0);
 #else
 
             /* In the following, we first retrieve the size of the
                payload, then the payload itself */
 
             int datareceived;
-            len = recv (__po_hi_c_sockets_read_sockets[dev], &datareceived, sizeof (int),
-			MSG_WAITALL);
+            len = recv (__po_hi_c_sockets_read_sockets[dev], &datareceived, sizeof (int), MSG_WAITALL);
             datareceived  = __po_hi_swap_byte (datareceived);
-            len = recv (__po_hi_c_sockets_read_sockets[dev],
-			__po_hi_c_sockets_poller_msg.content, datareceived, MSG_WAITALL);
+            len = recv (__po_hi_c_sockets_read_sockets[dev], __po_hi_c_sockets_poller_msg.content, datareceived, MSG_WAITALL);
 #endif
 
             __po_hi_c_sockets_poller_msg.length = len;
