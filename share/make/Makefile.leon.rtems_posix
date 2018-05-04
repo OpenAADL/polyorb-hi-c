@@ -29,7 +29,7 @@ TARGET_TRANSPORT_SOURCES     =
 
 TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS $(GCC_GENERIC_FLAGS) $(CPU_FLAGS) $(AM_FLAGS) $(GCCSPECS)
 
-TARGET_INCLUDE               = 
+TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
 TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
 
