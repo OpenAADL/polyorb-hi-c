@@ -21,7 +21,11 @@
 /* Configure Network if enabled */
 #ifdef ENABLE_NETWORK
 #include <bsp/network_interface_add.h>
-#include "networkconfig.h"
+//#include "networkconfig.h"
+
+//  Gaisler uses this file, user provided. for the moment, config done
+//  in driver to be discussed
+
 #else
 #undef ENABLE_NETWORK_SMC_LEON2
 #undef ENABLE_NETWORK_SMC_LEON3
@@ -123,6 +127,7 @@ void system_init(void)
         printf("\n");
         rtems_bsdnet_show_if_stats();
         printf("\n\n");
+
 #endif
 
 }
