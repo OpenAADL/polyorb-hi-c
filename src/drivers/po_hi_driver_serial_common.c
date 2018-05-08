@@ -19,8 +19,10 @@
 
 int __po_hi_c_driver_serial_common_get_speed (const __po_hi_device_id id)
 {
+
+#if __PO_HI_NB_DEVICES > 0
    __po_hi_c_serial_conf_t*   serialconf;
-   
+
    serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
 
    switch (serialconf->speed)
@@ -50,6 +52,7 @@ int __po_hi_c_driver_serial_common_get_speed (const __po_hi_device_id id)
          return __PO_HI_DRIVER_SERIAL_COMMON_SPEED_UNKNWON;
          break;
    }
+#endif
 
    return __PO_HI_DRIVER_SERIAL_COMMON_SPEED_DEFAULT;
 }
