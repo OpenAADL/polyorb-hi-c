@@ -1,24 +1,18 @@
---  This is a scenario file describing the AADL
---  application sunseeker
+package Scenario
+public
+  with Ocarina_Config;
+  with Ocarina_Library;
 
---  $Id: scenario_local.aadl 394 2007-05-31 18:59:00Z zalila $
-
-system sunseeker
-properties
-  Ocarina_Config::Timeout_Property     => 1000ms;
-  Ocarina_Config::Referencial_Files    =>
+  system sunseeker extends Ocarina_Library::Default_PolyORB_HI_C_Config
+  properties
+    Ocarina_Config::Referencial_Files    =>
     ("sunseeker", "sunseeker.ref");
-  Ocarina_Config::AADL_Files           =>
-    ("sunseeker.aadl", "sunseeker_dist.aadl",
-    "devices.aadl", "buses", "base_types", "exarm-ni-6071e-analog.aadl", "grspw.aadl", "rasta-serial.aadl", "sockets-rtems-ne2000.aadl", "exarm-ni-6071e-digital.aadl", "gruart.aadl", "rasta-spacewire.aadl", "tcp_protocol.aadl", "generic-keyboard.aadl", "leon-eth.aadl", "scoc3-spacewire.aadl", "udp-exarm.aadl", "generic_bus.aadl", "leon-serial.aadl", "sd-spw-usb.aadl", "generic_native.aadl", "native_uart.aadl", "serial-raw.aadl", "gr_cpci_x4cv.aadl", "rasta-1553.aadl", "sockets-raw.aadl", "grspw_packet.aadl");
-  Ocarina_Config::Root_System_Name => "Sunseekercontrolsystem_Type.RTEMS";
-  Ocarina_Config::Generator            => polyorb_hi_c;
-  Ocarina_Config::Needed_Property_Sets =>
-    (value (Ocarina_Config::Data_Model),
-     value (Ocarina_Config::Deployment),
-     value (Ocarina_Config::Cheddar_Properties));
-  Ocarina_Config::AADL_Version         => AADLv2;
-end sunseeker;
+    Ocarina_Config::AADL_Files           +=>
+    ("sunseeker.aadl", "sunseeker_dist.aadl");
+    Ocarina_Config::Root_System_Name => "Sunseekercontrolsystem_Type.RTEMS";
+  end sunseeker;
 
-system implementation sunseeker.Impl
-end  sunseeker.Impl;
+  system implementation sunseeker.Impl
+  end  sunseeker.Impl;
+
+end scenario;

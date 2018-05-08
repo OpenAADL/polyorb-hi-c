@@ -11,7 +11,7 @@ all-local:
 	@echo "TO BUILD THE EXAMPLE, YOU SHOULD ISSUE '$(MAKE) build-all'"
 
 build-all:
-	if test ! "$(SCENARIO_FILES)" = "";  then \
+	@if test ! "$(SCENARIO_FILES)" = "";  then \
 	   $(MAKE) scenarios; \
 	elif test ! "$(SCENARIO_FILE)" = ""; then \
 	   $(MAKE) scenario; \
@@ -20,13 +20,13 @@ build-all:
 	fi
 
 check-all:
-	if test ! "$(SCENARIO_FILES)" = "";  then \
-           $(MAKE) scenarios-check; \
-        elif test ! "$(SCENARIO_FILE)" = ""; then \
-           $(MAKE) scenario-check; \
-        else \
-           echo "No scenario files, nothing to be done"; \
-        fi
+	@if test ! "$(SCENARIO_FILES)" = "";  then \
+	   $(MAKE) scenarios-check; \
+	elif test ! "$(SCENARIO_FILE)" = ""; then \
+	   $(MAKE) scenario-check; \
+	else \
+	   echo "No scenario files, nothing to be done"; \
+	fi
 
 
 ############################################################################
@@ -34,14 +34,14 @@ check-all:
 #
 
 scenarios:
-	@echo "********* SCENARIO_FILES = $(SCENARIO_FILES) *********";
-	for sc in $(SCENARIO_FILES); do \
+	@echo " * Processing scenario from $(shell pwd)";
+	@for sc in $(SCENARIO_FILES); do \
 	  $(MAKE) SCENARIO_FILE=$${sc} SCENARIO_FILES="" build-all || exit 1; \
 	done;
 
 scenario:
-	@echo "*********  SCENARIO_FILE = $(SCENARIO_FILE)  *********";
-	ocarina$(EXEEXT) -b -x '${shell $(CYGPATH_W) $(SCENARIO_FILE)}';
+	@echo "  * $(SCENARIO_FILE) $(shell pwd)";
+	ocarina$(EXEEXT) -aadlv2 -b -x '${shell $(CYGPATH_W) $(SCENARIO_FILE)}';
 
 ############################################################################
 # Code generation and execution from AADL
@@ -49,9 +49,9 @@ scenario:
 
 scenarios-check:
 	@echo "********* SCENARIO_FILES = $(SCENARIO_FILES) *********";
-	for sc in $(SCENARIO_FILES); do \
-          $(MAKE) SCENARIO_FILE=$${sc} SCENARIO_FILES="" check-all || exit 1; \
-        done;
+	@for sc in $(SCENARIO_FILES); do \
+	  $(MAKE) SCENARIO_FILE=$${sc} SCENARIO_FILES="" check-all || exit 1; \
+	done;
 
 scenario-check:
 	@echo "*********  SCENARIO_FILE = $(SCENARIO_FILE)  *********";
