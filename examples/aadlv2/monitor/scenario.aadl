@@ -1,18 +1,20 @@
-package Scenario
-public
-  with Ocarina_Config;
-  with Ocarina_Library;
-
-  system monitor extends Ocarina_Library::Default_PolyORB_HI_C_Config
-  properties
-    Ocarina_Config::Referencial_Files    =>
+system ping
+properties
+  Ocarina_Config::Timeout_Property     => 4000ms;
+  Ocarina_Config::Referencial_Files    =>
     ("node_a", "node_a.ref",
     "node_b", "node_b.ref");
-    Ocarina_Config::AADL_Files           +=>
-    ("ping.aadl" , "software.aadl");
-  end monitor;
+  Ocarina_Config::AADL_Files           =>
+    ("ping.aadl" , "software.aadl",
+"devices.aadl", "buses", "base_types", "exarm-ni-6071e-analog.aadl", "grspw.aadl", "rasta-serial.aadl", "sockets-rtems-ne2000.aadl", "exarm-ni-6071e-digital.aadl", "gruart.aadl", "rasta-spacewire.aadl", "tcp_protocol.aadl", "generic-keyboard.aadl", "leon-eth.aadl", "scoc3-spacewire.aadl", "udp-exarm.aadl", "generic_bus.aadl", "leon-serial.aadl", "sd-spw-usb.aadl", "generic_native.aadl", "native_uart.aadl", "serial-raw.aadl", "gr_cpci_x4cv.aadl", "rasta-1553.aadl", "sockets-raw.aadl", "grspw_packet.aadl");
+  Ocarina_Config::Generator            => polyorb_hi_c;
+  Ocarina_Config::Needed_Property_Sets =>
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::ARINC653_Properties),
+     value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::Cheddar_Properties));
+  Ocarina_Config::AADL_Version         => AADLv2;
+end ping;
 
-  system implementation monitor.impl
-  end  monitor.impl;
-
-end scenario;
+system implementation ping.impl
+end  ping.impl;

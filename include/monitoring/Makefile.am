@@ -1,10 +1,7 @@
 AUTOMAKE_OPTIONS = no-dependencies
 SUBDIRS=
 
-EXTRA_DIST = $(srcdir)/hash.hh $(srcdir)/meta.hh $(srcdir)/state.hh	\
-	$(srcdir)/trace.hh $(srcdir)/local_configuration.hh		\
-	$(srcdir)/remote_configuration.hh $(srcdir)/state_types.hh	\
-	$(srcdir)/trace_manager.hh
+EXTRA_DIST =$(srcdir)/trace_manager.h
 
 CLEANFILES = *~
 

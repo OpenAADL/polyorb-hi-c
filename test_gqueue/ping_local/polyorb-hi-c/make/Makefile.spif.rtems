@@ -1,0 +1,29 @@
+## This file is a part of PolyORB-HI-C software.
+## It sets some variables useful to compile generated
+## code to the SPIF platform with the RTEMS operating system.
+
+## To use and compile RTEMS, visit http://www.rtems.com
+## To get more informations about the SPIF projet, see http://www.enst.fr/~spif/
+
+## FIXME : fix the right variables
+
+CC                           = powerpc-rtems-gcc
+CPP                          = powerpc-rtems-g++
+TARGET_TRANSPORT_SOURCES     = $(POLYORB_HI_PATH)/share/config/spif-rtems/config.c
+TARGET_CFLAGS                = --pipe -B$(RTEMS_MAKEFILE_PATH)/lib \
+															 -specs bsp_specs -qrtems -g -Wall  \
+															 -O4 -mmultiple -mstring -mstrict-align \
+															 -g    -mcpu=860 -Dmpc860 -DRTEMS_POSIX $(GCC_GENERIC_FLAGS)
+LD                           =
+TARGET_INCLUDE               = -I $(RTEMS_MAKEFILE_PATH)/lib/include/ \
+															 -I $(POLYORB_HI_PATH)/share/config/spif-rtems/
+TARGET_LDFLAGS               =  $(RTEMS_MAKEFILE_PATH)/lib/no-dpmem.rel \
+																$(RTEMS_MAKEFILE_PATH)/lib/no-event.rel \
+																$(RTEMS_MAKEFILE_PATH)/lib/no-msg.rel \
+																$(RTEMS_MAKEFILE_PATH)/lib/no-mp.rel \
+																$(RTEMS_MAKEFILE_PATH)/lib/no-part.rel \
+																$(RTEMS_MAKEFILE_PATH)/lib/no-signal.rel \
+																$(RTEMS_MAKEFILE_PATH)/lib/no-timer.rel \
+																$(RTEMS_MAKEFILE_PATH)/lib/no-rtmon.rel
+
+target-clean:

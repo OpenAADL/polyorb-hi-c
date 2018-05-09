@@ -22,7 +22,7 @@
 /* included files from PolyORB-HI-C */
 
 #if defined (MONITORING)
-#include <trace_manager.hh>
+#include <trace_manager.h>
 #endif
 /* Headers from run-time verification */
 

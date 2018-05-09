@@ -61,7 +61,7 @@
 /* Header files in PolyORB-HI */
 
 #if defined (MONITORING)
-#include <trace_manager.hh>
+#include <trace_manager.h>
 #endif
 /* Headers from run-time verification */
 
@@ -249,7 +249,7 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
  * Entry ports monitoring at dispatch if MONITORING is defined
  */
 #if defined (MONITORING)
-  update_periodic_dispatch(task); // XXX ?
+  record_event(PERIODIC, WAIT_FOR, task, invalid_port_t, invalid_port_t, invalid_local_port_t, invalid_local_port_t, NULL);
 #endif
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
@@ -655,13 +655,6 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
                                   const __po_hi_int8_t      core_id,
                                   void*                     (*start_routine)(void))
 {
-  /*
-   * Send Task type to trace manager, if there is monitoring.
-   */
-
-#if defined (MONITORING)
-   periodic_task_creation(id);
-#endif
 
   if (__po_hi_create_generic_task( id, period , priority , stack_size, core_id, start_routine, NULL) != 1)
    {
@@ -701,6 +694,16 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
    }
 #endif
    tasks[id].task_category = TASK_PERIODIC;
+
+  /*
+   * Send Task type to trace manager, if there is monitoring.
+   */
+
+#if defined (MONITORING)
+  //__DEBUGMSG ("Periodic_task_creation\n");
+  record_event(PERIODIC, CREATION, id, invalid_port_t, invalid_port_t, invalid_local_port_t, invalid_local_port_t, NULL);
+#endif
+
    return (__PO_HI_SUCCESS);
 }
 
@@ -720,12 +723,6 @@ int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
                                   const __po_hi_int8_t      core_id,
                                   void*                     (*start_routine)(void) )
 {
-  /*
-   * Send Task type to trace manager, if there is monitoring.
-   */
-#if defined (MONITORING)
-   sporadic_task_creation(id);
-#endif
 
   /*
    * Create generic task which will execute the routine given in the
@@ -753,6 +750,16 @@ int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
    }
 #endif
    tasks[id].task_category = TASK_SPORADIC;
+
+  /*
+   * Send Task type to trace manager, if there is monitoring.
+   */
+
+#if defined (MONITORING)
+//__DEBUGMSG ("Sporadic_task_creation\n");
+  record_event(SPORADIC, CREATION, id, invalid_port_t, invalid_port_t, invalid_local_port_t, invalid_local_port_t, NULL);
+#endif
+
    return (__PO_HI_SUCCESS);
 }
 

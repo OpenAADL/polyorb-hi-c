@@ -1,8 +1,7 @@
 AUTOMAKE_OPTIONS = no-dependencies
 SUBDIRS= cheddar_scheduling
 
-CPP_FILES = $(srcdir)/trace_manager.cc		\
-	$(srcdir)/remote_configuration.cc
+CPP_FILES = $(srcdir)/trace_manager.c	
 
 PYTHON_FILES = $(srcdir)/make_cheddar.py	\
 	$(srcdir)/parse_cheddar_xml.py
