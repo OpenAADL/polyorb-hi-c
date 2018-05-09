@@ -53,6 +53,8 @@ __po_hi_inetnode_t nodes[__PO_HI_NB_DEVICES];
 __po_hi_inetnode_t rnodes[__PO_HI_NB_DEVICES];
 
 __po_hi_device_id leon_eth_device_id;
+
+
 extern void rtems_stack_checker_report_usage(void);
 
 #if defined (__PO_HI_NEED_DRIVER_ETH_LEON) || \
@@ -171,6 +173,7 @@ struct rtems_bsdnet_config rtems_bsdnet_config = {
 /******************************************************************************/
 __po_hi_request_t          __po_hi_c_driver_eth_leon_poller_received_request;
 __po_hi_msg_t              __po_hi_c_driver_eth_leon_poller_msg;
+__po_hi_mutex_t            __po_hi_c_leon_eth_send_mutex;
 
 void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
 {
@@ -408,7 +411,9 @@ void __po_hi_c_driver_eth_leon_init (__po_hi_device_id id)
 #endif
 
    leon_eth_device_id = id;
+   __po_hi_mutex_init (&__po_hi_c_leon_eth_send_mutex,__PO_HI_MUTEX_REGULAR, 0);
    __po_hi_transport_set_sending_func (leon_eth_device_id, __po_hi_c_driver_eth_leon_sender);
+
 
    for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)
    {
@@ -714,6 +719,7 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
       default:
       {
          request->port = destination_port;
+	 __po_hi_mutex_lock (&__po_hi_c_leon_eth_send_mutex);
 
          __po_hi_msg_reallocate (&__po_hi_c_driver_eth_leon_sender_msg);
          __po_hi_marshall_request
@@ -741,12 +747,14 @@ int  __po_hi_c_driver_eth_leon_sender (__po_hi_task_id task, __po_hi_port_t port
 
          if (len != size_to_write)
          {
+            __po_hi_mutex_unlock (&__po_hi_c_leon_eth_send_mutex);
             __DEBUGMSG (" [error write() length in file %s, line%d ]\n",
                         __FILE__, __LINE__);
             close (nodes[associated_device].socket);
             nodes[associated_device].socket = -1;
             return __PO_HI_ERROR_TRANSPORT_SEND;
          }
+	 __po_hi_mutex_unlock (&__po_hi_c_leon_eth_send_mutex);
          request->port = __PO_HI_GQUEUE_INVALID_PORT;
          break;
       }

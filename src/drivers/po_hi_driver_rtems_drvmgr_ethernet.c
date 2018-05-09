@@ -164,6 +164,7 @@ struct ethernet_config interface_configs[] =
 /******************************************************************************/
 __po_hi_request_t          __po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request;
 __po_hi_msg_t              __po_hi_c_driver_rtems_drvmgr_ethernet_poller_msg;
+__po_hi_mutex_t            __po_hi_c_rtems_ethernet_send_mutex;
 
 void __po_hi_c_driver_rtems_drvmgr_ethernet_poller (const __po_hi_device_id dev_id)
 {
@@ -434,7 +435,8 @@ int  __po_hi_c_driver_rtems_drvmgr_ethernet_sender (__po_hi_task_id task, __po_h
    default:
      {
        request->port = destination_port;
-       
+       __po_hi_mutex_lock 
+         (&__po_hi_c_rtems_ethernet_send_mutex);
        __po_hi_msg_reallocate
 	 (&__po_hi_c_driver_rtems_drvmgr_ethernet_sender_msg);
 
@@ -469,6 +471,7 @@ int  __po_hi_c_driver_rtems_drvmgr_ethernet_sender (__po_hi_task_id task, __po_h
 	 nodes[associated_device].socket = -1;
 	 return __PO_HI_ERROR_TRANSPORT_SEND;
        }
+       __po_hi_mutex_unlock (&__po_hi_c_rtems_ethernet_send_mutex);
        request->port = __PO_HI_GQUEUE_INVALID_PORT;
        break;
      }
@@ -528,6 +531,7 @@ void __po_hi_c_driver_rtems_drvmgr_ethernet_init (__po_hi_device_id id)
 #endif
 
    leon_eth_device_id = id;
+   __po_hi_mutex_init (&__po_hi_c_rtems_ethernet_send_mutex,__PO_HI_MUTEX_REGULAR, 0);
    __po_hi_transport_set_sending_func (leon_eth_device_id, __po_hi_c_driver_rtems_drvmgr_ethernet_sender);
 
    for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)

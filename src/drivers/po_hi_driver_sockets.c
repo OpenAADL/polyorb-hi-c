@@ -238,7 +238,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
             /* Note: in the following, we send first the size of the
                message, then the subset of the message buffer we
                actually used. */
-
+//$
             int msg_size_network = __po_hi_swap_byte (size_to_write);
 
 #ifdef _WIN32
@@ -441,7 +441,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
             /* In the following, we first retrieve the size of the
                payload, then the payload itself */
-
+//$
             int datareceived;
             len = recv (__po_hi_c_sockets_read_sockets[dev], &datareceived, sizeof (int),
 			MSG_WAITALL);

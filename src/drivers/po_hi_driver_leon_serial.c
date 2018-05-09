@@ -45,6 +45,7 @@ int po_hi_c_driver_leon_serial_fd_write;
 
  __po_hi_request_t  po_hi_c_driver_leon_serial_request;
  __po_hi_msg_t      po_hi_c_driver_leon_serial_poller_msg;
+ __po_hi_mutex_t    __po_hi_c_leon_serial_send_mutex;
 
 void __po_hi_c_driver_serial_leon_poller (const __po_hi_device_id dev_id)
 {
@@ -109,6 +110,7 @@ void __po_hi_c_driver_serial_leon_init_sender (__po_hi_device_id id)
       return;
    }
 
+   __po_hi_mutex_init (&__po_hi_c_leon_serial_send_mutex,__PO_HI_MUTEX_REGULAR, 0);
    __po_hi_transport_set_sending_func (id, __po_hi_c_driver_serial_leon_sender);
 
    if (__po_hi_c_driver_serial_common_get_speed (id) != __PO_HI_DRIVER_SERIAL_COMMON_SPEED_38400)
@@ -260,6 +262,8 @@ int  __po_hi_c_driver_serial_leon_sender (__po_hi_task_id task_id, __po_hi_port_
 
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
 
+   __po_hi_mutex_lock (&__po_hi_c_leon_serial_send_mutex);
+
    __po_hi_msg_reallocate (&__po_hi_c_driver_serial_leon_sender_msg);
 
    request->port = destination_port;
@@ -277,7 +281,8 @@ int  __po_hi_c_driver_serial_leon_sender (__po_hi_task_id task_id, __po_hi_port_
    }
    __PO_HI_DEBUG_INFO ("\n");
 #endif
-
+   __po_hi_mutex_unlock (&__po_hi_c_leon_serial_send_mutex);
+   request->port = __PO_HI_GQUEUE_INVALID_PORT;
    return 1;
 }
 #endif
