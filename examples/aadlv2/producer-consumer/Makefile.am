@@ -6,7 +6,8 @@ SCENARIO_FILES = $(srcdir)/scenario.aadl				\
 	$(srcdir)/scenario_local.aadl					\
 	$(srcdir)/scenario_loopback.aadl				\
 	$(srcdir)/scenario_rtems.aadl $(srcdir)/scenario_spw.aadl	\
-	$(srcdir)/scenario_spw2.aadl
+	$(srcdir)/scenario_spw2.aadl					\
+	$(srcdir)/scenario_loopback_rtems.aadl
 
 include $(srcdir)/../../Makefile.common
 

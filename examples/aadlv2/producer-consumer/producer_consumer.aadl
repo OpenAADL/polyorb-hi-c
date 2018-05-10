@@ -215,6 +215,30 @@ public
     Deployment::Execution_Platform => LEON_RTEMS_POSIX applies to CPU_A;
   end PC_Simple.Loopback_Spw;
 
+  system implementation PC_Simple.Loopback_RTEMS_Ethernet
+    --  Loopback variant using SpaceWire
+    --
+    --  Note; does not work properly, as we cannot perform loopback
+    --  with rasta_spacewire.pohic driver. Used only to test proper
+    --  sending.
+  subcomponents
+    pr_A : process A.Impl;
+    Device_A : device ocarina_drivers::leon_ethernet.greth
+    {Source_Text => ("devicesconf.c");};
+    CPU_A : processor the_processor.i;
+    the_bus : bus ocarina_buses::ip.i;
+  connections
+    bus access the_bus -> Device_A.link;
+
+    port pr_A.Alpha -> pr_A.Beta
+    {Actual_Connection_Binding => (reference (the_bus));};
+  properties
+    actual_processor_binding => (reference (CPU_A)) applies to pr_A;
+    actual_processor_binding => (reference (CPU_A)) applies to Device_A;
+
+    Deployment::Execution_Platform => LEON_RTEMS_POSIX applies to CPU_A;
+  end PC_Simple.Loopback_RTEMS_Ethernet;
+
   system implementation PC_Simple.local
   subcomponents
     prodr_cons : process singleProcess.Impl;
