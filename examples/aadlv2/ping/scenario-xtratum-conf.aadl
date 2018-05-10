@@ -1,17 +1,16 @@
-system ping
-properties
-  Ocarina_Config::Use_Components_Library => true;
-  Ocarina_Config::AADL_Files           => 
-    ("ping-xtratum.aadl" , "software.aadl");
-  Ocarina_Config::Generator            => xtratum_configuration;
-  Ocarina_Config::Needed_Property_Sets => 
-    (value (Ocarina_Config::Data_Model),
-     value (Ocarina_Config::Deployment),
-     value (Ocarina_Config::ARINC653_Properties),
-     value (Ocarina_Config::Cheddar_Properties));
-  Ocarina_Config::AADL_Version         => AADLv2;
-end ping;
+package scenario
+public
+  with Ocarina_Config;
 
-system implementation ping.impl
-end  ping.impl;
+  system ping extends Ocarina_Library::Default_PolyORB_HI_C_Config
+  properties
+    Ocarina_Config::AADL_Files           +=>
+    ("ping-xtratum.aadl" , "software.aadl", "leon.aadl");
 
+    Ocarina_Config::Generator            => xtratum_configuration;
+  end ping;
+
+  system implementation ping.impl
+  end  ping.impl;
+
+end scenario;
