@@ -99,10 +99,12 @@ void *POSIX_Init (void);
 
 #define CONFIGURE_DRIVER_AMBAPP_GAISLER_SPW_ROUTER /* SpaceWire Router  */
 #define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRSPW2     /* SpaceWire Packet driver */
+
+#ifdef __PO_HI_NEED_DRIVER_GRETH
 #define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRETH      /* GRETH Driver enabled*/
 #define CONFIGURE_DRIVER_PCI_GR_LEON4_N2X          /* GR-CPCI-LEON4-N2X has two GRETH network MACs */
-
 #define ENABLE_NETWORK
+#endif
 
 #endif  /*GRLEON3 && RTEMS412*/
 
