@@ -275,11 +275,15 @@ $(BINARY):
 	fi
 endif
 
+### The following is to be revisited
 ifeq ($(TARGET), leon3-xm3)
-$(BINARY):
 OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
-$(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
-	$(make-exe)
+$(BINARY):
+	if [ x"$(shell which sparc-rtems-gcc)" = x ]; then \
+		echo "XtratuM not installed, exiting" ; \
+	else \
+		$(MAKE) generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS); \
+	fi
 endif
 
 
