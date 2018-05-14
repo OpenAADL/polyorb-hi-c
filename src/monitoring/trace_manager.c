@@ -25,11 +25,10 @@ __po_hi_mutex_t      __po_hi_c_trace_mutex;
 characteristics task_log[MAX_STRUCT];
 /** Integer allowing to move in the task_log array */
 int nb_struct = 0;
-/** Initializing the mutes in the main.c */
+/** Initializing the mutex in the main.c */
 void trace_initialize(){
 	__po_hi_mutex_init (&__po_hi_c_trace_mutex,__PO_HI_MUTEX_REGULAR, 0);	
 }
-
 
 
 /** Recording all events, trace_managing */

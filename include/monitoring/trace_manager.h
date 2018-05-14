@@ -11,6 +11,7 @@ typedef enum {
 
 /** Step in which the traced-task is */
 typedef enum {
+	/* The task has just been creatd */
 	CREATION = 0,
 	STORE_OUT = 1,
 	TRANSPORT_SEND = 2,
@@ -27,7 +28,6 @@ struct characteristics{
 	__po_hi_task_id task_id;
 	__po_hi_port_t global_port_src;
 	__po_hi_port_t global_port_dest;
-	//dans le port source pour les updates et create fait cette semaine
 	__po_hi_local_port_t loc_port_src;
 	__po_hi_local_port_t loc_port_dest;
 	__po_hi_time_t mytime;
