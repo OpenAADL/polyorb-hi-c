@@ -37,7 +37,7 @@
 #include <windows.h>
 #endif
 
-typedef enum
+ typedef enum
 {
    __PO_HI_PROTECTED_REGULAR     = 1,
    __PO_HI_MUTEX_REGULAR         = 1,

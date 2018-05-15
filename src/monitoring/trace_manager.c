@@ -1,12 +1,14 @@
 #include <trace_manager.h>
 
-#include <assert.h>
+//#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <request.h>
-#include <pthread.h>
+//#include <pthread.h>
 #include <deployment.h>
 #include <string.h>
+#include <iostream>
+#include <fstream>
 
 #include <po_hi_debug.h>
 #include <po_hi_task.h>
@@ -77,7 +79,9 @@ int record_event(int event, int stat, __po_hi_task_id t_id, __po_hi_port_t p_src
 	/** IF the log array is complete */
 	if (nb_struct >= 10){
 		/* A stream is opened */
-		history = fopen("history.txt", "w" );
+		//history = fopen("history.txt", "w" );
+		ofstream history("test.txt", ios::out | ios::app);
+		fprintf(history, "\n");
 		/* The copying is done */
 		for (int i = 0; i < 10; i++){
 			fprintf(history,"event = %d; age_status = %d; task_id = %d; port_src_id = %d; port_dest_id = %d; local_port_src_id = %d; dest_src_id = %d; time : sec = %d, nsec = %d", task_log[i].event, 				task_log[i].status, task_log[i].task_id, task_log[i].global_port_src, task_log[i].global_port_dest, task_log[i].loc_port_src, task_log[i].loc_port_dest, (task_log[i].mytime).sec,  (task_log[i].mytime).nsec);
