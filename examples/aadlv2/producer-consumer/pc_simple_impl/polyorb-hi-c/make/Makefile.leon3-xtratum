@@ -1,0 +1,81 @@
+#Makefile to compile Xtratum kernel and partitions
+RTEMS_COMMON_FLAGS = -mcpu=v8 -B$(RTEMS_PATH)/sparc-rtems/leon3xm3/lib -specs bsp_specs
+RTEMS_PATH=$(RTEMS_MAKEFILE_PATH)/../../
+
+EXTRA_CFLAGS += -DXM3_RTEMS_MODE
+CFLAGS += $(CFLAGS_ARCH) $(RTEMS_COMMON_FLAGS) $(RTEMS_TESTS_FLAGS) -O2 $(EXTRA_CFLAGS) $(GCC_GENERIC_FLAGS)
+ASFLAGS += $(ASFLAGS_ARCH) $(RTEMS_COMMON_FLAGS) -O2
+LDFLAGS += $(LDFLAGS_ARCH) $(RTEMS_COMMON_FLAGS) -msoft-float -qrtems -L$(XTRATUM_PATH)/lib
+
+SRCS := $(sort $(wildcard *.c))
+ASRCS := $(sort $(wildcard *.S))
+OBJS := $(patsubst %.c,%.o, $(SRCS)) $(patsubst %.S,%.o, $(ASRCS))
+
+PACK_ARGS=-h $(XMCORE):xm_cf.xef.xmc $(GENERATED_PACK_ARGS)
+
+container.bin: $(PARTITIONS) xm_cf.xef.xmc
+	$(XMPACK) build $(PACK_ARGS) $@
+
+$(if $(XTRATUM_PATH),, \
+	$(warning "The configuration variable XTRATUM_PATH is not set,") \
+	$(error "check the \"common/config.mk.dist\" file (see README)."))
+
+$(if $(RTEMS_PATH),, \
+	$(warning "The configuration variable RTEMS_PATH is not set,") \
+	$(error "check the \"common/config.mk.dist\" file (see README)."))
+include $(XTRATUM_PATH)/xmconfig
+
+XPATH=$(RUNTIME_PATH)/utils/xpath
+
+xpathstart = $(shell $(XPATH) -c -f $(2) '/xm:SystemDescription/xm:PartitionTable/xm:Partition['$(1)']/xm:PhysicalMemoryAreas/xm:Area[1]/@start')
+stringsize= $(shell $(XPATH) -c -f $(2) '/xm:SystemDescription/xm:PartitionTable/xm:Partition['$(1)']/xm:PhysicalMemoryAreas/xm:Area[1]/@size')
+xpathsize = $(shell expr substr "$(stringsize)" 1 $(shell echo "$(shell expr match "$(stringsize)" [0-9]*)"+1|bc))
+
+XEF=$(XTRATUM_PATH)/bin/xmeformat
+XMPACK=$(XTRATUM_PATH)/bin/xmpack
+XMCPARSER=$(XTRATUM_PATH)/bin/xmcparser
+RSWBUILD=$(XTRATUM_PATH)/bin/rswbuild
+
+LIBXM_PATH=$(XTRATUM_PATH)/lib
+LIBXEF_PATH=$(XTRATUM_PATH)/lib
+
+TARGET_CCPATH=
+TARGET_CCPREFIX=sparc-rtems-
+
+#LIBRARIES
+LIB_XM=-lxm -lxef
+
+CFLAGS+= -I$(XTRATUM_PATH)/include --include xm_inc/config.h --include xm_inc/arch/arch_types.h -DXM_SRC
+
+XMCORE=$(XTRATUM_PATH)/lib/xm_core.xef
+
+%.xef:  %
+	$(XEF) build $< -o $@
+
+%.xef:  %.exe
+	$(XEF) build $< -o $@
+
+%.xef.xmc: %.bin.xmc
+	$(XEF) build -m $< -o $@
+
+xm_cf.bin.xmc: $(MAINAPP)_xtratum-conf.xml
+	$(XMCPARSER) -o $@ $^
+
+xm_cf.c.xmc: $(MAINAPP)_xtratum-conf.xml
+	$(XMCPARSER) -c -o $@ $^
+
+resident_sw: container.bin
+	$(RSWBUILD) $^ $@
+
+clean:
+	@$(RM) $(PARTITIONS) $(patsubst %.bin,%, $(PARTITIONS)) $(patsubst %.xef,%, $(PARTITIONS))
+	@$(RM) $(PARTITIONS) $(patsubst %.exe,%, $(PARTITIONS)) $(patsubst %.xef,%, $(PARTITIONS))
+	@$(RM) partition*.bin partition*.xef
+	@$(RM) container.bin resident_sw xm_cf xm_cf.bin xm_cf.*.c xm_cf.*.xmc
+	@find -name "*.o" -exec rm '{}' \;
+	@find -name "*~" -exec rm '{}' \;
+	@find -name "dep.mk" -exec rm '{}' \;
+	@find -name "*.*.xmc" -exec rm '{}' \;
+
+build-partitions:
+	for v in $(PARTITIONS_NAME); do ( cd $$v  && make ) ; done

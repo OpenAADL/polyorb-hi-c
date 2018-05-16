@@ -1,0 +1,42 @@
+POHICDRIVER-IP DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+
+-- If you are using sockets on Linux, you may use:
+-- { devname "eth0", address "127.0.0.1", port 5115 }
+-- Use a different port number on each node
+
+-- If you are using sockets on Leon (with POHIC/RTEMS):
+-- {devname "open_eth1", address "10.176.19.200",
+--  gateway "10.176.19.250", netmask "255.255.255.0",
+--  version ipv4, port 5118}
+-- You may use "sudo route -n" to find network details
+
+Port-T ::= INTEGER (0 .. 16535)
+
+Version-T  ::= ENUMERATED {ipv4,ipv6}
+
+IP-Conf-T ::= SEQUENCE {
+   devname        IA5String (SIZE (1..20)),
+   address        IA5String (SIZE (1..40)),
+   broadcast      IA5String (SIZE (1..40)) OPTIONAL,
+   netmask        IA5String (SIZE (1..40)) OPTIONAL,
+   gateway        IA5String (SIZE (1..40)) OPTIONAL,
+   dns            IA5String (SIZE (1..40)) OPTIONAL,
+   version        Version-T DEFAULT ipv4,
+   port           Port-T
+}
+
+localhost1 IP-Conf-T ::= {
+   devname "eth0",
+   address "127.0.0.1",
+   port    5488
+}
+
+localhost2 IP-Conf-T ::= {
+   devname "eth0",
+   address "127.0.0.1",
+   port    5489
+}
+
+
+END
+
