@@ -437,7 +437,7 @@ Copyright (C) 2012 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/home/francis/git-polyorb'
+ac_pwd='/home/francis/polyorb-hi-c'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 MKDIR_P='/bin/mkdir -p'
@@ -735,12 +735,12 @@ S["mkdir_p"]="$(MKDIR_P)"
 S["MKDIR_P"]="/bin/mkdir -p"
 S["INSTALL_STRIP_PROGRAM"]="$(install_sh) -c -s"
 S["STRIP"]=""
-S["install_sh"]="${SHELL} /home/francis/git-polyorb/support/install-sh"
-S["MAKEINFO"]="${SHELL} /home/francis/git-polyorb/support/missing makeinfo"
-S["AUTOHEADER"]="${SHELL} /home/francis/git-polyorb/support/missing autoheader"
-S["AUTOMAKE"]="${SHELL} /home/francis/git-polyorb/support/missing automake-1.15"
-S["AUTOCONF"]="${SHELL} /home/francis/git-polyorb/support/missing autoconf"
-S["ACLOCAL"]="${SHELL} /home/francis/git-polyorb/support/missing aclocal-1.15"
+S["install_sh"]="${SHELL} /home/francis/polyorb-hi-c/support/install-sh"
+S["MAKEINFO"]="${SHELL} /home/francis/polyorb-hi-c/support/missing makeinfo"
+S["AUTOHEADER"]="${SHELL} /home/francis/polyorb-hi-c/support/missing autoheader"
+S["AUTOMAKE"]="${SHELL} /home/francis/polyorb-hi-c/support/missing automake-1.15"
+S["AUTOCONF"]="${SHELL} /home/francis/polyorb-hi-c/support/missing autoconf"
+S["ACLOCAL"]="${SHELL} /home/francis/polyorb-hi-c/support/missing aclocal-1.15"
 S["VERSION"]="2017.x"
 S["PACKAGE"]="polyorb-hi-c"
 S["CYGPATH_W"]="echo"
