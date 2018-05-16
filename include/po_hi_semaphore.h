@@ -62,23 +62,28 @@ typedef struct
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    pthread_mutex_t      posix_mutex;
    pthread_mutexattr_t  posix_mutexattr;
+   pthread_cond_t       posix_condvar;
+   pthread_condattr_t   posix_condattr;
 #endif
 #if defined (__PO_HI_RTEMS_CLASSIC_API)
    rtems_id             rtems_sem;
 #endif
+//a modifier
 #if defined (XENO_NATIVE)
    RT_MUTEX             xeno_mutex;
+   RT_COND              xevo_condvar;
 #endif
 #if defined (_WIN32)
-   HANDLE               win32_mutex;
+   CRITICAL_SECTION    win32_criticalsection;
+   CONDITION_VARIABLE   win32_condvar;
 #endif
 }__po_hi_sem_t;
 
 
 
-int __po_hi_sem_init(void);
-int __po_hi_sem_wait(__po_hi_sem_t* mutex);
-int __po_hi_sem_release(__po_hi_sem_t* mutex);
+int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_sem_protocol_t protocol, const int priority);
+int __po_hi_sem_wait(__po_hi_sem_t* sem);
+int __po_hi_sem_release(__po_hi_sem_t* sem);
 
 
 
