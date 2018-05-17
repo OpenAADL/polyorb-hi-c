@@ -1,15 +1,0 @@
-[ 0.00] ==== Starting gear op ====
-[ 0.78] ==== Sensor_Sim setting soft stall ====
-[ 1.58] ==== Sensor_Sim setting soft stall ====
-[ 2.38] ==== Sensor_Sim setting soft stall ====
-[ 3.00] ==== Gear op done ====
-[ 3.00] ==== Gear Locked ====
-[ 3.18] ==== Sensor_Sim setting soft stall ====
-[ 3.18] ==== False Alert 2 from Mgmt_Stall_Monitor_K ====
-[ 3.98] ==== Sensor_Sim setting soft stall ====
-[ 4.00] ==== Sensor_Sim setting hard stall ====
-[ 4.00] ==== STALL ALARM 1 from Mgmt_Stall_Monitor_K ====
-[ 4.78] ==== Sensor_Sim setting soft stall ====
-[ 4.78] ==== False Alert 2 from Mgmt_Stall_Monitor_K ====
-[ 5.58] ==== Sensor_Sim setting soft stall ====
-

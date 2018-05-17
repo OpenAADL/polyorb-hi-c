@@ -1,33 +1,0 @@
-[ 0.00] Sender: Cycle 1 sending 1
-[ 0.02] Receiver: Cycle 1
-[ 0.04]    received sender cycle: 1
-[ 0.06]    received message     : 0
-[ 0.80] Receiver: Cycle 2
-[ 0.82]    received sender cycle: 1
-[ 0.84]    received message     : 1
-[ 1.00] Sender: Cycle 2 sending 2
-[ 1.02] Receiver: Cycle 3
-[ 1.04]    received sender cycle: 2
-[ 1.06]    received message     : 1
-[ 1.50] Receiver: Cycle 4
-[ 1.50]    received sender cycle: 2
-[ 1.52]    received message     : 2
-[ 2.00] Sender: Cycle 3 sending 3
-[ 2.02] Receiver: Cycle 5
-[ 2.04]    received sender cycle: 3
-[ 2.06]    received message     : 2
-[ 2.50] Receiver: Cycle 6
-[ 2.50]    received sender cycle: 3
-[ 2.52]    received message     : 3
-[ 3.00] Sender: Cycle 4 sending 4
-[ 3.02] Receiver: Cycle 7
-[ 3.04]    received sender cycle: 4
-[ 3.06]    received message     : 3
-[ 3.50] Receiver: Cycle 8
-[ 3.50]    received sender cycle: 4
-[ 3.52]    received message     : 4
-[ 4.00] Sender: Cycle 5 sending 5
-[ 4.02] Receiver: Cycle 9
-[ 4.04]    received sender cycle: 5
-[ 4.06]    received message     : 4
-

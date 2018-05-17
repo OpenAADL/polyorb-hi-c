@@ -1,7 +1,0 @@
-package devices::resistances
-public
-
-device Generic_Resistance
-end Generic_Resistance;
-
-end devices::resistances;

@@ -1,1 +1,0 @@
-define hyperperiod 1752

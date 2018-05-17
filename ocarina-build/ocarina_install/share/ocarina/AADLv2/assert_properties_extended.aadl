@@ -1,5 +1,0 @@
-property set assert_properties_extended is
-
-FV_Name : aadlstring applies to (all);
-
-end assert_properties_extended;

@@ -1,6 +1,0 @@
-This example illustrate threads mode change.
-
- - scenario_CS.aadl: call sequence of thread are changed depending on
-   the mode.
- - scenario_CE.aadl: compute entrypoint of thread is changed depending on
-   the mode.

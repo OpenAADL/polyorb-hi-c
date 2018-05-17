@@ -1,9 +1,0 @@
--- Modeling Direct memory access buses
-package buses::DMA
-public
-
-bus DMA
--- Empty, to define
-end DMA;
-
-end buses::DMA;

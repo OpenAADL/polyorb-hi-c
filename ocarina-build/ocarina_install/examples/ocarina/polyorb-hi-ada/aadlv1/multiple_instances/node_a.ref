@@ -1,74 +1,0 @@
-[ 0.00] [Send] Node_A_Sender_3_K   sends 1
-[ 0.02] [Receive] Node_A_Receiver_3_K receives 1
-[ 0.04] [Send] Node_A_Sender_2_K   sends 1
-[ 0.08] [Receive] Node_A_Receiver_2_K receives 1
-[ 0.10] [Send] Node_A_Sender_1_K   sends 1
-[ 0.12] [Receive] Node_A_Receiver_1_K receives 1
-[ 0.20] [Send] Node_A_Sender_3_K   sends 2
-[ 0.62] [Receive] Node_A_Receiver_3_K receives 2
-[ 0.66] [Send] Node_A_Sender_3_K   sends 3
-[ 0.68] [Receive] Node_A_Receiver_3_K receives 3
-[ 0.70] [Send] Node_A_Sender_3_K   sends 4
-[ 0.74] [Receive] Node_A_Receiver_3_K receives 4
-[ 0.82] [Send] Node_A_Sender_3_K   sends 5
-[ 0.86] [Receive] Node_A_Receiver_3_K receives 5
-[ 0.88] [Send] Node_A_Sender_2_K   sends 2
-[ 0.90] [Receive] Node_A_Receiver_2_K receives 2
-[ 1.00] [Send] Node_A_Sender_2_K   sends 3
-[ 1.02] [Receive] Node_A_Receiver_2_K receives 3
-[ 1.04] [Send] Node_A_Sender_1_K   sends 2
-[ 1.08] [Receive] Node_A_Receiver_1_K receives 2
-[ 1.10] [Send] Node_A_Sender_3_K   sends 6
-[ 1.12] [Receive] Node_A_Receiver_3_K receives 6
-[ 1.20] [Send] Node_A_Sender_3_K   sends 7
-[ 1.22] [Receive] Node_A_Receiver_3_K receives 7
-[ 1.40] [Send] Node_A_Sender_3_K   sends 8
-[ 1.42] [Receive] Node_A_Receiver_3_K receives 8
-[ 1.50] [Send] Node_A_Sender_2_K   sends 4
-[ 1.52] [Receive] Node_A_Receiver_2_K receives 4
-[ 1.60] [Send] Node_A_Sender_3_K   sends 9
-[ 1.62] [Receive] Node_A_Receiver_3_K receives 9
-[ 1.80] [Send] Node_A_Sender_3_K   sends 10
-[ 1.82] [Receive] Node_A_Receiver_3_K receives 10
-[ 2.00] [Send] Node_A_Sender_3_K   sends 11
-[ 2.02] [Receive] Node_A_Receiver_3_K receives 11
-[ 2.04] [Send] Node_A_Sender_2_K   sends 5
-[ 2.08] [Receive] Node_A_Receiver_2_K receives 5
-[ 2.10] [Send] Node_A_Sender_1_K   sends 3
-[ 2.12] [Receive] Node_A_Receiver_1_K receives 3
-[ 2.20] [Send] Node_A_Sender_3_K   sends 12
-[ 2.22] [Receive] Node_A_Receiver_3_K receives 12
-[ 2.40] [Send] Node_A_Sender_3_K   sends 13
-[ 2.42] [Receive] Node_A_Receiver_3_K receives 13
-[ 2.50] [Send] Node_A_Sender_2_K   sends 6
-[ 2.52] [Receive] Node_A_Receiver_2_K receives 6
-[ 2.60] [Send] Node_A_Sender_3_K   sends 14
-[ 2.62] [Receive] Node_A_Receiver_3_K receives 14
-[ 2.80] [Send] Node_A_Sender_3_K   sends 15
-[ 2.82] [Receive] Node_A_Receiver_3_K receives 15
-[ 3.00] [Send] Node_A_Sender_3_K   sends 16
-[ 3.02] [Receive] Node_A_Receiver_3_K receives 16
-[ 3.04] [Send] Node_A_Sender_2_K   sends 7
-[ 3.08] [Receive] Node_A_Receiver_2_K receives 7
-[ 3.10] [Send] Node_A_Sender_1_K   sends 4
-[ 3.12] [Receive] Node_A_Receiver_1_K receives 4
-[ 3.20] [Send] Node_A_Sender_3_K   sends 17
-[ 3.22] [Receive] Node_A_Receiver_3_K receives 17
-[ 3.40] [Send] Node_A_Sender_3_K   sends 18
-[ 3.42] [Receive] Node_A_Receiver_3_K receives 18
-[ 3.50] [Send] Node_A_Sender_2_K   sends 8
-[ 3.52] [Receive] Node_A_Receiver_2_K receives 8
-[ 3.60] [Send] Node_A_Sender_3_K   sends 19
-[ 3.62] [Receive] Node_A_Receiver_3_K receives 19
-[ 3.80] [Send] Node_A_Sender_3_K   sends 20
-[ 3.82] [Receive] Node_A_Receiver_3_K receives 20
-[ 4.00] [Send] Node_A_Sender_3_K   sends 21
-[ 4.02] [Receive] Node_A_Receiver_3_K receives 21
-[ 4.04] [Send] Node_A_Sender_2_K   sends 9
-[ 4.08] [Receive] Node_A_Receiver_2_K receives 9
-[ 4.10] [Send] Node_A_Sender_1_K   sends 5
-[ 4.12] [Receive] Node_A_Receiver_1_K receives 5
-[ 4.20] [Send] Node_A_Sender_3_K   sends 22
-[ 4.22] [Receive] Nodtsim> 
-
-
