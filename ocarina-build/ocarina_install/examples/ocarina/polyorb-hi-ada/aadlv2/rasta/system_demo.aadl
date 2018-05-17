@@ -1,0 +1,411 @@
+package System_Demo
+
+-- This system combines generic native hardware, TCP/IP protocol stack
+-- and some software to build a full ping demo.
+
+public
+   with Deployment;       -- Additional properties (provided by Ocarina)
+   with Generic_Bus;
+
+
+   with GR_CPCI_X4CV;     -- GR_CPCI_X4CV board
+   with GRSPW;            -- SpaceWire protocol stack, as an AADL device
+   with GRUART;           -- GRUART protocol stack, as an AADL device
+   with GRRASTAFPGA;
+   with Generic_Native;
+   with Native_UART;
+
+   with Software;         -- Software part for this demo
+
+   ---------------
+   -- PROCESSES --
+   ---------------
+
+   process Process_Zero
+   end Process_Zero;
+
+   process implementation Process_Zero.Impl
+   subcomponents
+     Pinger        : thread Software::Pinger.Impl;
+     Ping_Me        : thread Software::Pingee.Impl;
+   connections
+     port Pinger.Data_Source -> Ping_Me.Data_Sink;
+   end Process_Zero.Impl;
+
+   process Process_Simple
+   features
+     Out_Port : out event data port Software::Simple_Type;
+     In_Port  : in event data port Software::Simple_Type;
+   end Process_Simple;
+
+   process implementation Process_Simple.Impl
+   subcomponents
+     Pinger        : thread Software::Pinger.Impl;
+     Ping_Me        : thread Software::Pingee.Impl;
+   connections
+     port Pinger.Data_Source -> Out_Port;
+     port In_Port-> Ping_Me.Data_Sink;
+   end Process_Simple.Impl;
+
+   process Process_Full
+   features
+     Out_Port : out event data port Software::Simple_Type;
+     In_Port  : in event data port Software::Simple_Type;
+     Out_Port2 : out event data port Software::Simple_Type;
+     In_Port2  : in event data port Software::Simple_Type;
+   end Process_Full;
+
+   process implementation Process_Full.Impl
+   subcomponents
+     Pinger        : thread Software::Pinger.Impl;
+     Ping_Me        : thread Software::Pingee.Impl;
+     Pinger_2        : thread Software::Pinger2.Impl;
+     Ping_Me_2        : thread Software::Pingee2.Impl;
+   connections
+     port Pinger_2.Data_Source -> Out_Port2;
+     port In_Port2 -> Ping_Me_2.Data_Sink;
+     port Pinger.Data_Source -> Out_Port;
+     port In_Port-> Ping_Me.Data_Sink;
+   end Process_Full.Impl;
+
+   ------------
+   -- SYSTEM --
+   ------------
+
+   system The_Demo
+   end The_Demo;
+
+   ---------------------------------------------------------------------------
+
+   system implementation The_Demo.Full
+
+   -- Note: this setting assumes on RASTA board, with SpaceWire core
+   -- #1 connected to SpaceWire core #2, and UART DSU #1 connected to
+   -- UART DSU #2.
+   --
+   -- It shows how GRUART and SpaceWire drivers interact on one node.
+
+   subcomponents
+
+     Bus_SpaceWire : bus Generic_Bus::Generic_Bus.impl;
+     Bus_UART      : bus Generic_Bus::Generic_Bus.impl;
+
+     -- Node #1 hardware components
+
+     Processor_1  : processor GR_CPCI_X4CV::LEON2.impl;
+
+     Memory_1     : memory GR_CPCI_X4CV::Memory_Segment.impl;
+     GRSPW_Cnx_1 : device GRSPW::GRSPW_Device.impl
+     		    { Deployment::Location    => "spacewire 1 2";
+		    Type_Source_Name => "DeviceConfig_spw_obj234.pohidrv_spw_obj234_cv";
+
+ 		      -- Configure SpaceWire core #1 to send, #2 to receive
+		      };
+     GRUART_Cnx_1 : device GRUART::GRUART_Device.impl
+     		    { Deployment::Location    => "1:2";
+Type_Source_Name => "DeviceConfig_serialleon_obj179.pohidrv_serialleon_obj179_cv";		    -- Configure UART port #1 to send, #2 to receive
+		    };
+
+     -- Node #1 software components
+
+     Node_1 : process Process_Full.Impl;
+
+   connections
+
+     bus access Bus_SpaceWire -> GRSPW_Cnx_1.LVDS_Wire;
+     port Node_1.Out_Port -> Node_1.In_Port
+     	  { Actual_Connection_Binding => (reference (Bus_SpaceWire)); };
+
+     bus access Bus_UART -> GRUART_Cnx_1.DB9_Wire;
+     port Node_1.Out_Port2 -> Node_1.In_Port2
+      	  { Actual_Connection_Binding => (reference (Bus_UART)); };
+
+   properties
+
+     Actual_Processor_Binding => (reference (Processor_1)) applies to Node_1;
+     Actual_Processor_Binding => (reference (Processor_1))
+      			      applies to GRSPW_Cnx_1;
+     Actual_Processor_Binding => (reference (Processor_1))
+                              applies to GRUART_Cnx_1;
+
+   end The_Demo.Full;
+
+   ---------------------------------------------------------------------------
+
+   system implementation The_Demo.SpW
+
+   -- Note: this setting assumes one RASTA board, with SpaceWire core
+   -- #1 connected to SpaceWire core #2.
+   --
+   -- It shows operation of the SpaceWire driver.
+
+   subcomponents
+
+     Bus_SpaceWire : bus Generic_Bus::Generic_Bus.impl;
+
+     -- Node #1 hardware components
+
+     Processor_1  : processor GR_CPCI_X4CV::LEON2.impl;
+
+     Memory_1     : memory GR_CPCI_X4CV::Memory_Segment.impl;
+     GRSPW_Cnx_1 : device GRSPW::GRSPW_Device.impl
+     		    { Deployment::Location    => "spacewire 1 2";
+		    Type_Source_Name => "DeviceConfig_spw_obj234.pohidrv_spw_obj234_cv"; 		      -- Configure SpaceWire core #1 to send, #2 to receive
+		      };
+
+     -- Node #1 software components
+
+     Node_1 : process Process_Simple.Impl;
+
+   connections
+
+     bus access Bus_SpaceWire -> GRSPW_Cnx_1.LVDS_Wire;
+     port Node_1.Out_Port -> Node_1.In_Port
+     	  { Actual_Connection_Binding => (reference (Bus_SpaceWire)); };
+
+   properties
+
+     Actual_Processor_Binding => (reference (Processor_1)) applies to Node_1;
+     Actual_Processor_Binding => (reference (Processor_1))
+      			      applies to GRSPW_Cnx_1;
+
+   end The_Demo.SpW;
+
+   ---------------------------------------------------------------------------
+
+  system implementation The_Demo.UART
+
+   -- Note: this setting assumes one RASTA board, with UART DSU #1
+   -- connected to UART DSU #2.
+   --
+   -- It shows operation of the GRUART driver.
+
+  subcomponents
+
+     Bus_UART      : bus Generic_Bus::Generic_Bus.impl;
+
+     -- Node #1 hardware components
+
+     Processor_1  : processor GR_CPCI_X4CV::LEON2.impl;
+
+     Memory_1     : memory GR_CPCI_X4CV::Memory_Segment.impl;
+
+     GRUART_Cnx_1 : device GRUART::GRUART_Device.impl
+     		    { Deployment::Location    => "1:2";
+Type_Source_Name => "DeviceConfig_serialleon_obj179.pohidrv_serialleon_obj179_cv";		    -- Configure UART port #1 to send, #2 to receive
+		    };
+
+     -- Node #1 software components
+
+     Node_1 : process Process_Simple.Impl;
+
+   connections
+
+     bus access Bus_UART -> GRUART_Cnx_1.DB9_Wire;
+     port Node_1.Out_Port -> Node_1.In_Port
+      	  { Actual_Connection_Binding => (reference (Bus_UART)); };
+
+   properties
+
+     Actual_Processor_Binding => (reference (Processor_1)) applies to Node_1;
+     Actual_Processor_Binding => (reference (Processor_1))
+                              applies to GRUART_Cnx_1;
+
+  end The_Demo.UART;
+
+   ---------------------------------------------------------------------------
+
+  system implementation The_Demo.UART_Native
+
+  --  XXX
+
+  subcomponents
+
+     Bus_UART      : bus Generic_Bus::Generic_Bus.impl;
+
+     -- Node #1 hardware components
+
+     Processor_1  : processor Generic_Native::Generic_Processor.impl;
+
+     Memory_1     : memory Generic_Native::Memory_Segment.impl;
+
+     UART_Cnx_1 : device Native_UART::Native_UART_Device.impl
+        { Deployment::Location => "serial /dev/ttyS0 19200 8 N 1";
+Type_Source_Name => "DeviceConfig_serialleon_obj179.pohidrv_serialleon_obj179_cv";
+};
+
+     -- Node #1 software components
+
+     Node_1 : process Process_Simple.Impl;
+
+   connections
+
+     bus access Bus_UART -> UART_Cnx_1.DB9_Wire;
+     port Node_1.Out_Port -> Node_1.In_Port
+      	  { Actual_Connection_Binding => (reference (Bus_UART)); };
+
+   properties
+
+     Actual_Processor_Binding => (reference (Processor_1)) applies to Node_1;
+     Actual_Processor_Binding => (reference (Processor_1))
+                              applies to UART_Cnx_1;
+
+  end The_Demo.UART_Native;
+
+   ---------------------------------------------------------------------------
+
+  system implementation The_Demo.UART_2
+
+   -- Note: this setting assumes one RASTA board and a Native
+   -- platform, with UART DSU #1 connected to Native platform UART.
+   --
+   -- It shows operation of the GRUART driver.
+
+  subcomponents
+
+     Bus_UART      : bus Generic_Bus::Generic_Bus.impl;
+
+     -- Node #1 hardware components
+
+     Processor_1  : processor GR_CPCI_X4CV::LEON2.impl;
+
+     Memory_1     : memory GR_CPCI_X4CV::Memory_Segment.impl;
+
+     GRUART_Cnx_1 : device GRUART::GRUART_Device.impl
+     		    { Deployment::Location    => "1:2";
+		    Type_Source_Name => "DeviceConfig_serialleon_obj179.pohidrv_serialleon_obj179_cv";		    -- Configure UART port #1 to send, #2 to receive
+		    };
+
+     -- Node #1 software components
+
+     Node_1 : process Process_Simple.Impl;
+
+     -- Node #2 hardware components
+
+     Processor_2  : processor Generic_Native::Generic_Processor.impl;
+
+     Memory_2     : memory Generic_Native::Memory_Segment.impl;
+
+     GRUART_Cnx_2 : device Native_UART::Native_UART_Device.impl
+     		    { Deployment::Location    => "1:2";
+		    Type_Source_Name => "DeviceConfig_serialleon_obj179.pohidrv_serialleon_obj179_cv";
+		    -- Configure UART port #1 to send, #2 to receive
+		    };
+
+     -- Node #1 software components
+
+     Node_2 : process Process_Simple.Impl;
+
+   connections
+
+     bus access Bus_UART -> GRUART_Cnx_1.DB9_Wire;
+     bus access Bus_UART -> GRUART_Cnx_2.DB9_Wire;
+     port Node_1.Out_Port -> Node_2.In_Port
+      	  { Actual_Connection_Binding => (reference (Bus_UART)); };
+
+     port Node_2.Out_Port -> Node_1.In_Port
+      	  { Actual_Connection_Binding => (reference (Bus_UART)); };
+
+   properties
+
+     Actual_Processor_Binding => (reference (Processor_1)) applies to Node_1;
+     Actual_Processor_Binding => (reference (Processor_1))
+                              applies to GRUART_Cnx_1;
+
+     Actual_Processor_Binding => (reference (Processor_2)) applies to Node_2;
+     Actual_Processor_Binding => (reference (Processor_2))
+                              applies to GRUART_Cnx_2;
+
+   end The_Demo.UART_2;
+
+   ---------------------------------------------------------------------------
+
+   system implementation The_Demo.No_Cnx_LEON
+
+   -- Note: this setting assumes one node, without particular
+   -- hardware, to test internal communication.
+
+   subcomponents
+
+     -- Node #1 hardware components
+
+     Processor_1  : processor GR_CPCI_X4CV::LEON2.impl;
+
+     Memory_1     : memory GR_CPCI_X4CV::Memory_Segment.impl;
+
+     -- Node #1 software components
+
+     Node_1 : process Process_Zero.Impl;
+
+   properties
+
+     Actual_Processor_Binding => (reference (Processor_1)) applies to Node_1;
+
+   end The_Demo.No_Cnx_LEON;
+
+   ---------------------------------------------------------------------------
+
+   system implementation The_Demo.No_Cnx_Native
+
+   -- Note: this setting assumes one node, without particular
+   -- hardware, to test internal communication.
+
+   subcomponents
+
+     -- Node #1 hardware components
+
+     Processor_1  : processor Generic_Native::Generic_Processor.impl;
+
+     -- Node #1 software components
+
+     Node_1 : process Process_Zero.Impl;
+
+   properties
+
+     Actual_Processor_Binding => (reference (Processor_1)) applies to Node_1;
+
+   end The_Demo.No_Cnx_Native;
+
+   ---------------------------------------------------------------------------
+
+   system implementation The_Demo.RASTA_FPGA
+
+   -- Note: this setting assumes one RASTA board, with RASTA_FPGA DSU #1
+   -- connected to RASTA_FPGA DSU #2.
+   --
+   -- It shows operation of the GRRASTA_FPGA driver.
+
+  subcomponents
+
+     Bus_RASTA_FPGA      : bus Generic_Bus::Generic_Bus.impl;
+
+     -- Node #1 hardware components
+
+     Processor_1  : processor GR_CPCI_X4CV::LEON2.impl;
+
+     Memory_1     : memory GR_CPCI_X4CV::Memory_Segment.impl;
+
+     GRRASTAFPGA_Cnx_1 : device GRRASTAFPGA::GRRASTAFPGA_Device.impl
+     		    { Deployment::Location    => "XXX";
+		    -- Dummy configuration
+		    };
+
+     -- Node #1 software components
+
+     Node_1 : process Process_Simple.Impl;
+
+   connections
+
+     bus access Bus_RASTA_FPGA -> GRRASTAFPGA_Cnx_1.CPCI_Slot;
+     port Node_1.Out_Port -> Node_1.In_Port
+      	  { Actual_Connection_Binding => (reference (Bus_RASTA_FPGA)); };
+
+   properties
+
+     Actual_Processor_Binding => (reference (Processor_1)) applies to Node_1;
+     Actual_Processor_Binding => (reference (Processor_1))
+                              applies to GRRASTAFPGA_Cnx_1;
+
+  end The_Demo.RASTA_FPGA;
+
+end System_Demo;

@@ -1,0 +1,18 @@
+package Scenario
+public
+  with Ocarina_Config;
+  with Ocarina_Library;
+
+  system sunseeker extends Ocarina_Library::Default_PolyORB_HI_C_Config
+  properties
+    Ocarina_Config::Referencial_Files    =>
+    ("sunseeker", "sunseeker.ref");
+    Ocarina_Config::AADL_Files           +=>
+    ("sunseeker.aadl", "sunseeker_dist.aadl");
+    Ocarina_Config::Root_System_Name => "Sunseekercontrolsystem_Type.RTEMS";
+  end sunseeker;
+
+  system implementation sunseeker.Impl
+  end  sunseeker.Impl;
+
+end scenario;

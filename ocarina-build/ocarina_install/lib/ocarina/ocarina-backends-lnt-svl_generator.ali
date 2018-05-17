@@ -1,0 +1,173 @@
+V "GNAT Lib v6"
+A -O2
+A -gnatA
+A -gnat12
+A -gnata
+A -gnaty
+A -gnatyu
+A -gnatys
+A -gnatp
+A -gnatn
+A -mtune=generic
+A -march=i686
+P SS ZX
+
+RN
+RR SIMPLE_BARRIERS
+RR NO_ABORT_STATEMENTS
+RR NO_ACCESS_PARAMETER_ALLOCATORS
+RR NO_ASYNCHRONOUS_CONTROL
+RR NO_COEXTENSIONS
+RR NO_DYNAMIC_ATTACHMENT
+RR NO_DYNAMIC_PRIORITIES
+RR NO_ENTRY_CALLS_IN_ELABORATION_CODE
+RR NO_ENTRY_QUEUE
+RR NO_EXCEPTION_REGISTRATION
+RR NO_FIXED_IO
+RV NO_IMPLICIT_CONDITIONALS
+RR NO_IMPLICIT_TASK_ALLOCATIONS
+RR NO_IMPLICIT_PROTECTED_OBJECT_ALLOCATIONS
+RV NO_IMPLICIT_LOOPS
+RV NO_INITIALIZE_SCALARS
+RR NO_LOCAL_TIMING_EVENTS
+RR NO_LOCAL_PROTECTED_OBJECTS
+RR NO_PROTECTED_TYPE_ALLOCATORS
+RR NO_PROTECTED_TYPES
+RR NO_RELATIVE_DELAY
+RR NO_REQUEUE_STATEMENTS
+RV NO_SECONDARY_STACK
+RR NO_SELECT_STATEMENTS
+RR NO_SPECIFIC_TERMINATION_HANDLERS
+RV NO_STANDARD_STORAGE_POOLS
+RR NO_STREAM_OPTIMIZATIONS
+RR NO_TASK_ALLOCATORS
+RR NO_TASK_ATTRIBUTES_PACKAGE
+RR NO_TASK_AT_INTERRUPT_PRIORITY
+RR NO_TASK_HIERARCHY
+RR NO_TASK_TERMINATION
+RR NO_TASKING
+RR NO_TERMINATE_ALTERNATIVES
+RR STATIC_PRIORITIES
+RR STATIC_STORAGE_SIZE
+RV NO_DEFAULT_INITIALIZATION
+RR IMMEDIATE_RECLAMATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLEMENTATION_RESTRICTIONS
+RV NO_OBSOLESCENT_FEATURES
+RR PURE_BARRIERS
+RV SPARK_05
+RR MAX_PROTECTED_ENTRIES=0
+RR MAX_SELECT_ALTERNATIVES=0
+RR MAX_TASK_ENTRIES=0
+RR MAX_TASKS=0
+RR MAX_ASYNCHRONOUS_SELECT_NESTING=0
+
+U ocarina.backends.lnt.svl_generator%b  ocarina-backends-lnt-svl_generator.adb  0d6bb48c NE OO PK IS
+W gnat%s		gnat.ads		gnat.ali
+W gnat.os_lib%s		g-os_lib.ads		g-os_lib.ali
+W ocarina%s		ocarina.adb		ocarina.ali
+W ocarina.backends.lnt%s  ocarina-backends-lnt.adb  ocarina-backends-lnt.ali
+W ocarina.namet%s	ocarina-namet.adb	ocarina-namet.ali
+W ocarina.options%s	ocarina-options.adb	ocarina-options.ali
+W ocarina.output%s	ocarina-output.adb	ocarina-output.ali
+W outfiles%s		outfiles.adb		outfiles.ali
+W system.img_int%s	s-imgint.adb		s-imgint.ali
+W system.scalar_values%s  s-scaval.adb		s-scaval.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+
+U ocarina.backends.lnt.svl_generator%s  ocarina-backends-lnt-svl_generator.ads  df25cca3 EE NE OO PK IS
+W ocarina.backends.lnt%s  ocarina-backends-lnt.adb  ocarina-backends-lnt.ali
+
+D ada.ads		20070406091342 3ffc8e18 ada%s
+D a-unccon.ads		20070406091342 f9eb8f06 ada.unchecked_conversion%s
+D a-uncdea.ads		20070406091342 f15a5ed1 ada.unchecked_deallocation%s
+D gnat.ads		20140801083227 fd2ad2f1 gnat%s
+D g-hesorg.ads		20110801150502 106922da gnat.heap_sort_g%s
+D g-os_lib.ads		20090409150019 0db74523 gnat.os_lib%s
+D g-table.ads		20151020120548 16cef446 gnat.table%s
+D g-table.adb		20140521105248 2932f881 gnat.table%b
+D ocarina.ads		20180517074744 bfb8a9d7 ocarina%s
+D ocarina-backends.ads	20180517074744 6580b411 ocarina.backends%s
+D ocarina-backends-lnt.ads  20180517074744 ff20332a ocarina.backends.lnt%s
+D ocarina-backends-lnt-svl_generator.ads  20180517074744 2005ff89 ocarina.backends.lnt.svl_generator%s
+D ocarina-backends-lnt-svl_generator.adb  20180517074744 5c258596 ocarina.backends.lnt.svl_generator%b
+D ocarina-backends-properties.ads  20180517074744 9866b048 ocarina.backends.properties%s
+D ocarina-namet.ads	20180517074744 b31432d0 ocarina.namet%s
+D ocarina-options.ads	20180517074744 3119d6b0 ocarina.options%s
+D ocarina-output.ads	20180517074744 edb3fa77 ocarina.output%s
+D ocarina-types.ads	20180517074744 e099215b ocarina.types%s
+D outfiles.ads		20180517074744 134295a7 outfiles%s
+D system.ads		20151123113124 c6f79445 system%s
+D s-assert.ads		20140225151544 cd8d2c94 system.assertions%s
+D s-imgint.ads		20090409150019 02dbe0c2 system.img_int%s
+D s-memory.ads		20140225151139 597d6634 system.memory%s
+D s-os_lib.ads		20151118101046 53e9e388 system.os_lib%s
+D s-scaval.ads		20090409150019 bea40757 system.scalar_values%s
+D s-secsta.ads		20140225151139 86a2856d system.secondary_stack%s
+D s-stoele.ads		20140225151139 2dc34a04 system.storage_elements%s
+D s-string.ads		20140225151139 8fe54fb7 system.strings%s
+D unchdeal.ads		20070406091342 214516a4 unchecked_deallocation%s
+D /home/francis/polyorb-hi-c/ocarina-build/ocarina/src/../projects/restrictions.adc  20180517074744 00000000
+X 4 gnat.ads
+34K9*GNAT 37e9 13|34r6 34r27
+X 6 g-os_lib.ads
+51K14*OS_Lib=51:36 13|34w11 34r32
+X 9 ocarina.ads
+32K9*Ocarina 61e12 12|32r9 36r5 13|33r6 33r27 35r6 35r27 36r6 36r27 38r14
+. 203r5
+X 10 ocarina-backends.ads
+41K17*Backends 9|32k9 10|120e21 12|32r17 36r13 13|38r22 203r13
+X 11 ocarina-backends-lnt.ads
+37K26*LNT 10|41k17 11|74e25 12|32r26 36r22 13|38r31 203r22
+58i4*System_Name{18|182I9} 13|75r42
+60i4*Thread_Number{natural} 13|108r21 153r21
+X 12 ocarina-backends-lnt-svl_generator.ads
+32K30*Svl_Generator 11|37k26 12|36l26 36e39 13|38b35 203l26 203t39
+34U14*Make_SVL_File 13|46b14 61l8 61t21
+X 13 ocarina-backends-lnt-svl_generator.adb
+40U14 Make_Demo_Svl 54s10 58s10 67b14 201l8 201t21
+47i7 Fd{24|183I9} 56m10 59r17
+108i11 I{integer} 109r65
+153i11 I{integer} 154r62
+X 15 ocarina-namet.ads
+36K17*Namet 13|33w14 33r35 15|242e18
+76V13*Get_Name_String{string} 13|50s10 75s25
+93V13*Get_String_Name{18|182I9} 13|56s28
+X 16 ocarina-options.ads
+36K17*Options 13|36w14 36r35 16|119e20
+65i4*Output_Filename{18|182I9} 13|49r10 50r27
+X 17 ocarina-output.ads
+40K17*Output 13|35w14 35r35 17|106e19
+55U14*Set_Standard_Output 13|52s10
+79U14*Write_Str 13|69s7 74s7 81s7 99s7 121s7 122s7 139s7 140s7 142s7 144s7
+. 167s7 168s7 170s7 172s7 191s7 193s7
+85U14*Write_Line 13|71s7 76s7 78s7 83s7 85s7 88s7 91s7 95s7 97s7 101s7 103s7
+. 106s7 109s10 113s7 117s7 119s7 123s7 125s7 128s7 131s7 135s7 137s7 146s7
+. 148s7 151s7 154s10 158s7 163s7 165s7 174s7 176s7 179s7 182s7 187s7 189s7
+. 195s7 197s7 200s7
+88U14*Write_Quoted_Str 13|70s7 73s7 75s7 82s7 94s7 96s7 100s7 116s7 118s7
+. 134s7 136s7 141s7 143s7 145s7 161s7 164s7 169s7 171s7 173s7 185s7 188s7
+. 192s7 194s7
+99U14*Decrement_Indentation 13|86s7 104s7 126s7 149s7 177s7 198s7
+100U14*Increment_Indentation 13|79s7 92s7 114s7 132s7 159s7 183s7
+102U14*Set_Space_Increment 13|53s10 57s10
+103U14*Write_Indentation 13|80s7 84s7 87s7 93s7 98s7 102s7 105s7 115s7 120s7
+. 124s7 127s7 133s7 138s7 147s7 150s7 160s7 166s7 175s7 178s7 184s7 190s7
+. 196s7 199s7
+X 18 ocarina-types.ads
+182I9*Name_Id<integer>
+188i4*No_Name{182I9} 13|49r29
+X 19 outfiles.ads
+35K9*Outfiles 13|32w6 32r27 19|46e13
+39V13*Set_Output{24|183I9} 13|56s16
+X 20 system.ads
+67M9*Address
+X 23 s-memory.ads
+53V13*Alloc{20|67M9} 103i<c,__gnat_malloc>22
+68U14*Free 104i<c,__gnat_free>22
+76V13*Realloc{20|67M9} 105i<c,__gnat_realloc>22
+X 24 s-os_lib.ads
+183I9*File_Descriptor<integer> 13|47r25
+199U14*Close 13|59s10
+

@@ -1,0 +1,17 @@
+TARGET_CFLAGS   = -DPOSIX -m64 -D_POSIX_SOURCE -D_GNU_SOURCE $(GCC_GENERIC_FLAGS)
+TARGET_LDFLAGS  =  -lpthread -lrt -m64 -L$(RUNTIME_PATH)/libs/linux64/ -llua -lm
+SIMULINK_LDFLAGS  = -lm
+CC              = gcc
+LD              = gcc
+GPROF           = gprof
+
+
+ifdef USE_GPROF
+TARGET_LDFLAGS+=-pg
+endif
+
+
+
+target-clean:
+
+target-objects:

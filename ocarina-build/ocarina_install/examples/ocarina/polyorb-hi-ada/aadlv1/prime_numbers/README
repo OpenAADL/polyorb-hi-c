@@ -1,0 +1,22 @@
+"prime numbers" example:
+------------------------
+
+* Description: 
+
+  - One periodic thread tests at each period occurrence N*P whether N
+    is a prime number. If so, it sends an event data in its out event
+    data port.
+
+  - One second "hybrid" thread displays sporadically each received
+    prime number and periodically 9*P a report about the total
+    number of the already found prime numbers.
+
+  - One third "hybrid" thread has the same behavior of the previous one
+    by withy a 10*P report period.
+
+  - One forth "hybrid" thread has the same behavior of the previous one
+    by withy a 12*P report period.
+
+* Compilation: issue "make build-all" in the root directory
+
+* Run: launch node_a

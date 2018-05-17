@@ -1,0 +1,98 @@
+package test_lua
+public
+  with Deployment;
+
+  -----------------
+  -- Subprograms --
+  -----------------
+
+  subprogram Hello_Spg_1
+  properties
+    source_language => LUA;
+    source_text     => ("hello.lua");
+  end Hello_Spg_1;
+
+  subprogram Hello_Spg_2
+  properties
+    source_language => LUA;
+    source_text     => ("hello2.lua");
+    source_name     => "lua_sample";
+  end Hello_Spg_2;
+
+  -------------
+  -- Threads --
+  -------------
+
+  thread Task
+  end Task;
+
+  thread implementation Task.impl_1
+  calls
+    Mycalls: {
+    P_Spg : subprogram Hello_Spg_1;
+    };
+  properties
+    Dispatch_Protocol                  => periodic;
+    Period                             => 1000ms;
+    Compute_Execution_time             => 0 ms .. 3 ms;
+    Deadline                           => 1000 ms;
+    Priority => 1;
+  end Task.impl_1;
+
+  thread implementation Task.impl_2
+  calls
+    Mycalls: {
+    P_Spg : subprogram Hello_Spg_2;
+    };
+  properties
+    Dispatch_Protocol                  => periodic;
+    Period                             => 500ms;
+    Compute_Execution_time             => 0 ms .. 3 ms;
+    Deadline                           => 500 ms;
+    Priority => 2;
+  end Task.impl_2;
+
+  ---------------
+  -- Processor --
+  ---------------
+
+  processor cpurm
+  properties
+    Deployment::Execution_Platform => linux32;
+  end cpurm;
+
+  processor implementation cpurm.impl
+  properties
+    Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
+    Priority_Range => 0 .. 255;
+  end cpurm.impl;
+
+  ---------------
+  -- Processes --
+  ---------------
+
+  process node_a
+  end node_a;
+
+  process implementation node_a.impl
+  subcomponents
+    Task1 : thread Task.impl_1;
+    Task2 : thread Task.impl_2;
+  end node_a.impl;
+
+  ------------
+  -- System --
+  ------------
+
+  system lua
+  end lua;
+
+  system implementation lua.impl
+  subcomponents
+    node_a : process node_a.impl;
+    cpu_rm : processor cpurm.impl;
+  properties
+    Actual_Processor_Binding => (reference (cpu_rm)) applies to node_a;
+  end lua.impl;
+
+end test_lua;

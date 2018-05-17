@@ -1,0 +1,18 @@
+This example shows how to integrate multiple drivers with PolyORB-HI/Ada. 
+
+It relies on native Linuw and/or the GR_CPCI_X4CV RASTA board.
+
+The makefile generates different configurations, based on different
+scenarios:
+
+* demo_full : this setting assumes one RASTA board, with SpaceWire
+  core #1 connected to SpaceWire core #2, and UART DSU #1 connected to
+  UART DSU #2.
+   
+* demo_spw : this setting assumes one RASTA board, with SpaceWire core
+  #1 connected to SpaceWire core #2.
+
+* demo_uart: this setting assumes one RASTA board, with UART DSU #1
+  connected to UART DSU #2.
+
+Note: demo_full, demo_spw, demo_uart are to be run on a RASTA board.

@@ -1,0 +1,63 @@
+---------------
+-- Processor --
+---------------
+
+processor Pentium_Type
+features
+  ETH : requires bus access Ethernet_Bus;
+properties
+  --  Add a location and an execution platform for the processor
+
+  Deployment::location           => "127.0.0.1";
+  Deployment::Execution_Platform => native;
+end Pentium_Type;
+
+processor implementation Pentium_Type.Pentium
+properties
+  none;
+end Pentium_Type.Pentium;
+
+---------
+-- Bus --
+---------
+
+bus Ethernet_Bus
+properties
+  Deployment::Transport_API => BSD_Sockets;
+end Ethernet_Bus;
+
+------------
+-- System --
+------------
+
+system Sunseekercontrolsystem_Type
+end Sunseekercontrolsystem_Type;
+
+system implementation Sunseekercontrolsystem_Type.Native
+subcomponents
+
+  Sunseekerplant      : process Sunseekerplant_Type.Sunseekerplant
+    {Deployment::port_number => 12000;};
+  Sunseekercontroller : process Sunseekercontroller_Type.Sunseekercontroller
+    {Deployment::port_number => 12001;};
+
+  --  The processor
+  Platform: processor Pentium_Type.Pentium;
+
+  the_bus : bus Ethernet_Bus;
+connections
+  bus access the_bus -> Platform.ETH;
+  data port Sunseekerplant.Outputfeedback
+  -> Sunseekercontroller.Outputfeedback
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port Sunseekercontroller.Controllerinput
+  -> Sunseekerplant.Controllerinput
+    {Actual_Connection_Binding => (reference the_bus);};
+
+--  Bind the processes to the processor
+properties
+  Actual_Processor_Binding => reference Platform 
+    applies to Sunseekerplant;
+  Actual_Processor_Binding => reference Platform 
+    applies to Sunseekercontroller;
+end Sunseekercontrolsystem_Type.Native;

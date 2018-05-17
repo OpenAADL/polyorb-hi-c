@@ -1,0 +1,16 @@
+package scenario
+public
+  with Ocarina_Config;
+
+  system ping extends Ocarina_Library::Default_PolyORB_HI_C_Config
+  properties
+    Ocarina_Config::AADL_Files           +=>
+    ("ping-xtratum.aadl" , "software.aadl", "leon.aadl");
+
+    Ocarina_Config::Generator            => xtratum_configuration;
+  end ping;
+
+  system implementation ping.impl
+  end  ping.impl;
+
+end scenario;

@@ -1,0 +1,93 @@
+---------------
+-- Processor --
+---------------
+
+processor implementation cpu.LEON
+properties
+  ARAO::Execution_Platform => LEON_ORK;
+end cpu.LEON;
+
+---------
+-- Bus --
+---------
+
+bus implementation C_Bus.Impl
+properties
+  ARAO::Transport_API => Spacewire;
+end C_Bus.Impl;
+
+------------
+-- System --
+------------
+
+system implementation RAP.LEON
+subcomponents
+  software : process Monolithic_RAP.LEON;
+  hardware : process Hardware_Emulator.Impl;
+
+  s_cpu : processor cpu.LEON;
+  h_cpu : processor cpu.LEON;
+
+  the_bus : bus C_Bus.Impl;
+connections
+  bus access the_bus -> s_cpu.B;
+  bus access the_bus -> h_cpu.B;
+
+  data port software.Contact_Number_to_Track -> hardware.Contact_Number_to_Track
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Radar_Mode              -> hardware.Radar_Mode
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port hardware.Contact_Table           -> software.Contact_Table
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port hardware.Target_Position         -> software.Target_Position
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Status                  -> hardware.Status
+    {Actual_Connection_Binding => (reference the_bus);};
+
+  data port software.Threat_Radar_Frequency_Message -> hardware.Threat_Radar_Frequency_Message
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Threat_Search_Sector_Message -> hardware.Threat_Search_Sector_Message
+    {Actual_Connection_Binding => (reference the_bus);};
+
+  data port software.Waypoint_Table -> hardware.Waypoint_Table
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Waypoint_Offset -> hardware.Waypoint_Offset
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Waypoint_Steering_Selected -> hardware.Waypoint_Steering_Selected
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Quantity_Select_Request -> hardware.Quantity_Select_Request
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Interval_Select_Request -> hardware.Interval_Select_Request
+    {Actual_Connection_Binding => (reference the_bus);};
+  event port software.Auto_CCIP_Toggle -> hardware.Auto_CCIP_Toggle
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.RWR_Frequency_Table -> hardware.RWR_Frequency_Table
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.RWR_Search_Sector_Table -> hardware.RWR_Search_Sector_Table
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Acceleration            -> hardware.Acceleration
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Reference_Velocity -> hardware.Reference_Velocity
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Rate_of_Change_Airspeed -> hardware.Rate_of_Change_Airspeed
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Ground_Speed -> hardware.Ground_Speed
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Flight_Path_Angle -> hardware.Flight_Path_Angle
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Ground_Track_Angle -> hardware.Ground_Track_Angle
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Altitude -> hardware.Altitude
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Body_to_Earth_Transform -> hardware.Body_to_Earth_Transform
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Body_to_Horizon_Transform -> hardware.Body_to_Horizon_Transform
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Radar_to_Body_Transform -> hardware.Radar_to_Body_Transform
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port software.Radar_to_Earth_Transform -> hardware.Radar_to_Earth_Transform
+    {Actual_Connection_Binding => (reference the_bus);};
+properties
+  Actual_Processor_Binding => reference s_cpu applies to software;
+  Actual_Processor_Binding => reference h_cpu applies to hardware;
+end RAP.LEON;

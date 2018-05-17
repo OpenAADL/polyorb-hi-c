@@ -1,0 +1,23 @@
+package Beeper
+
+-- This package models a simple beeper. A beeper is just printing one
+-- specific ASCII character that triggers a "beep".
+
+public
+
+   with Generic_Bus;
+
+   ------------
+   -- DEVICE --
+   ------------
+
+   device Beeper_Device
+   features
+      Beep : in event port { Compute_Entrypoint_Source_Text => "T.Beep"; };
+      PCI_Slot : requires bus access Generic_Bus::Generic_Bus.impl;
+   end Beeper_Device;
+
+   device implementation Beeper_Device.impl
+   end Beeper_Device.impl;
+
+end Beeper;

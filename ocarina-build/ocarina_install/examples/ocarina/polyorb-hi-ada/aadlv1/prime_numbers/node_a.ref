@@ -1,0 +1,10 @@
+[ 0.00] *** Reporter THREE periodic report, total primes: 0 ***
+[ 0.04] *** Reporter TWO periodic report, total primes: 0 ***
+[ 0.06] *** Reporter ONE periodic report, total primes: 0 ***
+[ 2.00] Reporter THREE: received new prime: 2
+[ 2.02] Reporter TWO: received new prime: 2
+[ 2.04] Reporter ONE: received new prime: 2
+[ 3.00] Reporter THREE: received new prime: 3
+[ 3.02] Reporter TWO: received new prime: 3
+[ 3.04] Reporter ONE: received new prime: 3
+

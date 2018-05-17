@@ -1,0 +1,18 @@
+package Scenario
+public
+  with Ocarina_Config;
+  with Ocarina_Library;
+
+  system monitor extends Ocarina_Library::Default_PolyORB_HI_C_Config
+  properties
+    Ocarina_Config::Referencial_Files    =>
+    ("node_a", "node_a.ref",
+    "node_b", "node_b.ref");
+    Ocarina_Config::AADL_Files           +=>
+    ("ping.aadl" , "software.aadl");
+  end monitor;
+
+  system implementation monitor.impl
+  end  monitor.impl;
+
+end scenario;

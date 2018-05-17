@@ -1,0 +1,21 @@
+package Scenario
+public
+  with Ocarina_Config;
+
+  system cpp
+  properties
+    Ocarina_Config::AADL_Files           =>
+    ("cpp_test.aadl");
+    Ocarina_Config::Generator            => polyorb_hi_c;
+    Ocarina_Config::Root_System_Name     => "cpp_test.impl";
+    Ocarina_Config::Needed_Property_Sets =>
+    (Ocarina_Config::Data_Model,
+    Ocarina_Config::Deployment,
+    Ocarina_Config::Cheddar_Properties);
+    Ocarina_Config::AADL_Version         => AADLv2;
+  end cpp;
+
+  system implementation cpp.Impl
+  end  cpp.Impl;
+
+end scenario;

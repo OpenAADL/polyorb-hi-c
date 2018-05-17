@@ -1,0 +1,282 @@
+--  $Id: probe.aadl 6713 2009-06-20 20:58:28Z lanarre $
+--  Instructor version
+
+----------
+-- Data --
+----------
+
+--  POS_Internal_Type is the internal type of the POS shared variable
+
+data POS_Internal_Type
+properties
+  Data_Model::Data_Representation => Integer;
+end POS_Internal_Type;
+
+--  POS is a shared variable between the nodes GNC and TMTC. Its
+--  internal type is defined in POS.Impl. Therefore, POS.Impl is the
+--  data component types that should be used in the remaining of the
+--  model.
+
+data POS
+features
+  Update : subprogram Update;
+  Read   : subprogram Read;
+end POS;
+
+data implementation POS.Impl
+subcomponents
+  Field : data POS_Internal_Type;
+properties
+  Data_Model::Data_Representation => Struct;
+  Concurrency_Control_Protocol => Priority_Ceiling;
+end POS.Impl;
+
+-----------------
+-- Subprograms --
+-----------------
+
+subprogram Update
+features
+  this : requires data access POS.Impl;
+properties
+  source_language => Ada95;
+  source_name     => "Probe.Update";
+end Update;
+--  This subprogram updates the internal value of POS
+
+subprogram Read
+features
+  Read_Value : out parameter POS_Internal_Type;
+  this       : requires data access POS.Impl;
+properties
+  source_language => Ada95;
+  source_name     => "Probe.Read";
+end Read;
+--  This subprogram displays the internal value of POS
+
+subprogram GNC_Job
+properties
+  source_language => Ada95;
+  source_name     => "Probe.GNC_Job";
+end GNC_Job;
+--  This subprogram consumes the CPU during a given amount of time
+
+subprogram TMTC_Job
+properties
+  source_language => Ada95;
+  source_name     => "Probe.TMTC_Job";
+end TMTC_Job;
+--  This subprogram consumes the CPU during a given amount of time
+
+subprogram Send_Spg
+features
+  Sent_Data   : in  parameter POS_Internal_Type;
+  Data_Source : out parameter POS_Internal_Type;
+properties
+  source_language => Ada95;
+  source_name     => "Probe.Send_Spg";
+end Send_Spg;
+
+subprogram Receive_Spg
+features
+  Data_Sink : in parameter POS_Internal_Type;
+properties
+  source_language => Ada95;
+  source_name     => "Probe.Receive_Spg";
+end Receive_Spg;
+
+--  The two subprogram below are used for debug purposes
+
+subprogram GNC_Identity
+properties
+  source_language => Ada95;
+  source_name     => "Probe.GNC_Identity";
+end GNC_Identity;
+
+subprogram TMTC_Identity
+properties
+  source_language => Ada95;
+  source_name     => "Probe.TMTC_Identity";
+end TMTC_Identity;
+
+--------------------------
+--  Subprogram Wrappers --
+--------------------------
+
+subprogram GNC_Thread_Wrapper
+features
+  GNC_POS : requires data access POS.Impl;
+  Data_Source : out parameter POS_Internal_Type;
+end GNC_Thread_Wrapper;
+
+subprogram implementation GNC_Thread_Wrapper.Impl
+calls {
+  Welcome     : subprogram GNC_Identity;
+  Update      : subprogram POS.Update;
+  GNC_Job     : subprogram GNC_Job;
+  Read        : subprogram POS.Read;
+  Ping_It_Spg : subprogram Send_Spg;
+  Bye         : subprogram GNC_Identity;
+};
+connections
+  Cnx_GNC_1 : data access GNC_POS -> Update.this;
+  Cnx_GNC_2 : data access GNC_POS -> Read.this;
+  Cnx_GNC_3 : parameter Read.Read_Value -> Ping_It_Spg.Sent_Data;
+  Cnx_GNC_4 : parameter Ping_it_Spg.Data_Source -> Data_Source;  
+end GNC_Thread_Wrapper.Impl;
+
+subprogram TMTC_Thread_Wrapper
+features
+  TMTC_POS : requires data access POS.Impl;
+end TMTC_Thread_Wrapper;
+
+subprogram implementation TMTC_Thread_Wrapper.Impl
+calls {
+  Welcome  : subprogram TMTC_Identity;
+  TMTC_Job : subprogram TMTC_Job;
+  Update   : subprogram POS.Update;
+  Bye      : subprogram TMTC_Identity;
+};
+connections
+  Cnx_TMTC_1 : data access TMTC_POS -> Update.this;
+end TMTC_Thread_Wrapper.Impl;
+
+-------------
+-- Threads --
+-------------
+
+thread GNC_Thread
+features
+  GNC_POS : requires data access POS.Impl;
+  Data_Source : out event data port POS_Internal_Type;
+end GNC_Thread;
+
+thread implementation GNC_Thread.Impl
+calls {
+   GNC_Thread_Wrapper : subprogram GNC_Thread_Wrapper.Impl;
+};
+connections
+  Cnx_GNC_1 : data access GNC_POS -> GNC_Thread_Wrapper.GNC_POS;
+  Cnx_GNC_3 : parameter GNC_Thread_Wrapper.Data_Source -> Data_Source;
+properties
+  Dispatch_Protocol                  => Periodic;
+  Period                             => 1000 ms;
+  Compute_Execution_time             => 0 ms .. 400 ms;
+  Deadline                           => 1000 ms;
+  Cheddar_Properties::Fixed_Priority => 15;
+end GNC_thread.Impl;
+
+thread TMTC_Thread
+features
+  TMTC_POS : requires data access POS.Impl;
+end TMTC_Thread;
+
+thread implementation TMTC_Thread.Impl
+calls {
+  TMTC_Thread_Wrapper : subprogram TMTC_Thread_Wrapper.Impl;
+};
+connections
+  Cnx_TMTC_1 : data access TMTC_POS -> TMTC_Thread_Wrapper.TMTC_POS;
+properties
+  Dispatch_Protocol                  => Periodic;
+  Period                             => 100 ms;
+  Compute_Execution_time             => 0 ms .. 50 ms;
+  Deadline                           => 100 ms;
+  Cheddar_Properties::Fixed_Priority => 15;
+end TMTC_Thread.Impl;
+
+thread Ground_Thread
+features
+  Data_Sink : in event data port POS_Internal_Type;
+end Ground_Thread;
+
+thread implementation Ground_Thread.Impl
+calls {
+  Ping_Me_Spg : subprogram Receive_Spg;
+};
+connections
+  Cnx_GT_1 : parameter Data_Sink -> Ping_Me_Spg.Data_Sink;
+properties
+  Dispatch_Protocol                  => Sporadic;
+  Period                             => 10 Ms;
+  deadline                           => 10 Ms;
+  Compute_Execution_time             => 0 ms .. 3 ms;
+  Cheddar_Properties::Fixed_Priority => 1;
+end Ground_Thread.Impl;
+
+---------------
+-- Processes --
+---------------
+
+process Probe_Proc
+features
+  Out_Port : out event data port POS_Internal_Type;
+end Probe_Proc;
+
+process implementation Probe_Proc.Impl
+subcomponents
+  GNC_Th   : thread GNC_Thread.Impl;
+  TMTC_Th  : thread TMTC_Thread.Impl;
+  POS_Data : data POS.Impl;
+connections
+  Cnx_Proc_1 : data access POS_Data -> GNC_Th.GNC_POS;
+  Cnx_Proc_2 : data access POS_Data -> TMTC_Th.TMTC_POS;
+  Cnx_Proc_3 : event data port GNC_Th.Data_Source -> Out_Port;
+end Probe_Proc.Impl;
+
+process Ground_Proc
+features
+  In_Port : in event data port POS_Internal_Type;
+end Ground_Proc;
+
+process implementation Ground_Proc.Impl
+subcomponents
+  Ground_Th : thread Ground_Thread.impl;
+connections
+  Cnx_GP_1 : event data port In_Port -> Ground_Th.Data_Sink;
+end Ground_Proc.Impl;
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+features
+  ETH : requires bus access Ethernet_Bus;
+properties
+  Deployment::location           => "127.0.0.1";
+  Deployment::Execution_Platform => Native;
+end the_processor;
+
+---------
+-- Bus --
+---------
+
+bus Ethernet_Bus
+properties
+  Deployment::Transport_API => BSD_Sockets;
+end Ethernet_Bus;
+
+------------
+-- System --
+------------
+
+system probe
+end probe;
+
+system implementation probe.native
+subcomponents 
+  P1            : processor the_processor;
+
+  GNC_TMTC_POS  : process Probe_Proc.Impl;
+  GC            : process Ground_Proc.impl {Deployment::port_number => 12000;};
+
+  the_bus       : bus Ethernet_Bus;
+connections
+  bus access the_bus -> P1.ETH;
+  Cnx_Probe_1 : event data port GNC_TMTC_POS.Out_Port -> GC.In_Port
+    {Actual_Connection_Binding => (reference the_bus);};
+properties
+  Actual_Processor_Binding => reference P1 applies to GNC_TMTC_POS;
+  Actual_Processor_Binding => reference P1 applies to GC;
+end probe.native;

@@ -1,0 +1,58 @@
+
+
+---------------
+-- Processes --
+---------------
+
+process Mgmt_T
+end Mgmt_T;
+
+process implementation Mgmt_T.RS
+subcomponents
+  Sensor_Sim    : thread Sensor_Sim_T.RS;
+  Stall_Monitor : thread Stall_Monitor_T.RS;
+  HCI           : thread HCI_T.RS;
+  Landing_Gear  : thread Landing_Gear_T.RS;
+  Operator      : thread Operator_T.RS;
+connections
+  DataConnection1      :       data port Sensor_Sim.AoA 
+    -> Stall_Monitor.AoA;
+  DataConnection2      :       data port Sensor_Sim.Climb_Rate 
+    -> Stall_Monitor.Climb_Rate;
+  EventConnection1     : event      port Sensor_Sim.Engine_Failure 
+    -> HCI.Engine_Failure;
+  EventDataConnection1 : event data port Stall_Monitor.Stall_Warn 
+    -> HCI.Stall_Warning;
+  EventConnection2     : event      port HCI.Gear_Req 
+    -> Landing_Gear.Req;
+  EventConnection3     : event      port Landing_Gear.Ack 
+    -> HCI.Gear_Ack;
+  EventConnection4     : event      port Landing_Gear.Dummy_Out 
+    -> Landing_Gear.Dummy_In;
+  EventConnection5     : event      port Operator.Gear_Cmd 
+    -> HCI.Gear_Cmd;
+end Mgmt_T.RS;
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+properties
+  Deployment::Execution_Platform => ERC32_ORK;
+end the_processor;
+
+------------
+-- System --
+------------
+
+system Flight_Mgmt
+end Flight_Mgmt;
+
+system implementation Flight_Mgmt.ERC32
+subcomponents
+  CPU  : processor the_processor;
+  Mgmt : process Mgmt_T.RS;
+properties
+  Actual_Processor_Binding => reference CPU applies to Mgmt;
+end Flight_Mgmt.ERC32;

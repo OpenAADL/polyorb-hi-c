@@ -1,0 +1,24 @@
+package scenario
+public
+  with Ocarina_Config;
+
+  system d3_1_3_1
+  properties
+    Ocarina_Config::Timeout_Property     => 4000ms;
+    Ocarina_Config::Referencial_Files    =>
+    ("gnc_tmtc_pos", "gnc_tmtc_pos.ref");
+    Ocarina_Config::AADL_Files           =>
+    ("toy_example.aadl");
+    Ocarina_Config::Root_System_Name => "toy_example.native";
+    Ocarina_Config::Generator            => polyorb_hi_c;
+    Ocarina_Config::Needed_Property_Sets =>
+    (Ocarina_Config::Data_Model,
+    Ocarina_Config::Deployment,
+    Ocarina_Config::Cheddar_Properties);
+    Ocarina_Config::AADL_Version         => AADLv2;
+  end d3_1_3_1;
+
+  system implementation d3_1_3_1.Impl
+  end  d3_1_3_1.Impl;
+
+end scenario;

@@ -1,0 +1,93 @@
+--  $Id: subprogram_ports.aadl 6713 2009-06-20 20:58:28Z lanarre $
+
+---------------
+-- Processes --
+---------------
+
+process Driver
+features
+  Event_Source : out event      port;
+  Data_Source  : out event data port Integer_Type;
+end Driver;
+
+process implementation Driver.Impl
+subcomponents
+  Sender : thread Sender_Thread.Impl;
+connections
+  event      port Sender.Event_Source -> Event_Source;
+  event data port Sender.Data_Source  -> Data_Source;
+end Driver.Impl;
+
+process Receiver_1
+features
+  Data_Sink : in event data port Integer_Type;
+end Receiver_1;
+
+process implementation Receiver_1.Impl
+subcomponents
+  Receiver : thread Receiver_Thread.Impl;
+connections
+  event data port Data_Sink -> Receiver.Data_Sink;
+end Receiver_1.Impl;
+
+process Receiver_2
+features
+  Event_Sink : in event port;
+end Receiver_2;
+
+process implementation Receiver_2.Impl
+subcomponents
+  Transmitter : thread Transmitter_Thread.Impl;
+  Receiver    : thread Receiver_Thread.Impl;
+connections
+  event      port Event_Sink              -> Transmitter.Event_Sink;
+  event data port Transmitter.Data_Source -> Receiver.Data_Sink;
+end Receiver_2.Impl;
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+features
+  ETH : requires bus access Ethernet_Bus;
+properties
+  Deployment::location           => "127.0.0.1";
+  Deployment::Execution_Platform => Native;
+end the_processor;
+
+---------
+-- Bus --
+---------
+
+bus Ethernet_Bus
+properties
+  Deployment::Transport_API => BSD_Sockets;
+end Ethernet_Bus;
+
+------------
+-- System --
+------------
+
+system Subprogram_Ports
+end Subprogram_Ports;
+
+system implementation Subprogram_Ports.Native
+subcomponents
+  Driver     : process Driver.Impl;
+  Receiver_1 : process Receiver_1.Impl {Deployment::port_number => 12002;};
+  Receiver_2 : process Receiver_2.Impl {Deployment::port_number => 12003;};
+  
+  CPU        : processor the_processor;
+  the_bus    : bus Ethernet_Bus;
+connections
+  bus access the_bus -> CPU.ETH;
+  event data port Driver.Data_Source  -> Receiver_1.Data_Sink
+    {Actual_Connection_Binding => (reference the_bus);};
+  event      port Driver.Event_Source -> Receiver_2.Event_Sink
+    {Actual_Connection_Binding => (reference the_bus);};
+properties
+  actual_processor_binding => reference CPU applies to Driver;
+  actual_processor_binding => reference CPU applies to Receiver_1;
+  actual_processor_binding => reference CPU applies to Receiver_2;
+end Subprogram_Ports.Native;

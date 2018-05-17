@@ -1,0 +1,56 @@
+--  This model completes the delayed connections example by adding
+--  deployment information.
+--
+--  In this deployment, only one node is defined.
+--
+--  $Id: dc-local.aadl 6713 2009-06-20 20:58:28Z lanarre $
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+properties
+  Deployment::Execution_Platform => LEON_ORK;
+end the_processor;
+
+processor implementation the_processor.Impl
+end the_processor.Impl;
+
+---------------
+-- Processes --
+---------------
+
+process A
+end A;
+
+process implementation A.Impl
+subcomponents
+  Sender   : thread S.Impl;
+  Receiver : thread R.Impl;
+connections
+  data port Sender.Data_Source ->> Receiver.Data_Sink;
+  --  This is a delayed connection. If this connection was immediate,
+  --  the receiver would receive a value of Data_Sink which would be
+  --  equal to N_Cycle. Because the connection is immediate, the
+  --  receiver sees only the previous value of Data_Sink which is
+  --  equal to N_Cycle - 1.
+
+  data port Sender.N_Cycle     -> Receiver.N_Cycle;
+end A.Impl;
+
+------------
+-- System --
+------------
+
+system Delayed_Connections
+end Delayed_Connections;
+
+system implementation Delayed_Connections.LEON
+subcomponents
+  Node_A : process A.Impl;
+
+  CPU : processor the_processor.Impl;
+properties
+  actual_processor_binding => reference CPU applies to Node_A;
+end Delayed_Connections.LEON;

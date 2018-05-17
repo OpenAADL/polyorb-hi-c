@@ -1,0 +1,18 @@
+package Scenario
+public
+  with Ocarina_Config;
+  with Ocarina_Library;
+
+  system import extends Ocarina_Library::Default_PolyORB_HI_C_Config
+  properties
+    Ocarina_Config::Referencial_Files    =>
+    ("node_a", "node_a_native.ref",
+    "node_b", "node_b_native.ref");
+    Ocarina_Config::AADL_Files           +=>
+    ("ping.aadl", "software.aadl");
+  end import;
+
+  system implementation import.Impl
+  end  import.Impl;
+
+end scenario;

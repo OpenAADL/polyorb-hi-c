@@ -1,0 +1,74 @@
+--  An implementation of the Worker thread using compute entrypoint
+--  mode-based switch.
+
+--  $Id: modes_CE.aadl 6851 2009-07-22 12:37:17Z hugues $
+
+package ModesC
+public
+  with Common;
+
+thread Worker
+features
+  Work_Normally      : in event port;
+  Emergency_Occurred : in event port;
+  Everything_Is_Cool : in event port;
+  Message            : in event data port Common::Simple_Type;
+properties
+  Dispatch_Protocol                 => Sporadic;
+  Period                            => 20 Ms;
+  Initialize_Entrypoint_Source_Text => "Repository.Init_Worker";
+end Worker;
+
+thread implementation Worker.Impl
+modes
+  Normal_Mode    : initial mode; 
+  Emergency_Mode : mode;
+  Lazy_Mode      : mode;
+  
+  Normal_Mode,    Lazy_Mode      -[Emergency_Occurred]-> Emergency_Mode;
+  Normal_Mode,    Emergency_Mode -[Everything_Is_Cool]-> Lazy_Mode;
+  Emergency_Mode, Lazy_Mode      -[Work_Normally     ]-> Normal_Mode;
+properties
+  Compute_Entrypoint_Source_Text => "Repository.CE_Normal_Handler" 
+    in modes (Normal_Mode);
+  Compute_Entrypoint_Source_Text => "Repository.CE_Emergency_Handler" 
+    in modes (Emergency_Mode);
+  Compute_Entrypoint_Source_Text => "Repository.CE_Lazy_Handler" 
+    in modes (Lazy_Mode);
+end Worker.Impl;
+
+---------------
+-- Processes --
+---------------
+
+process Node_A
+end Node_A;
+
+process implementation Node_A.Impl
+subcomponents
+  Raiser : thread Common::Raiser.Impl;
+  Driver : thread Common::Driver.Impl;
+  Worker : thread Worker.Impl;
+connections
+  port Raiser.Message            -> Worker.Message;
+  port Driver.Work_Normally      -> Worker.Work_Normally;
+  port Driver.Emergency_Occurred -> Worker.Emergency_Occurred;
+  port Driver.Everything_Is_Cool -> Worker.Everything_Is_Cool;
+end Node_A.Impl;
+
+------------
+-- System --
+------------
+
+system Test_Modes_CE
+end Test_Modes_CE;
+
+system implementation Test_Modes_CE.ERC32
+subcomponents
+  Mode_Switch : process   Node_A.Impl;
+  The_CPU     : processor Common::CPU.Impl;
+properties
+  Actual_Processor_Binding => reference (The_CPU) applies to Mode_Switch;
+end Test_Modes_CE.ERC32;
+
+end ModesC;

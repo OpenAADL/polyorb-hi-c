@@ -1,0 +1,78 @@
+--  Deployment aspects of the MPC PP model
+
+--  $Id: mpc_native.aadl 6713 2009-06-20 20:58:28Z lanarre $
+
+---------------
+-- Processor --
+---------------
+
+processor Simple_CPU
+features
+  ETH_1 : requires bus access Ethernet_Bus;
+properties
+  Deployment::location           => "127.0.0.1";
+  Deployment::Execution_Platform => Native;
+end Simple_CPU;
+
+processor Complex_CPU
+features
+  ETH_2 : requires bus access Ethernet_Bus;
+  ETH_3 : requires bus access Ethernet_Bus;
+properties
+  Deployment::location           => "127.0.0.1";
+  Deployment::Execution_Platform => Native;
+end Complex_CPU;
+
+processor implementation Simple_CPU.P4
+end Simple_CPU.P4;
+
+processor implementation Complex_CPU.P4
+end Complex_CPU.P4;
+
+---------
+-- Bus --
+---------
+
+bus Ethernet_Bus
+properties
+  Deployment::Transport_API => BSD_Sockets;
+end Ethernet_Bus;
+
+-----------------
+-- Root System --
+-----------------
+
+system MPC
+end MPC;
+
+system implementation MPC.Native
+subcomponents
+  SC_1 : process Sender_Process.Impl {Deployment::port_number => 12000;};
+  SC_2 : process Receiver_Process.Impl {Deployment::port_number => 12001;};
+  SC_3 : process Receiver_Process.Impl {Deployment::port_number => 12002;};
+
+  --  The CPUs
+
+  CPU_SC_1 : processor Complex_CPU.P4;  
+  CPU_SC_2 : processor Simple_CPU.P4;  
+  CPU_SC_3 : processor Simple_CPU.P4;
+
+  --  The Ethernet buses
+
+  ETH_1_2 : bus Ethernet_Bus;
+  ETH_1_3 : bus Ethernet_Bus;
+connections
+  bus access ETH_1_2 -> CPU_SC_1.ETH_2;
+  bus access ETH_1_2 -> CPU_SC_2.ETH_1;
+  bus access ETH_1_3 -> CPU_SC_1.ETH_3;
+  bus access ETH_1_3 -> CPU_SC_3.ETH_1;
+  event data port SC_1.Data_Source -> SC_2.Data_Sink
+    {Actual_Connection_Binding => (reference ETH_1_2);};
+  event data port SC_1.Data_Source -> SC_3.Data_Sink
+    {Actual_Connection_Binding => (reference ETH_1_3);};
+properties
+  Actual_Processor_Binding => reference CPU_SC_1 applies to SC_1;
+  Actual_Processor_Binding => reference CPU_SC_2 applies to SC_2;
+  Actual_Processor_Binding => reference CPU_SC_3 applies to SC_3;
+end MPC.Native;
+

@@ -1,0 +1,24 @@
+--  This is a scenario file describing the AADL 
+--  application producer_consumer
+
+--  $Id: scenario.aadl 6713 2009-06-20 20:58:28Z lanarre $
+
+system producer_consumer
+properties
+  Ocarina_Config::Timeout_Property     => 4000ms;
+  Ocarina_Config::Referencial_Files    => 
+    ("pr_a", "pr_a.ref",
+    "pr_b", "pr_b.ref");
+  Ocarina_Config::AADL_Files           => 
+    ("producer_consumer.aadl", "software.aadl");
+  Ocarina_Config::Generator            => polyorb_hi_ada;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::Cheddar_Properties));
+  Ocarina_Config::AADL_Version         => AADLv1;
+end producer_consumer;
+
+system implementation producer_consumer.Impl
+end  producer_consumer.Impl;
+

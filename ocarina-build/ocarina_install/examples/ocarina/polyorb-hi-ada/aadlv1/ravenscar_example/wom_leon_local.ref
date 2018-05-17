@@ -1,0 +1,15 @@
+[ 0.00] Regular Producer: doing some work.
+[ 0.92] Regular Producer: end of cyclic activation
+[ 1.00] Regular Producer: doing some work.
+[ 1.50] Sending extra work to  'On_Call_Producer': 250
+[ 1.54] Regular Producer: end of cyclic activation
+[ 1.56] On Call Producer: doing some work.
+[ 1.84] On Call Producer: end of sporadic activation.
+[ 2.00] Regular Producer: doing some work.
+[ 2.50] Signaling 'Activation Log Reader'
+[ 2.52] Regular Producer: end of cyclic activation
+[ 2.56] Activation Log Reader: no new interrupts.
+[ 3.00] Regular Producer: doing some work.
+[ 3.50] Regular Producer: end of cyclic activation
+[ 4.00] Regular Producer: doing some work.
+

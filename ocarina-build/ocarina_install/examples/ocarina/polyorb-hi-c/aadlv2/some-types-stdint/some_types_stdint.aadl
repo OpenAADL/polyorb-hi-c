@@ -1,0 +1,121 @@
+package Some_types
+public
+  with Software;
+  with Deployment;
+  with ocarina_drivers;
+  with ocarina_buses;
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+properties
+  Deployment::Execution_Platform => Native;
+end the_processor;
+
+---------------
+-- Processes --
+---------------
+
+process A
+features
+  Out_Boolean : out event data port Software::Boolean_Type;
+  Out_Integer : out event data port Software::Integer_Type;
+end A;
+
+process implementation A.Impl
+subcomponents
+  Emitter_Thread : thread Software::Emitter.Impl;
+connections
+  port Emitter_Thread.Boolean_Source -> Out_Boolean;
+  port Emitter_Thread.Integer_Source -> Out_Integer;
+end A.Impl;
+
+process B
+features
+  In_Boolean  : in event data port Software::Boolean_Type;
+  In_Integer  : in event data port Software::Integer_Type;
+end B;
+
+process implementation B.Impl
+subcomponents
+  Boolean_Rcv_Thread : thread Software::Boolean_Receiver.Impl;
+  Integer_Rcv_Thread : thread Software::Integer_Receiver.Impl;
+connections
+  port In_Boolean -> Boolean_Rcv_Thread.Data_Sink;
+  port In_Integer -> Integer_Rcv_Thread.Data_Sink;
+end B.Impl;
+
+
+process singleProcess
+end singleProcess;
+
+process implementation singleProcess.impl
+subcomponents
+  Emitter_Thread     : thread Software::Emitter.Impl;
+  Boolean_Rcv_Thread : thread Software::Boolean_Receiver.Impl;
+  Integer_Rcv_Thread : thread Software::Integer_Receiver.Impl;
+connections
+  port Emitter_Thread.Boolean_Source -> Boolean_Rcv_Thread.Data_Sink;
+  port Emitter_Thread.Integer_Source -> Integer_Rcv_Thread.Data_Sink;
+end singleProcess.impl;
+
+------------
+-- System --
+------------
+
+system Some_Types_Stdint
+end Some_Types_Stdint;
+
+system implementation Some_Types_Stdint.Impl
+subcomponents
+  Node_A : process A.Impl;
+  Node_B : process B.Impl;
+  Device_A : device ocarina_drivers::generic_sockets_ip.pohic
+               {Source_Text => ("devicesconf.c");};
+  Device_B : device ocarina_drivers::generic_sockets_ip.pohic
+               {Source_Text => ("devicesconf.c");};
+  CPU_A : processor the_processor;
+  CPU_B : processor the_processor;
+  the_bus : bus ocarina_buses::ip.i;
+connections
+  bus access the_bus -> Device_A.link;
+  bus access the_bus -> Device_B.link;
+
+  port Node_A.Out_Boolean -> Node_B.In_Boolean
+    {Actual_Connection_Binding => (reference (the_bus));};
+  port Node_A.Out_Integer -> Node_B.In_Integer
+    {Actual_Connection_Binding => (reference (the_bus));};
+properties
+  actual_processor_binding => (reference (CPU_A)) applies to Node_A;
+  actual_processor_binding => (reference (CPU_B)) applies to Node_B;
+
+  actual_processor_binding => (reference (CPU_A)) applies to Device_A;
+  actual_processor_binding => (reference (CPU_B)) applies to Device_B;
+end Some_Types_Stdint.Impl;
+
+system Some_Types_local
+end Some_Types_local;
+
+system implementation Some_Types_local.impl
+subcomponents
+  CPU_A: processor the_processor;
+  sometypesstdint: process singleProcess.impl;
+properties
+  Actual_Processor_Binding => reference (CPU_A) applies to sometypesstdint;
+end Some_Types_local.impl;
+
+system implementation Some_Types_local.Xenomai
+   extends Some_Types_local.impl
+properties
+  Deployment::Execution_Platform => linux32_xenomai_native applies to CPU_A;
+end Some_Types_local.Xenomai;
+
+system implementation Some_Types_local.RTEMS
+   extends Some_Types_local.impl
+properties
+   Deployment::Execution_platform => LEON_RTEMS applies to CPU_A ;
+end Some_Types_local.RTEMS;
+
+end Some_Types;

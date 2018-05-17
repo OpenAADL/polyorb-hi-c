@@ -1,0 +1,259 @@
+V "GNAT Lib v6"
+A -O2
+A -gnatA
+A -gnat12
+A -gnata
+A -gnaty
+A -gnatyu
+A -gnatys
+A -gnatp
+A -gnatn
+A -mtune=generic
+A -march=i686
+P SS ZX
+
+RN
+RR SIMPLE_BARRIERS
+RR NO_ABORT_STATEMENTS
+RR NO_ACCESS_PARAMETER_ALLOCATORS
+RV NO_ALLOCATORS
+RR NO_ASYNCHRONOUS_CONTROL
+RR NO_COEXTENSIONS
+RR NO_DYNAMIC_ATTACHMENT
+RR NO_DYNAMIC_PRIORITIES
+RR NO_ENTRY_CALLS_IN_ELABORATION_CODE
+RR NO_ENTRY_QUEUE
+RR NO_EXCEPTION_REGISTRATION
+RR NO_FIXED_IO
+RR NO_IMPLICIT_TASK_ALLOCATIONS
+RR NO_IMPLICIT_PROTECTED_OBJECT_ALLOCATIONS
+RV NO_INITIALIZE_SCALARS
+RV NO_LOCAL_ALLOCATORS
+RR NO_LOCAL_TIMING_EVENTS
+RR NO_LOCAL_PROTECTED_OBJECTS
+RR NO_PROTECTED_TYPE_ALLOCATORS
+RR NO_PROTECTED_TYPES
+RR NO_RELATIVE_DELAY
+RR NO_REQUEUE_STATEMENTS
+RV NO_SECONDARY_STACK
+RR NO_SELECT_STATEMENTS
+RR NO_SPECIFIC_TERMINATION_HANDLERS
+RV NO_STANDARD_STORAGE_POOLS
+RR NO_STREAM_OPTIMIZATIONS
+RR NO_TASK_ALLOCATORS
+RR NO_TASK_ATTRIBUTES_PACKAGE
+RR NO_TASK_AT_INTERRUPT_PRIORITY
+RR NO_TASK_HIERARCHY
+RR NO_TASK_TERMINATION
+RR NO_TASKING
+RR NO_TERMINATE_ALTERNATIVES
+RR STATIC_PRIORITIES
+RR STATIC_STORAGE_SIZE
+RV NO_DEFAULT_INITIALIZATION
+RR IMMEDIATE_RECLAMATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLEMENTATION_RESTRICTIONS
+RV NO_ELABORATION_CODE
+RV NO_OBSOLESCENT_FEATURES
+RR PURE_BARRIERS
+RV SPARK_05
+RR MAX_PROTECTED_ENTRIES=0
+RR MAX_SELECT_ALTERNATIVES=0
+RR MAX_TASK_ENTRIES=0
+RR MAX_TASKS=0
+RR MAX_ASYNCHRONOUS_SELECT_NESTING=0
+
+U ocarina.files%b	ocarina-files.adb	06300840 NE OO PK IS
+W ada%s			ada.ads			ada.ali
+W ada.directories%s	a-direct.adb		a-direct.ali
+W ada.tags%s		a-tags.adb		a-tags.ali
+W errors%s		errors.adb		errors.ali
+W gnat%s		gnat.ads		gnat.ali
+W gnat.os_lib%s		g-os_lib.ads		g-os_lib.ali
+W ocarina%s		ocarina.adb		ocarina.ali
+W ocarina.namet%s	ocarina-namet.adb	ocarina-namet.ali
+W ocarina.options%s	ocarina-options.adb	ocarina-options.ali
+W system%s		system.ads		system.ali
+W system.scalar_values%s  s-scaval.adb		s-scaval.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+
+U ocarina.files%s	ocarina-files.ads	bfd818f1 BN EE OO PK IS
+Z ada%s			ada.ads			ada.ali
+W ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_conversion%s
+W gnat%s		gnat.ads		gnat.ali
+Z gnat.heap_sort_g%s
+W gnat.table%s
+W locations%s		locations.adb		locations.ali
+W ocarina%s		ocarina.adb		ocarina.ali
+W ocarina.types%s	ocarina-types.adb	ocarina-types.ali
+W system%s		system.ads		system.ali
+W system.assertions%s	s-assert.adb		s-assert.ali
+Z system.memory%s	s-memory.adb		s-memory.ali
+W system.scalar_values%s  s-scaval.adb		s-scaval.ali
+
+D ada.ads		20070406091342 3ffc8e18 ada%s
+D a-calend.ads		20141120112812 d986d312 ada.calendar%s
+D a-charac.ads		20070912115821 2d3ec45b ada.characters%s
+D a-chlat1.ads		20140225151544 66457d31 ada.characters.latin_1%s
+D a-direct.ads		20140801100131 9d42e46d ada.directories%s
+D a-except.ads		20151016123252 291912d5 ada.exceptions%s
+D a-finali.ads		20151020095656 bf4f806b ada.finalization%s
+D a-ioexce.ads		20140225151544 e4a01f64 ada.io_exceptions%s
+D a-stream.ads		20141120112812 119b8fb3 ada.streams%s
+D a-string.ads		20070406091342 90ac6797 ada.strings%s
+D a-strmap.ads		20140611123156 e8bb714a ada.strings.maps%s
+D a-strunb.ads		20140717072738 3f91d4c5 ada.strings.unbounded%s
+D a-tags.ads		20151016130316 01f5e3ef ada.tags%s
+D a-unccon.ads		20070406091342 f9eb8f06 ada.unchecked_conversion%s
+D a-uncdea.ads		20070406091342 f15a5ed1 ada.unchecked_deallocation%s
+D errors.ads		20180517074744 db09df45 errors%s
+D gnat.ads		20140801083227 fd2ad2f1 gnat%s
+D g-hesorg.ads		20110801150502 106922da gnat.heap_sort_g%s
+D g-hesorg.adb		20110801150502 33b32c5b gnat.heap_sort_g%b
+D g-os_lib.ads		20090409150019 0db74523 gnat.os_lib%s
+D g-speche.ads		20140225151544 3913ba7d gnat.spelling_checker%s
+D g-table.ads		20151020120548 16cef446 gnat.table%s
+D g-table.adb		20140521105248 2932f881 gnat.table%b
+D locations.ads		20180517074744 06a68fdd locations%s
+D ocarina.ads		20180517074744 bfb8a9d7 ocarina%s
+D ocarina-files.ads	20180517074744 f091ebe6 ocarina.files%s
+D ocarina-files.adb	20180517074744 3f5079cd ocarina.files%b
+D ocarina-namet.ads	20180517074744 b31432d0 ocarina.namet%s
+D ocarina-namet.adb	20180517074744 c6f24f24 ocarina.namet%b
+D ocarina-options.ads	20180517074744 3119d6b0 ocarina.options%s
+D ocarina-options.adb	20180517074744 2448ab5e ocarina.options%b
+D ocarina-output.ads	20180517074744 edb3fa77 ocarina.output%s
+D ocarina-types.ads	20180517074744 e099215b ocarina.types%s
+D system.ads		20151123113124 c6f79445 system%s
+D s-assert.ads		20140225151544 cd8d2c94 system.assertions%s
+D s-atocou.ads		20151020101020 b45c2d8d system.atomic_counters%s
+D s-finmas.ads		20151016130316 7811a767 system.finalization_masters%s
+D s-finroo.ads		20120426095924 4ff27390 system.finalization_root%s
+D s-memory.ads		20140225151139 597d6634 system.memory%s
+D s-os_lib.ads		20151118101046 53e9e388 system.os_lib%s
+D s-parame.ads		20140801093848 7e2a0d7f system.parameters%s
+D s-scaval.ads		20090409150019 bea40757 system.scalar_values%s
+D s-secsta.ads		20140225151139 86a2856d system.secondary_stack%s
+D s-stalib.ads		20151112104907 09bd3940 system.standard_library%s
+D s-stoele.ads		20140225151139 2dc34a04 system.storage_elements%s
+D s-stopoo.ads		20131010103753 b16154c2 system.storage_pools%s
+D s-stposu.ads		20151020120548 97a6219c system.storage_pools.subpools%s
+D s-stratt.ads		20131014135145 aedef97e system.stream_attributes%s
+D s-string.ads		20140225151139 8fe54fb7 system.strings%s
+D s-traent.ads		20140730135025 005bf670 system.traceback_entries%s
+D s-unstyp.ads		20140731130224 9d58a4c0 system.unsigned_types%s
+D unchdeal.ads		20070406091342 214516a4 unchecked_deallocation%s
+D /home/francis/polyorb-hi-c/ocarina-build/ocarina/src/../projects/restrictions.adc  20180517074744 00000000
+X 1 ada.ads
+16K9*Ada 19e8 27|32r6 32r29
+X 5 a-direct.ads
+76K13*Directories 487e20 27|32w10 32r33
+240V13*Simple_Name{string} 27|214s15
+X 16 errors.ads
+36K9*Errors 79e11 27|35w6 44r8
+39U14*DE=39:38 27|134s10 151s13
+X 17 gnat.ads
+34K9*GNAT 37e9 26|36r6 43r27 27|33r6 42r8
+X 20 g-os_lib.ads
+51K14*OS_Lib=51:36 27|33w11 42r13
+X 22 g-table.ads
+56k14*Table 225e15 26|36w11 43r32
+104A9*Table_Type(33|182I9)<integer>
+106A12*Big_Table_Type{104A9[26|43]}<33|49I9>
+115P9*Table_Ptr(106A12[30|80])
+120p4*Table{115P9[26|43]} 27|75r48[26|43] 219r44[30|80]
+140V13*Last{33|49I9} 27|74s29[26|43] 218s59[30|80]
+157i4*First{integer} 27|218r36[30|80]
+177U14*Append 27|81s18[26|43]
+X 24 locations.ads
+34K9*Locations 80e14 26|39w6 39r21
+36R9*Location 52e14 26|46r22 60r52 63r41 67r40 27|122r52 170r40 180r41
+41i7*Line{33|49I9} 27|115m23 115r52
+43i7*First_Pos{33|122I9} 27|113m23
+45i7*Last_Pos{33|122I9} 27|114m23
+47i7*Scan{33|122I9} 27|92r30 101r34 102r42 104m26 104r50 108m26 108r50 113r52
+. 114r52 143m23 146r53 155m26 155r50 238r29 239r39 247m26 247r50 257r29 258r39
+. 260m32 260r56
+49i7*EOF{33|122I9} 27|92r53 238r53 257r53
+51p7*Buffer{33|128P9} 27|173r32
+54r4*No_Location{36R9} 27|135r17 152r20
+62U14*Initialize 27|162s7
+X 25 ocarina.ads
+32K9*Ocarina 61e12 26|38r6 38r29 41r9 84r5 27|36r6 37r6 37r27 39r14 45r8
+. 269r5
+X 26 ocarina-files.ads
+41K17*Files 25|32k9 26|84l13 84e18 27|39b22 269l13 269t18
+43K12*Sources[22|56] 27|74r21 75r40 81r10
+45p4*Buffer{33|128P9} 27|101r10 102r18 141m7 146r29 162r61 173m7 239r15 258r15
+46r4*Buffer_Location{24|36R9} 27|92r14 92r37 101r18 102r26 104m10 104r34
+. 108m10 108r34 113m7 113r36 114m7 114r36 115m7 115r36 143m7 146r37 155m10
+. 155r34 162m19 162r19 163r14 172m7 182r16 238r13 238r37 239r23 247m10 247r34
+. 257r13 257r37 258r23 260m16 260r40
+50U14*Add_File_To_Parse_List 51>7 52>7 27|51b14 83l8 83t30
+51i7 File_Name{33|182I9} 27|52b7 60r24
+52b7 Add_Suffix{boolean} 27|53b7 65r13
+58V13*Search_File{33|182I9} 58>26 27|189b13 230l8 230t19
+58i26 File_Name{33|182I9} 27|189b26 191r10 197r24 204r17 214r45
+60V13*Load_File{24|36R9} 60>24 27|122b13 164l8 164t17
+60i24 File_Name{33|182I9} 27|122b24 129r24 134r53 151r56 162r36
+63U14*Save_Location 63<29 64r19 27|180b14 183l8 183t21
+63r29 State{24|36R9} 27|180b29 182m7
+67U14*Restore_Location 67>32 68r19 27|170b14 174l8 174t24
+67r32 State{24|36R9} 27|170b32 172r26 173r26
+71U14*New_Line 27|99b14 116l8 116t16 241s16 262s16
+75U14*Skip_Line 27|236b14 249l8 249t17
+78U14*Skip_Spaces 27|91s7 255b14 267l8 267t19
+81V13*End_Of_File{boolean} 27|89b13 93l8 93t19
+X 27 ocarina-files.adb
+56i7 File_Name_With_Extension{33|182I9} 72m7 75r13 81r26
+57b7 Do_Add{boolean} 76m13 80r10
+74i11 J<integer> 75r55
+123i7 File_Desc{40|183I9} 132m7 133r10 140r39 146r18 159r14
+124i7 Result{integer} 145m10 148r20 150r13 155r67 156r43
+125i7 Length{integer} 140m7 141r49 146r68 148r29 156m10 156r34 162r52
+213a10 Base_File_Name_S{string} 216r32
+215i10 Base_File_Name_N{33|182I9} 221r41
+218i14 Path{integer} 219r51
+X 28 ocarina-namet.ads
+36K17*Namet 27|36w14 45r16 28|242e18
+55a4*Name_Buffer{string} 27|63r17 130m7 132m31 132r31 203r27 223r33
+62i4*Name_Len{natural} 27|62r10 63r30 63r46 130r20 199r10 203r45 223r51
+70U14*Get_Name_String 27|60s7 129s7 197s7 219s13
+76V13*Get_Name_String{string} 27|134s36 151s39 214s28
+80U14*Get_Name_String_And_Append 27|221s13
+93V13*Get_String_Name{33|182I9} 27|216s15
+102V13*Name_Find{33|182I9} 27|72s35 224s23
+122U14*Add_Char_To_Name_Buffer 27|220s13
+154U14*Add_Str_To_Name_Buffer 27|66s13
+X 30 ocarina-options.ads
+36K17*Options 27|37w14 37r35 30|119e20
+80K12*Library_Paths[22|56] 27|218r22 218r45 219r30
+X 33 ocarina-types.ads
+34K17*Types 26|38w14 38r37 33|304e18
+49I9*Int<integer> 27|162r47
+55I12*Nat{49I9} 26|43r48
+122I9*Text_Ptr<49I9> 27|141r39 155r57
+125A9*Text_Buffer(character)<122I9> 27|141r21
+128P9*Text_Buffer_Ptr(125A9) 26|45r22
+182I9*Name_Id<integer> 26|43r39 51r20 58r38 58r54 60r36 27|52r20 56r34 122r36
+. 189r38 189r54 215r38
+188i4*No_Name{182I9} 27|191r22 192r17 200r17 229r14
+X 34 system.ads
+67M9*Address
+X 39 s-memory.ads
+53V13*Alloc{34|67M9} 103i<c,__gnat_malloc>22
+68U14*Free 104i<c,__gnat_free>22
+76V13*Realloc{34|67M9} 105i<c,__gnat_realloc>22
+X 40 s-os_lib.ads
+183I9*File_Descriptor<integer> 27|123r19
+191i4*Invalid_FD{183I9} 27|133r22
+199U14*Close 27|159s7
+275n18*Binary{275E9} 27|132r52
+364V13*File_Length{long_integer} 27|140s26
+436V13*Is_Regular_File{boolean} 27|203s10 223s16
+562V13*Read{integer} 27|146s12
+691V13*Open_Read{183I9} 27|132s20
+1053e4*Directory_Separator{character} 27|220r38
+

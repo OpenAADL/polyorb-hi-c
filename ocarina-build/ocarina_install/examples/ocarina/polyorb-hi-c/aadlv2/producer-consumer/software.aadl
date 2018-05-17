@@ -1,0 +1,76 @@
+package Software
+public
+  with Data_Model;
+
+  ----------
+  -- Data --
+  ----------
+
+  data Alpha_Type
+  properties
+    Data_Model::Data_Representation => integer;
+  end Alpha_Type;
+
+  -----------------
+  -- Subprograms --
+  -----------------
+
+  subprogram Produce_Spg
+  features
+    Data_Source : out parameter Alpha_Type;
+  properties
+    Source_Language => (C);
+    Source_Name     => "user_produce_spg";
+    Source_Text     => ("producer-consumer.c");
+  end Produce_Spg;
+
+  subprogram Consume_Spg
+  features
+    Data_Sink : in parameter Alpha_Type;
+  properties
+    Source_Language => (C);
+    Source_Name     => "user_consume_spg";
+    Source_Text     => ("producer-consumer.c");
+  end Consume_Spg;
+
+  -------------
+  -- Threads --
+  -------------
+
+  thread P
+  features
+    Data_Source : out data port Alpha_Type;
+  end P;
+
+  thread implementation P.Impl
+  calls
+    Mycalls: {
+    P_Spg : subprogram Produce_Spg;
+    };
+  connections
+    parameter P_Spg.Data_Source -> Data_Source;
+  properties
+    Dispatch_Protocol => Periodic;
+    Period            => 5 sec;
+    Priority => 110;
+  end P.Impl;
+
+  thread Q
+  features
+    Data_Sink : in data port Alpha_Type;
+  end Q;
+
+  thread implementation Q.Impl
+  calls
+    Mycalls: {
+    Q_Spg : subprogram Consume_Spg;
+    };
+  connections
+    parameter Data_Sink -> Q_Spg.Data_Sink;
+  properties
+    Dispatch_Protocol => Periodic;
+    Period            => 5 sec;
+    Priority => 100;
+  end Q.Impl;
+
+end Software;

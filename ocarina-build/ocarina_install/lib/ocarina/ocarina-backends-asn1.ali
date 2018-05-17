@@ -1,0 +1,165 @@
+V "GNAT Lib v6"
+A -O2
+A -gnatA
+A -gnat12
+A -gnata
+A -gnaty
+A -gnatyu
+A -gnatys
+A -gnatp
+A -gnatn
+A -mtune=generic
+A -march=i686
+P ZX
+
+RN
+RR SIMPLE_BARRIERS
+RR NO_ABORT_STATEMENTS
+RR NO_ACCESS_PARAMETER_ALLOCATORS
+RR NO_ASYNCHRONOUS_CONTROL
+RR NO_COEXTENSIONS
+RR NO_DYNAMIC_ATTACHMENT
+RR NO_DYNAMIC_PRIORITIES
+RR NO_ENTRY_CALLS_IN_ELABORATION_CODE
+RR NO_ENTRY_QUEUE
+RR NO_EXCEPTION_REGISTRATION
+RR NO_FIXED_IO
+RR NO_IMPLICIT_TASK_ALLOCATIONS
+RR NO_IMPLICIT_PROTECTED_OBJECT_ALLOCATIONS
+RV NO_INITIALIZE_SCALARS
+RR NO_LOCAL_TIMING_EVENTS
+RR NO_LOCAL_PROTECTED_OBJECTS
+RR NO_PROTECTED_TYPE_ALLOCATORS
+RR NO_PROTECTED_TYPES
+RR NO_RELATIVE_DELAY
+RR NO_REQUEUE_STATEMENTS
+RR NO_SELECT_STATEMENTS
+RR NO_SPECIFIC_TERMINATION_HANDLERS
+RR NO_STREAM_OPTIMIZATIONS
+RR NO_TASK_ALLOCATORS
+RR NO_TASK_ATTRIBUTES_PACKAGE
+RR NO_TASK_AT_INTERRUPT_PRIORITY
+RR NO_TASK_HIERARCHY
+RR NO_TASK_TERMINATION
+RR NO_TASKING
+RR NO_TERMINATE_ALTERNATIVES
+RR STATIC_PRIORITIES
+RR STATIC_STORAGE_SIZE
+RV NO_DEFAULT_INITIALIZATION
+RR IMMEDIATE_RECLAMATION
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLEMENTATION_RESTRICTIONS
+RV NO_ELABORATION_CODE
+RV NO_OBSOLESCENT_FEATURES
+RR PURE_BARRIERS
+RV SPARK_05
+RR MAX_PROTECTED_ENTRIES=0
+RR MAX_SELECT_ALTERNATIVES=0
+RR MAX_TASK_ENTRIES=0
+RR MAX_TASKS=0
+RR MAX_ASYNCHRONOUS_SELECT_NESTING=0
+
+U ocarina.backends.asn1%b  ocarina-backends-asn1.adb  b54815e6 NE OO PK IS
+W ocarina%s		ocarina.adb		ocarina.ali
+W ocarina.backends%s	ocarina-backends.adb	ocarina-backends.ali
+W ocarina.backends.asn1%s  ocarina-backends-asn1.adb  ocarina-backends-asn1.ali
+W ocarina.backends.asn1.deployment%s  ocarina-backends-asn1-deployment.adb  ocarina-backends-asn1-deployment.ali
+W ocarina.backends.asn1_tree%s  ocarina-backends-asn1_tree.ads  ocarina-backends-asn1_tree.ali
+W ocarina.backends.asn1_tree.generator%s  ocarina-backends-asn1_tree-generator.adb  ocarina-backends-asn1_tree-generator.ali
+W ocarina.backends.asn1_tree.nutils%s  ocarina-backends-asn1_tree-nutils.adb  ocarina-backends-asn1_tree-nutils.ali
+W ocarina.backends.expander%s  ocarina-backends-expander.adb  ocarina-backends-expander.ali
+W ocarina.backends.messages%s  ocarina-backends-messages.adb  ocarina-backends-messages.ali
+W ocarina.backends.utils%s  ocarina-backends-utils.adb  ocarina-backends-utils.ali
+W ocarina.instances%s	ocarina-instances.adb	ocarina-instances.ali
+W system.scalar_values%s  s-scaval.adb		s-scaval.ali
+
+U ocarina.backends.asn1%s  ocarina-backends-asn1.ads  f27774c6 EE OO PK IS
+W ocarina.backends%s	ocarina-backends.adb	ocarina-backends.ali
+W system.scalar_values%s  s-scaval.adb		s-scaval.ali
+
+D ada.ads		20070406091342 3ffc8e18 ada%s
+D a-unccon.ads		20070406091342 f9eb8f06 ada.unchecked_conversion%s
+D gnat.ads		20140801083227 fd2ad2f1 gnat%s
+D g-hesorg.ads		20110801150502 106922da gnat.heap_sort_g%s
+D g-table.ads		20151020120548 16cef446 gnat.table%s
+D g-table.adb		20140521105248 2932f881 gnat.table%b
+D locations.ads		20180517074744 06a68fdd locations%s
+D ocarina.ads		20180517074744 bfb8a9d7 ocarina%s
+D ocarina-backends.ads	20180517074744 6580b411 ocarina.backends%s
+D ocarina-backends-asn1.ads  20180517074744 97f7c0d7 ocarina.backends.asn1%s
+D ocarina-backends-asn1.adb  20180517074744 2f0bc5a8 ocarina.backends.asn1%b
+D ocarina-backends-asn1-deployment.ads  20180517074744 25c706a9 ocarina.backends.asn1.deployment%s
+D ocarina-backends-asn1_tree.ads  20180517074744 b30cb728 ocarina.backends.asn1_tree%s
+D ocarina-backends-asn1_tree-generator.ads  20180517074744 2cca5e72 ocarina.backends.asn1_tree.generator%s
+D ocarina-backends-asn1_tree-nodes.ads  20180517074810 7e053028 ocarina.backends.asn1_tree.nodes%s
+D ocarina-backends-asn1_tree-nutils.ads  20180517074744 fa29110c ocarina.backends.asn1_tree.nutils%s
+D ocarina-backends-asn1_values.ads  20180517074744 febb06d3 ocarina.backends.asn1_values%s
+D ocarina-backends-expander.ads  20180517074744 33b082d8 ocarina.backends.expander%s
+D ocarina-backends-messages.ads  20180517074744 56b75ee5 ocarina.backends.messages%s
+D ocarina-backends-properties.ads  20180517074744 9866b048 ocarina.backends.properties%s
+D ocarina-backends-utils.ads  20180517074744 20abe899 ocarina.backends.utils%s
+D ocarina-instances.ads	20180517074744 bb3c6dea ocarina.instances%s
+D ocarina-types.ads	20180517074744 e099215b ocarina.types%s
+D system.ads		20151123113124 c6f79445 system%s
+D s-assert.ads		20140225151544 cd8d2c94 system.assertions%s
+D s-memory.ads		20140225151139 597d6634 system.memory%s
+D s-scaval.ads		20090409150019 bea40757 system.scalar_values%s
+D unchdeal.ads		20070406091342 214516a4 unchecked_deallocation%s
+D /home/francis/polyorb-hi-c/ocarina-build/ocarina/src/../projects/restrictions.adc  20180517074744 00000000
+X 8 ocarina.ads
+32K9*Ocarina 61e12 10|32r9 43r5 11|32r6 33r6 34r6 35r6 36r6 37r6 38r6 40r14
+. 42r8 43r8 44r8 45r8 46r8 47r8 114r5
+X 9 ocarina-backends.ads
+41K17*Backends 8|32k9 9|120e21 10|32r17 43r13 11|33r14 34r14 35r14 36r14
+. 37r14 38r14 40r22 42r16 43r16 44r16 45r16 46r16 114r13
+55n7*ASN1_Deployment{48E9} 11|93r61
+79U14*Register_Backend 11|93s7
+110i4*Generated_Sources_Directory{23|182I9} 11|78r24
+X 10 ocarina-backends-asn1.ads
+32K26*ASN1 9|41k17 10|41E4 43l22 43e26 11|37r23 40b31 114l22 114t26
+34U14*Generate 34>24 11|58b14 84l8 84t16 93r44
+34i24 AADL_Root{23|195I9} 11|58b24 63r43
+36U14*Init 11|90b14 94l8 94t12
+38U14*Reset 11|100b14 103l8 103t13
+41i4 ASN1_Root{23|195I9} 11|72r14 80r37
+X 11 ocarina-backends-asn1.adb
+49U14 Visit_Architecture_Instance 49>43 69s7 109b14 112l8 112t35
+49i43 E{23|195I9} 109b43 111r25
+59i7 Instance_Root{23|195I9} 63m7 67r15 69r36
+X 12 ocarina-backends-asn1-deployment.ads
+32K31*Deployment 11|37w28 111r7 12|36e37
+34U14*Visit 11|111s18
+X 13 ocarina-backends-asn1_tree.ads
+32K26*ASN1_Tree 11|35r23 36r23 43r25 44r25 80r7 92r7 13|33e31
+X 14 ocarina-backends-asn1_tree-generator.ads
+32K36*Generator 11|35w33 43r35 80r17 14|41e41
+36U14*Generate 11|80s27
+X 16 ocarina-backends-asn1_tree-nutils.ads
+35K36*Nutils 11|36w33 44r35 92r17 16|238e38
+129U14*Initialize 11|92s24
+X 18 ocarina-backends-expander.ads
+36K26*Expander 11|33w23 46r25 18|43e30
+38U14*Expand 11|67s7
+X 19 ocarina-backends-messages.ads
+34K26*Messages 11|34w23 42r25 19|60e30
+36U14*Display_Error 11|73s10
+38b7 Fatal{boolean} 11|73r51
+X 21 ocarina-backends-utils.ads
+34K26*Utils 11|38w23 45r25 21|505e27
+54U14*Enter_Directory 11|78s7
+58U14*Leave_Directory 11|83s7
+X 22 ocarina-instances.ads
+34K17*Instances 11|32w14 47r16 22|105e22
+36V13*Instantiate_Model{23|195I9} 11|63s24
+X 23 ocarina-types.ads
+49I9*Int<integer>
+182I9*Name_Id<integer>
+195I9*Node_Id<49I9> 10|34r36 41r16 11|49r47 58r36 59r23 109r47
+201V13*No{boolean} 11|72s10
+X 24 system.ads
+67M9*Address
+X 26 s-memory.ads
+53V13*Alloc{24|67M9} 103i<c,__gnat_malloc>22
+68U14*Free 104i<c,__gnat_free>22
+76V13*Realloc{24|67M9} 105i<c,__gnat_realloc>22
+

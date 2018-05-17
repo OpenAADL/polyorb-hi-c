@@ -1,0 +1,183 @@
+V "GNAT Lib v6"
+A -O2
+A -gnatA
+A -gnat12
+A -gnata
+A -gnaty
+A -gnatyu
+A -gnatys
+A -gnatp
+A -gnatn
+A -mtune=generic
+A -march=i686
+P ZX
+
+RN
+RR SIMPLE_BARRIERS
+RR NO_ABORT_STATEMENTS
+RR NO_ACCESS_PARAMETER_ALLOCATORS
+RV NO_ACCESS_SUBPROGRAMS
+RR NO_ASYNCHRONOUS_CONTROL
+RR NO_COEXTENSIONS
+RR NO_DYNAMIC_ATTACHMENT
+RR NO_DYNAMIC_PRIORITIES
+RR NO_ENTRY_CALLS_IN_ELABORATION_CODE
+RR NO_ENTRY_QUEUE
+RR NO_EXCEPTION_REGISTRATION
+RR NO_FIXED_IO
+RR NO_IMPLICIT_TASK_ALLOCATIONS
+RR NO_IMPLICIT_PROTECTED_OBJECT_ALLOCATIONS
+RV NO_INITIALIZE_SCALARS
+RR NO_LOCAL_TIMING_EVENTS
+RR NO_LOCAL_PROTECTED_OBJECTS
+RR NO_PROTECTED_TYPE_ALLOCATORS
+RR NO_PROTECTED_TYPES
+RR NO_RELATIVE_DELAY
+RR NO_REQUEUE_STATEMENTS
+RR NO_SELECT_STATEMENTS
+RR NO_SPECIFIC_TERMINATION_HANDLERS
+RR NO_STREAM_OPTIMIZATIONS
+RR NO_TASK_ALLOCATORS
+RR NO_TASK_ATTRIBUTES_PACKAGE
+RR NO_TASK_AT_INTERRUPT_PRIORITY
+RR NO_TASK_HIERARCHY
+RR NO_TASK_TERMINATION
+RR NO_TASKING
+RR NO_TERMINATE_ALTERNATIVES
+RR STATIC_PRIORITIES
+RR STATIC_STORAGE_SIZE
+RV NO_DEFAULT_INITIALIZATION
+RR IMMEDIATE_RECLAMATION
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLEMENTATION_RESTRICTIONS
+RV NO_OBSOLESCENT_FEATURES
+RR PURE_BARRIERS
+RV SPARK_05
+RR MAX_PROTECTED_ENTRIES=0
+RR MAX_SELECT_ALTERNATIVES=0
+RR MAX_TASK_ENTRIES=0
+RR MAX_TASKS=0
+RR MAX_ASYNCHRONOUS_SELECT_NESTING=0
+
+U ocarina.backends.pn.printer%b  ocarina-backends-pn-printer.adb  0b9a9091 NE OO PK IS
+W ocarina%s		ocarina.adb		ocarina.ali
+W ocarina.backends%s	ocarina-backends.adb	ocarina-backends.ali
+W ocarina.backends.pn%s	ocarina-backends-pn.adb	ocarina-backends-pn.ali
+W ocarina.backends.pn.nodes%s  ocarina-backends-pn-nodes.adb  ocarina-backends-pn-nodes.ali
+W ocarina.backends.pn.nutils%s  ocarina-backends-pn-nutils.adb  ocarina-backends-pn-nutils.ali
+W system.scalar_values%s  s-scaval.adb		s-scaval.ali
+
+U ocarina.backends.pn.printer%s  ocarina-backends-pn-printer.ads  3825c42c EE NE OO PK IS
+W ocarina.backends.pn%s	ocarina-backends-pn.adb	ocarina-backends-pn.ali
+
+D ada.ads		20070406091342 3ffc8e18 ada%s
+D a-unccon.ads		20070406091342 f9eb8f06 ada.unchecked_conversion%s
+D gnat.ads		20140801083227 fd2ad2f1 gnat%s
+D g-hesorg.ads		20110801150502 106922da gnat.heap_sort_g%s
+D g-table.ads		20151020120548 16cef446 gnat.table%s
+D g-table.adb		20140521105248 2932f881 gnat.table%b
+D locations.ads		20180517074744 06a68fdd locations%s
+D ocarina.ads		20180517074744 bfb8a9d7 ocarina%s
+D ocarina-backends.ads	20180517074744 6580b411 ocarina.backends%s
+D ocarina-backends-pn.ads  20180517074744 520d4674 ocarina.backends.pn%s
+D ocarina-backends-pn-nodes.ads  20180517074810 31e07b54 ocarina.backends.pn.nodes%s
+D ocarina-backends-pn-nutils.ads  20180517074744 ae9ada76 ocarina.backends.pn.nutils%s
+D ocarina-backends-pn-printer.ads  20180517074744 6a288258 ocarina.backends.pn.printer%s
+D ocarina-backends-pn-printer.adb  20180517074744 fec8b3eb ocarina.backends.pn.printer%b
+D ocarina-types.ads	20180517074744 e099215b ocarina.types%s
+D system.ads		20151123113124 c6f79445 system%s
+D s-assert.ads		20140225151544 cd8d2c94 system.assertions%s
+D s-memory.ads		20140225151139 597d6634 system.memory%s
+D s-scaval.ads		20090409150019 bea40757 system.scalar_values%s
+D unchdeal.ads		20070406091342 214516a4 unchecked_deallocation%s
+D /home/francis/polyorb-hi-c/ocarina-build/ocarina/src/../projects/restrictions.adc  20180517074744 00000000
+X 8 ocarina.ads
+32K9*Ocarina 61e12 13|43r9 79r5 14|32r6 33r6 35r14 37r24 38r24 193r5
+X 9 ocarina-backends.ads
+41K17*Backends 8|32k9 9|120e21 13|43r17 79r13 14|32r14 33r14 35r22 37r32
+. 38r32 193r13
+X 10 ocarina-backends-pn.ads
+36K26*PN 9|41k17 10|49e24 13|43r26 79r22 14|32r23 33r23 35r31 37r41 38r41
+. 193r22
+X 11 ocarina-backends-pn-nodes.ads
+12K29*Nodes 785e30 14|32w26 37r44
+47n7*K_Thread_Pattern{14E9} 14|79r39
+538V13*Kind{14E9} 14|79s20
+544V13*Next_Node{15|195I9} 14|85s30 93s30 115s30 124s30 133s30 153s30 172s30
+. 180s30 188s30
+547V13*First_Node{15|195I9} 14|77s16 90s16 112s27 121s27 130s27 150s27 169s27
+. 177s27 185s27
+580V13*Public_Interfaces{15|208I9} 14|168s24 169s39
+583V13*Internal_Transitions{15|208I9} 14|176s24 177s39
+586V13*Internal_Places{15|208I9} 14|184s24 185s39
+589V13*Pn_Subcomponents{15|208I9} 14|75s24 77s28
+592V13*Pn_Interconnections{15|208I9} 14|88s24 90s28
+595V13*Pn_Box{15|195I9} 14|75s42 77s46 88s45 90s49
+718V13*In_Ports{15|208I9} 14|120s24 121s39
+721V13*Out_Ports{15|208I9} 14|129s24 130s39
+724V13*Call_Seq{15|208I9} 14|111s24 112s39
+748V13*Spg_Call{15|208I9} 14|149s24 150s39
+X 12 ocarina-backends-pn-nutils.ads
+35K29*Nutils 66e31 14|33w26 38r44
+45V13*Is_Empty{boolean} 14|75s14 88s14 111s14 120s14 129s14 149s14 168s14
+. 176s14 184s14
+X 13 ocarina-backends-pn-printer.ads
+43K29*Printer 10|36k26 13|75E4 79l25 79e32 14|35b34 193l25 193t32
+45P9*P_Print_Place 46>7 47>7 57r20 75r39 14|45r20
+46i7 Pn_Generated{15|195I9}
+47i7 Pn_P{15|195I9}
+49P9*P_Print_Trans 50>7 51>7 58r20 76r39 14|46r20
+50i7 Pn_Generated{15|195I9}
+51i7 Pn_T{15|195I9}
+53P9*P_Print_Formalism_Information 54>7 59r20 77r39 14|47r20
+54i7 Pn_Generated{15|195I9}
+56U14*Set_Printers 57>7 58>7 59>7 14|44b14 53l8 53t20
+57p7 P_Place{45P9} 14|45b7 50r43
+58p7 P_Trans{49P9} 14|46b7 51r43
+59p7 P_Form_Inf{53P9} 14|47b7 52r43
+61U14*Print_Pn_Generated 61>34 14|59b14 63l8 63t26
+61i34 Pn_Generated{15|195I9} 14|59b34 61r45 62r21
+63U14*Print_Pn_Box 63>28 14|62s7 69b14 96l8 96t20
+63i28 Pn_Generated{15|195I9} 14|69b28 75r50 77r54 80r41 82r44 88r53 90r57
+. 92r35
+65U14*Print_Thread 65>28 65>49 14|80s16 102b14 137l8 137t20
+65i28 Pn_Thread{15|195I9} 14|102b28 108r24 111r34 112r49 120r34 121r49 129r35
+. 130r50
+65i49 Pn_Generated{15|195I9} 14|102b49 108r35 114r40 123r41 132r41
+67U14*Print_Call_Seq 67>30 67>49 14|114s13 143b14 156l8 156t22
+67i30 Pn_Call{15|195I9} 14|143b30 149r34 150r49
+67i49 Pn_Generated{15|195I9} 14|143b49 152r41
+69U14*Print_Component 69>31 69>49 14|82s16 108s7 123s13 132s13 152s13 162b14
+. 191l8 191t23
+69i31 Pn_Sub{15|195I9} 14|162b31 168r43 169r58 176r46 177r61 184r41 185r56
+69i49 Pn_Generated{15|195I9} 14|162b49 171r35 179r35 187r35
+75p4 Proc_Print_Place{45P9} 14|50m7 92r13 187r13
+76p4 Proc_Print_Trans{49P9} 14|51m7 171r13 179r13
+77p4 Proc_Print_Formalism_Information{53P9} 14|52m7 61r7
+X 14 ocarina-backends-pn-printer.adb
+37K12 OPN=37:44 70r11 77r12 79r16 85r26 90r12 93r26 103r11 112r23 115r26
+. 121r23 124r26 130r23 133r26 144r11 150r23 153r26 163r11 169r23 172r26 177r23
+. 180r26 185r23 188r26
+38K12 OPU=38:44 71r11 104r11 145r11 164r11
+73i7 Node_Iter{15|195I9} 76m10 78r25 79r26 80r30 82r33 85m13 85r41 89m10
+. 91r25 92r49 93m13 93r41
+106i7 Node_Iter{15|195I9} 112m10 113r25 114r29 115m13 115r41 121m10 122r25
+. 123r30 124m13 124r41 130m10 131r25 132r30 133m13 133r41
+147i7 Node_Iter{15|195I9} 150m10 151r25 152r30 153m13 153r41
+166i7 Node_Iter{15|195I9} 169m10 170r25 171r49 172m13 172r41 177m10 178r25
+. 179r49 180m13 180r41 185m10 186r25 187r49 188m13 188r41
+X 15 ocarina-types.ads
+49I9*Int<integer>
+195I9*Node_Id<49I9> 13|46r22 47r22 50r22 51r22 54r22 61r49 63r43 65r40 65r64
+. 67r40 67r64 69r40 69r64 14|59r49 69r43 73r19 102r40 102r64 106r19 143r40
+. 143r64 147r19 162r40 162r64 166r19
+198V13*Present{boolean} 14|78s16 91s16 113s16 122s16 131s16 151s16 170s16
+. 178s16 186s16
+208I9*List_Id<195I9>
+X 16 system.ads
+67M9*Address
+X 18 s-memory.ads
+53V13*Alloc{16|67M9} 103i<c,__gnat_malloc>22
+68U14*Free 104i<c,__gnat_free>22
+76V13*Realloc{16|67M9} 105i<c,__gnat_realloc>22
+

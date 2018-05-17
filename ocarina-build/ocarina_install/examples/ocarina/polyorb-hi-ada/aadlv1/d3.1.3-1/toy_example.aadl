@@ -1,0 +1,218 @@
+--  This AADL model is derived from the AADL model published in the
+--  IST-ASSERT d3.3.1-3 deliverable.
+
+--  $Id: toy_example.aadl 6979 2009-09-01 13:47:17Z hugues $
+
+-----------------
+-- Subprograms --
+-----------------
+
+subprogram Update
+features
+  this : requires data access POS.Impl;
+end Update;
+
+subprogram implementation Update.Impl
+properties
+  source_language => Ada95;
+  source_name     => "Toy.Update";
+end Update.Impl;
+--  This subprogram updates the internal value of POS
+
+subprogram Read
+features
+  this : requires data access POS.Impl;
+properties
+  source_language => Ada95;
+  source_name     => "Toy.Read";
+end Read;
+--  This subprogram displays the internal value of POS
+
+subprogram GNC_Job
+properties
+  source_language => Ada95;
+  source_name     => "Toy.GNC_Job";
+end GNC_Job;
+--  This subprogram consumes the CPU during a given amount of time
+
+subprogram TMTC_Job
+properties
+  source_language => Ada95;
+  source_name     => "Toy.TMTC_Job";
+end TMTC_Job;
+--  This subprogram consumes the CPU during a given amount of time
+
+--  The two subprogram below are used for analyze purpose
+
+subprogram GNC_Identity
+properties
+  source_language => Ada95;
+  source_name     => "Toy.GNC_Identity";
+end GNC_Identity;
+
+subprogram TMTC_Identity
+properties
+  source_language => Ada95;
+  source_name     => "Toy.TMTC_Identity";
+end TMTC_Identity;
+
+--------------------------
+--  Subprogram Wrappers --
+--------------------------
+
+subprogram GNC_Thread_Wrapper
+features
+  GNC_POS : requires data access POS.Impl;
+end GNC_Thread_Wrapper;
+
+subprogram implementation GNC_Thread_Wrapper.Impl
+calls {
+  Welcome     : subprogram GNC_Identity;
+  Update_POS  : subprogram POS.Update;
+  GNC_Job     : subprogram GNC_Job;
+  Read_POS    : subprogram POS.Read;
+  Bye         : subprogram GNC_Identity;
+};
+connections
+  Cnx_GNC_1 : data access GNC_POS -> Update_POS.this;
+  Cnx_GNC_2 : data access GNC_POS -> Read_POS.this;
+end GNC_Thread_Wrapper.Impl;
+
+subprogram TMTC_Thread_Wrapper
+features
+  TMTC_POS : requires data access POS.Impl;
+end TMTC_Thread_Wrapper;
+
+subprogram implementation TMTC_Thread_Wrapper.Impl
+calls {
+  Welcome  : subprogram TMTC_Identity;
+  TMTC_Job : subprogram TMTC_Job;
+  Update   : subprogram POS.Update;
+  Bye      : subprogram TMTC_Identity;
+};
+connections
+  Cnx_TMTC_1 : data access TMTC_POS -> Update.this;
+end TMTC_Thread_Wrapper.Impl;
+
+-------------
+-- Threads --
+-------------
+
+thread GNC_Thread
+features
+  GNC_POS : requires data access POS.Impl;
+end GNC_Thread;
+
+thread implementation GNC_Thread.Impl
+calls {
+  GNC_Thread_Wrapper : subprogram GNC_Thread_Wrapper.Impl;
+};
+connections
+  Cnx_GNC_1 : data access GNC_POS -> GNC_Thread_Wrapper.GNC_POS;
+properties
+  Dispatch_Protocol                  => Periodic;
+  Period                             => 1000 ms;
+  Compute_Execution_time             => 0 ms .. 600 ms;
+  Deadline                           => 1000 ms;
+  Cheddar_Properties::Fixed_Priority => 230;
+end GNC_thread.Impl;
+
+thread TMTC_Thread
+features
+  TMTC_POS : requires data access POS.Impl;
+end TMTC_Thread;
+
+thread implementation TMTC_Thread.Impl
+calls {
+  TMTC_Thread_Wrapper : subprogram TMTC_Thread_Wrapper.Impl;
+};
+connections
+  Cnx_TMTC_1 : data access TMTC_POS -> TMTC_Thread_Wrapper.TMTC_POS;
+properties
+  Dispatch_Protocol                  => Periodic;
+  Period                             => 100 ms;
+  Compute_Execution_time             => 0 ms .. 50 ms;
+  Deadline                           => 100 ms;
+  Cheddar_Properties::Fixed_Priority => 190;
+end TMTC_Thread.Impl;
+
+---------------
+-- Processes --
+---------------
+
+process Toy_Example_Proc
+end Toy_Example_Proc;
+
+process implementation Toy_Example_Proc.Impl
+subcomponents
+  GNC_Th   : thread GNC_thread.Impl;
+  TMTC_Th  : thread TMTC_Thread.Impl;
+  POS_Data : data POS.Impl;
+connections
+  Cnx_Proc_2 : data access POS_Data -> GNC_Th.GNC_POS;
+  Cnx_Proc_3 : data access POS_Data -> TMTC_Th.TMTC_POS;
+end Toy_Example_Proc.Impl;
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+end the_processor;
+
+------------
+-- System --
+------------
+
+system toy_example
+end toy_example;
+
+system implementation toy_example.leon
+subcomponents
+  P1            : processor the_processor
+   {Deployment::Execution_Platform => LEON_ORK;};
+  GNC_TMTC_POS  : process Toy_Example_Proc.Impl;
+properties
+  Actual_Processor_Binding => reference P1 applies to GNC_TMTC_POS;
+end toy_example.leon;
+
+system implementation toy_example.leon_gnat
+subcomponents
+  P1            : processor the_processor
+   {Deployment::Execution_Platform => LEON_GNAT;};
+  GNC_TMTC_POS  : process Toy_Example_Proc.Impl;
+properties
+  Actual_Processor_Binding => reference P1 applies to GNC_TMTC_POS;
+end toy_example.leon_gnat;
+
+----------
+-- Data --
+----------
+
+--  POS_Internal_Type is the internal type of the POS shared variable
+
+data POS_Internal_Type
+properties
+  Data_Model::Data_Representation => Integer;
+end POS_Internal_Type;
+
+--  POS is a shared variable between the nodes GNC and TMTC. Its
+--  internal type is defined in POS.Impl. Therefore, POS.Impl is the
+--  data component types that should be used in the remaining of the
+--  model.
+
+data POS
+features
+  Update : subprogram Update.Impl;
+  Read   : subprogram Read;
+properties
+  Deployment::Priority => 230;
+  Concurrency_Control_Protocol => Priority_Ceiling;
+end POS;
+
+data implementation POS.Impl
+subcomponents
+  Field : data POS_Internal_Type;
+properties
+  Data_Model::Data_Representation => Struct;
+end POS.Impl;

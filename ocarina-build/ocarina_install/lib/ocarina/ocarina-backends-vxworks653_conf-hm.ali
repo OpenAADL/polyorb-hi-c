@@ -1,0 +1,304 @@
+V "GNAT Lib v6"
+A -O2
+A -gnatA
+A -gnat12
+A -gnata
+A -gnaty
+A -gnatyu
+A -gnatys
+A -gnatp
+A -gnatn
+A -mtune=generic
+A -march=i686
+P SS ZX
+
+RN
+RR SIMPLE_BARRIERS
+RR NO_ABORT_STATEMENTS
+RR NO_ACCESS_PARAMETER_ALLOCATORS
+RR NO_ASYNCHRONOUS_CONTROL
+RR NO_COEXTENSIONS
+RR NO_DYNAMIC_ATTACHMENT
+RR NO_DYNAMIC_PRIORITIES
+RR NO_ENTRY_CALLS_IN_ELABORATION_CODE
+RR NO_ENTRY_QUEUE
+RR NO_EXCEPTION_REGISTRATION
+RR NO_FIXED_IO
+RV NO_IMPLICIT_CONDITIONALS
+RR NO_IMPLICIT_TASK_ALLOCATIONS
+RR NO_IMPLICIT_PROTECTED_OBJECT_ALLOCATIONS
+RV NO_INITIALIZE_SCALARS
+RR NO_LOCAL_TIMING_EVENTS
+RR NO_LOCAL_PROTECTED_OBJECTS
+RR NO_PROTECTED_TYPE_ALLOCATORS
+RR NO_PROTECTED_TYPES
+RR NO_RELATIVE_DELAY
+RR NO_REQUEUE_STATEMENTS
+RV NO_SECONDARY_STACK
+RR NO_SELECT_STATEMENTS
+RR NO_SPECIFIC_TERMINATION_HANDLERS
+RV NO_STANDARD_STORAGE_POOLS
+RR NO_STREAM_OPTIMIZATIONS
+RR NO_TASK_ALLOCATORS
+RR NO_TASK_ATTRIBUTES_PACKAGE
+RR NO_TASK_AT_INTERRUPT_PRIORITY
+RR NO_TASK_HIERARCHY
+RR NO_TASK_TERMINATION
+RR NO_TASKING
+RR NO_TERMINATE_ALTERNATIVES
+RR STATIC_PRIORITIES
+RR STATIC_STORAGE_SIZE
+RV NO_DEFAULT_INITIALIZATION
+RR IMMEDIATE_RECLAMATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLEMENTATION_RESTRICTIONS
+RV NO_OBSOLESCENT_FEATURES
+RR PURE_BARRIERS
+RV SPARK_05
+RR MAX_PROTECTED_ENTRIES=0
+RR MAX_SELECT_ALTERNATIVES=0
+RR MAX_TASK_ENTRIES=0
+RR MAX_TASKS=0
+RR MAX_ASYNCHRONOUS_SELECT_NESTING=0
+
+U ocarina.backends.vxworks653_conf.hm%b  ocarina-backends-vxworks653_conf-hm.adb  a842354b NE OO PK IS
+W ocarina%s		ocarina.adb		ocarina.ali
+W ocarina.backends%s	ocarina-backends.adb	ocarina-backends.ali
+W ocarina.backends.vxworks653_conf%s  ocarina-backends-vxworks653_conf.adb  ocarina-backends-vxworks653_conf.ali
+W ocarina.backends.vxworks653_conf.mapping%s  ocarina-backends-vxworks653_conf-mapping.adb  ocarina-backends-vxworks653_conf-mapping.ali
+W ocarina.backends.xml_tree%s  ocarina-backends-xml_tree.ads  ocarina-backends-xml_tree.ali
+W ocarina.backends.xml_tree.nodes%s  ocarina-backends-xml_tree-nodes.adb  ocarina-backends-xml_tree-nodes.ali
+W ocarina.backends.xml_tree.nutils%s  ocarina-backends-xml_tree-nutils.adb  ocarina-backends-xml_tree-nutils.ali
+W ocarina.me_aadl%s	ocarina-me_aadl.ads	ocarina-me_aadl.ali
+W ocarina.me_aadl.aadl_instances%s  ocarina-me_aadl-aadl_instances.ads  ocarina-me_aadl-aadl_instances.ali
+W ocarina.me_aadl.aadl_instances.entities%s  ocarina-me_aadl-aadl_instances-entities.adb  ocarina-me_aadl-aadl_instances-entities.ali
+W ocarina.me_aadl.aadl_instances.nodes%s  ocarina-me_aadl-aadl_instances-nodes.adb  ocarina-me_aadl-aadl_instances-nodes.ali
+W ocarina.me_aadl.aadl_instances.nutils%s  ocarina-me_aadl-aadl_instances-nutils.adb  ocarina-me_aadl-aadl_instances-nutils.ali
+W ocarina.namet%s	ocarina-namet.adb	ocarina-namet.ali
+W system.scalar_values%s  s-scaval.adb		s-scaval.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+
+U ocarina.backends.vxworks653_conf.hm%s  ocarina-backends-vxworks653_conf-hm.ads  67cadd1a EE NE OO PK IS
+W ocarina.backends.vxworks653_conf%s  ocarina-backends-vxworks653_conf.adb  ocarina-backends-vxworks653_conf.ali
+
+D ada.ads		20070406091342 3ffc8e18 ada%s
+D a-contai.ads		20151020122137 61e5e089 ada.containers%s
+D a-cohata.ads		20151020102346 80a8c839 ada.containers.hash_tables%s
+D a-chtgke.ads		20151020102346 20177f7b ada.containers.hash_tables.generic_keys%s
+D a-chtgke.adb		20151020102346 7d66b1e3 ada.containers.hash_tables.generic_keys%b
+D a-chtgop.ads		20151020102346 bea86046 ada.containers.hash_tables.generic_operations%s
+D a-chtgop.adb		20151020121311 dc263095 ada.containers.hash_tables.generic_operations%b
+D a-cohama.ads		20151023123735 5b9a95f7 ada.containers.hashed_maps%s
+D a-cohama.adb		20151023123735 6d24e6e5 ada.containers.hashed_maps%b
+D a-conhel.ads		20151023123735 20298884 ada.containers.helpers%s
+D a-conhel.adb		20151023123735 34fff4f6 ada.containers.helpers%b
+D a-coprnu.ads		20090409150019 0cdf1864 ada.containers.prime_numbers%s
+D a-except.ads		20151016123252 291912d5 ada.exceptions%s
+D a-finali.ads		20151020095656 bf4f806b ada.finalization%s
+D a-iteint.ads		20110906092602 7c7305e9 ada.iterator_interfaces%s
+D a-stream.ads		20141120112812 119b8fb3 ada.streams%s
+D a-tags.ads		20151016130316 01f5e3ef ada.tags%s
+D a-unccon.ads		20070406091342 f9eb8f06 ada.unchecked_conversion%s
+D a-uncdea.ads		20070406091342 f15a5ed1 ada.unchecked_deallocation%s
+D gnat.ads		20140801083227 fd2ad2f1 gnat%s
+D g-hesorg.ads		20110801150502 106922da gnat.heap_sort_g%s
+D g-table.ads		20151020120548 16cef446 gnat.table%s
+D g-table.adb		20140521105248 2932f881 gnat.table%b
+D locations.ads		20180517074744 06a68fdd locations%s
+D ocarina.ads		20180517074744 bfb8a9d7 ocarina%s
+D ocarina-backends.ads	20180517074744 6580b411 ocarina.backends%s
+D ocarina-backends-properties.ads  20180517074744 9866b048 ocarina.backends.properties%s
+D ocarina-backends-vxworks653_conf.ads  20180517074744 faca266e ocarina.backends.vxworks653_conf%s
+D ocarina-backends-vxworks653_conf-hm.ads  20180517074744 9d00fb74 ocarina.backends.vxworks653_conf.hm%s
+D ocarina-backends-vxworks653_conf-hm.adb  20180517074744 3570606c ocarina.backends.vxworks653_conf.hm%b
+D ocarina-backends-vxworks653_conf-mapping.ads  20180517074744 a09b3536 ocarina.backends.vxworks653_conf.mapping%s
+D ocarina-backends-xml_tree.ads  20180517074744 e6c212c3 ocarina.backends.xml_tree%s
+D ocarina-backends-xml_tree-nodes.ads  20180517074810 4ab03340 ocarina.backends.xml_tree.nodes%s
+D ocarina-backends-xml_tree-nutils.ads  20180517074744 c98ec325 ocarina.backends.xml_tree.nutils%s
+D ocarina-me_aadl.ads	20180517074744 debca36c ocarina.me_aadl%s
+D ocarina-me_aadl-aadl_instances.ads  20180517074744 8883fa2d ocarina.me_aadl.aadl_instances%s
+D ocarina-me_aadl-aadl_instances-entities.ads  20180517074744 3c61cb78 ocarina.me_aadl.aadl_instances.entities%s
+D ocarina-me_aadl-aadl_instances-nodes.ads  20180517074810 a82a3b03 ocarina.me_aadl.aadl_instances.nodes%s
+D ocarina-me_aadl-aadl_instances-nutils.ads  20180517074744 da740ac7 ocarina.me_aadl.aadl_instances.nutils%s
+D ocarina-me_aadl-aadl_instances-nutils.adb  20180517074744 90141bb9 ocarina.me_aadl.aadl_instances.nutils%b
+D ocarina-namet.ads	20180517074744 b31432d0 ocarina.namet%s
+D ocarina-types.ads	20180517074744 e099215b ocarina.types%s
+D system.ads		20151123113124 c6f79445 system%s
+D s-assert.ads		20140225151544 cd8d2c94 system.assertions%s
+D s-atocou.ads		20151020101020 b45c2d8d system.atomic_counters%s
+D s-finmas.ads		20151016130316 7811a767 system.finalization_masters%s
+D s-finroo.ads		20120426095924 4ff27390 system.finalization_root%s
+D s-memory.ads		20140225151139 597d6634 system.memory%s
+D s-parame.ads		20140801093848 7e2a0d7f system.parameters%s
+D s-scaval.ads		20090409150019 bea40757 system.scalar_values%s
+D s-secsta.ads		20140225151139 86a2856d system.secondary_stack%s
+D s-stalib.ads		20151112104907 09bd3940 system.standard_library%s
+D s-stoele.ads		20140225151139 2dc34a04 system.storage_elements%s
+D s-stoele.adb		20140801093848 ed88f8fb system.storage_elements%b
+D s-stopoo.ads		20131010103753 b16154c2 system.storage_pools%s
+D s-stposu.ads		20151020120548 97a6219c system.storage_pools.subpools%s
+D s-stratt.ads		20131014135145 aedef97e system.stream_attributes%s
+D s-traent.ads		20140730135025 005bf670 system.traceback_entries%s
+D s-unstyp.ads		20140731130224 9d58a4c0 system.unsigned_types%s
+D unchdeal.ads		20070406091342 214516a4 unchecked_deallocation%s
+D utils.ads		20180517074744 9f0a82ae utils%s
+D /home/francis/polyorb-hi-c/ocarina-build/ocarina/src/../projects/restrictions.adc  20180517074744 00000000
+X 15 a-iteint.ads
+24h9 Forward_Iterator
+X 25 ocarina.ads
+32K9*Ocarina 61e12 29|32r9 36r5 30|32r6 32r25 36r6 37r6 38r6 39r6 42r6 43r6
+. 44r6 46r14 49r8 50r8 51r8 52r8 54r8 56r25 57r24 58r24 529r5
+X 26 ocarina-backends.ads
+41K17*Backends 25|32k9 26|120e21 29|32r17 36r13 30|42r14 43r14 44r14 46r22
+. 52r16 54r16 57r32 58r32 529r13
+X 28 ocarina-backends-vxworks653_conf.ads
+32K26*Vxworks653_Conf 26|41k17 28|58e37 29|32r26 36r22 30|44r23 46r31 54r25
+. 529r22
+52i4 Current_XML_Node{42|195I9} 30|245m7 252r51
+X 29 ocarina-backends-vxworks653_conf-hm.ads
+32K42*Hm 28|32k26 29|36l38 36e40 30|46b47 529l38 529t40
+34U14*Visit 34>21 30|90b14 102l8 102t13 111s7 155s13 174s16 421s13
+34i21 E{42|195I9} 30|90b21 92r18 94r42 97r39
+X 30 ocarina-backends-vxworks653_conf-hm.adb
+56K12 AINU=56:56 149r14 168r14 173r16 377r14 383r16 417r14
+57K12 XTN=57:50 205r42 222r42 239r12 240r12 245r27 245r42 252r37 258r50 267r10
+. 281r10 287r10 297r10 303r10 313r10 319r50 324r10 386r19 404r43 448r10 515r10
+. 524r10
+58K12 XTU=58:50 203r7 204r7 220r7 221r7 257r7 261r7 270r7 274r7 284r7 290r7
+. 294r7 300r7 306r7 310r7 318r7 393r7 394r7 395r7 396r7 397r7 398r7 399r7
+. 400r7 401r7 402r7 403r7 440r7 502r7 503r7 504r7 505r7 506r7 507r7 508r7
+. 509r7 510r7 511r7 512r7 518r7
+60i4 Root_Node{42|195I9} 110m7 111r14
+61i4 HM_Node{42|195I9} 251m7 252r28 258r64 319r64 386r33
+63U14 Visit_Architecture_Instance 63>43 94s13 108b14 112l8 112t35
+63i43 E{42|195I9} 108b43 110r33
+64U14 Visit_Component_Instance 64>40 97s13 118b14 140l8 140t32
+64i40 E{42|195I9} 118b40 119r76 123r36 126r37 129r39 132r33 135r47
+65U14 Visit_System_Instance 65>37 123s13 165b14 179l8 179t29
+65i37 E{42|195I9} 165b37 168r44 169r42
+66U14 Visit_Process_Instance 66>38 126s13 146b14 159l8 159t30
+66i38 E{42|195I9} 146b38 149r44 150r42
+67U14 Visit_Processor_Instance 67>40 129s13 229b14 408l8 408t32
+67i40 E{42|195I9} 229b40 239r48 240r48 377r44 378r42
+68U14 Visit_Bus_Instance 68>34 132s13 185b14 189l8 189t26
+68i34 E{42|195I9} 185b34 186r28
+69U14 Visit_Virtual_Processor_Instance 69>48 135s13 414b14 425l8 425t40
+69i48 E{42|195I9} 414b48 417r44 418r42
+71U14 Add_System_Error 72>7 73>7 74>7 81r25 195b14 206l8 206t24
+72i7 XML_Node{42|195I9} 196b7 205r56
+73a7 Identifier{string} 197b7 203r45
+74a7 Description{string} 198b7 204r41
+76U14 Add_Error_Action 77>7 78>7 79>7 212b14 223l8 223t24 325s7 326s7 327s7
+. 331s7 332s7 336s7 340s7 344s7 348s7 352s7 356s7 360s7 364s7 365s7 369s7
+. 370s7 374s7 375s7 449s7 450s7 451s7 455s7 456s7 460s7 464s7 468s7 472s7
+. 476s7 480s7 484s7 488s7 489s7 493s7 494s7 498s7 499s7
+77i7 XML_Node{42|195I9} 213b7 222r56
+78a7 Identifier{string} 214b7 220r45
+79a7 Action{string} 215b7 221r41
+83V13 Generate_Partition_HM_Table{42|195I9} 84>7 385s19 431b13 527l8 527t35
+84i7 Virtual_Processor{42|195I9} 432b7 442r47 520r47
+119e7 Category{35|53E9} 121r12
+147i7 S{42|195I9} 150m10 151r25 155r44 156m13 156r29
+166i7 S{42|195I9} 169m10 170r25 173r59 174r47 176m13 176r29
+200i7 Intermediate{42|195I9} 202m7 203r57 204r54 205r28
+217i7 Intermediate{42|195I9} 219m7 220r57 221r49 222r28
+230i7 S{42|195I9} 378m10 379r25 383r67 385r72 388m13 388r29
+231i7 U{42|195I9} 239m7 243r20 245r56
+232i7 P{42|195I9} 240m7 242r20
+233i7 System_HM_Table_Node{42|195I9} 256m7 257r46 258r28 267r24 287r24 303r24
+234i7 Module_HM_Table_Node{42|195I9} 317m7 318r46 319r28 324r24 404r57
+235i7 System_State_Node{42|195I9} 260m7 264r10 266r10 281r24 283m7 284r59
+. 286r10 297r24 299m7 300r60 302r10 313r24 321m7 323r10 325r25 326r25 328r10
+. 331r25 333r10 337r10 341r10 345r10 349r10 353r10 357r10 361r10 364r25 366r10
+. 369r25 371r10 374r25 375r25
+236i7 Error_Id_Level_Node{42|195I9} 269m7 273r10 277r10 280r10 289m7 293r10
+. 294r57 296r10 305m7 309r10 310r58 312r10
+237i7 Settings_Node{42|195I9} 392m7 393r49 394r50 395r48 396r50 397r55 398r57
+. 399r53 400r53 401r59 402r60 403r61 404r28
+415i7 S{42|195I9} 418m10 419r25 421r44 422m13 422r29
+434i7 Partition_HM_Table_Node{42|195I9} 439m7 443r10 448r24 515r24 526r14
+435i7 System_State_Node{42|195I9} 445m7 447r10 449r25 450r25 452r10 455r25
+. 457r10 461r10 465r10 469r10 473r10 477r10 481r10 485r10 488r25 490r10 493r25
+. 495r10 498r25 499r25
+436i7 Settings_Node{42|195I9} 501m7 502r49 503r50 504r48 505r50 506r55 507r57
+. 508r53 509r53 510r59 511r62 512r63 514r10 524r24
+437i7 Trusted_Partition_Node{42|195I9} 517m7 521r10 523r10
+X 31 ocarina-backends-vxworks653_conf-mapping.ads
+34K42*Mapping 30|44w39 54r41 31|88e45
+80V13*Map_Partition_Name{42|182I9} 30|442s27 520s27
+X 32 ocarina-backends-xml_tree.ads
+35K26*XML_Tree 30|42r23 43r23 52r25 57r41 58r41 32|36e30
+X 33 ocarina-backends-xml_tree-nodes.ads
+12K35*Nodes 30|42w32 57r50 33|327e36
+257V13*Root_Node{42|195I9} 30|245s31
+269V13*Subitems{42|208I9} 30|205s46 222s46 252s41 258s54 267s14 281s14 287s14
+. 297s14 303s14 313s14 319s54 324s14 386s23 404s47 448s14 515s14 524s14
+287V13*XML_File{42|195I9} 30|245s46
+296V13*Unit{42|195I9} 30|239s16
+299V13*Node{42|195I9} 30|240s16
+X 34 ocarina-backends-xml_tree-nutils.ads
+34K35*Nutils 30|43w32 52r34 58r50 34|188e37
+106U14*Append_Node_To_List 30|205s7 222s7 252s7 258s7 265s7 279s7 285s7 295s7
+. 301s7 311s7 319s7 322s7 384s16 404s7 446s7 513s7 522s7
+110U14*Push_Entity 30|242s7 243s7
+111U14*Pop_Entity 30|406s7 407s7
+178V13*Make_XML_Node{42|195I9} 30|202s23 219s23 251s18 256s31 260s28 269s30
+. 283s28 289s30 299s28 305s30 317s31 321s28 392s24 439s34 445s28 501s24 517s33
+185U14*Add_Attribute 30|203s11 204s11 220s11 221s11 257s11 261s11 270s11
+. 274s11 284s11 290s11 294s11 300s11 306s11 310s11 318s11 393s11 394s11 395s11
+. 396s11 397s11 398s11 399s11 400s11 401s11 402s11 403s11 440s11 502s11 503s11
+. 504s11 505s11 506s11 507s11 508s11 509s11 510s11 511s11 512s11 518s11
+X 35 ocarina-me_aadl.ads
+32K17*ME_AADL 30|36w14 37r14 38r14 39r14 49r16 50r16 51r16 56r33 35|102e20
+53E9*Component_Category 30|119r27 35|68e18
+60n7*CC_Process{53E9} 30|125r15
+62n7*CC_Processor{53E9} 30|128r15
+63n7*CC_Virtual_Processor{53E9} 30|134r15
+64n7*CC_Bus{53E9} 30|131r15
+67n7*CC_System{53E9} 30|122r15
+X 36 ocarina-me_aadl-aadl_instances.ads
+32K25*AADL_Instances 30|37r22 38r22 39r22 50r24 51r24 56r41 36|33e35
+X 37 ocarina-me_aadl-aadl_instances-entities.ads
+34K40*Entities 30|39w37 51r39 37|101e44
+69V13*Get_Category_Of_Component{35|53E9} 30|119s49
+X 38 ocarina-me_aadl-aadl_instances-nodes.ads
+12K40*Nodes 30|37w37 50r39 38|615e41
+21n7*K_Architecture_Instance{14E9} 30|93r15
+25n7*K_Component_Instance{14E9} 30|96r15
+404V13*Kind{14E9} 30|92s12
+410V13*Next_Node{42|195I9} 30|156s18 176s18 388s18 422s18
+413V13*First_Node{42|195I9} 30|150s15 169s15 378s15 418s15
+422V13*Identifier{42|195I9} 30|239s36 240s36
+443V13*Backend_Node{42|195I9} 30|239s22 240s22
+452V13*Root_System{42|195I9} 30|110s20
+476V13*Subcomponents{42|208I9} 30|149s29 150s27 168s29 169s27 377s29 378s27
+. 417s29 418s27
+506V13*Corresponding_Instance{42|195I9} 30|155s20 173s35 174s23 383s43 385s48
+. 421s20
+X 39 ocarina-me_aadl-aadl_instances-nutils.ads
+37K40*Nutils 30|38w37 56r56 39|162e42
+75V13*Is_Empty{boolean} 30|149s19 168s19 377s19 417s19
+155V13*Is_Processor{boolean} 30|173s21
+156V13*Is_Virtual_Processor{boolean} 30|383s21
+X 41 ocarina-namet.ads
+36K17*Namet 30|32w14 32r33 41|242e18
+76V13*Get_Name_String{string} 30|442s10 520s10
+X 42 ocarina-types.ads
+49I9*Int<integer>
+182I9*Name_Id<integer>
+195I9*Node_Id<49I9> 29|34r25 30|60r16 61r16 63r47 64r44 65r41 66r42 67r44
+. 68r38 69r52 72r21 77r20 84r27 84r43 90r25 108r47 118r44 146r42 147r11 165r41
+. 166r11 185r38 196r21 200r22 213r20 217r22 229r44 230r30 231r30 232r30 233r30
+. 234r30 235r30 236r30 237r30 414r52 415r11 432r27 432r43 434r33 435r33 436r33
+. 437r33
+196i4*No_Node{195I9} 30|60r27 61r27
+198V13*Present{boolean} 30|151s16 170s16 379s16 419s16
+208I9*List_Id<195I9>
+X 43 system.ads
+67M9*Address
+X 48 s-memory.ads
+53V13*Alloc{43|67M9} 103i<c,__gnat_malloc>22
+68U14*Free 104i<c,__gnat_free>22
+76V13*Realloc{43|67M9} 105i<c,__gnat_realloc>22
+

@@ -1,0 +1,126 @@
+----------
+-- Data --
+----------
+
+data Simple_Type
+properties
+  Data_Model::Data_Representation => Integer;
+end Simple_Type;
+
+-----------------
+-- Subprograms --
+-----------------
+
+subprogram Raise_Message
+features
+  M : out parameter Simple_Type;
+properties
+  Source_Language => Ada95;
+  Source_Name     => "Repository.Raiser";
+end Raise_Message;
+
+subprogram Handle_Message
+features
+  M : in parameter Simple_Type;
+end Handle_Message;
+
+subprogram implementation Handle_Message.Normal
+properties
+  Source_Language       => Ada95;
+  Source_Name           => "Repository.Normal_Handler";
+end Handle_Message.Normal;
+
+subprogram implementation Handle_Message.Emergency
+properties
+  Source_Language       => Ada95;
+  Source_Name           => "Repository.Emergency_Handler";
+end Handle_Message.Emergency;
+
+subprogram implementation Handle_Message.Lazy
+properties
+  Source_Language       => Ada95;
+  Source_Name           => "Repository.Lazy_Handler";
+end Handle_Message.Lazy;
+
+-------------
+-- Threads --
+-------------
+
+thread Raiser
+features
+  Message : out event data port Simple_Type;
+properties
+  Dispatch_Protocol     => Periodic;
+  Period                => 200 Ms;
+  Initialize_Entrypoint => "Repository.Init_Raiser";
+end Raiser;
+
+thread implementation Raiser.Impl
+calls {
+  Raise_Msg : subprogram Raise_Message;
+};
+connections
+  parameter Raise_Msg.M -> Message;
+end Raiser.Impl;
+
+thread Worker
+features
+  Work_Normally      : in event port;
+  Emergency_Occurred : in event port;
+  Everything_Is_Cool : in event port;
+  Message            : in event data port Simple_Type;
+properties
+  Dispatch_Protocol     => Sporadic;
+  Period                => 20 Ms;
+  Initialize_Entrypoint => "Repository.Init_Worker";
+end Worker;
+
+--  The implementation of this thread, Worker.Impl, is given in
+--  another file (modes_CS. or modes_CE.aadl).
+
+thread Driver
+features
+  Work_Normally      : out event port;
+  Emergency_Occurred : out event port;
+  Everything_Is_Cool : out event port;
+properties
+  Dispatch_Protocol  => Periodic;
+  Period             => 50 Ms;
+end Driver;
+
+thread implementation Driver.Impl
+properties
+  Compute_Entrypoint => "Repository.Drive";
+end Driver.Impl;
+
+---------------
+-- Processes --
+---------------
+
+process Node_A
+end Node_A;
+
+process implementation Node_A.Impl
+subcomponents
+  Raiser : thread Raiser.Impl;
+  Driver : thread Driver.Impl;
+  Worker : thread Worker.Impl;
+connections
+  event data port Raiser.Message            -> Worker.Message;
+  event      port Driver.Work_Normally      -> Worker.Work_Normally;
+  event      port Driver.Emergency_Occurred -> Worker.Emergency_Occurred;
+  event      port Driver.Everything_Is_Cool -> Worker.Everything_Is_Cool;
+end Node_A.Impl;
+
+---------------
+-- Processor --
+---------------
+
+processor CPU
+properties
+  Deployment::Execution_Platform => ERC32_ORK;
+end CPU;
+
+processor implementation CPU.Impl
+end CPU.Impl;
+

@@ -1,0 +1,99 @@
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+features
+  ETH : requires bus access Ethernet_Bus;
+properties
+  Deployment::location           => "127.0.0.1";
+  Deployment::Execution_Platform => Native;
+end the_processor;
+
+---------
+-- Bus --
+---------
+
+bus Ethernet_Bus
+properties
+  Deployment::Transport_API => BSD_Sockets;
+end Ethernet_Bus;
+
+---------------
+-- Processes --
+---------------
+
+process A
+features
+  Out_Boolean : out event data port Boolean_Type;
+  Out_Enum    : out event data port Enum_Type;
+  Out_Integer : out event data port Integer_Type;
+  Out_Array   : out event data port Array_Type.I;
+  out_String  : out event data port String_Type;
+end A;
+
+process implementation A.Impl
+subcomponents
+  Emitter_Thread : thread Emitter.Impl;
+connections
+  event data port Emitter_Thread.Boolean_Source -> Out_Boolean;
+  event data port Emitter_Thread.Enum_Source    -> Out_Enum;
+  event data port Emitter_Thread.Integer_Source -> Out_Integer;
+  event data port Emitter_Thread.Array_Source   -> Out_Array;
+  event data port Emitter_Thread.String_Source  -> Out_String;
+end A.Impl;
+
+process B
+features
+  In_Boolean  : in event data port Boolean_Type;
+  In_Enum     : in event data port Enum_Type;
+  In_Integer  : in event data port Integer_Type;
+  In_Array    : in event data port Array_Type.I;
+  In_String   : in event data port String_Type;
+end B;
+
+process implementation B.Impl
+subcomponents
+  Boolean_Rcv_Thread : thread Boolean_Receiver.Impl;
+  Enum_Rcv_Thread    : thread Enum_Receiver.Impl;
+  Integer_Rcv_Thread : thread Integer_Receiver.Impl;
+  Array_Rcv_Thread   : thread Array_Receiver.Impl;
+  String_Rcv_Thread  : thread String_Receiver.Impl;
+connections
+  event data port In_Boolean -> Boolean_Rcv_Thread.Data_Sink;
+  event data port In_Enum -> Enum_Rcv_Thread.Data_Sink;
+  event data port In_Integer -> Integer_Rcv_Thread.Data_Sink;
+  event data port In_Array  -> Array_Rcv_Thread.Data_Sink;
+  event data port In_String -> String_Rcv_Thread.Data_Sink;
+end B.Impl;
+
+------------
+-- System --
+------------
+
+system Some_Types
+end Some_Types;
+
+system implementation Some_Types.Native
+subcomponents
+  Node_A : process A.Impl;
+  Node_B : process B.Impl {Deployment::port_number => 12002;};
+
+  CPU : processor the_processor;
+  the_bus : bus Ethernet_Bus;
+connections
+  bus access the_bus -> CPU.ETH;
+  event data port Node_A.Out_Boolean -> Node_B.In_Boolean
+    {Actual_Connection_Binding => (reference the_bus);};
+  event data port Node_A.Out_Enum    -> Node_B.In_Enum
+    {Actual_Connection_Binding => (reference the_bus);};
+  event data port Node_A.Out_Integer -> Node_B.In_Integer
+    {Actual_Connection_Binding => (reference the_bus);};
+  event data port Node_A.Out_Array   -> Node_B.In_Array
+    {Actual_Connection_Binding => (reference the_bus);};
+  event data port Node_A.Out_String  -> Node_B.In_String
+    {Actual_Connection_Binding => (reference the_bus);};
+properties
+  actual_processor_binding => reference CPU applies to Node_A;
+  actual_processor_binding => reference CPU applies to Node_B;
+end Some_Types.Native;

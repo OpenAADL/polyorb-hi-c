@@ -1,0 +1,68 @@
+--  Model of a basic flight management system, contributed by Irfan Hamid
+
+package flight::mgmt
+public
+  with Deployment, Software;
+
+  ---------------
+  -- Processes --
+  ---------------
+
+  process Mgmt_T
+  end Mgmt_T;
+
+  process implementation Mgmt_T.RS
+  subcomponents
+    Sensor_Sim    : thread Software::Sensor_Sim_T.RS;
+    Stall_Monitor : thread Software::Stall_Monitor_T.RS;
+    HCI           : thread Software::HCI_T.RS;
+    Landing_Gear  : thread Software::Landing_Gear_T.RS;
+    Operator      : thread Software::Operator_T.RS;
+  connections
+    DataConnection1      : port Sensor_Sim.AoA -> Stall_Monitor.AoA;
+    DataConnection2      : port Sensor_Sim.Climb_Rate -> Stall_Monitor.Climb_Rate;
+    EventConnection1     : port Sensor_Sim.Engine_Failure -> HCI.Engine_Failure;
+    EventDataConnection1 : port Stall_Monitor.Stall_Warn -> HCI.Stall_Warning;
+    EventConnection2     : port HCI.Gear_Req -> Landing_Gear.Req;
+    EventConnection3     : port Landing_Gear.Ack -> HCI.Gear_Ack;
+    EventConnection4     : port Landing_Gear.Dummy_Out -> Landing_Gear.Dummy_In;
+    EventConnection5     : port Operator.Gear_Cmd -> HCI.Gear_Cmd;
+  end Mgmt_T.RS;
+
+  ---------------
+  -- Processor --
+  ---------------
+
+  processor the_processor
+  properties
+    Deployment::Execution_Platform => native;
+  end the_processor;
+
+  ------------
+  -- System --
+  ------------
+
+  system Flight_Mgmt
+  end Flight_Mgmt;
+
+  system implementation Flight_Mgmt.local
+  subcomponents
+    CPU  : processor the_processor;
+    fltMgmt : process Mgmt_T.RS;
+  properties
+    Actual_Processor_Binding => reference (CPU) applies to fltMgmt;
+  end Flight_Mgmt.local;
+
+  system implementation Flight_Mgmt.Xenomai
+     extends Flight_Mgmt.local
+  properties
+    Deployment::Execution_Platform => linux32_xenomai_native applies to CPU;
+  end Flight_Mgmt.Xenomai;
+
+  system implementation Flight_Mgmt.RTEMS
+     extends Flight_Mgmt.local
+  properties
+     Deployment::Execution_platform => LEON_RTEMS applies to CPU;
+  end Flight_Mgmt.RTEMS;
+
+end flight::mgmt;

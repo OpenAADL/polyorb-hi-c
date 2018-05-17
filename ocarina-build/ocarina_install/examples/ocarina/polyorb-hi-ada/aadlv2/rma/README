@@ -1,0 +1,11 @@
+"rma" example:
+---------------
+
+* Description: A simple test to check "Rate Monotonic Analysis" from 
+  the Cheddar schedulability analysis tool.
+
+* The AADL model used is conform to AADLv2
+
+* Compilation: issue "make" in the root directory
+
+* Execution: Simulate the example using by issuing 'tsim-erc32 node_a'

@@ -1,0 +1,181 @@
+package traxsterv3_system
+public 
+  with Deployment;
+  with Processors::ARM;
+  with Electricity_Properties;
+
+  with buses;
+  with Buses::I2C;
+  with Buses::UART;
+  with Buses::USB;
+  with devices::ultrasound_sfr08;
+  with devices::compass_hmc6352;
+  with devices::motor_bl2824;
+  with devices::variator_blctlv12;
+  with devices::inertial_gps_ig500n;
+  with devices::telemeter_urg04lx;
+  with devices::camera_usb;
+  with traxsterv3_sw;
+  
+  ------------
+  -- System --
+  ------------
+
+  system traxsterv3 
+  end traxsterv3;
+  
+  system implementation traxsterv3.impl
+  subcomponents
+    ------------------------------------------------------------------
+    -- IPC bus between CICAS & CCDS
+    ------------------------------------------------------------------
+    UART_IPC_bus      :  bus      buses::UART::UART.impl;
+    
+    ------------------------------------------------------------------
+    -- Node #1 hardware components : CICAS (ARM7 card)
+    ------------------------------------------------------------------
+    -- CICAS Interconnect bus. These components are shared by ARM7
+    -- peripherals and sensors/actautors to support communication
+    -- through various protocols
+    ------------------------------------------------------------------
+    I2C_bus            :      bus        buses::I2C::I2C.impl;
+    three_phases_1_bus :      bus        buses::three_phases_bus.impl;
+    three_phases_2_bus :      bus        buses::three_phases_bus.impl;
+    ------------------------------------------------------------------
+    --  Hardware components for CICAS configuration
+    ------------------------------------------------------------------
+    proc_1    :      process    traxsterv3_sw::proc_1.impl;
+    CPU_ARM7  :      processor  Processors::ARM::AT91SAM7A3.impl;
+    ------------------------------------------------------------------
+    --  Processor peripherals for CICAS communication with sensors
+    ------------------------------------------------------------------
+    TWI_ARM7       :      device     Processors::ARM::TWI_Peripheral.impl;	   
+    UART0_ARM7     :      device     Processors::ARM::USART0_Peripheral.impl
+    {Electricity_Properties::Device_Type => Master; };	
+    ------------------------------------------------------------------
+    -- End Node #1
+    ------------------------------------------------------------------
+    
+    ------------------------------------------------------------------
+    -- Node #2 hardware components : CCDS (ARM9 card)
+    ------------------------------------------------------------------
+    -- CCDS Interconnect bus. This component are shared by ARM9 peripherals and
+    -- sensors/actautors to support communication through various protocols
+    ------------------------------------------------------------------
+    USB1_bus              :  bus      buses::USB::USB.impl;
+    USB2_bus              :  bus      buses::USB::USB.impl;
+    UART2_bus             :  bus      buses::UART::UART.impl;
+    ------------------------------------------------------------------
+    --  Hardware components for CCDS configuration
+    ------------------------------------------------------------------
+    proc_2    :      process    traxsterv3_sw::proc_2.impl;
+    CPU_ARM9  :      processor  Processors::ARM::AT91SAM9G20.impl;
+    ------------------------------------------------------------------
+    --  Processor peripherals for CCDS communication with sensors
+    ------------------------------------------------------------------
+    UART0_ARM9      :      device     Processors::ARM::USART0_Peripheral.impl; 
+    UART1_ARM9      :      device     Processors::ARM::USART1_Peripheral.impl;    
+    UART2_ARM9      :      device     Processors::ARM::USART2_Peripheral.impl; 
+    USB1_ARM9      :       device     Processors::ARM::USB1_Peripheral.impl; 
+    USB2_ARM9      :       device     Processors::ARM::USB2_Peripheral.impl; 
+    ------------------------------------------------------------------
+    -- End Node #2
+    ------------------------------------------------------------------
+    
+    ------------------------------------------------------------------
+    --  List of sensors/actuators
+    ------------------------------------------------------------------
+    --------------------- ARM7 ----------------------
+    US1       :      device     devices::ultrasound_sfr08::US.impl
+    { Deployment::Location => "0xE0";}; -- define here the address of US1
+    US2       :      device     devices::ultrasound_sfr08::US.impl
+    { Deployment::Location => "0xE4";}; -- define here the address of US2
+    COMPASS   :      device     devices::compass_hmc6352::COMPASS.impl
+    { Deployment::Location => "xxx";}; -- define here the address of the I2C device
+    MOTOR_1 :         device     devices::motor_bl2824::MOTOR.impl;
+    MOTOR_2 :         device     devices::motor_bl2824::MOTOR.impl;
+    VARIATOR_1  :     device     devices::variator_blctlv12::VARIATOR.impl
+    { Deployment::Location => "xxx";}; -- define here the address of the I2C device
+    VARIATOR_2  :     device     devices::variator_blctlv12::VARIATOR.impl
+    { Deployment::Location => "xxx";}; -- define here the address of the I2C device
+    
+    ---------------------- ARM9 ----------------------
+    INERTIAL_GPS :   device     devices::inertial_gps_ig500n::INERTIAL_GPS.impl;
+    TELEMETER    :   device     devices::telemeter_urg04lx::TELEMETER.impl;
+    CAMERA       :   device     devices::camera_usb::CAMERA.impl;
+    
+  connections
+    ------------------------------------------------------------------
+    -- System bus connections : between CCDS & CICAS 
+    -- USART serial line, it is shared by CICAS and CCDS to support
+    -- communication through the serial line.
+    ------------------------------------------------------------------
+    N1:bus access UART_IPC_bus -> UART0_ARM9.Serial_Wire;
+    N2:bus access UART_IPC_bus -> UART0_ARM7.Serial_Wire;
+ 
+    ------------------------------------------------------------------
+    -- Node #1 bus connections : CICAS (ARM7 card)
+    ------------------------------------------------------------------
+    N3:bus access I2C_bus -> TWI_ARM7.Serial_Wire;
+    
+    N4:bus access I2C_bus -> US1.Serial_Wire;
+    N5:bus access I2C_bus -> US2.Serial_Wire;
+    N6:bus access I2C_bus -> COMPASS.Serial_Wire;
+    N7:bus access I2C_bus -> VARIATOR_1.Serial_Wire;
+    N8:bus access I2C_bus -> VARIATOR_2.Serial_Wire;
+    --
+    N9:bus access three_phases_1_bus -> VARIATOR_1.three_phases_Wire;
+    N10:bus access three_phases_2_bus -> VARIATOR_2.three_phases_Wire;
+    --
+    N11:bus access three_phases_1_bus -> MOTOR_1.three_phases_Wire;
+    N12:bus access three_phases_2_bus -> MOTOR_2.three_phases_Wire;
+    --
+    ------------------------------------------------------------------
+    -- Node #2 bus connections : CCDS (ARM9 card)
+    ------------------------------------------------------------------
+    N13:bus access UART2_bus -> UART2_ARM9.Serial_Wire;
+    N14:bus access UART2_bus -> INERTIAL_GPS.Serial_Wire;
+    --
+    N15:bus access USB1_bus -> USB1_ARM9.Serial_Wire;
+    N16:bus access USB1_bus -> CAMERA.Serial_Wire;
+    --
+    N17:bus access USB2_bus -> USB2_ARM9.Serial_Wire;
+    N18:bus access USB2_bus -> TELEMETER.Serial_Wire;
+    
+  properties
+    Actual_Processor_Binding => (reference (CPU_ARM7)) applies to proc_1;
+    Actual_Processor_Binding => (reference (CPU_ARM9)) applies to proc_2;
+    --Actual_Processor_Binding => (reference (CPU_ARM7)) applies to I2C_Cnx;
+    
+     annex 
+    real_specification {**
+    	
+    theorem Electricity_Prop_Defined
+    foreach e in Device_Set do
+    requires(Electricity_Prop_Defined and test_device);
+    check(1=1);
+    end Electricity_Prop_Defined;
+    
+    theorem Utilization_prop_def
+    foreach e in Thread_Set do
+    requires(Utilization_prop_def);
+    check(1=1);
+    end Utilization_prop_def;
+    
+    theorem Current_Drain
+    foreach e in System_Set do
+    requires(Current_Drain);
+    check(1=1);
+    end Current_Drain;
+    
+    theorem Electrical_Compatibility
+    foreach e in Bus_Set do
+    requires(Electrical_Compatibility);
+    check(1=1);
+    end Electrical_Compatibility;
+    
+  **};
+  end traxsterv3.impl;
+
+end  traxsterv3_system;
+

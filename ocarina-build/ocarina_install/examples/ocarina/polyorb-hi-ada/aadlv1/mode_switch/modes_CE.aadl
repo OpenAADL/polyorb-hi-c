@@ -1,0 +1,37 @@
+--  An implementation of the Worker thread using compute entrypoint
+--  mode-based switch.
+
+--  $Id: modes_CE.aadl 6713 2009-06-20 20:58:28Z lanarre $
+
+thread implementation Worker.Impl
+modes
+  Normal_Mode    : initial mode; 
+  Emergency_Mode : mode;
+  Lazy_Mode      : mode;
+  
+  Normal_Mode,    Lazy_Mode      -[Emergency_Occurred]-> Emergency_Mode;
+  Normal_Mode,    Emergency_Mode -[Everything_Is_Cool]-> Lazy_Mode;
+  Emergency_Mode, Lazy_Mode      -[Work_Normally     ]-> Normal_Mode;
+properties
+  Compute_Entrypoint => "Repository.CE_Normal_Handler" 
+    in modes (Normal_Mode);
+  Compute_Entrypoint => "Repository.CE_Emergency_Handler" 
+    in modes (Emergency_Mode);
+  Compute_Entrypoint => "Repository.CE_Lazy_Handler" 
+    in modes (Lazy_Mode);
+end Worker.Impl;
+
+------------
+-- System --
+------------
+
+system Test_Modes_CE
+end Test_Modes_CE;
+
+system implementation Test_Modes_CE.ERC32
+subcomponents
+  Mode_Switch : process   Node_A.Impl;
+  The_CPU     : processor CPU.Impl;
+properties
+  Actual_Processor_Binding => reference The_CPU applies to Mode_Switch;
+end Test_Modes_CE.ERC32;

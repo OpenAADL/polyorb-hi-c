@@ -1,0 +1,75 @@
+--  Deployment aspects of the MPC PP model
+
+--  $Id: mpc_spw.aadl 5420 2008-09-23 16:17:56Z zalila $
+
+---------------
+-- Processor --
+---------------
+
+processor Simple_CPU
+features
+  SPW_1 : requires bus access SpaceWire_Bus;
+properties
+  Deployment::Execution_Platform => LEON_ORK;
+end Simple_CPU;
+
+processor Complex_CPU
+features
+  SPW_2 : requires bus access SpaceWire_Bus;
+  SPW_3 : requires bus access SpaceWire_Bus;
+properties
+  Deployment::Execution_Platform => LEON_ORK;
+end Complex_CPU;
+
+processor implementation Simple_CPU.P4
+end Simple_CPU.P4;
+
+processor implementation Complex_CPU.P4
+end Complex_CPU.P4;
+
+---------
+-- Bus --
+---------
+
+bus SpaceWire_Bus
+properties
+  Deployment::Transport_API => SpaceWire;
+end SpaceWire_Bus;
+
+-----------------
+-- Root System --
+-----------------
+
+system MPC
+end MPC;
+
+system implementation MPC.LEON
+subcomponents
+  SC_1 : process Sender_Process.Impl;
+  SC_2 : process Receiver_Process.Impl;
+  SC_3 : process Receiver_Process.Impl;
+
+  --  The CPUs
+
+  CPU_SC_1 : processor Complex_CPU.P4;
+  CPU_SC_2 : processor Simple_CPU.P4;
+  CPU_SC_3 : processor Simple_CPU.P4;
+
+  --  The SpaceWire buses
+
+  SPW_1_2 : bus SpaceWire_Bus;
+  SPW_1_3 : bus SpaceWire_Bus;
+connections
+  bus access SPW_1_2 -> CPU_SC_1.SPW_2;
+  bus access SPW_1_2 -> CPU_SC_2.SPW_1;
+  bus access SPW_1_3 -> CPU_SC_1.SPW_3;
+  bus access SPW_1_3 -> CPU_SC_3.SPW_1;
+  CNX_1_2 : event data port SC_1.Data_Source -> SC_2.Data_Sink
+    {Actual_Connection_Binding => reference SPW_1_2;};
+  CNX_1_3 : event data port SC_1.Data_Source -> SC_3.Data_Sink
+    {Actual_Connection_Binding => (reference SPW_1_3);};
+properties
+  Actual_Processor_Binding => reference CPU_SC_1 applies to SC_1;
+  Actual_Processor_Binding => reference CPU_SC_2 applies to SC_2;
+  Actual_Processor_Binding => reference CPU_SC_3 applies to SC_3;
+end MPC.LEON;

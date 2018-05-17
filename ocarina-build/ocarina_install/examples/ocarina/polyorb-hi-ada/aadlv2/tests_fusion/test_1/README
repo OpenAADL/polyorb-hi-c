@@ -1,0 +1,25 @@
+"test_10" example:
+---------------
+
+* Description: two periodic threads send data to another periodic thread.
+
+* One deployement are provided, ping-local deploys one node, the two 
+threads are on the same node.
+
+* Compilation: issue "make" in the root directory
+
+* Run: tsim node_a
+
+ fusion options : -f node_a -t1 pinger -t2 ping_me
+
+* Warning : generate code does not compile yet, because of port variable initialization.
+
+---------------
+tests :
+* fusion of threads with no specified dispatch protocol
+* deletion of useless threads and process implementation and types
+* deletion of useless features in threads
+* management of multi-value call sequence
+* duplicated inter-subprograms connections
+* inter-dependancy management
+* same priorities

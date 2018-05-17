@@ -1,0 +1,11 @@
+load software.aadl
+load ping_local.aadl
+load aadl_project.aadl
+load assert_properties.aadl
+load Cheddar_Properties.aadl
+load deployment.aadl
+load data_model.aadl
+load transformations.aadl
+analyze
+generate aadl
+quit

@@ -1,0 +1,110 @@
+package Sunseeker_Dist
+public
+  with Sunseeker;
+  with Deployment;
+  with ocarina_buses;
+  with ocarina_drivers;
+
+---------------
+-- Processor --
+---------------
+
+processor Pentium_Type
+properties
+  Deployment::Execution_Platform => Native;
+  Priority_Range                 => 0 .. 255;
+  Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
+end Pentium_Type;
+
+processor implementation Pentium_Type.Pentium
+properties
+  none;
+end Pentium_Type.Pentium;
+
+processor LEON_Type
+properties
+  Deployment::Execution_Platform => Native;
+end LEON_Type;
+
+processor implementation LEON_Type.LEON
+properties
+  none;
+end LEON_Type.LEON;
+
+---------
+-- Bus --
+---------
+
+bus Ethernet_Bus
+properties
+  Deployment::Transport_API => BSD_Sockets;
+end Ethernet_Bus;
+
+------------
+-- System --
+------------
+
+system Sunseekercontrolsystem_Type
+end Sunseekercontrolsystem_Type;
+
+system implementation Sunseekercontrolsystem_Type.Dist
+subcomponents
+
+  Sunseekerplant      : process Sunseeker::Sunseekerplant_Type.Sunseekerplant;
+  Sunseekercontroller : process Sunseeker::Sunseekercontroller_Type.Sunseekercontroller;
+
+  --  The processor
+  Platform_A: processor Pentium_Type.Pentium;
+  Platform_B: processor Pentium_Type.Pentium;
+
+  Device_A : device ocarina_drivers::generic_sockets_ip.pohic
+               {Source_Text => ("devicesconf.c");};
+  Device_B : device ocarina_drivers::generic_sockets_ip.pohic
+               {Source_Text => ("devicesconf.c");};
+
+  the_bus : bus ocarina_buses::ip.i;
+connections
+  bus access the_bus -> Device_A.link; 
+  bus access the_bus -> Device_B.link;
+  port Sunseekerplant.Outputfeedback
+  -> Sunseekercontroller.Outputfeedback
+    {Actual_Connection_Binding => (reference (the_bus));};
+  port Sunseekercontroller.Controllerinput
+  -> Sunseekerplant.Controllerinput
+    {Actual_Connection_Binding => (reference (the_bus));};
+
+--  Bind the processes to the processor
+properties
+  Actual_Processor_Binding => reference (Platform_A) 
+    applies to Sunseekerplant;
+  Actual_Processor_Binding => reference (Platform_B) 
+    applies to Sunseekercontroller;
+
+  Actual_Processor_Binding => reference (Platform_A) 
+    applies to Device_A;
+  Actual_Processor_Binding => reference (Platform_B) 
+    applies to Device_B;
+end Sunseekercontrolsystem_Type.Dist;
+
+system implementation Sunseekercontrolsystem_Type.Local
+subcomponents
+  Sunseeker : process Sunseeker::sunseeker_local.Impl;
+  Platform: processor LEON_Type.LEON;
+properties
+  Actual_Processor_Binding => reference (Platform) applies to Sunseeker;
+end Sunseekercontrolsystem_Type.Local;
+
+system implementation Sunseekercontrolsystem_Type.Xenomai
+   extends Sunseekercontrolsystem_Type.Local
+properties
+  Deployment::Execution_Platform => linux32_xenomai_native applies to Platform;
+end Sunseekercontrolsystem_Type.Xenomai;
+
+system implementation Sunseekercontrolsystem_Type.RTEMS
+   extends Sunseekercontrolsystem_Type.Local
+properties
+   Deployment::Execution_platform => LEON_RTEMS applies to Platform;
+end Sunseekercontrolsystem_Type.RTEMS;
+
+
+end Sunseeker_Dist;

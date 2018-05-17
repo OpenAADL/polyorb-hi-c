@@ -1,0 +1,123 @@
+--  $Id: software.aadl 5420 2008-09-23 16:17:56Z zalila $
+
+----------
+-- Data --
+----------
+
+data Integer_Type
+properties
+  Data_Model::Data_Representation => integer;
+end Integer_Type;
+
+-----------------
+-- Subprograms --
+-----------------
+
+subprogram Driver_Identity
+properties
+  source_language => Ada95;
+  source_name     => "Driver_Pkg.Driver_Identity";
+end Driver_Identity;
+--  Displays a "welcome" message on th Driver node
+
+subprogram Do_Drive
+features
+  Event_Source : out event port;
+  Data_Source  : out event data port Integer_Type;
+properties
+  source_language => Ada95;
+  source_name     => "Driver_Pkg.Do_Drive";
+end Do_Drive;
+--  Randomly, may raise an event on Event_Source, a data event
+--  Data_Source, raise both an event and a data event or does nothing
+
+subprogram Driver_Wrapper
+features
+  Event_Source : out event      port;
+  Data_Source  : out event data port Integer_Type;
+end Driver_Wrapper;
+
+subprogram implementation Driver_Wrapper.Impl
+calls {
+  Welcome : subprogram Driver_Identity;
+  Drive   : subprogram Do_Drive;
+};
+connections
+  CNX_1 : event      port Drive.Event_Source -> Event_Source;
+  CNX_2 : event data port Drive.Data_Source  -> Data_Source;
+end Driver_Wrapper.Impl;
+--  Calls Driver_Identity then Do_Drive
+
+subprogram Receive_Data
+features
+  Data_Sink : in parameter Integer_Type;
+properties
+  source_language => Ada95;
+  source_name     => "Receiver_Pkg.Receive_Data";
+end Receive_Data;
+--  Displays the received data. Called by two different thread
+--  instances.
+
+subprogram Send_Data
+features
+  Data_Source : out event data port Integer_Type;
+properties
+  source_language => Ada95;
+  source_name     => "Transmitter_Pkg.Send_Data";
+end Send_Data;
+--  Randomly sends a data on its OUT port or does nothing
+
+-------------
+-- Threads --
+-------------
+
+thread Sender_Thread
+features
+  Event_Source : out event      port;
+  Data_Source  : out event data port Integer_Type;
+properties
+  Dispatch_Protocol => Periodic;
+  Period            => 1 Sec;
+end Sender_Thread;
+
+thread implementation Sender_Thread.Impl
+calls {
+  Job : subprogram Driver_Wrapper.Impl;
+};
+connections
+  CNX_1 : event      port Job.Event_Source -> Event_Source;
+  CNX_2 : event data port Job.Data_Source  -> Data_Source;
+end Sender_Thread.Impl;
+
+thread Receiver_Thread
+features
+  Data_Sink  : in event data port Integer_Type;
+properties
+  Dispatch_Protocol => Sporadic;
+  Period            => 100 Ms;
+end Receiver_Thread;
+
+thread implementation Receiver_Thread.Impl
+calls {
+  Job : subprogram Receive_Data;
+};
+connections
+  parameter Data_Sink -> Job.Data_Sink;
+end Receiver_Thread.Impl;
+
+thread Transmitter_Thread
+features
+  Event_Sink  : in  event      port;
+  Data_Source : out event data port Integer_Type;
+properties
+  Dispatch_Protocol => Sporadic;
+  Period            => 100 Ms;
+end Transmitter_Thread;
+
+thread implementation Transmitter_Thread.Impl
+calls {
+  Job : subprogram Send_Data;
+};
+connections
+  event data port Job.Data_Source -> Data_Source;
+end Transmitter_Thread.Impl;

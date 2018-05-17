@@ -1,0 +1,22 @@
+--  This is a scenario file describing the AADL example of thread
+--  compute entrypoint mode switch.
+
+--  $Id: scenario_CE.aadl 6713 2009-06-20 20:58:28Z lanarre $
+
+system CE_Mode_Switch
+properties
+  Ocarina_Config::Timeout_Property     => 4000ms;
+  Ocarina_Config::Referencial_Files    =>
+    ("mode_switch", "mode_switch_ce.ref");
+  Ocarina_Config::AADL_Files           => 
+    ("modes_CE.aadl", "common.aadl");
+  Ocarina_Config::Generator            => polyorb_hi_ada;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::Deployment));
+  Ocarina_Config::AADL_Version         => AADLv2;
+end CE_Mode_Switch;
+
+system implementation CE_Mode_Switch.Impl
+end CE_Mode_Switch.Impl;
+

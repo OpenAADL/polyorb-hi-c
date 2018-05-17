@@ -1,0 +1,57 @@
+--  This AADL model completes the multiple instances example by adding
+--  deployment information.
+--
+--  In this deployment, only one node is defined.
+--
+--  $Id: mi-local.aadl 6713 2009-06-20 20:58:28Z lanarre $
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+properties
+  Deployment::Execution_Platform => LEON_ORK;
+end the_processor;
+
+processor implementation the_processor.Impl
+end the_processor.Impl;
+
+---------------
+-- Processes --
+---------------
+
+process Send_Receive
+end Send_Receive;
+
+process implementation Send_Receive.Impl
+subcomponents
+  Sender_1   : thread Sender {Period => 1 Sec;};
+  Receiver_1 : thread Receiver;
+
+  Sender_2   : thread Sender {Period => 500 Ms;};
+  Receiver_2 : thread Receiver;
+
+  Sender_3   : thread Sender {Period => 200 Ms;};
+  Receiver_3 : thread Receiver;
+connections
+  event data port Sender_1.Output -> Receiver_1.Input;
+  event data port Sender_2.Output -> Receiver_2.Input;
+  event data port Sender_3.Output -> Receiver_3.Input;
+end Send_Receive.Impl;
+
+------------
+-- System --
+------------
+
+system Multiple_Instances
+end Multiple_Instances;
+
+system implementation Multiple_Instances.LEON
+subcomponents
+  Node_A : process Send_Receive.Impl;
+
+  CPU : processor the_processor.Impl;
+properties
+  actual_processor_binding => reference CPU applies to Node_A;
+end Multiple_Instances.LEON;

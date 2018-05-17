@@ -1,0 +1,18 @@
+"test_12" example:
+---------------
+
+* Description: two periodic threads send data to two others periodic threads
+
+* One deployement are provided, ping-local deploys one node, the two 
+threads are on the same node.
+
+* Compilation: issue "make" in the root directory
+
+* Run: tsim-erc32 node_a
+
+ fusion options : -f node_a -t1 pinger -t2 ping_me
+
+---------------
+tests :
+* fusion of connected periodic threads
+* same priorities [to change]

@@ -1,0 +1,35 @@
+package ocarina_drivers_ip_pohic
+
+public
+with Deployment;
+with ocarina_drivers;
+
+subprogram spg_sockets_init
+properties
+	Source_Language   => (C);
+	Source_Name       => "__po_hi_driver_sockets_init";
+end spg_sockets_init;
+
+
+subprogram spg_eth_linux_sender
+properties
+	Source_Language   => (C);
+	Source_Name       => "__po_hi_driver_sockets_send";
+end spg_eth_linux_sender;
+
+subprogram implementation spg_eth_linux_sender.i
+end spg_eth_linux_sender.i;
+
+abstract sockets_impl
+properties
+   Deployment::Configuration_Type => classifier (ocarina_drivers::configuration_type_ip);
+   Deployment::Version  => "0.1beta";
+   Deployment::Help     => "Write your ASN.1 configuration here";
+end sockets_impl;
+
+abstract implementation sockets_impl.i
+subcomponents
+   sender   : subprogram   spg_eth_linux_sender.i;
+end sockets_impl.i;
+
+end ocarina_drivers_ip_pohic;

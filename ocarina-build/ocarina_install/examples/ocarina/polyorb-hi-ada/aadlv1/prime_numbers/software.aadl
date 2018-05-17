@@ -1,0 +1,66 @@
+--  This AADL model illustrates how to model an use AADL hybrid threads
+--
+--  $Id: software.aadl 5420 2008-09-23 16:17:56Z zalila $
+
+----------
+-- Data --
+----------
+
+data Integer_Type
+properties
+  Data_Model::Data_Representation => Integer;
+end Integer_Type;
+
+-------------
+-- Threads --
+-------------
+
+thread Prime_Finder
+features
+  Found_Prime : out event data port Integer_Type;
+end Prime_Finder;
+
+thread implementation Prime_Finder.Impl
+properties
+  Dispatch_Protocol     => Periodic;
+  Period                => 1 Sec;
+  Deployment::Priority        => 60;
+  Compute_Entrypoint    => "Primes.Raise_If_Prime";
+end Prime_Finder.Impl;
+
+thread Prime_Reporter
+features
+  Received_Prime : in event data port Integer_Type;
+properties
+  Dispatch_Protocol => Hybrid;
+end Prime_Reporter;
+
+thread Prime_Reporter_One extends Prime_Reporter
+features
+  Received_Prime : refined to in event data port Integer_Type
+    {Compute_Entrypoint => "Primes.On_Received_Prime_One";};
+properties
+  Period               => 9 Sec;
+  Deployment::Priority => 45;
+  Compute_Entrypoint   => "Primes.Report_One";
+end Prime_Reporter_One;
+
+thread Prime_Reporter_Two extends Prime_Reporter
+features
+  Received_Prime : refined to in event data port Integer_Type
+    {Compute_Entrypoint => "Primes.On_Received_Prime_Two";};
+properties
+  Period               => 10 Sec;
+  Deployment::Priority => 50;
+  Compute_Entrypoint   => "Primes.Report_Two";
+end Prime_Reporter_Two;
+
+thread Prime_Reporter_Three extends Prime_Reporter
+features
+  Received_Prime : refined to in event data port Integer_Type
+    {Compute_Entrypoint => "Primes.On_Received_Prime_Three";};
+properties
+  Period               => 12 Sec;
+  Deployment::Priority => 55;
+  Compute_Entrypoint   => "Primes.Report_Three";
+end Prime_Reporter_Three;

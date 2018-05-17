@@ -1,0 +1,96 @@
+--  This model completes the PING example by adding deployment
+--  information.
+--
+--  In this deployment, two nodes are defined, one task per node.
+--
+--  $Id: ping.aadl 401 2007-06-07 15:04:01Z hugues $
+package PING
+public
+  with Software;
+  with Deployment;
+  with ocarina_drivers;
+  with ocarina_buses;
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+properties
+  Deployment::location           => "127.0.0.1";
+  Deployment::Execution_Platform => linux32_xenomai_posix;
+  Priority_Range                 => 0 .. 255;
+  Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
+end the_processor;
+
+---------
+-- Bus --
+---------
+
+bus Ethernet_Bus
+properties
+  Deployment::Transport_API => BSD_Sockets;
+end Ethernet_Bus;
+
+---------------
+-- Processes --
+---------------
+
+process A
+features
+  Out_Port : out event data port Software::Simple_Type;
+end A;
+
+process implementation A.Impl
+subcomponents
+  Pinger        : thread Software::P.Impl;
+connections
+  port Pinger.Data_Source -> Out_Port;
+end A.Impl;
+
+process B
+features
+  In_Port  : in event data port Software::Simple_Type;
+end B;
+
+process implementation B.Impl
+subcomponents
+  Ping_Me        : thread Software::Q.Impl;
+connections
+  port In_Port -> Ping_Me.Data_Sink;
+end B.Impl;
+
+------------
+-- System --
+------------
+
+system PING
+end PING;
+
+system implementation PING.Impl
+subcomponents
+  Node_A : process A.Impl;
+  Node_B : process B.Impl;
+
+  Device_A : device ocarina_drivers::generic_sockets_ip.pohic
+    {Source_Text => ("devicesconf.c");};
+  Device_B : device ocarina_drivers::generic_sockets_ip.pohic
+    {Source_Text => ("devicesconf.c");};
+
+  CPU_A : processor the_processor;
+  CPU_B : processor the_processor;
+  the_bus : bus ocarina_buses::ip.i;
+connections
+  bus access the_bus -> Device_A.link;
+  bus access the_bus -> Device_B.link;
+
+  port Node_A.Out_Port -> Node_B.In_Port
+    {Actual_Connection_Binding => (reference (the_bus));};
+properties
+  actual_processor_binding => reference (CPU_A) applies to Node_A;
+  actual_processor_binding => reference (CPU_B) applies to Node_B;
+  actual_processor_binding => (reference (CPU_A)) applies to Device_A;
+  actual_processor_binding => (reference (CPU_B)) applies to Device_B;
+end PING.Impl;
+
+end PING;

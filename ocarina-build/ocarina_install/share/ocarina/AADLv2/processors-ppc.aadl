@@ -1,0 +1,70 @@
+-- This package defines some processors from the PPC family
+
+package Processors::PPC
+public
+  with Processor_Properties;
+
+  -----------------
+  -- Generic_PPC --
+  -----------------
+
+  processor Generic_PPC
+  properties
+    Processor_Properties::Processor_Family => PowerPC;
+    Processor_Properties::Endianess        => Little_Endian;
+    Processor_Properties::Word_Length      => 32 bits;
+
+    Thread_Limit => 32;
+  end Generic_PPC;
+
+  --------------
+  -- MPC8349E --
+  --------------
+
+  processor MPC8349E extends Generic_PPC
+  end MPC8349E;
+
+  ------------
+  -- PPC750 --
+  ------------
+
+  processor PPC750 extends Generic_PPC
+  end PPC750;
+
+  processor implementation PPC750.impl
+  properties
+    Thread_Limit => 32;
+  end PPC750.impl;
+
+  -----------
+  -- P4080 --
+  -----------
+
+  --  The P4080 is a 8-core processor, each core being a e500mc
+
+  --  See http://www.freescale.com/webapp/sps/site/prod_summary.jsp?code=P4080
+  --  for more details
+
+  virtual processor e500mc
+  end e500mc;
+
+  virtual processor implementation e500mc.impl
+  end e500mc.impl;
+
+  processor P4080
+  end P4080;
+
+  processor implementation P4080.impl
+  subcomponents
+    Core_1 : virtual processor e500mc.impl { Processor_Properties::Core_Id => 0;};
+    Core_2 : virtual processor e500mc.impl { Processor_Properties::Core_Id => 1;};
+    Core_3 : virtual processor e500mc.impl { Processor_Properties::Core_Id => 2;};
+    Core_4 : virtual processor e500mc.impl { Processor_Properties::Core_Id => 3;};
+    Core_5 : virtual processor e500mc.impl { Processor_Properties::Core_Id => 4;};
+    Core_6 : virtual processor e500mc.impl { Processor_Properties::Core_Id => 5;};
+    Core_7 : virtual processor e500mc.impl { Processor_Properties::Core_Id => 6;};
+    Core_8 : virtual processor e500mc.impl { Processor_Properties::Core_Id => 7;};
+
+  end P4080.impl;
+
+end Processors::PPC;

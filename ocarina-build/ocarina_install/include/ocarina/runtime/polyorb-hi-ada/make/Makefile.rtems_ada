@@ -1,0 +1,38 @@
+include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
+include $(RTEMS_CUSTOM)
+include $(PROJECT_ROOT)/make/leaf.cfg
+
+# stack size for the first Ada thread
+CFLAGS +=-DGNAT_MAIN_STACKSPACE=100
+
+# initialize the network stack -- assumes existence of networkconfig.h
+# CFLAGS +=-DMAIN_USE_NETWORKING=1
+
+SPECFLAGS =-B${RTEMS_MAKEFILE_PATH}/lib/ -specs=bsp_specs -qrtems
+CFLAGS = $(CPU_CFLAGS)
+
+DEFINES += -D$(RTEMS_BSP)
+CFLAGS += $(DEFINES)
+GCC=$(CC)
+
+# changed by ttsiodras: we dont want -mcpu=... stuff here!
+# EXTRA_OBJS=$(C_OBJECTS) $(EXTERNAL_OBJECTS)
+EXTRA_OBJS=$(C_OBJECTS) $(filter-out -%, $(EXTERNAL_OBJECTS))
+
+RTS= --RTS=$(shell $(CC) -print-multi-directory $(CFLAGS))
+
+all: compile-c-files $(PROGRAM).exe
+
+$(PROGRAM).exe: rtems_init.o $(EXTRA_OBJS)
+	$(AS:as=gnatmake) -x -g -v $(EXTRA_GNATFLAGS) \
+            -I$(RTEMS_MAKEFILE_PATH)/lib/include/adainclude -XTARGET=RTEMS \
+ 	    -O -gnata -gnatE -gnato -P $(PROGRAM).gpr -o $(@) \
+	    -bargs -Mgnat_main \
+	    -largs $(SPECFLAGS) $(CFLAGS) $(LINKARGS) \
+		rtems_init.o $(FILESYSTEM_OBJS) \
+	     $(EXTRA_OBJS)
+
+clean:
+	rm -f obj/*
+	rm -f b~*.*  *.o *.ali $(PROGRAM)
+	rm -f *.num *.exe *.obj *.bin *.bt *.gba

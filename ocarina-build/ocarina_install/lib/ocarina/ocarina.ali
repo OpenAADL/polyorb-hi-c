@@ -1,0 +1,159 @@
+V "GNAT Lib v6"
+A -O2
+A -gnatA
+A -gnat12
+A -gnata
+A -gnaty
+A -gnatyu
+A -gnatys
+A -gnatp
+A -gnatn
+A -mtune=generic
+A -march=i686
+P SS ZX
+
+RN
+RR SIMPLE_BARRIERS
+RR NO_ABORT_STATEMENTS
+RR NO_ACCESS_PARAMETER_ALLOCATORS
+RV NO_ACCESS_SUBPROGRAMS
+RR NO_ASYNCHRONOUS_CONTROL
+RR NO_COEXTENSIONS
+RR NO_DYNAMIC_ATTACHMENT
+RR NO_DYNAMIC_PRIORITIES
+RR NO_ENTRY_CALLS_IN_ELABORATION_CODE
+RR NO_ENTRY_QUEUE
+RR NO_EXCEPTION_REGISTRATION
+RR NO_FIXED_IO
+RR NO_IMPLICIT_TASK_ALLOCATIONS
+RR NO_IMPLICIT_PROTECTED_OBJECT_ALLOCATIONS
+RV NO_INITIALIZE_SCALARS
+RR NO_LOCAL_TIMING_EVENTS
+RR NO_LOCAL_PROTECTED_OBJECTS
+RR NO_PROTECTED_TYPE_ALLOCATORS
+RR NO_PROTECTED_TYPES
+RR NO_RELATIVE_DELAY
+RR NO_REQUEUE_STATEMENTS
+RV NO_SECONDARY_STACK
+RR NO_SELECT_STATEMENTS
+RR NO_SPECIFIC_TERMINATION_HANDLERS
+RV NO_STANDARD_STORAGE_POOLS
+RR NO_STREAM_OPTIMIZATIONS
+RR NO_TASK_ALLOCATORS
+RR NO_TASK_ATTRIBUTES_PACKAGE
+RR NO_TASK_AT_INTERRUPT_PRIORITY
+RR NO_TASK_HIERARCHY
+RR NO_TASK_TERMINATION
+RR NO_TASKING
+RR NO_TERMINATE_ALTERNATIVES
+RR STATIC_PRIORITIES
+RR STATIC_STORAGE_SIZE
+RV NO_DEFAULT_INITIALIZATION
+RR IMMEDIATE_RECLAMATION
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLEMENTATION_RESTRICTIONS
+RV NO_ELABORATION_CODE
+RV NO_OBSOLESCENT_FEATURES
+RR PURE_BARRIERS
+RV SPARK_05
+RR MAX_PROTECTED_ENTRIES=0
+RR MAX_SELECT_ALTERNATIVES=0
+RR MAX_TASK_ENTRIES=0
+RR MAX_TASKS=0
+RR MAX_ASYNCHRONOUS_SELECT_NESTING=0
+
+U ocarina%b		ocarina.adb		462b89d5 NE OO PK IS
+W errors%s		errors.adb		errors.ali
+W ocarina%s		ocarina.adb		ocarina.ali
+W ocarina.aadl_values%s	ocarina-aadl_values.adb	ocarina-aadl_values.ali
+W ocarina.me_aadl%s	ocarina-me_aadl.ads	ocarina-me_aadl.ali
+W ocarina.me_aadl.aadl_instances%s  ocarina-me_aadl-aadl_instances.ads  ocarina-me_aadl-aadl_instances.ali
+W ocarina.me_aadl.aadl_instances.nutils%s  ocarina-me_aadl-aadl_instances-nutils.adb  ocarina-me_aadl-aadl_instances-nutils.ali
+W ocarina.me_aadl.aadl_tree%s  ocarina-me_aadl-aadl_tree.ads  ocarina-me_aadl-aadl_tree.ali
+W ocarina.me_aadl.aadl_tree.nutils%s  ocarina-me_aadl-aadl_tree-nutils.adb  ocarina-me_aadl-aadl_tree-nutils.ali
+W ocarina.namet%s	ocarina-namet.adb	ocarina-namet.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+
+U ocarina%s		ocarina.ads		bfb8a9d7 EE OO PK IS
+W system.scalar_values%s  s-scaval.adb		s-scaval.ali
+
+D ada.ads		20070406091342 3ffc8e18 ada%s
+D a-except.ads		20151016123252 291912d5 ada.exceptions%s
+D a-unccon.ads		20070406091342 f9eb8f06 ada.unchecked_conversion%s
+D errors.ads		20180517074744 db09df45 errors%s
+D gnat.ads		20140801083227 fd2ad2f1 gnat%s
+D g-hesorg.ads		20110801150502 106922da gnat.heap_sort_g%s
+D g-table.ads		20151020120548 16cef446 gnat.table%s
+D g-table.adb		20140521105248 2932f881 gnat.table%b
+D locations.ads		20180517074744 06a68fdd locations%s
+D ocarina.ads		20180517074744 bfb8a9d7 ocarina%s
+D ocarina.adb		20180517074744 06e622f2 ocarina%b
+D ocarina-aadl_values.ads  20180517074744 af61b867 ocarina.aadl_values%s
+D ocarina-me_aadl.ads	20180517074744 debca36c ocarina.me_aadl%s
+D ocarina-me_aadl-aadl_instances.ads  20180517074744 8883fa2d ocarina.me_aadl.aadl_instances%s
+D ocarina-me_aadl-aadl_instances-nodes.ads  20180517074810 a82a3b03 ocarina.me_aadl.aadl_instances.nodes%s
+D ocarina-me_aadl-aadl_instances-nutils.ads  20180517074744 da740ac7 ocarina.me_aadl.aadl_instances.nutils%s
+D ocarina-me_aadl-aadl_tree.ads  20180517074744 7b68b93a ocarina.me_aadl.aadl_tree%s
+D ocarina-me_aadl-aadl_tree-nodes.ads  20180517074810 7e383ab1 ocarina.me_aadl.aadl_tree.nodes%s
+D ocarina-me_aadl-aadl_tree-nutils.ads  20180517074744 e27d5dc5 ocarina.me_aadl.aadl_tree.nutils%s
+D ocarina-namet.ads	20180517074744 b31432d0 ocarina.namet%s
+D ocarina-types.ads	20180517074744 e099215b ocarina.types%s
+D system.ads		20151123113124 c6f79445 system%s
+D s-assert.ads		20140225151544 cd8d2c94 system.assertions%s
+D s-memory.ads		20140225151139 597d6634 system.memory%s
+D s-parame.ads		20140801093848 7e2a0d7f system.parameters%s
+D s-scaval.ads		20090409150019 bea40757 system.scalar_values%s
+D s-secsta.ads		20140225151139 86a2856d system.secondary_stack%s
+D s-stalib.ads		20151112104907 09bd3940 system.standard_library%s
+D s-stoele.ads		20140225151139 2dc34a04 system.storage_elements%s
+D s-traent.ads		20140730135025 005bf670 system.traceback_entries%s
+D unchdeal.ads		20070406091342 214516a4 unchecked_deallocation%s
+D /home/francis/polyorb-hi-c/ocarina-build/ocarina/src/../projects/restrictions.adc  20180517074744 00000000
+X 4 errors.ads
+36K9*Errors 79e11 11|33w6 48r7 60r7
+58U14*Initialize 11|48s14 60s14
+X 10 ocarina.ads
+32K9*Ocarina 55E13 61l5 61e12 11|32r6 34r6 35r6 36r6 36r31 38b14 45r11 47r7
+. 59r7 61r7 62r7 63r7 84l5 84t12
+34E9*AADL_Version_Type 34e48 37r27 40r19
+34n31*AADL_V1{34E9}
+34n40*AADL_V2{34E9}
+37e4*Default_AADL_Version{34E9}
+40e4*AADL_Version{34E9}
+42U14*Initialize 11|44b14 51l8 51t18
+45U14*Reset 11|57b14 64l8 64t13
+49V13*GNU_Make_Cmd{string} 11|70b13 73l8 73t20
+55V13 Default_GNU_Make{string} 59r38 11|79b13 82l8 82t24
+58P9 GNU_Make_Access(string) 59r19
+59p4 GNU_Make_Ptr{58P9} 11|72r14
+X 12 ocarina-aadl_values.ads
+38K17*AADL_Values 11|36w14 36r39 63r15 12|152e24
+80i4*V_Zero{21|216I9} 11|49m7
+81i4*V_One{21|216I9} 11|50m7
+93V13*New_Integer_Value{21|216I9} 11|49s17 50s17
+145U14*Reset 11|63s27
+X 13 ocarina-me_aadl.ads
+32K17*ME_AADL 11|34r14 35r14 61r15 62r15 13|102e20
+X 14 ocarina-me_aadl-aadl_instances.ads
+32K25*AADL_Instances 11|35r22 62r23 14|33e35
+X 16 ocarina-me_aadl-aadl_instances-nutils.ads
+37K40*Nutils 11|35w37 62r38 16|162e42
+103U14*Reset_Nodes 11|62s45
+X 17 ocarina-me_aadl-aadl_tree.ads
+32K25*AADL_Tree 11|34r22 61r23 17|33e30
+X 19 ocarina-me_aadl-aadl_tree-nutils.ads
+36K35*Nutils 11|34w32 61r33 19|118e37
+108U14*Reset_Nodes 11|61s40
+X 20 ocarina-namet.ads
+36K17*Namet 11|32w14 45r19 47r15 59r15 20|242e18
+97U14*Initialize 11|47s21 59s21
+X 21 ocarina-types.ads
+49I9*Int<integer>
+216I9*Value_Id<49I9>
+X 22 system.ads
+67M9*Address
+X 24 s-memory.ads
+53V13*Alloc{22|67M9} 103i<c,__gnat_malloc>22
+68U14*Free 104i<c,__gnat_free>22
+76V13*Realloc{22|67M9} 105i<c,__gnat_realloc>22
+

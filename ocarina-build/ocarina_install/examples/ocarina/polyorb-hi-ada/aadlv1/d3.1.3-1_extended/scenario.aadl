@@ -1,0 +1,24 @@
+--  This is a scenario file describing the AADL 
+--  application d3_1_3_1_extended
+
+--  $Id: scenario.aadl 6713 2009-06-20 20:58:28Z lanarre $
+
+system d3_1_3_1_extended
+properties
+  Ocarina_Config::Timeout_Property     => 4000ms;
+  Ocarina_Config::Referencial_Files    => 
+    ("gc", "gc.ref",
+    "gnc_tmtc_pos", "gnc_tmtc_pos.ref");
+  Ocarina_Config::AADL_Files           => 
+    ("probe.aadl");
+  Ocarina_Config::Generator            => polyorb_hi_ada;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model), 
+     value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::Cheddar_Properties));
+  Ocarina_Config::AADL_Version         => AADLv1;
+end d3_1_3_1_extended;
+
+system implementation d3_1_3_1_extended.Impl
+end  d3_1_3_1_extended.Impl;
+

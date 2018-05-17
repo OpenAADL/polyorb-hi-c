@@ -1,0 +1,238 @@
+--  This example provides an AADL model for the MPC Project Pilot
+
+-- $Id: software.aadl 6425 2009-04-27 22:08:56Z hugues $
+
+----------
+-- Data --
+----------
+
+--  The simple component type
+
+data Component_Type
+properties
+  Data_Model::Data_Representation => Integer;
+end Component_Type;
+
+--  The record type used to vehicle the information between nodes
+
+data Record_Type
+end Record_Type;
+
+data implementation Record_Type.Impl
+properties
+  Data_Model::Data_Representation => Struct;
+  Data_Model::Base_type           => (data Component_Type, 
+                                      data Component_Type,
+                                      data Component_Type);
+  Data_Model::Element_Names       => ("X", "Y", "Z");  
+end Record_Type.Impl;
+
+--  The protected type used to store and consult data in a node
+
+data Protected_Type
+features
+  Update : subprogram Update;
+  Read   : subprogram Read;
+end Protected_Type;
+
+data implementation Protected_Type.Impl
+subcomponents
+  X : data Component_Type;
+  Y : data Component_Type;
+  Z : data Component_Type;
+properties
+  Data_Model::Data_Representation => Struct;
+  Concurrency_Control_Protocol => Priority_Ceiling;
+end Protected_Type.Impl;
+
+-----------------
+-- Subprograms --
+-----------------
+
+subprogram Update
+features
+  Update_Value : in parameter Record_Type.Impl;
+  This         : requires data access Protected_Type.Impl;
+properties
+  source_language => Ada95;
+  source_name     => "MPC.Update";
+end Update;
+--  Updates the protected local object
+
+subprogram Read
+features
+  Read_Value : out parameter Record_Type.Impl;
+  This       : requires data access Protected_Type.Impl;
+properties
+  source_language => Ada95;
+  source_name     => "MPC.Read";
+  source_text     => ("mpc.ads", "mpc.adb");
+end Read;
+--  Reads the value of the local Object
+
+subprogram Observe_Object
+features
+  Data_Source : out parameter Record_Type.Impl;
+properties
+  source_language => Ada95;
+  source_name     => "MPC.Observe_Object";
+end Observe_Object;
+--  Sends a new value of the local object to a remote node
+
+subprogram Watch_Object_Value
+features
+  Read_Value : in parameter Record_Type.Impl;
+properties
+  source_language => Ada95;
+  source_name     => "MPC.Watch_Object_Value";
+end Watch_Object_Value;
+
+--------------------------
+-- Threads Job Wrappers --
+--------------------------
+
+--  Sender
+
+subprogram Sender_Thread_Wrapper
+features
+  Data_Source : out parameter Record_Type.Impl;
+end Sender_Thread_Wrapper;
+
+subprogram implementation Sender_Thread_Wrapper.Impl
+calls {
+  Send : subprogram Observe_Object;
+};
+connections
+  parameter Send.Data_Source -> Data_Source;
+end Sender_Thread_Wrapper.Impl;
+
+--  Receiver
+
+subprogram Receiver_Thread_Wrapper
+features
+  Protected_Local : requires data access Protected_Type.Impl;
+  Data_Sink       : in parameter Record_Type.Impl;
+end Receiver_Thread_Wrapper;
+
+subprogram implementation Receiver_Thread_Wrapper.Impl
+calls {
+  Update : subprogram Protected_Type.Update;
+};
+connections
+  data access Protected_Local -> Update.This;
+  parameter Data_Sink -> Update.Update_Value;
+end Receiver_Thread_Wrapper.Impl;
+
+--  Watcher
+
+subprogram Watcher_Thread_Wrapper
+features
+  Protected_Local : requires data access Protected_Type.Impl;
+end Watcher_Thread_Wrapper;
+
+subprogram implementation Watcher_Thread_Wrapper.Impl
+calls {
+  Read  : subprogram Protected_Type.Read;
+  Watch : subprogram Watch_Object_Value;
+};
+connections
+  data access Protected_Local -> Read.This;
+  parameter Read.Read_Value -> Watch.Read_Value;
+end Watcher_Thread_Wrapper.Impl;
+
+-------------
+-- Threads --
+-------------
+
+--  Sender
+
+thread Sender_Thread
+features
+  Data_Source : out event data port Record_Type.Impl;
+properties
+  Dispatch_Protocol => Periodic;
+  Period            => 1 Sec;
+end Sender_Thread;
+
+thread implementation Sender_Thread.Impl
+calls {
+  Wrapper : subprogram Sender_Thread_Wrapper.Impl;
+};
+connections
+  parameter Wrapper.Data_Source -> Data_Source;
+end Sender_Thread.Impl;
+
+--  Receiver
+
+thread Receiver_Thread
+features
+  Protected_Local : requires data access Protected_Type.Impl;
+  Data_Sink       : in event data port Record_Type.Impl;
+properties
+  Dispatch_Protocol => Sporadic;
+  Period            => 100 Ms;
+end Receiver_Thread;
+
+thread implementation Receiver_Thread.Impl
+calls {
+  Wrapper : subprogram Receiver_Thread_Wrapper.Impl;
+};
+connections
+  data access Protected_Local -> Wrapper.Protected_Local;
+  parameter Data_Sink -> Wrapper.Data_Sink;
+end Receiver_Thread.Impl;
+
+--  Watcher
+
+thread Watcher_Thread
+features
+  Protected_Local : requires data access Protected_Type.Impl;
+properties
+  Dispatch_Protocol => Periodic;
+  Period            => 500 Ms;
+end Watcher_Thread;
+
+thread implementation Watcher_Thread.Impl
+calls {
+  Wrapper : subprogram Watcher_Thread_Wrapper.Impl;
+};
+connections
+  data access Protected_Local -> Wrapper.Protected_Local;
+end Watcher_Thread.Impl;
+
+---------------
+-- Processes --
+---------------
+
+--  Sender
+
+process Sender_Process
+features
+  Data_Source : out event data port Record_Type.Impl;
+end Sender_Process;
+
+process implementation Sender_Process.Impl
+subcomponents
+  Sender : thread Sender_Thread.Impl;
+connections
+  event data port Sender.Data_Source -> Data_Source;
+end Sender_Process.Impl;
+
+--  Receiver
+
+process Receiver_Process
+features
+  Data_Sink : in event data port Record_Type.Impl;
+end Receiver_Process;
+
+process implementation Receiver_Process.Impl
+subcomponents
+  Local_Object : data Protected_Type.Impl;
+  Receiver     : thread Receiver_Thread.Impl;
+  Watcher      : thread Watcher_Thread.Impl;
+connections
+  data access Local_Object -> Receiver.Protected_Local;
+  data access Local_Object -> Watcher.Protected_Local;
+  event data port Data_Sink -> Receiver.Data_Sink;
+end Receiver_Process.Impl;
+

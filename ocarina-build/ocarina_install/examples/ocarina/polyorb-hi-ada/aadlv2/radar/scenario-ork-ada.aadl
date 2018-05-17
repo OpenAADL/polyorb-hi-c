@@ -1,0 +1,17 @@
+--  This is a scenario file describing the AADL application radar
+
+system radar
+properties
+  Ocarina_Config::AADL_Files           => 
+    ("radar.aadl", "radar_types.aadl");
+  Ocarina_Config::Generator            => polyorb_hi_ada;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::Cheddar_Properties));
+  Ocarina_Config::AADL_Version         => AADLv2;
+end radar;
+
+system implementation radar.Impl
+end  radar.Impl;
+

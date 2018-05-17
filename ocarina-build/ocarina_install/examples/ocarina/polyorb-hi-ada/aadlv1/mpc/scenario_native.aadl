@@ -1,0 +1,25 @@
+--  This is a scenario file describing the AADL 
+--  application mpc
+
+--  $Id: scenario_native.aadl 6713 2009-06-20 20:58:28Z lanarre $
+
+system mpc
+properties
+  Ocarina_Config::Timeout_Property     => 4000ms;
+  Ocarina_Config::Referencial_Files    => 
+    ("sc_1", "sc_1.ref",
+    "sc_2", "sc_2.ref",
+    "sc_3", "sc_3.ref");
+  Ocarina_Config::AADL_Files           => 
+    ("software.aadl", "mpc_native.aadl");
+  Ocarina_Config::Generator            => polyorb_hi_ada;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::Cheddar_Properties));
+  Ocarina_Config::AADL_Version         => AADLv1;
+end mpc;
+
+system implementation mpc.Impl
+end  mpc.Impl;
+

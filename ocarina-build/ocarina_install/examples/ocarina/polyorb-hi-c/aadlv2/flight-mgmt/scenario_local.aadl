@@ -1,0 +1,18 @@
+package Scenario
+public
+  with Ocarina_Config;
+  with Ocarina_Library;
+
+  system  Flight_Management extends Ocarina_Library::Default_PolyORB_HI_C_Config
+  properties
+    Ocarina_Config::Referencial_Files    =>
+    ("mgmt", "mgmt.ref");
+    Ocarina_Config::AADL_Files           =>
+    ("flt_mgmt.aadl", "software.aadl");
+    Ocarina_Config::Root_System_Name => "flight_mgmt.local";
+  end Flight_Management;
+
+  system implementation Flight_Management.Impl
+  end  Flight_Management.Impl;
+
+end scenario;

@@ -1,0 +1,78 @@
+package ocarina_drivers_serial
+
+public
+
+with Deployment;
+with ocarina_drivers;
+
+subprogram spg_serial_poller_linux
+properties
+	Source_Language => (C);
+	Source_Name => "__po_hi_c_driver_serial_linux_poller";
+end spg_serial_poller_linux;
+
+
+subprogram spg_serial_sender_linux
+properties
+	Source_Language => (C);
+	Source_Name => "__po_hi_c_driver_serial_linux_sender";
+end spg_serial_sender_linux;
+
+
+subprogram spg_serial_init_linux
+properties
+	Source_Language => (C);
+	Source_Name => "__po_hi_c_driver_serial_linux_init";
+end spg_serial_init_linux;
+
+subprogram spg_serial_init_linux_sender
+properties
+	Source_Language => (C);
+	Source_Name => "__po_hi_c_driver_serial_linux_init_sender";
+end spg_serial_init_linux_sender;
+
+subprogram spg_serial_init_linux_receiver
+properties
+	Source_Language => (C);
+	Source_Name => "__po_hi_c_driver_serial_linux_init_receiver";
+end spg_serial_init_linux_receiver;
+
+thread serial_poller
+end serial_poller;
+
+thread implementation serial_poller.linux
+calls
+	mycall : {
+	  pspg : subprogram spg_serial_poller_linux;
+	};
+properties
+   Period => 1000ms;
+   Dispatch_Protocol => Periodic;
+end serial_poller.linux;
+
+
+abstract serial_driver
+properties
+   Deployment::Configuration_Type => classifier (ocarina_drivers::configuration_type_serial);
+   Deployment::Version  => "0.1beta";
+   Deployment::Help     => "Write your ASN.1 configuration here";
+end serial_driver;
+
+abstract implementation serial_driver.linux
+subcomponents
+   serial_linux_receiver : thread serial_poller.linux;
+   sender                : subprogram spg_serial_sender_linux;
+end serial_driver.linux;
+
+abstract implementation serial_driver.linux_sender
+subcomponents
+   sender                : subprogram spg_serial_sender_linux;
+end serial_driver.linux_sender;
+
+
+abstract implementation serial_driver.linux_receiver
+subcomponents
+   serial_linux_receiver : thread serial_poller.linux;
+end serial_driver.linux_receiver;
+
+end ocarina_drivers_serial;

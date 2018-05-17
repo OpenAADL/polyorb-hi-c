@@ -1,0 +1,23 @@
+--  This is a scenario file describing the AADL application
+--  subprogram_ports.
+
+--  $Id: scenario.aadl 6713 2009-06-20 20:58:28Z lanarre $
+
+system subprogram_ports
+properties
+  Ocarina_Config::Timeout_Property     => 4000ms;
+  Ocarina_Config::Referencial_Files    => 
+    ("driver", "driver.ref",
+    "receiver_1", "receiver_1.ref",
+    "receiver_2", "receiver_2.ref");
+  Ocarina_Config::AADL_Files           => 
+    ("subprogram_ports.aadl", "software.aadl");
+  Ocarina_Config::Generator            => polyorb_hi_ada;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::Deployment));
+  Ocarina_Config::AADL_Version         => AADLv1;
+end subprogram_ports;
+
+system implementation subprogram_ports.Impl
+end subprogram_ports.Impl;

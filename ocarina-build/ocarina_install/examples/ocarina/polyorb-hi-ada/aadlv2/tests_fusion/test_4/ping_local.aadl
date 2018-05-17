@@ -1,0 +1,65 @@
+--  This model completes the PING example by adding deployment
+--  information.
+--
+--  In this deployment, only one node is defined.
+--
+--  $Id: ping-local.aadl 450 2007-09-06 13:51:25Z hugues $
+
+package p
+public
+  with Deployment;
+  with Cheddar_Properties;
+  with S;
+  with Assert_Properties;
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+properties
+  Deployment::Execution_Platform => ERC32_ORK;
+end the_processor;
+
+processor implementation the_processor.Impl
+properties
+   Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
+   Cheddar_Properties::Scheduler_Quantum => 0 Ms;
+   Cheddar_Properties::Preemptive_Scheduler => true;
+   ASSERT_Properties::Processor_Speed => 50 MHz;
+end the_processor.Impl;
+
+---------------
+-- Processes --
+---------------
+
+process A
+end A;
+
+process implementation A.Impl
+subcomponents
+  Pinger   : thread s::P.Impl;
+  Ping_Me  : thread s::Q.Impl;
+  Ping_Me2 : thread s::Q.Impl;
+connections
+  port Pinger.Data_Source -> Ping_Me.Data_Sink;
+  port Pinger.Data_Source -> Ping_Me2.Data_Sink;
+end A.Impl;
+
+------------
+-- System --
+------------
+
+system PING
+end PING;
+
+system implementation PING.ERC32
+subcomponents
+  Node_A : process A.Impl;
+
+  CPU : processor the_processor.Impl;
+properties
+  actual_processor_binding => (reference (CPU)) applies to Node_A;
+end PING.ERC32;
+
+end p;

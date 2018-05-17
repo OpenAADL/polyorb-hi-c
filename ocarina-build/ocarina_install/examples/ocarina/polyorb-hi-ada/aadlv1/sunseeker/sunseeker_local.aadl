@@ -1,0 +1,37 @@
+---------------
+-- Processor --
+---------------
+
+processor LEON_Type
+end LEON_Type;
+
+------------
+-- System --
+------------
+
+system Sunseekercontrolsystem_Type
+end Sunseekercontrolsystem_Type;
+
+system implementation Sunseekercontrolsystem_Type.LEON
+subcomponents
+
+  Sunseeker : process sunseeker_local.Impl;
+
+  Platform: processor LEON_Type
+    {Deployment::Execution_Platform => LEON_ORK;};
+properties
+  Actual_Processor_Binding => reference Platform
+    applies to Sunseeker;
+end Sunseekercontrolsystem_Type.LEON;
+
+system implementation Sunseekercontrolsystem_Type.LEON_GNAT
+subcomponents
+
+  Sunseeker : process sunseeker_local.Impl;
+
+  Platform: processor LEON_Type
+    {Deployment::Execution_Platform => LEON_GNAT;};
+properties
+  Actual_Processor_Binding => reference Platform
+    applies to Sunseeker;
+end Sunseekercontrolsystem_Type.LEON_GNAT;

@@ -1,0 +1,13 @@
+"Multiple Instances" example:
+-----------------------------
+
+* Description: 
+
+  - Three periodic senders (instances of the same thread AADL
+    component having three different periods) send messages to three
+    sporadic receivers (instances of the same thread AADL component.
+
+* Compilation: issue "make build-all" in the root directory
+
+* Run: launch node_a
+

@@ -1,0 +1,54 @@
+--  This AADL model completes the prime numbers example by adding
+--  deployment information.
+--
+--  In this deployment, only one node is defined.
+--
+--  $Id: pn-local.aadl 6713 2009-06-20 20:58:28Z lanarre $
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+properties
+  Deployment::Execution_Platform => LEON_ORK;
+end the_processor;
+
+processor implementation the_processor.Impl
+end the_processor.Impl;
+
+---------------
+-- Processes --
+---------------
+
+process A
+end A;
+
+process implementation A.Impl
+subcomponents
+  Finder         : thread Prime_Finder.Impl;
+
+  Reporter_One   : thread Prime_Reporter_One;
+  Reporter_Two   : thread Prime_Reporter_Two;
+  Reporter_Three : thread Prime_Reporter_Three;
+connections
+  event data port Finder.Found_Prime -> Reporter_One.Received_Prime;
+  event data port Finder.Found_Prime -> Reporter_Two.Received_Prime;
+  event data port Finder.Found_Prime -> Reporter_Three.Received_Prime;
+end A.Impl;
+
+------------
+-- System --
+------------
+
+system Prime_Numbers
+end Prime_Numbers;
+
+system implementation Prime_Numbers.LEON
+subcomponents
+  Node_A : process A.Impl;
+
+  CPU : processor the_processor.Impl;
+properties
+  actual_processor_binding => reference CPU applies to Node_A;
+end Prime_Numbers.LEON;

@@ -1,0 +1,33 @@
+This is a flight control example:
+
+FIRST AUTHOR: Irfan Hamid
+MODIFIED BY : Gilles Lasnier (AADLv2 version)
+
+Description: To illustrate the use of event and event data ports, we
+will study the example of a simplistic flight computer. We will assume
+that our platform has three different sensors; an angle-of-attack
+sensor that periodically sends data in integers for the current AoA, a
+climb-rate sensor that also periodically sends integer data and a
+sensor that raises an event in case of engine failure. In our example
+we will simulate the three sensors with a periodic thread that will
+update values of the AoA and climb-rate sensors at every dispatch, and
+will sometimes send the engine failure event.
+
+We have a thread called Stall_Monitor that is a periodic thread which
+will monitor the condition of the AoA and climb-rate sensors and raise
+a stall warning if certain conditions are met. The thread Operator
+simulates the pilot. It is a periodic thread that sends a command at
+every dispatch to raise or lower the landing gear of the aircraft. The
+thread Landing_Gear simulates the landing gear subsystem. It receives
+a command to start a landing gear operation, it takes 3 seconds to
+raise/lower and lock the landing gear and then sends an
+acknowledgement. It is a sporadic thread with a minimum inter-arrival
+time of 3 seconds. The thread HCI is a human computer interface. It
+will receive a stall warning as an event data of type Integer, engine
+failure as an event, a landing gear command from the pilot and may
+send a landing gear operation request to the landing gear subsystem,
+and receives a landing gear operation acknowledgement from the landing
+gear subsystem. It is a sporadic thread with a minimum inter-arrival
+time of 10ms.
+
+For more details: http://aadl.enst.fr/arc/doc/

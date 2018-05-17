@@ -1,0 +1,16 @@
+package Scenario
+public
+  with Ocarina_Config;
+  with Ocarina_Library;
+
+  system some_types extends Ocarina_Library::Default_PolyORB_HI_C_Config
+  properties
+    Ocarina_Config::AADL_Files           +=>
+    ("some_types.aadl","software.aadl");
+    Ocarina_Config::Root_System_Name => "some_types.local";
+  end some_types;
+
+  system implementation some_types.impl
+  end some_types.impl;
+
+end scenario;

@@ -1,0 +1,25 @@
+--  This is a scenario file describing the AADL 
+--  application ping
+
+--  $Id: scenario_local.aadl 6879 2009-07-25 11:36:09Z lanarre $
+
+system ping
+properties
+  Ocarina_Config::Timeout_Property     => 4000ms;
+  Ocarina_Config::Referencial_Files    =>
+    ("node_a", "node_a_leon.ref",
+    "node_b", "node_b_leon.ref");
+  Ocarina_Config::AADL_Files           => 
+    ("ping-local.aadl", "software.aadl");
+  Ocarina_Config::Generator            => polyorb_hi_ada;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::Deployment),
+     value (Ocarina_Config::Cheddar_Properties));
+  Ocarina_Config::AADL_Version         => AADLv1;
+  Ocarina_Config::Root_System_Name     => "ping.leon";
+end ping;
+
+system implementation ping.Impl
+end  ping.Impl;
+

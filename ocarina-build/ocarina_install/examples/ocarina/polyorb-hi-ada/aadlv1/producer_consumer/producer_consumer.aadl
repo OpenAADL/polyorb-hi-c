@@ -1,0 +1,79 @@
+---------
+-- Bus --
+---------
+
+bus Ethernet_Bus
+properties
+  Deployment::Transport_API => BSD_Sockets;
+end Ethernet_Bus;
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+features
+  ETH : requires bus access Ethernet_Bus;
+properties
+  Deployment::location           => "127.0.0.1";
+  Deployment::Execution_Platform => Native;
+end the_processor;
+
+---------------
+-- Processes --
+---------------
+
+process A
+features
+  Alpha : out data port Alpha_Type;
+  Beta  : in data port Alpha_Type;
+end A;
+
+process implementation A.Impl
+subcomponents
+  Producer        : thread P.Impl;
+  Result_Consumer : thread Q.Impl;
+connections
+  data port Producer.Data_Source -> Alpha;
+  data port Beta -> Result_Consumer.Data_Sink;
+end A.Impl;
+
+process B
+features
+  Alpha : out data port Alpha_Type;
+  Beta  : in data port Alpha_Type;
+end B;
+
+process implementation B.Impl
+subcomponents
+  Consumer        : thread Q.Impl;
+  Result_Producer : thread P.Impl;
+connections
+  data port Beta -> Consumer.Data_Sink;
+  data port Result_Producer.Data_Source -> Alpha;
+end B.Impl;
+
+------------
+-- System --
+------------
+
+system PC_Simple
+end PC_Simple;
+
+system implementation PC_Simple.Native
+subcomponents
+  pr_A : process A.Impl {Deployment::port_number => 4001;};
+  pr_B : process B.Impl {Deployment::port_number => 4002;};
+
+  CPU     : processor the_processor;
+  the_bus : bus Ethernet_Bus;
+connections
+  bus access the_bus -> CPU.ETH;
+  data port pr_A.Alpha -> pr_B.Beta
+    {Actual_Connection_Binding => (reference the_bus);};
+  data port pr_B.Alpha -> pr_A.Beta
+    {Actual_Connection_Binding => (reference the_bus);};
+properties
+  actual_processor_binding => reference CPU applies to pr_A;
+  actual_processor_binding => reference CPU applies to pr_B;
+end PC_Simple.Native;

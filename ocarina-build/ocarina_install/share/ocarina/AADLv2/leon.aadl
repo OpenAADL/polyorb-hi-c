@@ -1,0 +1,64 @@
+package ocarina_processors_leon
+public
+
+with Deployment;
+
+processor leon
+end leon;
+
+processor implementation leon.rtems
+properties
+   Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
+   Priority_Range => 0 .. 255;
+   Scheduler_Quantum => 0 Ms;
+   Preemptive_Scheduler => true;
+   Deployment::Execution_Platform => LEON_RTEMS;
+end leon.rtems;
+
+processor implementation leon.rtems_posix
+properties
+   Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
+   Priority_Range => 0 .. 255;
+   Scheduler_Quantum => 0 Ms;
+   Preemptive_Scheduler => true;
+   Deployment::Execution_Platform => LEON_RTEMS_POSIX;
+end leon.rtems_posix;
+
+
+processor implementation leon.ork
+properties
+   Deployment::Execution_Platform => LEON_ORK;
+end leon.ork;
+
+processor leon3
+end leon3;
+
+virtual processor xtratum_partition
+end xtratum_partition;
+
+virtual processor implementation xtratum_partition.generic
+end xtratum_partition.generic;
+
+processor implementation leon3.scoc3
+properties
+   Deployment::Execution_Platform => LEON3_SCOC3;
+end leon3.scoc3;
+
+processor implementation leon3.xtratum
+properties
+   Deployment::Execution_Platform => LEON3_XTRATUM;
+end leon3.xtratum;
+
+processor implementation leon3.xtratum_2partitions extends leon3.xtratum
+subcomponents
+	part1 : virtual processor xtratum_partition.generic
+      { Deployment::Execution_Platform => LEON3_XM3;};
+	part2 : virtual processor xtratum_partition.generic
+      { Deployment::Execution_Platform => LEON3_XM3;};
+--  properties
+--   ARINC653::Partition_Slots => (500ms, 500ms);
+--   ARINC653::Slots_Allocation => (reference (part1), reference (part2));
+--	ARINC653::Module_Major_Frame => 1000ms;
+end leon3.xtratum_2partitions;
+
+end ocarina_processors_leon;

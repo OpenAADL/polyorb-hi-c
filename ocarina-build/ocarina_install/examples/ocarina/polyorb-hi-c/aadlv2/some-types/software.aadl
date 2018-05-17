@@ -1,0 +1,283 @@
+package Software
+public
+  with Data_Model;
+
+  ----------
+  -- Data --
+  ----------
+
+  data Boolean_Type
+  properties
+    Data_Model::Data_Representation => boolean;
+  end Boolean_Type;
+
+  data Integer_Type
+  properties
+    Data_Model::Data_Representation => integer;
+  end Integer_Type;
+
+  data Struct_Type
+  end Struct_Type;
+
+  data implementation Struct_Type.impl
+  subcomponents
+    x : data Integer_Type;
+    y : data Integer_Type;
+  properties
+    Data_Model::Data_Representation => struct;
+  end Struct_Type.impl;
+
+  data Array_Type
+  properties
+    Data_Model::Data_Representation => Array;
+    Data_Model::Base_Type => (classifier (Base_Types::Integer));
+    Data_Model::Dimension => (500_000);
+  end Array_Type;
+
+  data Bounded_Array_Type
+  properties
+    Data_Model::Data_Representation => Bounded_Array;
+    Data_Model::Base_Type => (classifier (Base_Types::Integer));
+    Data_Model::Dimension => (500);
+  end Bounded_Array_Type;
+
+  -----------------
+  -- Subprograms --
+  -----------------
+
+  subprogram Emit_Boolean
+  features
+    Data_Source : out parameter Boolean_Type;
+  properties
+    source_language => (C);
+    source_name     => "user_emit_boolean";
+    source_text     => ("some-types.c");
+  end Emit_Boolean;
+
+  subprogram Receive_Boolean
+  features
+    Data_Sink : in parameter Boolean_Type;
+  properties
+    source_language => (C);
+    source_name     => "user_receive_boolean";
+    source_text     => ("some-types.c");
+  end Receive_Boolean;
+
+  subprogram Emit_Integer
+  features
+    Data_Source : out parameter Integer_Type;
+  properties
+    source_language => (C);
+    source_name     => "user_emit_integer";
+    source_text     => ("some-types.c");
+  end Emit_Integer;
+
+  subprogram Receive_Integer
+  features
+    Data_Sink : in parameter Integer_Type;
+  properties
+    source_language => (C);
+    source_name     => "user_receive_integer";
+    source_text     => ("some-types.c");
+  end Receive_Integer;
+
+  subprogram Emit_Struct
+  features
+    Data_Source : out parameter Struct_Type.impl;
+  properties
+    source_language => (C);
+    source_name     => "user_emit_struct";
+    source_text     => ("some-types.c");
+  end Emit_Struct;
+
+  subprogram Receive_Struct
+  features
+    Data_Sink : in parameter Struct_Type.impl;
+  properties
+    source_language => (C);
+    source_name     => "user_receive_struct";
+    source_text     => ("some-types.c");
+  end Receive_Struct;
+
+  subprogram Emit_Array
+  features
+    Data_Source : out parameter Array_Type;
+  properties
+    source_language => (C);
+    source_name     => "user_emit_array";
+    source_text     => ("some-types.c");
+  end Emit_Array;
+
+  subprogram Emit_Bounded_Array
+  features
+    Data_Source : out parameter Bounded_Array_Type;
+  properties
+    source_language => (C);
+    source_name     => "user_emit_bounded_array";
+    source_text     => ("some-types.c");
+  end Emit_Bounded_Array;
+
+  subprogram Receive_Array
+  features
+    Data_Sink : in parameter Array_Type;
+  properties
+    source_language => (C);
+    source_name     => "user_receive_array";
+    source_text     => ("some-types.c");
+  end Receive_Array;
+
+  subprogram Receive_Bounded_Array
+  features
+    Data_Sink : in parameter Bounded_Array_Type;
+  properties
+    source_language => (C);
+    source_name     => "user_receive_bounded_array";
+    source_text     => ("some-types.c");
+  end Receive_Bounded_Array;
+
+  --------------------------
+  -- Wrappers Subprograms --
+  --------------------------
+
+  subprogram Emitter_Wrapper
+  features
+    Boolean_Source       : out parameter Boolean_Type;
+    Integer_Source       : out parameter Integer_Type;
+    Struct_Source        : out parameter Struct_Type.Impl;
+    Array_Source         : out parameter Array_Type;
+    Bounded_Array_Source : out parameter Bounded_Array_Type;
+  end Emitter_Wrapper;
+
+  subprogram implementation Emitter_Wrapper.Impl
+  calls
+    Mycalls: {
+    B_Spg : subprogram Emit_Boolean;
+    I_Spg : subprogram Emit_Integer;
+    S_Spg : subprogram Emit_Struct;
+    A_Spg : subprogram Emit_Array;
+    BA_Spg : subprogram Emit_Bounded_Array;
+    };
+  connections
+    parameter B_Spg.Data_Source -> Boolean_Source;
+    parameter I_Spg.Data_Source -> Integer_Source;
+    parameter S_Spg.Data_Source -> Struct_Source;
+    parameter A_Spg.Data_Source -> Array_Source;
+    parameter BA_Spg.Data_Source -> Bounded_Array_Source;
+  end Emitter_Wrapper.Impl;
+
+  -------------
+  -- Threads --
+  -------------
+
+  thread Emitter
+  features
+    Boolean_Source       : out event data port Boolean_Type;
+    Integer_Source       : out event data port Integer_Type;
+    Struct_Source        : out event data port Struct_Type.Impl;
+    Array_Source         : out event data port Array_Type;
+    Bounded_Array_Source : out event data port Bounded_Array_Type;
+  end Emitter;
+
+  thread implementation Emitter.Impl
+  calls
+    Mycalls: {
+    Emitter_Wrapper : subprogram Emitter_Wrapper.Impl;
+    };
+  connections
+    parameter Emitter_Wrapper.Boolean_Source -> Boolean_Source;
+    parameter Emitter_Wrapper.Integer_Source -> Integer_Source;
+    parameter Emitter_Wrapper.Struct_Source -> Struct_Source;
+    parameter Emitter_Wrapper.Array_Source -> Array_Source;
+    parameter Emitter_Wrapper.Bounded_Array_Source -> Bounded_Array_Source;
+
+  properties
+    Dispatch_Protocol => Periodic;
+    Period            => 5000 ms;
+  end Emitter.Impl;
+
+  thread Boolean_Receiver
+  features
+    Data_Sink : in event data port Boolean_Type;
+  end Boolean_Receiver;
+
+  thread implementation Boolean_Receiver.Impl
+  calls
+    Mycalls: {
+    B_Spg : subprogram Receive_Boolean;
+    };
+  connections
+    parameter Data_Sink -> B_Spg.Data_Sink;
+  properties
+    Dispatch_Protocol => Sporadic;
+    Period            => 10 ms;
+  end Boolean_Receiver.Impl;
+
+  thread Integer_Receiver
+  features
+    Data_Sink : in event data port Integer_Type;
+  end Integer_Receiver;
+
+  thread implementation Integer_Receiver.Impl
+  calls
+    Mycalls: {
+    I_Spg : subprogram Receive_Integer;
+    };
+  connections
+    parameter Data_Sink -> I_Spg.Data_Sink;
+  properties
+    Dispatch_Protocol => Sporadic;
+    Period            => 10 ms;
+  end Integer_Receiver.Impl;
+
+  thread Struct_Receiver
+  features
+    Data_Sink : in event data port Struct_Type.Impl;
+  end Struct_Receiver;
+
+  thread implementation Struct_Receiver.Impl
+  calls
+    Mycalls: {
+    S_Spg : subprogram Receive_Struct;
+    };
+  connections
+    parameter Data_Sink -> S_Spg.Data_Sink;
+  properties
+    Dispatch_Protocol => Sporadic;
+    Period            => 10 ms;
+  end Struct_Receiver.Impl;
+
+  thread Array_Receiver
+  features
+    Data_Sink : in event data port Array_Type;
+  end Array_Receiver;
+
+  thread implementation Array_Receiver.Impl
+  calls
+    Mycalls: {
+    S_Spg : subprogram Receive_Array;
+    };
+  connections
+    parameter Data_Sink -> S_Spg.Data_Sink;
+  properties
+    Dispatch_Protocol => Sporadic;
+    Period            => 10 ms;
+  end Array_Receiver.Impl;
+
+  thread Bounded_Array_Receiver
+  features
+    Data_Sink : in event data port Bounded_Array_Type;
+  end Bounded_Array_Receiver;
+
+  thread implementation Bounded_Array_Receiver.Impl
+  calls
+    Mycalls: {
+    S_Spg : subprogram Receive_Bounded_Array;
+    };
+  connections
+    parameter Data_Sink -> S_Spg.Data_Sink;
+  properties
+    Dispatch_Protocol => Sporadic;
+    Period            => 10 ms;
+  end Bounded_Array_Receiver.Impl;
+
+end Software;

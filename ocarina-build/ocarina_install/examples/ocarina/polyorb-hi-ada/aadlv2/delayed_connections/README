@@ -1,0 +1,18 @@
+"delayed connections" example:
+------------------------------
+
+* Description: One periodic thread sends information to another
+  periodic thread. The second thread is twice faster than the first
+  one.
+
+  The sender sends two messages to the receiver, the first (N_Cycle)
+  through an immediate connection and the second (Data_Source),
+  through a delayer connection. If this latter connection was
+  immediate, the receiver would receive a value of Data_Source which
+  would be equal to N_Cycle. Because the connection is delayed, the
+  receiver sees only the previous value of Data_Source which is equal
+  to N_Cycle - 1.
+
+* Compilation: issue "make build-all" in the root directory
+
+* Run: launch node_a

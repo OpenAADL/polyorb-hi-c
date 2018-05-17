@@ -1,0 +1,20 @@
+package Scenario
+public
+  with Ocarina_Config;
+  with Ocarina_Library;
+
+  system ping extends Ocarina_Library::Default_PolyORB_HI_C_Config
+  properties
+    Ocarina_Config::Referencial_Files    =>
+    ("node_a", "node_a.ref", "node_b", "node_b.ref");
+
+    Ocarina_Config::AADL_Files           +=>
+    ("ping.aadl" , "software.aadl");
+
+    Ocarina_Config::Root_System_Name => "PING.impl";
+  end ping;
+
+  system implementation ping.impl
+  end  ping.impl;
+
+end Scenario;

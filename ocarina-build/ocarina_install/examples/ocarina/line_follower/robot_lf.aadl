@@ -1,0 +1,72 @@
+package Robot_LF
+public
+  with Boards::Arduino;
+  with Shields::Ardumoto, Shields::XBee;
+  with Devices::QRE1113;
+  with Devices::HMC5843;
+
+  with Software_lf;
+
+  -------------------------
+  -- Line_Follower_Robot --
+  -------------------------
+
+  --  This system gathers all pieces of a line follower robot
+  --
+  --  Bill of Material
+  --   * one Arduino Duemilanove board (DEV-00666 @ Sparkfun)
+  --   * one Ardumoto shield           (DEV-09815 @ Sparkfun)
+  --   * one XBee shield               (WRl-09841 @ Sparkfun)
+  --   * two motors                    (ROB-08911 @ Sparkfun)
+  --   * one Li-Po battery             (PRT-00339 @ Sparkfun)
+  --   * three QRE1113 Line Sensors    (ROB-09453 @ Sparkfun)
+  --   * POLOLU "RRC04A" base          (POL1506   @ Lextronic)
+  --
+
+  system Line_Follower_Robot extends Boards::Arduino::Duemilanove
+  end Line_Follower_Robot;
+
+  system implementation Line_Follower_Robot.i 
+      extends Boards::Arduino::Duemilanove.impl
+
+  subcomponents
+    Code     : process Software_lf::node_a.impl;
+    Ardumoto : device  Shields::Ardumoto::Ardumoto.impl;
+    Xbee     : device  Shields::XBee::XBee.impl;
+
+    IR_1     : device  Devices::QRE1113::QRE1113_Analog.impl;
+    HMC5843  : device  Devices::HMC5843::HMC5843.impl;
+
+  connections
+    -- Connect the Arduino to the XBee shield
+
+    X1:port Digital_0   -> XBee.RX;
+    X2:port Digital_1   -> XBee.TX;
+
+    -- Connect the Arduino to the Ardumoto shield
+
+    X3:port Digital_10 -> Ardumoto.Digital_10;
+    X4:port Digital_11 -> Ardumoto.Digital_11;
+    X5:port Digital_12 -> Ardumoto.Digital_12;
+    X6:port Digital_13 -> Ardumoto.Digital_13;
+    X7:port GND        -> Ardumoto.GND;
+    X8:port VIN        -> Ardumoto.VIN;
+
+    -- Connect the Arduino to one of the QRE1113 sensor
+    
+    X9:port Power_5V    -> IR_1.VCC;
+    X10:port GND        -> IR_1.GND;
+    X11:port Analog_0   -> IR_1.Outp;
+
+    -- Connect the Arduino to the HMC5843
+
+    X12:port Power_3V3  -> HMC5843.VCC;
+    X13:port GND        -> HMC5843.GND;
+    X14:bus access I2C  -> HMC5843.I2C_Link;
+
+  properties
+    Actual_Processor_Binding => (reference (ATMEGA328p)) applies to Code;
+
+  end Line_Follower_Robot.i;
+
+end Robot_LF;

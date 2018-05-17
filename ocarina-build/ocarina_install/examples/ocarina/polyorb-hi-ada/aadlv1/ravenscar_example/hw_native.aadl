@@ -1,0 +1,38 @@
+--  $Id: hw_native.aadl 6713 2009-06-20 20:58:28Z lanarre $
+
+processor The_Processor
+features
+  ETH : requires bus access Ethernet_Bus;
+properties
+  Deployment::location           => "127.0.0.1";
+  Deployment::Execution_Platform => Native;
+  
+  Scheduling_Protocol => POSIX_1003_HIGHEST_PRIORITY_FIRST_PROTOCOL;
+  Cheddar_Properties::Preemptive_Scheduler => true;
+end The_Processor;
+
+bus Ethernet_Bus
+properties
+  Deployment::Transport_API => BSD_Sockets;
+end Ethernet_Bus;
+
+system Case_Study
+end Case_Study;
+
+system implementation Case_Study.Native
+subcomponents
+  WoM : process Workload_Manager.Impl
+    {Deployment::Port_Number => 12001;};
+  InS : process Interrupt_Simulator.Impl;
+  CPU_1 : processor The_Processor;
+  CPU_2 : processor The_Processor;
+  B   : bus Ethernet_Bus;
+connections
+  bus access B -> CPU_1.ETH;
+  bus access B -> CPU_2.ETH;
+  event data port InS.External_Interrupt -> WoM.External_Interrupt_Depository
+    {Actual_Connection_Binding => reference B;};
+properties
+  Actual_Processor_Binding => reference CPU_1 applies to WoM;
+  Actual_Processor_Binding => reference CPU_2 applies to InS;
+end Case_Study.Native;

@@ -1,0 +1,165 @@
+package Producer::Consumer
+public
+  with Deployment;
+  with Data_Model;
+  with Buses::Ethernet;
+  with Processors;
+
+  ----------
+  -- Data --
+  ----------
+
+  data Alpha_Type
+  properties
+    Data_Model::Data_Representation => Integer;
+    -- Data_Model::Number_Representation => Signed;
+    -- Source_Data_Size => 4 Bytes;
+  end Alpha_Type;
+
+  -----------------
+  -- Subprograms --
+  -----------------
+
+  subprogram Produce_Spg
+  features
+    Data_Source : out parameter Alpha_Type;
+  properties
+    Source_Language => (Ada95);
+    Source_Name     => "Producer_Consumer.Produce_Spg";
+    Source_Text     => ("producer_consumer.adb");
+  end Produce_Spg;
+
+  subprogram Consume_Spg
+  features
+    Data_Sink : in parameter Alpha_Type;
+  properties
+    Source_Language => (Ada95);
+    Source_Name     => "Producer_Consumer.Consume_Spg";
+    Source_Text     => ("producer_consumer.adb");
+  end Consume_Spg;
+
+  -------------
+  -- Threads --
+  -------------
+
+  thread P
+  features
+    Data_Source : out event data port Alpha_Type;
+    --  XXX Data seems corrupted if Data_Source is an out data port
+  properties
+    Dispatch_Protocol => Periodic;
+    Compute_Execution_Time => 1 ms .. 10 ms;
+    Priority => 1;
+    Period => 500 ms;
+  end P;
+
+  thread implementation P.Impl
+  calls
+    Mycall : {
+    P_Spg : subprogram Produce_Spg;
+    };
+  connections
+    Z1:parameter P_Spg.Data_Source -> Data_Source;
+  end P.Impl;
+
+  thread Q
+  features
+    Data_Sink : in event data port Alpha_Type;
+  properties
+    Dispatch_Protocol => Sporadic;
+    Compute_Execution_Time => 1 ms .. 20 ms;
+    Priority => 2;
+    Period => 10 ms;
+  end Q;
+
+  thread implementation Q.Impl
+  calls
+    Mycall : {
+    Q_Spg : subprogram Consume_Spg;
+    };
+  connections
+    Z2:parameter Data_Sink -> Q_Spg.Data_Sink;
+  end Q.Impl;
+
+  ---------
+  -- Bus --
+  ---------
+
+  bus Ethernet_Bus extends buses::ethernet::ethernet
+  properties
+    Deployment::Transport_API => BSD_Sockets;
+  end Ethernet_Bus;
+
+  ---------------
+  -- Processor --
+  ---------------
+
+  processor the_processor extends processors::Generic_cpu
+  features
+    ETH : requires bus access Ethernet_Bus;
+  properties
+    Deployment::location           => "127.0.0.1";
+    Deployment::Execution_Platform => Native;
+  end the_processor;
+
+  ---------------
+  -- Processes --
+  ---------------
+
+  process A
+  features
+    Alpha : out data port Alpha_Type;
+  end A;
+
+  process implementation A.Impl
+  subcomponents
+    Producer        : thread P.Impl;
+  connections
+    Z3:port Producer.Data_Source -> Alpha;
+  end A.Impl;
+
+  process B
+  features
+    Beta  : in data port Alpha_Type;
+  end B;
+
+  process implementation B.Impl
+  subcomponents
+    Consumer        : thread Q.Impl;
+  connections
+    Z4:port Beta -> Consumer.Data_Sink;
+  end B.Impl;
+
+  ------------
+  -- System --
+  ------------
+
+  system PC_Simple
+  end PC_Simple;
+
+  system implementation PC_Simple.Native
+  subcomponents
+    pr_A : process A.Impl;
+    pr_B : process B.Impl {Deployment::port_number => 4002;};
+
+    CPU     : processor the_processor;
+    the_bus : bus Ethernet_Bus;
+  connections
+    Z5:bus access the_bus -> CPU.ETH;
+    Z6:port pr_A.Alpha -> pr_B.Beta;
+  properties
+    Actual_Processor_Binding => (reference (CPU)) applies to pr_A;
+    Actual_Processor_Binding => (reference (CPU)) applies to pr_B;
+
+    Actual_Connection_Binding => (reference (the_bus)) applies to Z6; 	
+    
+ annex real_specification {**
+   theorem flow_latency
+      foreach s in system_set do
+         requires (Latency);
+	 check (1=1);
+    end flow_latency;
+  **};
+  end PC_Simple.Native;
+
+end Producer::Consumer;

@@ -1,0 +1,604 @@
+V "GNAT Lib v6"
+A -O2
+A -gnatA
+A -gnat12
+A -gnata
+A -gnaty
+A -gnatyu
+A -gnatys
+A -gnatp
+A -gnatn
+A -mtune=generic
+A -march=i686
+P SS ZX
+
+RN
+RR SIMPLE_BARRIERS
+RR NO_ABORT_STATEMENTS
+RR NO_ACCESS_PARAMETER_ALLOCATORS
+RR NO_ASYNCHRONOUS_CONTROL
+RR NO_COEXTENSIONS
+RR NO_DYNAMIC_ATTACHMENT
+RR NO_DYNAMIC_PRIORITIES
+RR NO_ENTRY_CALLS_IN_ELABORATION_CODE
+RR NO_ENTRY_QUEUE
+RR NO_EXCEPTION_REGISTRATION
+RR NO_FIXED_IO
+RR NO_IMPLICIT_TASK_ALLOCATIONS
+RR NO_IMPLICIT_PROTECTED_OBJECT_ALLOCATIONS
+RV NO_IMPLICIT_LOOPS
+RV NO_INITIALIZE_SCALARS
+RR NO_LOCAL_TIMING_EVENTS
+RR NO_LOCAL_PROTECTED_OBJECTS
+RR NO_PROTECTED_TYPE_ALLOCATORS
+RR NO_PROTECTED_TYPES
+RR NO_RELATIVE_DELAY
+RR NO_REQUEUE_STATEMENTS
+RR NO_SELECT_STATEMENTS
+RR NO_SPECIFIC_TERMINATION_HANDLERS
+RR NO_STREAM_OPTIMIZATIONS
+RR NO_TASK_ALLOCATORS
+RR NO_TASK_ATTRIBUTES_PACKAGE
+RR NO_TASK_AT_INTERRUPT_PRIORITY
+RR NO_TASK_HIERARCHY
+RR NO_TASK_TERMINATION
+RR NO_TASKING
+RR NO_TERMINATE_ALTERNATIVES
+RR STATIC_PRIORITIES
+RR STATIC_STORAGE_SIZE
+RV NO_DEFAULT_INITIALIZATION
+RR IMMEDIATE_RECLAMATION
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLEMENTATION_RESTRICTIONS
+RV NO_OBSOLESCENT_FEATURES
+RR PURE_BARRIERS
+RV SPARK_05
+RR MAX_PROTECTED_ENTRIES=0
+RR MAX_SELECT_ALTERNATIVES=0
+RR MAX_TASK_ENTRIES=0
+RR MAX_TASKS=0
+RR MAX_ASYNCHRONOUS_SELECT_NESTING=0
+
+U ocarina.backends.lnt.components%b  ocarina-backends-lnt-components.adb  0e375f10 NE OO PK IS
+W ada.tags%s		a-tags.adb		a-tags.ali
+W ocarina%s		ocarina.adb		ocarina.ali
+W ocarina.backends%s	ocarina-backends.adb	ocarina-backends.ali
+W ocarina.backends.lnt%s  ocarina-backends-lnt.adb  ocarina-backends-lnt.ali
+W ocarina.backends.lnt.nutils%s  ocarina-backends-lnt-nutils.adb  ocarina-backends-lnt-nutils.ali
+W ocarina.namet%s	ocarina-namet.adb	ocarina-namet.ali
+W system.assertions%s	s-assert.adb		s-assert.ali
+W system.img_int%s	s-imgint.adb		s-imgint.ali
+W system.scalar_values%s  s-scaval.adb		s-scaval.ali
+W utils%s		utils.adb		utils.ali
+
+U ocarina.backends.lnt.components%s  ocarina-backends-lnt-components.ads  7401b5c7 EE NE OO PK IS
+W ocarina%s		ocarina.adb		ocarina.ali
+W ocarina.backends%s	ocarina-backends.adb	ocarina-backends.ali
+W ocarina.backends.lnt%s  ocarina-backends-lnt.adb  ocarina-backends-lnt.ali
+W ocarina.backends.lnt.nodes%s  ocarina-backends-lnt-nodes.adb  ocarina-backends-lnt-nodes.ali
+
+D ada.ads		20070406091342 3ffc8e18 ada%s
+D a-contai.ads		20151020122137 61e5e089 ada.containers%s
+D a-cohata.ads		20151020102346 80a8c839 ada.containers.hash_tables%s
+D a-chtgke.ads		20151020102346 20177f7b ada.containers.hash_tables.generic_keys%s
+D a-chtgke.adb		20151020102346 7d66b1e3 ada.containers.hash_tables.generic_keys%b
+D a-chtgop.ads		20151020102346 bea86046 ada.containers.hash_tables.generic_operations%s
+D a-chtgop.adb		20151020121311 dc263095 ada.containers.hash_tables.generic_operations%b
+D a-cohama.ads		20151023123735 5b9a95f7 ada.containers.hashed_maps%s
+D a-cohama.adb		20151023123735 6d24e6e5 ada.containers.hashed_maps%b
+D a-conhel.ads		20151023123735 20298884 ada.containers.helpers%s
+D a-conhel.adb		20151023123735 34fff4f6 ada.containers.helpers%b
+D a-coprnu.ads		20090409150019 0cdf1864 ada.containers.prime_numbers%s
+D a-except.ads		20151016123252 291912d5 ada.exceptions%s
+D a-finali.ads		20151020095656 bf4f806b ada.finalization%s
+D a-iteint.ads		20110906092602 7c7305e9 ada.iterator_interfaces%s
+D a-stream.ads		20141120112812 119b8fb3 ada.streams%s
+D a-tags.ads		20151016130316 01f5e3ef ada.tags%s
+D a-unccon.ads		20070406091342 f9eb8f06 ada.unchecked_conversion%s
+D a-uncdea.ads		20070406091342 f15a5ed1 ada.unchecked_deallocation%s
+D gnat.ads		20140801083227 fd2ad2f1 gnat%s
+D g-hesorg.ads		20110801150502 106922da gnat.heap_sort_g%s
+D g-table.ads		20151020120548 16cef446 gnat.table%s
+D g-table.adb		20140521105248 2932f881 gnat.table%b
+D locations.ads		20180517074744 06a68fdd locations%s
+D ocarina.ads		20180517074744 bfb8a9d7 ocarina%s
+D ocarina-backends.ads	20180517074744 6580b411 ocarina.backends%s
+D ocarina-backends-lnt.ads  20180517074744 ff20332a ocarina.backends.lnt%s
+D ocarina-backends-lnt-components.ads  20180517074744 fc97ed90 ocarina.backends.lnt.components%s
+D ocarina-backends-lnt-components.adb  20180517074744 260841cf ocarina.backends.lnt.components%b
+D ocarina-backends-lnt-nodes.ads  20180517074810 77b66b7d ocarina.backends.lnt.nodes%s
+D ocarina-backends-lnt-nutils.ads  20180517074744 f8b64331 ocarina.backends.lnt.nutils%s
+D ocarina-backends-properties.ads  20180517074744 9866b048 ocarina.backends.properties%s
+D ocarina-namet.ads	20180517074744 b31432d0 ocarina.namet%s
+D ocarina-types.ads	20180517074744 e099215b ocarina.types%s
+D system.ads		20151123113124 c6f79445 system%s
+D s-assert.ads		20140225151544 cd8d2c94 system.assertions%s
+D s-atocou.ads		20151020101020 b45c2d8d system.atomic_counters%s
+D s-finmas.ads		20151016130316 7811a767 system.finalization_masters%s
+D s-finroo.ads		20120426095924 4ff27390 system.finalization_root%s
+D s-imgint.ads		20090409150019 02dbe0c2 system.img_int%s
+D s-memory.ads		20140225151139 597d6634 system.memory%s
+D s-parame.ads		20140801093848 7e2a0d7f system.parameters%s
+D s-scaval.ads		20090409150019 bea40757 system.scalar_values%s
+D s-secsta.ads		20140225151139 86a2856d system.secondary_stack%s
+D s-stalib.ads		20151112104907 09bd3940 system.standard_library%s
+D s-stoele.ads		20140225151139 2dc34a04 system.storage_elements%s
+D s-stoele.adb		20140801093848 ed88f8fb system.storage_elements%b
+D s-stopoo.ads		20131010103753 b16154c2 system.storage_pools%s
+D s-stposu.ads		20151020120548 97a6219c system.storage_pools.subpools%s
+D s-stratt.ads		20131014135145 aedef97e system.stream_attributes%s
+D s-traent.ads		20140730135025 005bf670 system.traceback_entries%s
+D s-unstyp.ads		20140731130224 9d58a4c0 system.unsigned_types%s
+D unchdeal.ads		20070406091342 214516a4 unchecked_deallocation%s
+D utils.ads		20180517074744 9f0a82ae utils%s
+D /home/francis/polyorb-hi-c/ocarina-build/ocarina/src/../projects/restrictions.adc  20180517074744 00000000
+X 15 a-iteint.ads
+24h9 Forward_Iterator
+X 25 ocarina.ads
+32K9*Ocarina 61e12 28|32r6 33r5 35r9 296r5 29|32r6 32r39 34r6 34r25 37r14
+. 921r5
+X 26 ocarina-backends.ads
+41K17*Backends 25|32k9 26|120e21 28|32r14 33r13 35r17 296r13 29|32r14 32r47
+. 37r22 921r13
+X 27 ocarina-backends-lnt.ads
+37K26*LNT 26|41k17 27|74e25 28|32r23 33r22 35r26 296r22 29|32r23 32r56 37r31
+. 921r22
+X 28 ocarina-backends-lnt-components.ads
+35K30*Components 27|37k26 28|296l26 296e36 29|37b35 921l26 921t36
+37V13*Make_Module_Definition{34|195I9} 38>6 39>6 40>6 41>6 42>6 29|42b13
+. 60l8 60t30
+38i6 Defining_Identifier{34|195I9} 29|43b6 50r22 54r26
+39i6 Modules{34|208I9} 29|44b6 55r23
+40i6 Predefined_Functions{34|208I9} 29|45b6 56r36
+41i6 Module_Pragma{34|208I9} 29|46b6 57r30
+42i6 Definitions{34|208I9} 29|47b6 58r27
+45V13*Make_Type_Def{34|195I9} 46>6 47>6 48>6 49>6 29|62b13 80l8 80t21
+46i6 Defining_Identifier{34|195I9} 29|63b6 69r23 74r26
+47i6 Type_Exp{34|195I9} 29|64b6 70r22 75r24
+48i6 Type_Pragma{34|208I9} 29|65b6 77r27
+49i6 Predefined_Functions{34|208I9} 29|66b6 76r36 78r36
+52V13*Make_Type_Exp{34|195I9} 53>6 54>6 55>6 56>6 57>6 58>6 59>6 60>6 61>6
+. 29|82b13 109l8 109t21
+53i6 Defining_Identifier{34|195I9} 29|83b6 94r23 99r26
+54i6 Type_constructors{34|208I9} 29|84b6 95r22 100r33
+55b6 Is_Set{boolean} 29|85b6 101r22
+56b6 Is_Sorted_Set{boolean} 29|86b6 102r29
+57b6 Is_List{boolean} 29|87b6 103r23
+58b6 Is_Sorted_List{boolean} 29|88b6 104r30
+59b6 Is_Array{boolean} 29|89b6 105r24
+60b6 Is_Range{boolean} 29|90b6 106r24
+61i6 RangeLNT{34|195I9} 29|91b6 107r24
+64V13*Make_RangeLNT{34|195I9} 65>7 66>7 29|114b13 126l8 126t21
+65i7 Low_Bound{34|195I9} 29|115b7 118r23 123r26
+66i7 High_Bound{34|195I9} 29|116b7 119r22 124r26
+68V13*Make_Type_Constructor{34|195I9} 69>7 70>7 71>7 29|128b13 141l8 141t29
+69i7 Defining_Identifier{34|195I9} 29|129b6 133r22 137r26
+70i7 Constructor_Parameters{34|208I9} 29|130b6 138r38
+71i7 Constructor_Pragma{34|208I9} 29|131b6 139r34
+74V13*Make_Parameter_Specification{34|195I9} 75>7 76>7 77>7 29|146b13 160l8
+. 160t36
+75i7 Parameter_Var{34|195I9} 29|147b7 152r22 157r29
+76i7 Parameter_Type{34|195I9} 29|148b7 151r23 158r30
+77m7 Parameter_Mode{34|222M9} 29|149b7 156r30
+80V13*Make_Function_Definition{34|195I9} 81>6 82>6 83>6 84>6 85>6 86>6 29|208b13
+. 229l8 229t32
+81i6 Defining_Identifier{34|195I9} 29|209b6 217r23 222r26
+82i6 Function_Parameters{34|208I9} 29|210b6 223r35
+83i6 Function_Return_Type{34|195I9} 29|211b6 224r36
+84i6 Function_Exceptions{34|208I9} 29|212b6 225r35
+85i6 Function_Pragma{34|208I9} 29|213b6 226r31
+86i6 Statements{34|208I9} 29|214b6 218r22 227r26
+89V13*Make_Actual_Parameter{34|195I9} 90>7 91>7 92>7 29|234b13 248l8 248t29
+90i7 Expression{34|195I9} 29|235b7 240r22 244r26
+91b7 Is_Out{boolean} 29|236b7 245r22
+92b7 Is_InOut{boolean} 29|237b7 246r24
+95V13*Make_Null_Statement{34|195I9} 29|253b13 256l8 256t27
+96V13*Make_Return_Statement{34|195I9} 97>6 98>6 29|261b13 273l8 273t29
+97i6 Expression{34|195I9} 29|262b6 265r23 270r26
+98b6 Is_Function{boolean} 29|263b6 266r22 271r27
+101V13*Make_Predefined_Function{34|195I9} 102>6 103>6 29|165b13 175l8 175t32
+102e6 Predefined_Function{30|14E9} 29|166b6 172r38
+103b6 Is_With_Clause{boolean} 29|167b6 173r30
+106V13*Make_Assignment_Statement{34|195I9} 107>7 108>7 29|278b13 291l8 291t33
+107i7 Variable_Identifier{34|195I9} 29|279b7 283r23 288r26
+108i7 Expression{34|195I9} 29|280b7 284r22 289r26
+111V13*Make_Array_Element_Assignment_Statement{34|195I9} 112>7 113>7 114>7
+. 29|296b13 313l8 313t47
+112i7 Defining_Identifier{34|195I9} 29|297b7 302r23 309r26
+113i7 Expression_Index{34|195I9} 29|298b7 303r22 310r32
+114i7 Expression{34|195I9} 29|299b7 304r22 311r26
+117V13*Make_Case_Statement{34|195I9} 118>7 119>7 120>7 29|318b13 333l8 333t27
+118i7 Expression{34|195I9} 29|319b7 325r19 329r26
+119i7 Variable_Declarations{34|208I9} 29|320b7 330r37
+120i7 Case_Statement_Alternatives{34|208I9} 29|321b7 324r23 331r43
+123V13*Make_Case_Statement_Alternative{34|195I9} 124>7 125>7 29|338b13 350l8
+. 350t39
+124i7 Pattern_List{34|208I9} 29|339b7 347r28
+125i7 Statements{34|208I9} 29|340b7 343r22 348r26
+128V13*Make_If_Statement{34|195I9} 129>7 130>7 131>7 132>7 29|355b13 372l8
+. 372t25
+129i7 Condition{34|195I9} 29|356b7 363r19 367r25
+130i7 Then_Statements{34|208I9} 29|357b7 362r23 368r31
+131i7 Elsif_Statements{34|208I9} 29|358b7 369r32
+132i7 Else_Statements{34|208I9} 29|359b7 370r31
+135V13*Make_Elsif_Statement{34|195I9} 136>7 137>7 29|377b13 390l8 390t28
+136i7 Condition{34|195I9} 29|378b7 383r19 387r25
+137i7 Then_Statements{34|208I9} 29|379b7 382r23 388r31
+140V13*Make_Loop_Statement{34|195I9} 141>8 29|413b13 423l8 423t27 911s20
+. 914s20
+141i8 Statements{34|208I9} 29|414b7 417r22 421r26
+144V13*Make_While_Statement{34|195I9} 145>7 146>7 29|395b13 408l8 408t28
+145i7 Expression{34|195I9} 29|396b7 401r19 405r26
+146i7 Statements{34|208I9} 29|397b7 400r23 406r26
+149V13*Make_Var_Declaration{34|195I9} 150>7 151>7 29|428b13 440l8 440t28
+150i7 Defining_Identifier{34|195I9} 29|429b7 433r22 437r26
+151i7 Var_Type{34|195I9} 29|430b7 432r23 438r24
+154V13*Make_Var_Statement{34|195I9} 155>8 156>8 29|445b13 458l8 458t26 917s12
+155i8 Variable_Declarations{34|208I9} 29|446b8 451r19 455r37
+156i8 Statements{34|208I9} 29|447b8 450r23 456r26
+159V13*Make_Nat{34|195I9} 159>23 29|188s31 195b13 203l8 203t16
+159i23 Value{integer} 29|195b23 201r49
+161V13*Make_Expressions{34|195I9} 161>31 29|463b13 472l8 472t24
+161i31 Expression_List{34|208I9} 29|463b31 466r22 470r24
+164V13*Make_Parenthesized_Expression{34|195I9} 164>44 29|477b13 486l8 486t37
+164i44 Expression{34|195I9} 29|477b44 480r22 484r24
+167V13*Make_Function_Call_Expression{34|195I9} 168>7 169>7 29|491b13 503l8
+. 503t37
+168i7 Defining_Identifier{34|195I9} 29|492b7 496r22 500r26
+169i7 Parameters{34|208I9} 29|493b7 501r26
+172V13*Make_Infix_Function_Call_Expression{34|195I9} 173>7 174>7 175>7 29|508b13
+. 523l8 523t43
+173i7 Operator{34|195I9} 29|509b7 514r23 519r24
+174i7 Left_Part{34|195I9} 29|510b7 520r25
+175i7 Right_Part{34|195I9} 29|511b7 515r22 521r26
+178V13*Make_Field_Selection_Expression{34|195I9} 179>6 180>6 29|528b13 541l8
+. 541t39
+179i6 Expression{34|195I9} 29|529b6 533r23 538r26
+180i6 Field{34|195I9} 29|530b6 534r22 539r21
+183V13*Make_Field_Update_Expression{34|195I9} 184>7 185>7 29|546b13 559l8
+. 559t36
+184i7 Expression{34|195I9} 29|547b7 551r23 556r26
+185i7 Field_Association{34|208I9} 29|548b7 552r23 557r33
+188V13*Make_Element_Association{34|195I9} 189>6 190>6 29|564b13 577l8 577t32
+189i6 Index{34|195I9} 29|565b6 570r23 575r21
+190i6 Expression{34|195I9} 29|566b6 569r23 574r26
+193V13*Make_Array_Elt_Access_Expression{34|195I9} 194>7 195>7 29|582b13 595l8
+. 595t40
+194i7 Index{34|195I9} 29|583b7 588r23 593r21
+195i7 Expression{34|195I9} 29|584b7 587r23 592r26
+198V13*Make_Pattern{34|195I9} 199>6 200>6 201>6 202>6 29|645b13 662l8 662t20
+199i6 Sub_Pattern{34|195I9} 29|646b6 652r23 657r27
+200i6 Pattern_Type{34|195I9} 29|647b6 653r22 658r28
+201b6 Is_Any{boolean} 29|648b6 659r22
+202b6 Is_Of{boolean} 29|649b6 660r21
+205V13*Make_Patterns{34|195I9} 205>28 29|600b13 609l8 609t21
+205i28 Pattern_List{34|208I9} 29|600b28 603r22 607r24
+208V13*Make_Parenthesized_Pattern{34|195I9} 208>41 29|614b13 623l8 623t34
+208i41 Pattern{34|195I9} 29|614b41 617r22 621r24
+211V13*Make_Constructed_Pattern{34|195I9} 212>7 213>7 29|628b13 640l8 640t32
+212i7 Defining_Identifier{34|195I9} 29|629b7 633r22 637r26
+213i7 Parameters{34|208I9} 29|630b7 638r26
+216V13*Make_Channel{34|195I9} 217>7 218>7 29|667b13 679l8 679t20
+217i7 Defining_Identifier{34|195I9} 29|668b7 671r23 676r26
+218i7 Gate_Profiles{34|208I9} 29|669b7 672r22 677r29
+221V13*Make_Gate_Profile{34|195I9} 222>7 29|684b13 694l8 694t25
+222i7 Gate_Types{34|208I9} 29|685b7 688r22 692r26
+225V13*Make_Process_Definition{34|195I9} 226>6 227>6 228>6 229>6 230>6 231>6
+. 232>6 29|699b13 722l8 722t31
+226i6 Corresponding_Component{34|195I9} 29|700b6 714r39
+227i6 Defining_Identifier{34|195I9} 29|701b6 709r23 715r26
+228i6 Process_Parameters{34|208I9} 29|702b6 716r34
+229i6 Process_Gate_Declarations{34|208I9} 29|703b6 717r41
+230i6 Process_Exceptions{34|208I9} 29|704b6 718r34
+231i6 Process_Pragma{34|208I9} 29|705b6 719r30
+232i6 Statements{34|208I9} 29|706b6 710r22 720r26
+235V13*Make_Gate_Declaration{34|195I9} 236>6 237>6 238>6 29|727b13 742l8
+. 742t29
+236i6 Channel_Name{34|195I9} 29|728b6 733r23 738r28
+237i6 Gate{34|195I9} 29|729b6 739r20
+238b6 Is_Any{boolean} 29|730b6 734r22 740r22
+241V13*Make_Stop_Statement{34|195I9} 29|747b13 750l8 750t27
+243V13*Make_Process_Instantiation_Statement{34|195I9} 244>7 245>7 246>7 247>7
+. 29|755b13 771l8 771t44
+244i7 Defining_Identifier{34|195I9} 29|756b7 762r22 766r26
+245i7 Actual_Gates{34|208I9} 29|757b7 767r28
+246i7 Actual_Parameters{34|208I9} 29|758b7 768r33
+247b7 Is_Not_Periodic{boolean} 29|759b7 769r31
+250V13*Make_Communication_Statement{34|195I9} 251>7 252>7 253>7 254>7 29|776b13
+. 794l8 794t36
+251i7 Defining_Identifier{34|195I9} 29|777b7 783r23 789r26
+252i7 Offers{34|208I9} 29|778b7 790r22
+253b7 Has_Where{boolean} 29|779b7 785r22 791r25
+254i7 Expression{34|195I9} 29|780b7 784r23 792r26
+257V13*Make_Offer_Statement{34|195I9} 258>6 259>6 260>6 29|799b13 813l8 813t28
+258i6 Expression{34|195I9} 29|800b6 809r26
+259i6 Pattern{34|195I9} 29|801b6 805r22 811r23
+260b6 Is_Input{boolean} 29|802b6 810r24
+263V13*Make_Select_Statement{34|195I9} 264>7 29|818b13 828l8 828t29 912s23
+264i7 Select_Statement_Alternatives{34|208I9} 29|819b7 822r22 826r45
+267V13*Make_Select_Statement_Alternative{34|195I9} 268>8 29|833b13 843l8
+. 843t41
+268i8 Statements{34|208I9} 29|834b8 837r22 841r26
+271V13*Make_Parallel_Composition_Statement{34|195I9} 272>7 273>7 29|848b13
+. 860l8 860t43
+272i7 Global_Synchronisation_Gates{34|208I9} 29|849b7 857r44
+273i7 Interface_Synchronisations{34|208I9} 29|850b7 853r22 858r42
+276V13*Make_Interface_Synchronisation{34|195I9} 277>8 278>8 29|865b13 877l8
+. 877t38
+277i8 Interface_Synchronisation_Gates{34|208I9} 29|866b8 874r47
+278i8 Statements{34|208I9} 29|867b8 870r22 875r26
+281V13*Make_Module_Pragma{34|195I9} 282>6 283>6 29|180b13 190l8 190t26
+282e6 P_Type{30|14E9} 29|181b6 187r44
+283i6 N_Constant{integer} 29|182b6 188r41
+286V13*Make_Hide_Statement{34|195I9} 287>8 288>8 29|882b13 895l8 895t27
+287i8 Hide_Gate_Declarations{34|208I9} 29|883b8 888r23 892r38
+288i8 Statements{34|208I9} 29|884b8 887r23 893r26
+291V13*Make_Var_Loop_Select{34|195I9} 291>35 292>34 293>33 294>33 29|900b13
+. 919l8 919t28
+291i35 Var_Dec{34|208I9} 29|900b35 917r32
+292i34 Out_Loop{34|208I9} 29|901b34 909r16
+293i33 In_Select{34|208I9} 29|902b34 912r46 914r41
+294b33 With_Select{boolean} 29|903b34 910r10
+X 29 ocarina-backends-lnt-components.adb
+51i7 N{34|195I9} 53m7 54r23 55r20 56r33 57r27 58r24 59r14
+71i7 N{34|195I9} 73m7 74r23 75r21 76r33 77r24 78r33 79r14
+96i7 N{34|195I9} 98m7 99r23 100r30 101r19 102r26 103r20 104r27 105r21 106r21
+. 107r21 108r14
+120i7 N{34|195I9} 122m7 123r23 124r23 125r14
+134i7 N{34|195I9} 136m7 137r23 138r35 139r31 140r14
+153i7 N{34|195I9} 155m7 156r27 157r26 158r27 159r14
+169i7 N{34|195I9} 171m7 172r25 173r27 174r14
+184i7 N{34|195I9} 186m7 187r31 188r28 189r14
+196i7 N{34|195I9} 198m7 199r22 200r18 202r14
+219i7 N{34|195I9} 221m7 222r23 223r32 224r33 225r32 226r28 227r23 228r14
+241i7 N{34|195I9} 243m7 244r23 245r19 246r21 247r14
+267i7 N{34|195I9} 269m7 270r23 271r24 272r14
+285i7 N{34|195I9} 287m7 288r23 289r23 290r14
+306i7 N{34|195I9} 308m7 309r23 310r29 311r23 312r14
+326i7 N{34|195I9} 328m7 329r23 330r34 331r40 332r14
+344i7 N{34|195I9} 346m7 347r25 348r23 349r14
+364i7 N{34|195I9} 366m7 367r22 368r28 369r29 370r28 371r14
+384i7 N{34|195I9} 386m7 387r22 388r28 389r14
+402i7 N{34|195I9} 404m7 405r23 406r23 407r14
+418i7 N{34|195I9} 420m7 421r23 422r14
+434i7 N{34|195I9} 436m7 437r23 438r21 439r14
+452i7 N{34|195I9} 454m7 455r34 456r23 457r14
+467i7 N{34|195I9} 469m7 470r21 471r14
+481i7 N{34|195I9} 483m7 484r21 485r14
+497i7 N{34|195I9} 499m7 500r23 501r23 502r14
+516i7 N{34|195I9} 518m7 519r21 520r22 521r23 522r14
+535i7 N{34|195I9} 537m7 538r23 539r18 540r14
+553i7 N{34|195I9} 555m7 556r23 557r30 558r14
+571i7 N{34|195I9} 573m7 574r23 575r18 576r14
+589i7 N{34|195I9} 591m7 592r23 593r18 594r14
+604i7 N{34|195I9} 606m7 607r21 608r14
+618i7 N{34|195I9} 620m7 621r21 622r14
+634i7 N{34|195I9} 636m7 637r23 638r23 639r14
+654i7 N{34|195I9} 656m7 657r24 658r25 659r19 660r18 661r14
+673i7 N{34|195I9} 675m7 676r23 677r26 678r14
+689i7 N{34|195I9} 691m7 692r23 693r14
+711i7 N{34|195I9} 713m7 714r36 715r23 716r31 717r38 718r31 719r27 720r23
+. 721r14
+735i7 N{34|195I9} 737m7 738r25 739r17 740r19 741r14
+763i7 N{34|195I9} 765m7 766r23 767r25 768r30 769r28 770r14
+786i7 N{34|195I9} 788m7 789r23 790r19 791r22 792r23 793r14
+806i7 N{34|195I9} 808m7 809r23 810r21 811r20 812r14
+823i7 N{34|195I9} 825m7 826r42 827r14
+838i7 N{34|195I9} 840m7 841r23 842r14
+854i7 N{34|195I9} 856m7 857r41 858r39 859r14
+871i7 N{34|195I9} 873m7 874r44 875r23 876r14
+889i7 N{34|195I9} 891m7 892r35 893r23 894r14
+905i7 N{34|195I9} 917m7 918r14
+906i7 N_Loop{34|195I9} 911m10 914m10 916r28
+907i7 L_Var{34|208I9} 909m7 916r36 917r41
+X 30 ocarina-backends-lnt-nodes.ads
+12K30*Nodes 28|32w27 33r26 30|1256e31
+14E9*Node_Kind 28|102r28 282r15 29|166r28 181r15 30|98e24
+19n7*K_Module_Definition{14E9} 29|53r22
+20n7*K_Predefined_Function{14E9} 29|171r22
+41n7*K_Module_Pragma{14E9} 29|186r22
+43n7*K_Type_Def{14E9} 29|73r22
+44n7*K_Type_Exp{14E9} 29|98r22
+45n7*K_RangeLNT{14E9} 29|122r22
+46n7*K_Base_Type{14E9} 29|198r22
+48n7*K_Nat{14E9} 29|199r35
+52n7*K_Type_Constructor{14E9} 29|136r22
+53n7*K_Parameter_Specification{14E9} 29|155r22
+54n7*K_Function_Definition{14E9} 29|221r22
+55n7*K_Actual_Parameter{14E9} 29|243r22
+56n7*K_Null_Statement{14E9} 29|255r24
+57n7*K_Return_Statement{14E9} 29|269r22
+58n7*K_Assignment_Statement{14E9} 29|287r22
+59n7*K_Array_Element_Assignment_Statement{14E9} 29|308r22
+60n7*K_Var_Statement{14E9} 29|454r22
+61n7*K_Var_Declaration{14E9} 29|436r22
+62n7*K_Case_Statement{14E9} 29|328r22
+63n7*K_Case_Statement_Alternative{14E9} 29|346r22
+64n7*K_If_Statement{14E9} 29|366r22
+65n7*K_Elsif_Statement{14E9} 29|386r22
+66n7*K_Loop_Statement{14E9} 29|420r22
+67n7*K_While_Statement{14E9} 29|404r22
+73n7*K_Expressions{14E9} 29|469r22
+74n7*K_Parenthesized_Expression{14E9} 29|483r22
+75n7*K_Function_Call_Expression{14E9} 29|499r22
+76n7*K_Infix_Function_Call_Expression{14E9} 29|518r22
+77n7*K_Field_Selection_Expression{14E9} 29|537r22
+78n7*K_Field_Update_Expression{14E9} 29|555r22
+79n7*K_Element_Association{14E9} 29|573r22
+80n7*K_Array_Elt_Access_Expression{14E9} 29|591r22
+81n7*K_Pattern{14E9} 29|656r22
+82n7*K_Constructed_Pattern{14E9} 29|636r22
+83n7*K_Patterns{14E9} 29|606r22
+84n7*K_Parenthesized_Pattern{14E9} 29|620r22
+86n7*K_Channel{14E9} 29|675r22
+87n7*K_Gate_Profile{14E9} 29|691r22
+88n7*K_Process_Definition{14E9} 29|713r22
+89n7*K_Gate_Declaration{14E9} 29|737r22
+90n7*K_Stop_Statement{14E9} 29|749r24
+91n7*K_Process_Instantiation_Statement{14E9} 29|765r22
+92n7*K_Communication_Statement{14E9} 29|788r22
+93n7*K_Offer_Statement{14E9} 29|808r22
+94n7*K_Select_Statement{14E9} 29|825r22
+95n7*K_Select_Statement_Alternative{14E9} 29|840r22
+96n7*K_Parallel_Composition_Statement{14E9} 29|856r22
+97n7*K_Interface_Synchronisation{14E9} 29|873r22
+98n7*K_Hide_Statement{14E9} 29|891r22
+990U14*Set_Identifier 29|54s7 74s7 99s7 137s7 222s7 288s7 309s7 437s7 500s7
+. 637s7 676s7 715s7 766s7 789s7
+993U14*Set_Modules 29|55s7
+996U14*Set_Predefined_Functions 29|56s7 76s7 78s7
+999U14*Set_Module_Pragmas 29|57s7
+1002U14*Set_Definitions 29|58s7
+1005U14*Set_LNT_Function 29|172s7
+1008U14*Set_Is_With_Clause 29|173s7
+1011U14*Set_Module_Pragma_Type 29|187s7
+1014U14*Set_Number_Constant 29|188s7
+1017U14*Set_Type_Exp 29|75s7
+1020U14*Set_Type_Pragma 29|77s7
+1023U14*Set_Type_Constructors 29|100s7
+1026U14*Set_Is_Set 29|101s7
+1029U14*Set_Is_Sorted_Set 29|102s7
+1032U14*Set_Is_List 29|103s7
+1035U14*Set_Is_Sorted_List 29|104s7
+1038U14*Set_Is_Array 29|105s7
+1041U14*Set_Is_Range 29|106s7
+1044U14*Set_RangeLNT 29|107s7
+1047U14*Set_Low_Bound 29|123s7
+1050U14*Set_High_Bound 29|124s7
+1053U14*Set_Type_Name 29|199s7
+1056U14*Set_Image 29|200s7
+1059U14*Set_Constructor_Parameters 29|138s7
+1062U14*Set_Constructor_Pragma 29|139s7
+1065U14*Set_Parameter_Mode 29|156s7
+1068U14*Set_Parameter_Var 29|157s7
+1071U14*Set_Parameter_Type 29|158s7
+1074U14*Set_Function_Parameters 29|223s7
+1077U14*Set_Function_Return_Type 29|224s7
+1080U14*Set_Function_Exceptions 29|225s7
+1083U14*Set_Function_Pragma 29|226s7
+1086U14*Set_Statements 29|227s7 348s7 406s7 421s7 456s7 720s7 841s7 875s7
+. 893s7
+1089U14*Set_Expression 29|244s7 270s7 289s7 311s7 329s7 405s7 538s7 556s7
+. 574s7 592s7 792s7 809s7
+1092U14*Set_Is_Out 29|245s7
+1095U14*Set_Is_InOut 29|246s7
+1098U14*Set_Is_Function 29|271s7
+1101U14*Set_Expression_Index 29|310s7
+1104U14*Set_Variable_Declarations 29|330s7 455s7
+1107U14*Set_Var_Type 29|438s7
+1110U14*Set_Case_Statement_Alternatives 29|331s7
+1113U14*Set_Pattern_List 29|347s7
+1116U14*Set_Condition 29|367s7 387s7
+1119U14*Set_Then_Statements 29|368s7 388s7
+1122U14*Set_Elsif_Statements 29|369s7
+1125U14*Set_Else_Statements 29|370s7
+1131U14*Set_Parameters 29|501s7 638s7
+1134U14*Set_Operator 29|519s7
+1137U14*Set_Left_Part 29|520s7
+1140U14*Set_Right_Part 29|521s7
+1143U14*Set_The_List 29|470s7 607s7
+1146U14*Set_Variable 29|484s7 621s7
+1149U14*Set_Field 29|539s7
+1152U14*Set_Field_Association 29|557s7
+1155U14*Set_Index 29|575s7 593s7
+1158U14*Set_Sub_Pattern 29|657s7
+1161U14*Set_Pattern_Type 29|658s7
+1164U14*Set_Is_Any 29|659s7 740s7
+1167U14*Set_Is_Of 29|660s7
+1170U14*Set_Gate_Profiles 29|677s7
+1173U14*Set_Gate_Types 29|692s7
+1176U14*Set_Corresponding_Component 29|714s7
+1179U14*Set_Process_Gate_Declarations 29|717s7
+1182U14*Set_Process_Parameters 29|716s7
+1185U14*Set_Process_Exceptions 29|718s7
+1188U14*Set_Process_Pragma 29|719s7
+1191U14*Set_Channel_Name 29|738s7
+1194U14*Set_Gate 29|739s7
+1197U14*Set_Actual_Gates 29|767s7
+1200U14*Set_Actual_Parameters 29|768s7
+1203U14*Set_Is_Not_Periodic 29|769s7
+1206U14*Set_Offers 29|790s7
+1209U14*Set_Has_Where 29|791s7
+1212U14*Set_Is_Input 29|810s7
+1215U14*Set_Pattern 29|811s7
+1218U14*Set_Select_Statement_Alternatives 29|826s7
+1221U14*Set_Global_Synchronisation_Gates 29|857s7
+1224U14*Set_Interface_Synchronisations 29|858s7
+1227U14*Set_Interface_Synchronisation_Gates 29|874s7
+1230U14*Set_Hide_Gate_Declarations 29|892s7
+X 31 ocarina-backends-lnt-nutils.ads
+36K30*Nutils 29|32w27 32r60 31|198e32
+123V13*New_Node{34|195I9} 29|53s12 73s12 98s12 122s12 136s12 155s12 171s12
+. 172s28 186s12 187s34 198s12 199s25 221s12 243s12 255s14 269s12 287s12 308s12
+. 328s12 346s12 366s12 386s12 404s12 420s12 436s12 454s12 469s12 483s12 499s12
+. 518s12 537s12 555s12 573s12 591s12 606s12 620s12 636s12 656s12 675s12 691s12
+. 713s12 737s12 749s14 765s12 788s12 808s12 825s12 840s12 856s12 873s12 891s12
+144V13*New_List{34|208I9} 29|912s13
+169U14*Append_Node_To_List 29|916s7
+X 33 ocarina-namet.ads
+36K17*Namet 29|34w14 34r33 33|242e18
+93V13*Get_String_Name{34|182I9} 29|201s17
+X 34 ocarina-types.ads
+49I9*Int<integer>
+66M9*Byte
+182I9*Name_Id<integer>
+195I9*Node_Id<49I9> 28|38r28 43r13 46r28 47r17 50r13 53r28 61r17 62r13 65r20
+. 66r20 66r36 69r29 72r14 75r23 76r24 78r14 81r28 83r29 87r13 90r20 93r14
+. 95r40 97r19 99r12 104r13 107r29 108r29 109r13 112r29 113r29 114r29 115r13
+. 118r37 121r13 126r13 129r26 133r13 136r25 138r13 142r13 145r20 147r13 150r29
+. 151r18 152r12 157r13 159r47 162r13 164r57 165r13 168r29 170r13 173r18 174r19
+. 175r20 176r13 179r19 180r14 181r13 184r20 186r13 189r14 190r19 191r13 194r15
+. 195r20 196r13 199r20 200r21 203r13 206r13 208r51 209r13 212r29 214r13 217r29
+. 219r13 223r13 226r32 227r28 233r13 236r21 237r13 239r13 241r40 244r29 248r13
+. 251r29 254r20 255r13 258r19 259r16 261r13 265r13 269r13 274r13 279r13 284r12
+. 289r13 295r13 29|43r28 48r13 51r11 63r28 64r17 67r13 71r11 83r28 91r17
+. 92r13 96r11 115r20 116r20 116r36 120r11 129r28 132r13 134r11 147r23 148r24
+. 150r12 153r11 168r14 169r11 183r14 184r11 195r47 196r11 209r28 211r29 215r13
+. 219r11 235r20 238r14 241r11 253r40 262r19 263r45 267r11 279r29 280r29 281r13
+. 285r11 297r29 298r29 299r29 300r13 306r11 319r37 322r13 326r11 341r13 344r11
+. 356r26 360r13 364r11 378r25 380r13 384r11 396r20 398r13 402r11 415r13 418r11
+. 429r29 430r18 431r12 434r11 448r13 452r11 464r13 467r11 477r57 478r13 481r11
+. 492r29 494r13 497r11 509r18 510r19 511r20 512r13 516r11 529r19 530r14 531r13
+. 535r11 547r20 549r13 553r11 565r14 566r19 567r13 571r11 583r15 584r20 585r13
+. 589r11 601r13 604r11 614r51 615r13 618r11 629r29 631r13 634r11 646r20 647r21
+. 650r13 654r11 668r29 670r13 673r11 686r13 689r11 700r32 701r28 707r13 711r11
+. 728r21 729r13 731r13 735r11 747r40 756r29 760r13 763r11 777r29 780r20 781r13
+. 786r11 800r19 801r16 803r13 806r11 820r13 823r11 835r14 838r11 851r13 854r11
+. 868r13 871r11 885r13 889r11 904r13 905r11 906r16
+196i4*No_Node{195I9} 28|53r39 61r28 83r40 97r30 174r30 199r31 200r32 226r43
+. 236r32 254r31 258r30 29|50r45 69r46 70r34 83r39 91r28 94r46 118r36 119r36
+. 133r45 151r41 152r39 211r40 217r46 240r36 262r30 265r37 283r46 284r36 302r46
+. 303r42 304r36 325r33 363r32 383r32 401r33 432r35 433r45 480r36 496r45 510r30
+. 514r35 515r36 533r37 534r31 551r37 569r37 570r32 587r37 588r32 617r33 633r45
+. 646r31 647r32 652r38 653r38 671r46 700r43 709r46 728r32 733r39 762r45 780r31
+. 783r46 784r37 800r30 805r33
+208I9*List_Id<195I9> 28|39r16 40r29 41r22 42r20 48r20 49r29 54r26 70r32 71r28
+. 82r28 84r28 85r24 86r19 119r31 120r37 124r22 125r29 130r26 131r26 132r26
+. 137r25 141r21 146r20 155r32 156r21 161r49 169r20 185r27 205r43 213r20 218r23
+. 222r20 228r27 229r34 230r27 231r23 232r19 245r22 246r27 252r16 264r39 268r21
+. 272r38 273r36 277r42 278r21 287r33 288r21 291r45 292r45 293r45 29|44r16
+. 45r29 46r22 47r20 65r20 66r29 84r26 130r31 131r27 210r28 212r28 213r24
+. 214r19 320r31 321r37 339r22 340r29 357r26 358r26 359r26 379r25 397r20 414r20
+. 446r32 447r21 463r49 493r20 548r27 600r43 630r20 669r23 685r20 702r27 703r34
+. 704r27 705r23 706r19 757r22 758r27 778r16 819r39 834r30 849r38 850r36 866r42
+. 867r21 883r33 884r21 900r45 901r45 902r46 907r15
+209i4*No_List{208I9} 28|39r27 40r40 41r33 42r31 48r31 49r40 54r37 70r43 71r39
+. 82r39 84r39 85r35 119r42 124r33 131r37 132r37 169r31 213r31 228r38 229r45
+. 230r38 231r34 245r33 246r38 252r27 272r49 277r53 29|44r27 45r40 46r33 47r31
+. 65r31 66r40 84r37 95r43 130r42 131r38 210r39 212r39 213r35 218r36 320r42
+. 324r54 339r33 343r36 358r37 359r37 362r42 382r42 400r37 417r36 450r37 451r44
+. 466r41 493r31 552r44 603r38 630r31 672r39 688r36 702r38 703r45 704r38 705r34
+. 710r36 757r33 758r38 778r27 822r55 837r36 849r49 853r52 866r53 870r36 887r37
+. 888r49
+218N4*Mode_In 28|77r35 29|149r35
+222M9*Mode_Id<66M9> 28|77r24 29|149r24
+X 35 system.ads
+67M9*Address
+X 41 s-memory.ads
+53V13*Alloc{35|67M9} 103i<c,__gnat_malloc>22
+68U14*Free 104i<c,__gnat_free>22
+76V13*Realloc{35|67M9} 105i<c,__gnat_realloc>22
+X 54 utils.ads
+35K9*Utils 29|35w6 35r25 54|93e10
+45V13*Remove_Prefix_From_Name{34|182I9} 29|200s21
+

@@ -1,0 +1,15 @@
+"import" example:
+-----------------
+
+* Description: one thread pings another thread periodically and one
+	use a C function
+
+* One deployement is provided, 
+  1. ping.aadl deploys two nodes using TCP/IP, one thread per node,
+
+* Compilation: issue "make" in the root directory
+
+* Run: launch node_b, then node_a, or just node_a for the local case
+
+* The C function is in the test.c file
+

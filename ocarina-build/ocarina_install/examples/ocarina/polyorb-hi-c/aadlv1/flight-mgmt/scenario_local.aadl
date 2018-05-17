@@ -1,0 +1,22 @@
+package Scenario
+public
+  with Ocarina_Config;
+
+  system Flight_Management
+  properties
+    Ocarina_Config::Timeout_Property     => 4000ms;
+    Ocarina_Config::Referencial_Files    =>
+    ("mgmt", "mgmt.ref");
+    Ocarina_Config::AADL_Files           =>
+    ("flt_mgmt.aadl", "software.aadl");
+    Ocarina_Config::Generator            => polyorb_hi_c;
+    Ocarina_Config::Needed_Property_Sets =>
+    (Ocarina_Config::Data_Model,
+     Ocarina_Config::Deployment);
+    Ocarina_Config::AADL_Version         => AADLv1;
+  end Flight_Management;
+
+  system implementation Flight_Management.Impl
+  end  Flight_Management.Impl;
+
+end scenario;

@@ -1,0 +1,223 @@
+-- This package models alternatives for the Gaia implementation
+-- design.
+
+package GAIA::Implementations
+public
+
+  with Bus_Properties;
+
+  with Blocks;
+  with Library;
+  with GAIA;
+  
+  -- Gaia implementation design 
+  --
+  -- In this model, we propose a model that supports the
+  -- implementation view of the Gaia mission.
+  -- 
+  -- The Gaia system component type extends Gaia::Gaia, and thus
+  -- inherits its requirements, and also the validation rules to be
+  -- checked.
+
+  system Gaia extends GAIA::Gaia
+  end Gaia;
+
+  -----------------------------------------------------------------------------
+  -- Gaia candidate design #1
+  --  This design corresponds to the first iteration, with the
+  --  following functions:
+  --  * 7 couples of (Get_Data + Ctrl FPA) units, made redundant using
+  --  a N + 1/N scheme
+  --    => hence 8 functions, named U1_1 to U1_8
+  --  * 1 couple of (Process Data + Compress Data), duplicated
+  --    => hence 2 functions, named U2_1 and U2_2
+  --  * 1 mass memory unit, named U3_1
+
+  system implementation gaia.first_architecture
+  subcomponents
+
+    -- From the design document, one can infere that
+
+    -- * U1 units are pure hardware, using one board, 
+    --   consumes 20W, requires 600MIPs, weight 2Kg
+
+    U1_1 : system blocks::fpa_block_without_runtime.i;
+    U1_2 : system blocks::fpa_block_without_runtime.i;
+    U1_3 : system blocks::fpa_block_without_runtime.i;
+    U1_4 : system blocks::fpa_block_without_runtime.i;
+    U1_5 : system blocks::fpa_block_without_runtime.i;
+    U1_6 : system blocks::fpa_block_without_runtime.i;
+    U1_7 : system blocks::fpa_block_without_runtime.i;
+
+    --    U1_8 : system blocks::fpa_block_without_runtime.i;
+    -- Note: this component is added to follow the N + 1/N redundancy
+    -- pattern. It is disabled for now.
+
+    -- * U2 units are OBCs, 4200 MIPs, cycle time range of 1ms,
+    --   consumes 40W, weights 9Kg.
+
+    U2_1 : system blocks::obc.i;
+    U2_2 : system blocks::obc.i;
+
+    -- * U3 unit is a mass memory. We select the two links variant, as
+    --   this memory is to be connected to U2 units. It requires
+    --   1MIPS, consumes 45W, weights 15kg.
+
+    U3_1 : system blocks::memory_management_two_links.i;
+    
+    transportlayer : bus Library::genericbus;
+
+    -- Evaluation results:
+    --  total weight: 7 * 2 + 2 * 9 + 15 = 47 kg
+    --  total power:  7 * 20 + 2 * 40 + 45 = 265 W
+
+  connections
+    -- Each U1 unit is connected to the two U2 units
+
+  C1:  port U1_1.dataout -> U2_1.rawdata1
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps;};
+  C2:  port U1_2.dataout -> U2_1.rawdata2
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps; };
+  C3:  port U1_3.dataout -> U2_1.rawdata3
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps; };
+  C4:  port U1_4.dataout -> U2_1.rawdata4
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps; };
+  C5:  port U1_5.dataout -> U2_1.rawdata5 
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps; };
+  C6:  port U1_6.dataout -> U2_1.rawdata6 
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps; };
+  C7:  port U1_7.dataout -> U2_1.rawdata7 
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps; };
+    -- port U1_8.dataout -> U2_1.rawdata8
+    -- {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps; 
+    -- Actual_Connection_Binding => (reference (transportlayer));};
+
+  C8:  port U1_1.dataout -> U2_2.rawdata1 
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps;};
+  C9:  port U1_2.dataout -> U2_2.rawdata2
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps;};
+  C10:  port U1_3.dataout -> U2_2.rawdata3
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps;};
+  C11:  port U1_4.dataout -> U2_2.rawdata4 
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps;};
+  C12:  port U1_5.dataout -> U2_2.rawdata5 
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps;};
+  C13:  port U1_6.dataout -> U2_2.rawdata6
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps;};
+  C14:  port U1_7.dataout -> U2_2.rawdata7
+    {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps;};
+    -- port U1_8.dataout -> U2_2.rawdata8
+    -- {Bus_Properties::Required_Bandwidth => 50_000_000 bitsps; 
+    -- Actual_Connection_Binding => (reference (transportlayer));};
+    
+  C15:  port U2_1.compressed -> U3_1.link1
+    {Bus_Properties::Required_Bandwidth  => 70_000_000 bitsps;};
+  C16:  port U2_2.compressed -> U3_1.link2
+    {Bus_Properties::Required_Bandwidth  => 70_000_000 bitsps;};
+    
+  C17: bus access transportlayer -> U3_1.bus_access;
+    
+  C18: bus access transportlayer -> U2_1.bus_access;
+  C19: bus access transportlayer -> U2_2.bus_access;
+    
+  C20: bus access transportlayer -> U1_1.bus_access;
+  C21:  bus access transportlayer -> U1_2.bus_access;
+  C22:  bus access transportlayer -> U1_3.bus_access;
+  C23:  bus access transportlayer -> U1_4.bus_access;
+  C24: bus access transportlayer -> U1_5.bus_access;
+  C25:  bus access transportlayer -> U1_6.bus_access;
+  C26:  bus access transportlayer -> U1_7.bus_access;
+    -- bus access transportlayer -> U1_8.bus_access;
+  
+  	properties
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C1;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C2;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C3;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C4;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C5; 
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C6;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C7;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C8;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C9;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C10;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C11;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C12;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C13;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C14;
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C15; 
+    Actual_Connection_Binding => (reference (transportlayer)) applies to C16;
+        
+  end gaia.first_architecture;
+
+  -----------------------------------------------------------------------------
+  -- Gaia candidate design #2
+  --  This design corresponds to the second iteration, with the
+  --  following functions:
+  --  * 7 couples of (Get_Data + Ctrl FPA + compress + process) units,
+  --  made redundant using a N + 1/N scheme
+  --  * 1 mass memory unit, named U3_1
+
+  system implementation gaia.second_architecture
+  subcomponents
+
+    -- From the design document, one can infere that
+
+    -- * U1 units are pure hardware, using one board, 
+    --   consumes 35W, requires 600MIPs, weight 3Kg
+
+    U1_1 : system blocks::fpa_block_with_runtime.i;
+    U1_2 : system blocks::fpa_block_with_runtime.i;
+    U1_3 : system blocks::fpa_block_with_runtime.i;
+    U1_4 : system blocks::fpa_block_with_runtime.i;
+    U1_5 : system blocks::fpa_block_with_runtime.i;
+    U1_6 : system blocks::fpa_block_with_runtime.i;
+    U1_7 : system blocks::fpa_block_with_runtime.i;
+    -- U1_8 : system blocks::fpa_block_with_runtime.i;
+
+    -- * U2 units requires 1 MIPs consumes 45W, weights 15Kg.
+
+    U2_1   : system blocks::memory_management_eight_links.i;
+
+    transportlayer : bus Library::genericbus;
+
+    -- Evaluation results:
+    --  total weight: 7 * 3 + 1 * 15 = 36 kg
+    --  total power:  7 * 35 + 45 = 290 W
+
+  connections
+  C1:  port U1_1.output -> U2_1.link1
+    {Bus_Properties::Required_Bandwidth  => 10_000_000 bitsps;};
+  C2:  port U1_2.output -> U2_1.link2 
+    {Bus_Properties::Required_Bandwidth  => 10_000_000 bitsps;};
+  C3:  port U1_3.output -> U2_1.link3 
+    {Bus_Properties::Required_Bandwidth  => 10_000_000 bitsps;};
+  C4:  port U1_4.output -> U2_1.link4 
+    {Bus_Properties::Required_Bandwidth  => 10_000_000 bitsps;};
+  C5:  port U1_5.output -> U2_1.link5
+    {Bus_Properties::Required_Bandwidth  => 10_000_000 bitsps; };
+  C6:  port U1_6.output -> U2_1.link6
+    {Bus_Properties::Required_Bandwidth  => 10_000_000 bitsps; };
+  C7: port U1_7.output -> U2_1.link7 
+    {Bus_Properties::Required_Bandwidth  => 10_000_000 bitsps;};
+    
+  C8:  bus access transportlayer -> U2_1.bus_access;  
+  C9:  bus access transportlayer -> U1_1.bus_access;
+  C10:  bus access transportlayer -> U1_2.bus_access;
+  C11:  bus access transportlayer -> U1_3.bus_access;
+  C12:  bus access transportlayer -> U1_4.bus_access;
+  C13:  bus access transportlayer -> U1_5.bus_access;
+  C14:  bus access transportlayer -> U1_6.bus_access;
+  C15:  bus access transportlayer -> U1_7.bus_access;
+    
+ properties 
+     Actual_Connection_Binding => (reference (transportlayer)) applies to C1;
+     Actual_Connection_Binding => (reference (transportlayer)) applies to C2;
+     Actual_Connection_Binding => (reference (transportlayer)) applies to C3;
+     Actual_Connection_Binding => (reference (transportlayer)) applies to C4;
+     Actual_Connection_Binding => (reference (transportlayer)) applies to C5;
+     Actual_Connection_Binding => (reference (transportlayer)) applies to C6;
+     Actual_Connection_Binding => (reference (transportlayer)) applies to C7;
+     
+  end gaia.second_architecture;
+
+end GAIA::Implementations;

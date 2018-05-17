@@ -1,0 +1,104 @@
+--  $Id: software.aadl 6273 2009-03-25 17:36:51Z lasnier $
+
+package Software
+public
+  with Data_Model;
+
+----------
+-- Data --
+----------
+
+data Ravenscar
+end Ravenscar;
+
+data implementation Ravenscar.Integer
+properties
+  Data_Model::Data_Representation => Integer;
+end Ravenscar.Integer;
+
+-------------
+-- Threads --
+-------------
+
+thread Sensor_Sim_T
+features
+  AoA            : out       data port Ravenscar.Integer;
+  Climb_Rate     : out       data port Ravenscar.Integer;
+  Engine_Failure : out event      port;
+end Sensor_Sim_T;
+
+thread Stall_Monitor_T
+features
+  AoA        : in        data port Ravenscar.Integer;
+  Climb_Rate : in        data port Ravenscar.Integer;
+  Stall_Warn : out event data port Ravenscar.Integer;
+end Stall_Monitor_T;
+
+thread Landing_Gear_T
+features
+  Req       : in  event port 
+    {Compute_Entrypoint_Source_Text => "Manager.On_Req";};
+  Ack       : out event port;
+  Dummy_Out : out event port;
+  Dummy_In  : in  event port 
+    {Compute_Entrypoint_Source_Text => "Manager.On_Dummy_In";};
+end Landing_Gear_T;
+
+thread HCI_T
+features
+  Stall_Warning  : in  event data port Ravenscar.Integer 
+    {Compute_Entrypoint_Source_Text => "Manager.On_Stall_Warning";};
+  Engine_Failure : in  event      port 
+    {Compute_Entrypoint_Source_Text => "Manager.On_Engine_Failure";};
+  Gear_Cmd       : in  event      port 
+    {Compute_Entrypoint_Source_Text => "Manager.On_Gear_Cmd";};
+  Gear_Req       : out event      port;
+  Gear_Ack       : in  event      port 
+    {Compute_Entrypoint_Source_Text => "Manager.On_Gear_Ack";};
+end HCI_T;
+
+thread Operator_T
+features
+  Gear_Cmd: out event port;
+end Operator_T;
+
+thread implementation Sensor_Sim_T.RS
+properties
+  Period             => 20 Ms;
+  Source_Stack_Size  => 64000 Bytes;
+  Compute_Entrypoint_Source_Text => "Manager.On_Sensor_Sim";
+  Dispatch_Protocol  => Periodic;
+  Deadline           => 15 Ms;
+end Sensor_Sim_T.RS;
+
+thread implementation Stall_Monitor_T.RS
+properties
+  Compute_Entrypoint_Source_Text => "Manager.On_Stall_Monitor";
+  Dispatch_Protocol  => Periodic;
+  Period             => 20 Ms;
+  Source_Stack_Size  => 64000 Bytes;
+end Stall_Monitor_T.RS;
+
+thread implementation HCI_T.RS
+properties
+  Dispatch_Protocol => Sporadic;
+  Source_Stack_Size => 64000 Bytes;
+  Period            => 10 Ms;
+end HCI_T.RS;
+
+thread implementation Landing_Gear_T.RS
+properties
+  Dispatch_Protocol => Sporadic;
+  Source_Stack_Size => 64000 Bytes;
+  Period            => 3000 Ms;
+end Landing_Gear_T.RS;
+
+thread implementation Operator_T.RS
+properties
+  Source_Stack_Size  => 64000 Bytes;
+  Dispatch_Protocol  => Periodic;
+  Period             => 10 Sec;
+  Compute_Entrypoint_Source_Text => "Manager.On_Operator";
+end Operator_T.RS;
+
+end Software;

@@ -1,0 +1,46 @@
+--  $Id: sunseeker_local.aadl 6879 2009-07-25 11:36:09Z lanarre $
+
+package Sunseeker_Local
+public
+  with Sunseeker;
+  with Deployment;
+
+---------------
+-- Processor --
+---------------
+
+processor LEON_Type
+end LEON_Type;
+
+------------
+-- System --
+------------
+
+system Sunseekercontrolsystem_Type
+end Sunseekercontrolsystem_Type;
+
+system implementation Sunseekercontrolsystem_Type.LEON
+subcomponents
+
+  Sunseeker : process sunseeker::sunseeker_local.Impl;
+
+  Platform: processor LEON_Type
+    {Deployment::Execution_Platform => LEON_ORK;};
+properties
+  Actual_Processor_Binding => (reference (Platform))
+    applies to Sunseeker;
+end Sunseekercontrolsystem_Type.LEON;
+
+system implementation Sunseekercontrolsystem_Type.LEON_GNAT
+subcomponents
+
+  Sunseeker : process sunseeker::sunseeker_local.Impl;
+
+  Platform: processor LEON_Type
+    {Deployment::Execution_Platform => LEON_GNAT;};
+properties
+  Actual_Processor_Binding => (reference (Platform))
+    applies to Sunseeker;
+end Sunseekercontrolsystem_Type.LEON_GNAT;
+
+end Sunseeker_Local;

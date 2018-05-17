@@ -1,0 +1,278 @@
+V "GNAT Lib v6"
+A -O2
+A -gnatA
+A -gnat12
+A -gnata
+A -gnaty
+A -gnatyu
+A -gnatys
+A -gnatp
+A -gnatn
+A -mtune=generic
+A -march=i686
+P SS ZX
+
+RN
+RR SIMPLE_BARRIERS
+RR NO_ABORT_STATEMENTS
+RR NO_ACCESS_PARAMETER_ALLOCATORS
+RR NO_ASYNCHRONOUS_CONTROL
+RR NO_COEXTENSIONS
+RR NO_DYNAMIC_ATTACHMENT
+RR NO_DYNAMIC_PRIORITIES
+RR NO_ENTRY_CALLS_IN_ELABORATION_CODE
+RR NO_ENTRY_QUEUE
+RV NO_EXCEPTION_HANDLERS
+RR NO_EXCEPTION_REGISTRATION
+RV NO_EXCEPTIONS
+RR NO_FIXED_IO
+RR NO_IMPLICIT_TASK_ALLOCATIONS
+RR NO_IMPLICIT_PROTECTED_OBJECT_ALLOCATIONS
+RV NO_INITIALIZE_SCALARS
+RR NO_LOCAL_TIMING_EVENTS
+RR NO_LOCAL_PROTECTED_OBJECTS
+RR NO_PROTECTED_TYPE_ALLOCATORS
+RR NO_PROTECTED_TYPES
+RR NO_RELATIVE_DELAY
+RR NO_REQUEUE_STATEMENTS
+RV NO_SECONDARY_STACK
+RR NO_SELECT_STATEMENTS
+RR NO_SPECIFIC_TERMINATION_HANDLERS
+RV NO_STANDARD_STORAGE_POOLS
+RR NO_STREAM_OPTIMIZATIONS
+RR NO_TASK_ALLOCATORS
+RR NO_TASK_ATTRIBUTES_PACKAGE
+RR NO_TASK_AT_INTERRUPT_PRIORITY
+RR NO_TASK_HIERARCHY
+RR NO_TASK_TERMINATION
+RR NO_TASKING
+RR NO_TERMINATE_ALTERNATIVES
+RR STATIC_PRIORITIES
+RR STATIC_STORAGE_SIZE
+RV NO_DEFAULT_INITIALIZATION
+RR IMMEDIATE_RECLAMATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLEMENTATION_RESTRICTIONS
+RV NO_ELABORATION_CODE
+RV NO_OBSOLESCENT_FEATURES
+RR PURE_BARRIERS
+RV SPARK_05
+RR MAX_PROTECTED_ENTRIES=0
+RR MAX_SELECT_ALTERNATIVES=0
+RR MAX_TASK_ENTRIES=0
+RR MAX_TASKS=0
+RR MAX_ASYNCHRONOUS_SELECT_NESTING=0
+
+U utils%b		utils.adb		c0dfe385 NE OO PK IS
+W ada.tags%s		a-tags.adb		a-tags.ali
+W charset%s		charset.adb		charset.ali
+W ocarina%s		ocarina.adb		ocarina.ali
+W ocarina.namet%s	ocarina-namet.adb	ocarina-namet.ali
+W system.scalar_values%s  s-scaval.adb		s-scaval.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+
+U utils%s		utils.ads		24093602 EE OO PF PK IS
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.hash_tables%s  a-cohata.ads	a-cohata.ali
+Z ada.containers.hash_tables.generic_keys%s
+Z ada.containers.hash_tables.generic_operations%s
+W ada.containers.hashed_maps%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+Z ada.containers.prime_numbers%s  a-coprnu.adb	a-coprnu.ali
+W ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+W ada.streams%s		a-stream.adb		a-stream.ali
+W ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+W ocarina%s		ocarina.adb		ocarina.ali
+W ocarina.types%s	ocarina-types.adb	ocarina-types.ali
+W system%s		system.ads		system.ali
+W system.assertions%s	s-assert.adb		s-assert.ali
+W system.finalization_masters%s  s-finmas.adb	s-finmas.ali
+W system.scalar_values%s  s-scaval.adb		s-scaval.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+W system.storage_elements%s  s-stoele.adb	s-stoele.ali
+W system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+W system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+W system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+
+D ada.ads		20070406091342 3ffc8e18 ada%s
+D a-contai.ads		20151020122137 61e5e089 ada.containers%s
+D a-cohata.ads		20151020102346 80a8c839 ada.containers.hash_tables%s
+D a-chtgke.ads		20151020102346 20177f7b ada.containers.hash_tables.generic_keys%s
+D a-chtgke.adb		20151020102346 7d66b1e3 ada.containers.hash_tables.generic_keys%b
+D a-chtgop.ads		20151020102346 bea86046 ada.containers.hash_tables.generic_operations%s
+D a-chtgop.adb		20151020121311 dc263095 ada.containers.hash_tables.generic_operations%b
+D a-cohama.ads		20151023123735 5b9a95f7 ada.containers.hashed_maps%s
+D a-cohama.adb		20151023123735 6d24e6e5 ada.containers.hashed_maps%b
+D a-conhel.ads		20151023123735 20298884 ada.containers.helpers%s
+D a-conhel.adb		20151023123735 34fff4f6 ada.containers.helpers%b
+D a-coprnu.ads		20090409150019 0cdf1864 ada.containers.prime_numbers%s
+D a-except.ads		20151016123252 291912d5 ada.exceptions%s
+D a-finali.ads		20151020095656 bf4f806b ada.finalization%s
+D a-ioexce.ads		20140225151544 e4a01f64 ada.io_exceptions%s
+D a-iteint.ads		20110906092602 7c7305e9 ada.iterator_interfaces%s
+D a-stream.ads		20141120112812 119b8fb3 ada.streams%s
+D a-tags.ads		20151016130316 01f5e3ef ada.tags%s
+D a-unccon.ads		20070406091342 f9eb8f06 ada.unchecked_conversion%s
+D a-uncdea.ads		20070406091342 f15a5ed1 ada.unchecked_deallocation%s
+D charset.ads		20180517074744 feb5fa5e charset%s
+D gnat.ads		20140801083227 fd2ad2f1 gnat%s
+D g-hesorg.ads		20110801150502 106922da gnat.heap_sort_g%s
+D g-os_lib.ads		20090409150019 0db74523 gnat.os_lib%s
+D g-speche.ads		20140225151544 3913ba7d gnat.spelling_checker%s
+D g-table.ads		20151020120548 16cef446 gnat.table%s
+D g-table.adb		20140521105248 2932f881 gnat.table%b
+D ocarina.ads		20180517074744 bfb8a9d7 ocarina%s
+D ocarina-namet.ads	20180517074744 b31432d0 ocarina.namet%s
+D ocarina-namet.adb	20180517074744 c6f24f24 ocarina.namet%b
+D ocarina-output.ads	20180517074744 edb3fa77 ocarina.output%s
+D ocarina-types.ads	20180517074744 e099215b ocarina.types%s
+D system.ads		20151123113124 c6f79445 system%s
+D s-assert.ads		20140225151544 cd8d2c94 system.assertions%s
+D s-atocou.ads		20151020101020 b45c2d8d system.atomic_counters%s
+D s-finmas.ads		20151016130316 7811a767 system.finalization_masters%s
+D s-finroo.ads		20120426095924 4ff27390 system.finalization_root%s
+D s-memory.ads		20140225151139 597d6634 system.memory%s
+D s-os_lib.ads		20151118101046 53e9e388 system.os_lib%s
+D s-parame.ads		20140801093848 7e2a0d7f system.parameters%s
+D s-scaval.ads		20090409150019 bea40757 system.scalar_values%s
+D s-secsta.ads		20140225151139 86a2856d system.secondary_stack%s
+D s-stalib.ads		20151112104907 09bd3940 system.standard_library%s
+D s-stoele.ads		20140225151139 2dc34a04 system.storage_elements%s
+D s-stoele.adb		20140801093848 ed88f8fb system.storage_elements%b
+D s-stopoo.ads		20131010103753 b16154c2 system.storage_pools%s
+D s-stposu.ads		20151020120548 97a6219c system.storage_pools.subpools%s
+D s-stratt.ads		20131014135145 aedef97e system.stream_attributes%s
+D s-stratt.adb		20090409150019 56ef263e system.stream_attributes%b
+D s-string.ads		20140225151139 8fe54fb7 system.strings%s
+D s-traent.ads		20140730135025 005bf670 system.traceback_entries%s
+D s-unstyp.ads		20140731130224 9d58a4c0 system.unsigned_types%s
+D unchdeal.ads		20070406091342 214516a4 unchecked_deallocation%s
+D utils.ads		20180517074744 9f0a82ae utils%s
+D utils.adb		20180517074744 1274a9a5 utils%b
+D /home/francis/polyorb-hi-c/ocarina-build/ocarina/src/../projects/restrictions.adc  20180517074744 00000000
+X 1 ada.ads
+16K9*Ada 19e8 54|33r6 33r39 87r33
+X 2 a-contai.ads
+16K13*Containers 24e19 54|33r10 33r43 87r37
+19M9*Hash_Type 54|84r48 55|285r48 292r14
+X 8 a-cohama.ads
+41+9 Key_Type 54|88r7
+42+9 Element_Type 54|89r7
+44V18 Hash{2|19M9} 54|90r7
+45V18 Equivalent_Keys{boolean} 54|91r7
+48k24*Hashed_Maps 462e31 54|33w21 87r48
+X 16 a-iteint.ads
+24h9 Forward_Iterator
+X 21 charset.ads
+32K9*Charset 50e12 55|32w6 32r19
+40U14*To_Lower 55|232s7
+45U14*To_Upper 55|246s7
+X 28 ocarina.ads
+32K9*Ocarina 61e12 54|32r6 32r25 55|33r6 33r27
+X 29 ocarina-namet.ads
+36K17*Namet 242e18 55|33w14 33r35
+55a4*Name_Buffer{string} 55|82r22 84r37 106r22 108r37 232m17 232r17 246m17
+. 246r17
+62i4*Name_Len{natural} 55|79r17 81r10 84r64 103r17 105r10 106r35 106r60 108r55
+. 182m7 207m7 232r35 246r35
+70U14*Get_Name_String 55|62s7 80s7 104s7 231s7 245s7
+76V13*Get_Name_String{string} 55|162s22 171s22 180s41 205s41 265s34 266s34
+. 287s30 300s31 301s31
+80U14*Get_Name_String_And_Append 55|49s7
+102V13*Name_Find{32|182I9} 55|50s14 64s14 85s20 109s20 153s14 190s19 217s19
+. 233s14 247s14
+122U14*Add_Char_To_Name_Buffer 55|152s7 186s13 211s13 213s13
+127U14*Set_Char_To_Name_Buffer 55|150s7
+154U14*Add_Str_To_Name_Buffer 55|63s7 151s7
+158U14*Set_Str_To_Name_Buffer 55|48s7 78s7 84s13 102s7 108s13
+X 32 ocarina-types.ads
+34K17*Types 304e18 54|32w14 32r33
+182I9*Name_Id<integer> 54|39r16 39r32 43r16 43r32 47r16 47r32 54r16 54r32
+. 64r62 65r25 66r25 66r63 69r27 69r43 70r27 70r43 73r14 75r32 78r33 78r64
+. 81r29 81r43 84r32 85r35 88r19 89r23 55|45r16 45r32 59r16 59r32 73r16 73r32
+. 97r16 97r32 148r62 160r25 169r25 169r63 178r33 178r64 179r22 200r14 202r32
+. 204r22 226r27 226r43 240r27 240r43 254r29 254r43 285r32 299r35
+188i4*No_Name{182I9} 55|179r41 204r41 228r14 229r17 242r14 243r17 256r15
+. 260r15
+X 33 system.ads
+67M9*Address
+X 38 s-memory.ads
+53V13*Alloc{33|67M9} 103i<c,__gnat_malloc>22
+68U14*Free 104i<c,__gnat_free>22
+76V13*Realloc{33|67M9} 105i<c,__gnat_realloc>22
+X 54 utils.ads
+35K9*Utils 93l5 93e10 55|35b14 307l5 307t10
+37V13*Add_Prefix_To_Name{32|182I9} 38>7 39>7 55|43b13 51l8 51t26
+38a7 Prefix{string} 55|44b7 48r31
+39i7 Name{32|182I9} 55|45b7 49r35
+41V13*Add_Suffix_To_Name{32|182I9} 42>7 43>7 55|57b13 65l8 65t26
+42a7 Suffix{string} 55|58b7 63r31
+43i7 Name{32|182I9} 55|59b7 62r24
+45V13*Remove_Prefix_From_Name{32|182I9} 46>7 47>7 55|71b13 89l8 89t31
+46a7 Prefix{string} 55|72b7 76r31 78r31 83r13
+47i7 Name{32|182I9} 55|73b7 80r24 88r14
+52V13*Remove_Suffix_From_Name{32|182I9} 53>7 54>7 55|95b13 113l8 113t31
+53a7 Suffix{string} 55|96b7 100r31 102r31 107r13
+54i7 Name{32|182I9} 55|97b7 104r24 112r14
+59U14*Capitalize 59=26 55|119b14 133l8 133t18
+59a26 S{string} 55|119b26 122r16 125r16 126m16 126r55 129r13
+63V13*Quoted{string} 63>21 63>33 55|139b13 142l8 142t14 162s14
+63a21 S{string} 55|139b21 141r25
+63e33 D{character} 55|139b33 141r20 141r35
+64V13*Quoted{32|182I9} 64>21 64>33 55|148b13 154l8 154t14 171s14
+64a21 S{string} 55|148b21 151r31
+64e33 D{character} 55|148b33 150r32 152r32
+65V13*Quoted{string} 65>21 65>34 55|160b13 163l8 163t14
+65i21 N{32|182I9} 55|160b21 162r39
+65e34 D{character} 55|160b34 162r43
+66V13*Quoted{32|182I9} 66>21 66>34 55|169b13 172l8 172t14
+66i21 N{32|182I9} 55|169b21 171r39
+66e34 D{character} 55|169b34 171r43
+69V13*To_Lower{32|182I9} 69>23 55|226b13 234l8 234t16
+69i23 N{32|182I9} 55|226b23 228r10 231r24
+70V13*To_Upper{32|182I9} 70>23 55|240b13 248l8 248t16
+70i23 N{32|182I9} 55|240b23 242r10 245r24
+72V13*Replace_Char{32|182I9} 73>7 74>7 75>7 55|199b13 220l8 220t20
+73i7 Name{32|182I9} 55|200b7 205r58
+74e7 O{character} 55|201b7 210r36
+75e7 N{character} 55|202b7 211r38
+78V13*Remove_Char{32|182I9} 78>26 78>42 55|178b13 193l8 193t19
+78i26 Name{32|182I9} 55|178b26 180r58
+78e42 O{character} 55|178b42 185r37
+81V13*Is_Prefix{boolean} 81>24 81>38 55|254b13 279l8 279t17
+81i24 N1{32|182I9} 55|254b24 256r10 265r51
+81i38 N2{32|182I9} 55|254b38 260r10 266r51
+84V13*Hash_String{2|19M9} 84>26 90r15 55|285b13 293l8 293t19
+84i26 Key{32|182I9} 55|285b26 287r47
+85V13*Equals{boolean} 85>21 85>27 91r26 55|299b13 305l8 305t14
+85i21 Left{32|182I9} 55|299b21 300r48
+85i27 Right{32|182I9} 55|299b27 301r48
+87K12*Hash_Property[8|48]
+X 55 utils.adb
+37N4 Up_To_Low 126r64
+75i7 Length{natural} 79m7 81r21 82r40 84r54
+76a7 Temp_Str{string} 82m10 83r22
+99i7 Length{natural} 103m7 105r21 106r46 108r66
+100a7 Temp_Str{string} 106m10 107r22
+120b7 Up{boolean} 123r13 124m13 130m13
+122i11 I{integer} 125r19 126r19 126r58 129r16
+179i7 New_Name{32|182I9} 190m7 192r14
+180a7 Initial_Name{string} 184r20 184r42 185r13 186r38
+184i11 Index{integer} 185r27 186r52
+204i7 New_Name{32|182I9} 217m7 219r14
+205a7 Initial_Name{string} 209r20 209r42 210r13 213r38
+209i11 Index{integer} 210r27 213r52
+265a10 S1{string} 268r13 271r24 272r16
+266a10 S2{string} 268r25 272r26
+271i14 I{integer} 272r20 272r30
+286i7 Res{integer} 290m10 290r17 292r25
+287a7 S{string} 289r16 290r38
+289i11 J{integer} 290r41 290r47
+300a7 S1{string} 304r14 304r45
+301a7 S2{string} 304r26 304r50
+

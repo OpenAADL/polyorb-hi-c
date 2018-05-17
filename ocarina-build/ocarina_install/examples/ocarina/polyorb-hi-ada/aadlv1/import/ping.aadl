@@ -1,0 +1,78 @@
+--  This model completes the PING example by adding deployment
+--  information.
+--
+--  In this deployment, two nodes are defined, one task per node.
+--
+--  $Id: ping.aadl 272 2007-03-05 16:17:27Z zalila $
+
+---------------
+--    Bus    --
+---------------
+
+bus Ethernet_Bus
+properties
+  Deployment::Transport_API => BSD_Sockets;
+end Ethernet_Bus;
+
+---------------
+-- Processor --
+---------------
+
+processor the_processor
+features
+  ETH : requires bus access Ethernet_Bus;
+properties
+  Deployment::location           => "127.0.0.1";
+  Deployment::Execution_Platform => Native;
+end the_processor;
+
+---------------
+-- Processes --
+---------------
+
+process A
+features
+  Out_Port : out event data port Array_Type.I;
+end A;
+
+process implementation A.Impl
+subcomponents
+  Pinger        : thread P.Impl;
+connections
+  event data port Pinger.Data_Source -> Out_Port;
+end A.Impl;
+
+process B
+features
+  In_Port  : in event data port Array_Type.I;
+end B;
+
+process implementation B.Impl
+subcomponents
+  Ping_Me        : thread Q.Impl;
+connections
+  event data port In_Port -> Ping_Me.Data_Sink;
+end B.Impl;
+
+------------
+-- System --
+------------
+
+system PING
+end PING;
+
+system implementation PING.Native
+subcomponents
+  Node_A : process A.Impl;
+  Node_B : process B.Impl {Deployment::port_number => 12002;};
+
+  CPU : processor the_processor;
+  the_bus : bus Ethernet_Bus;
+connections
+  bus access the_bus -> CPU.ETH;
+  event data port Node_A.Out_Port -> Node_B.In_Port
+		{Actual_Connection_Binding => (reference the_bus);};
+properties
+  actual_processor_binding => reference CPU applies to Node_A;
+  actual_processor_binding => reference CPU applies to Node_B;
+end PING.Native;

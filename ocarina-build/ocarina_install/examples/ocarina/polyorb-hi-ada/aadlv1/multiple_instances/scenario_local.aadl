@@ -1,0 +1,21 @@
+--  This is a scenario file describing the AADL application "multiple
+--  instances"
+
+--  $Id: scenario_local.aadl 6993 2009-09-15 15:29:06Z lanarre $
+
+system Multiple_Instances
+properties
+  Ocarina_Config::Timeout_Property     => 4000ms;
+  Ocarina_Config::Referencial_Files    => 
+    ("node_a", "node_a.ref");
+  Ocarina_Config::AADL_Files           => 
+    ("mi-local.aadl", "multiple_instances.aadl");
+  Ocarina_Config::Generator            => polyorb_hi_ada;
+  Ocarina_Config::Needed_Property_Sets => 
+    (value (Ocarina_Config::Data_Model),
+     value (Ocarina_Config::Deployment));
+  Ocarina_Config::AADL_Version         => AADLv1;
+end Multiple_Instances;
+
+system implementation Multiple_Instances.Impl
+end  Multiple_Instances.Impl;

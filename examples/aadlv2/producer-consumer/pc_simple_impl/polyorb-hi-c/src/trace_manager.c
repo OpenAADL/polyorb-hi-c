@@ -17,7 +17,6 @@
 #include <activity.h>
 #include <request.h>
 
-
 #define MAX_STRUCT 10
 
 __po_hi_mutex_t      __po_hi_c_trace_mutex;
@@ -80,10 +79,9 @@ int record_event(int event, int stat, __po_hi_task_id t_id, __po_hi_port_t p_src
 	if (nb_struct >= 10){
 		/* A stream is opened */
 		history = fopen("history.txt", "w" );
+                fseek(history, 0, SEEK_END);
 		/* The copying is done */
 		for (int i = 0; i < 10; i++){
-			fseek(history, 0, SEEK_END);
-			fprintf(history,"\n");
 			fprintf(history,"event = %d; age_status = %d; task_id = %d; port_src_id = %d; port_dest_id = %d; local_port_src_id = %d; dest_src_id = %d; time : sec = %d, nsec = %d", task_log[i].event, 				task_log[i].status, task_log[i].task_id, task_log[i].global_port_src, task_log[i].global_port_dest, task_log[i].loc_port_src, task_log[i].loc_port_dest, (task_log[i].mytime).sec,  (task_log[i].mytime).nsec);
 			fprintf(history, ", request = ");
 			fwrite(task_log[i].p_request,sizeof(__po_hi_request_t),1,history);

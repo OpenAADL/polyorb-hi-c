@@ -1,0 +1,23 @@
+package scenario
+public
+  with Ocarina_Config;
+
+  system rma
+  properties
+    Ocarina_Config::Timeout_Property     => 4000ms;
+    Ocarina_Config::Referencial_Files    =>
+    ("node_a", "node_a.ref");
+    Ocarina_Config::AADL_Files           =>
+    ("rma-xenomai-native.aadl");
+    Ocarina_Config::Generator            => polyorb_hi_c;
+    Ocarina_Config::Needed_Property_Sets =>
+    (Ocarina_Config::Data_Model,
+     Ocarina_Config::Deployment,
+     Ocarina_Config::Cheddar_Properties);
+    Ocarina_Config::AADL_Version         => AADLv2;
+  end rma;
+
+  system implementation rma.Impl
+  end  rma.Impl;
+
+end scenario;

@@ -1,0 +1,86 @@
+package CPP_Test
+public
+  with Deployment;
+
+  -----------------
+  -- Subprograms --
+  -----------------
+
+  subprogram Hello_Spg_1
+  properties
+    source_language => (CPP);
+    source_name     => "hello_world";
+    source_text     => ("hello.cc");
+  end Hello_Spg_1;
+
+  -------------
+  -- Threads --
+  -------------
+
+  thread Task
+  end Task;
+
+  thread implementation Task.impl_1
+  calls
+    Mycalls: {
+    P_Spg : subprogram Hello_Spg_1;
+    };
+  properties
+    Dispatch_Protocol                  => periodic;
+    Period                             => 1000ms;
+  end Task.impl_1;
+
+  ---------------
+  -- Processor --
+  ---------------
+
+  processor cpurm
+  properties
+    Deployment::Execution_Platform => Native;
+  end cpurm;
+
+  processor implementation cpurm.impl
+  properties
+    Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
+  end cpurm.impl;
+
+  ---------------
+  -- Processes --
+  ---------------
+
+  process node_a
+  end node_a;
+
+  process implementation node_a.impl
+  subcomponents
+    Task1 : thread Task.impl_1;
+  end node_a.impl;
+
+  ------------
+  -- System --
+  ------------
+
+  system cpp_test
+  end cpp_test;
+
+  system implementation cpp_test.impl
+  subcomponents
+    cpptest : process node_a.impl;
+    cpu_rm : processor cpurm.impl;
+  properties
+    Actual_Processor_Binding => (reference (cpu_rm)) applies to cpptest;
+  end cpp_test.impl;
+
+  system implementation cpp_test.Xenomai
+  extends cpp_test.impl
+  properties
+    Deployment::Execution_Platform => linux32_xenomai_native applies to cpu_rm;
+  end cpp_test.Xenomai;
+
+  system implementation cpp_test.RTEMS
+  extends cpp_test.impl
+  properties
+    Deployment::Execution_platform => LEON_RTEMS applies to cpu_rm;
+  end cpp_test.RTEMS;
+
+end cpp_test;

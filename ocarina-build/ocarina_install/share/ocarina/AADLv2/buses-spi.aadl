@@ -1,0 +1,10 @@
+package Buses::SPI
+public
+
+  bus SPI
+  end SPI;
+
+  bus implementation SPI.impl
+  end SPI.impl;
+
+end Buses::SPI;
