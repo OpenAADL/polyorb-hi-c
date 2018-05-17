@@ -1,0 +1,18 @@
+TARGET_CFLAGS     = -D_WIN32 -D_GNU_SOURCE  $(GCC_GENERIC_FLAGS) -std=c99 -m32
+TARGET_LDFLAGS    =  -m32
+SIMULINK_LDFLAGS  = -lm
+CC                = i686-w64-mingw32-gcc
+LD                = i686-w64-mingw32-gcc
+GPROF             = gprof
+
+ifdef USE_GPROF
+TARGET_LDFLAGS+=-pg
+endif
+
+ifeq ($(NEED_TRANSPORT),yes)
+TARGET_LDFLAGS+=-lwsock32
+endif
+
+target-clean:
+
+target-objects:

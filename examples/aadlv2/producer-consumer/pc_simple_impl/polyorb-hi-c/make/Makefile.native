@@ -1,0 +1,17 @@
+TARGET_CFLAGS   =  -DPOSIX -D_POSIX_SOURCE -D_GNU_SOURCE
+TARGET_LDFLAGS  =  -lpthread -lrt -lm
+SIMULINK_LDFLAGS  = -lm
+CC              = gcc
+LD              = gcc
+GPROF           = gprof
+LD_CPP = g++
+
+ifdef USE_GPROF
+TARGET_LDFLAGS+=-pg
+endif
+
+
+
+target-clean:
+
+target-objects:

@@ -1,0 +1,26 @@
+XENOVER=$(shell xeno-config --version)
+
+ifeq ($(XENOVER),2.4.4)
+TARGET_CFLAGS   = `xeno-config --xeno-cflags` -DXENO_NATIVE -D_POSIX_SOURCE -D_GNU_SOURCE -m32 $(GCC_GENERIC_FLAGS)
+TARGET_LDFLAGS  = `xeno-config --xeno-ldflags` -m32
+else
+TARGET_CFLAGS   = `xeno-config --skin native --cflags` -DXENO_NATIVE -D_POSIX_SOURCE -D_GNU_SOURCE -m32 $(GCC_GENERIC_FLAGS)
+TARGET_LDFLAGS  = `xeno-config --skin native --ldflags` -m32
+endif
+
+TARGET_LDFLAGS += -L$(RUNTIME_PATH)/libs/linux32/ -llua -lm
+
+SIMULINK_LDFLAGS  = -lm
+CC              = gcc
+LD              = gcc
+GPROF           = gprof
+
+
+ifdef USE_GPROF
+TARGET_LDFLAGS+=-pg
+endif
+
+
+target-clean:
+
+target-objects:

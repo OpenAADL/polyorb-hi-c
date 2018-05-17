@@ -1,0 +1,4 @@
+# This file is an empty placeholder for the FreeRTOS target. Given the
+# many supported targets of FreeRTOS, and its model of compilation,
+# the user has to provide all information in a user-defined
+# makefile. See examples for more details.
