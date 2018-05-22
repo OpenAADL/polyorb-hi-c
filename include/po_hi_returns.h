@@ -38,7 +38,7 @@
 #define __PO_HI_ERROR_TRANSPORT_SEND      -55
 #define __PO_HI_ERROR_PTHREAD_BARRIER     -56
 
-/* Errors related to the pthread library but also in the XENO_NATIVE, WIN_32 and RTEMS_CLASSIC_API cases */
+/* Errors related to the protected and semaphore API */
 #define __PO_HI_ERROR_PROTECTED_LOCK      -60
 #define __PO_HI_ERROR_PROTECTED_UNLOCK    -61
 #define __PO_HI_ERROR_PROTECTED_CREATE    -62
@@ -50,6 +50,8 @@
 #define __PO_HI_ERROR_SEM_WAIT            -60
 #define __PO_HI_ERROR_SEM_RELEASE         -61
 #define __PO_HI_ERROR_SEM_CREATE          -62
+
+
 
 /* GIOP error code */
 #define __PO_HI_GIOP_INVALID_SIZE         -100

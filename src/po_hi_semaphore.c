@@ -40,175 +40,168 @@
 #include <rtems.h>
 #endif
 
-
-//#if __PO_HI_NB_PROTECTED > 0
-//#endif /* __PO_HI_NB_PROTECTED > 0 */
-
-int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_sem_protocol_t protocol, const int priority);
+/** TO INITIALIZE THE STRUCTURES */
+int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_sem_protocol_t protocol, const int priority, int nb)
 {
-#ifdef __PO_HI_RTEMS_CLASSIC_API
-   static int nb_mutex = 0;
-#endif
-
    if (sem == NULL)
    {
       return __PO_HI_INVALID;
    }
-
-   sem->protocol = __PO_HI_MUTEX_REGULAR;
-   sem->priority = 0;
-
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
-
-   /** Attribute and mutex initialization with protocol */
-   if (pthread_mutexattr_init (&sem->posix_mutexattr) != 0)
+   /** Attribute and mutex initialization */
+   //Verify The protocol and priority used here
+   if (__po_hi_mutex_init (&sem->mutex, protocol, priority) != __PO_HI_SUCCESS)
    {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when initializing the mutex attribute \n");
-   }
-
-   switch (protocol)
-   {
-       case __PO_HI_MUTEX_PCP:
-       case __PO_HI_MUTEX_IPCP:
-         {
-            if (pthread_mutexattr_setprotocol (&sem->posix_mutexattr, PTHREAD_PRIO_PROTECT) != 0)
-            {
-               __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error while changing mutex protocol\n");
-            }
-
-            if (priority == 0)
-            {
-               sem->priority = __PO_HI_MAX_PRIORITY - 1;
-            }
-            else
-            {
-               sem->priority = priority;
-            }
-
-            if (pthread_mutexattr_setprioceiling (&sem->posix_mutexattr, sem->priority) != 0)
-            {
-               __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error while changing mutex priority\n");
-            }
-            break;
-         }
-
-      case __PO_HI_PROTECTED_PIP:
-         {
-            if (pthread_mutexattr_setprotocol (&sem->posix_mutexattr, PTHREAD_PRIO_INHERIT) != 0)
-            {
-               __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error while changing mutex protocol\n");
-            }
-            break;
-         }
-     //case __PO_HI_PROTECTED_REGULAR:
-     case __PO_HI_MUTEX_REGULAR:
-     //case __PO_HI_PROTECTED_PCP:
-     //case __PO_HI_PROTECTED_INVALID:
-	break;
-   }
-
-   if (pthread_mutex_init (&sem->posix_mutex, &sem->posix_mutexattr) != 0)
-   {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error while creating mutex\n");
-        return __PO_HI_ERROR_SEM_CREATE;
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when initializing the mutex \n");
+      return __PO_HI_ERROR_SEM_CREATE;
    }
 
    /** Attribute and condvar initialization */
-   int pthread_condattr_init(pthread_condattr_t *attr);
    if (pthread_condattr_init(&sem->posix_condattr) != 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when initializing the cond_var attribute \n");
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when initializing the cond_var attribute \n");
+      /* No return here, such as in the protected API for the mutex attribute */
    }
-
    if (pthread_cond_init (&sem->posix_condvar, &sem->posix_condattr) != 0)
    {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error while creating the cond_var\n");
-        return __PO_HI_ERROR_SEM_CREATE;
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error while creating the cond_var\n");
+      return __PO_HI_ERROR_SEM_CREATE;
    }
-
 #endif
+
 #if defined (XENO_NATIVE)
-    if (rt_mutex_create (&mutex->xeno_mutex, NULL) != 0)
+    /** Mutex initialization */
+    /* The protocol and priority are unused here */
+    int ret = __po_hi_mutex_init (&sem->mutex, __PO_HI_MUTEX_REGULAR, 0);
+    if (ret != __PO_HI_SUCCESS)
     {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error while creating mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when initializing the mutex, code = %d \n, ret");
       return __PO_HI_ERROR_SEM_CREATE;
     }
-    if (rt_cond_create (&mutex->xeno_condvar, NULL) != 0)
+    /** Conditional Variable initialization */  
+    ret = rt_cond_create (&mutex->xeno_condvar, NULL);
+    if (ret != 0)
     {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error while creating cond_var\n");
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error while creating cond_var, code = %d \n, ret");
       return __PO_HI_ERROR_SEM_CREATE;
     }
 #endif
 #ifdef __PO_HI_RTEMS_CLASSIC_API
-	//COUNTING?
-    if (rtems_semaphore_create (rtems_build_name ('S', 'E', 'M' , 'A' + (char) nb_mutex++), 1, RTEMS_COUNTING_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &sem->rtems_sem) != RTEMS_SUCCESSFUL)
+    /** RTEMS Semaphore initialization */
+    //Check name
+    rtems_status_code code = rtems_semaphore_create (rtems_build_name ('G', 'S', 'E' , 'A' + (char) nb), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &sem->rtems_sem);
+    if (code != RTEMS_SUCCESSFUL)
     {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Cannot create RTEMS counting semaphore\n");
-      return __PO_HI_ERROR_PROTECTED_CREATE;
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Cannot create semaphore of task %d, error code=%d\n", nb, code);
+      return __PO_HI_ERROR_SEM_CREATE;
     }
+    /** Barrier initialization */
+    //Check name
+    code = rtems_barrier_create (rtems_build_name ('G', 'S', 'I' , 'A' + (char)         nb),RTEMS_BARRIER_AUTOMATIC_RELEASE , 10, &sem->rtems_barrier);
+    if (code != RTEMS_SUCCESSFUL)
+    {
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Cannot create barrier of task %d, error code=%d\n", nb, code);
+      return __PO_HI_ERROR_SEM_CREATE;
+    }
+
 #endif
 #ifdef _WIN32
-    /** Initializing conditional variable and critical section*/
-    //Use InitializeCriticalSectionAndSpinCount function?
-    //Error messages?
-
+    /** Initializing event and critical section*/
+    //Verify whether a condvar wouldn't be better
+    sem->win32_event = CreateEvent (NULL, FALSE, FALSE, NULL);
+    //Check whether wouldn't also test  ERROR_ALREADY_EXISTS
+    if (sem->win32_event == NULL)
+    {
+      __PO_HI_DEBUG_CRITICAL ("CreateEvent failed (%d)\n", GetLastError());
+      return __PO_HI_ERROR_SEM_CREATE;
+    }
     InitializeCriticalSection(&sem->win32_criticalsection);
-    InitializeConditionVariable (&sem->win32_condvar);
   
 #endif
    return (__PO_HI_SUCCESS);
 }
 
 
+/** TO LOCK/UNLOCK SEMAPHORES AND THEIR MUTEXES */
 int __po_hi_sem_wait(__po_hi_sem_t* sem)
 {
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
    /** Locking the mutex */
-   if (pthread_mutex_lock (&sem->posix_mutex) != 0 )
+   if (__po_hi_mutex_trylock(&sem->mutex) != 0 )
    {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to lock mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to trylock mutex\n");
       return __PO_HI_ERROR_SEM_WAIT;
    }
    /** Waiting on a condition and unlocking the mutex while doing so */
-   if (pthread_cond_wait(&sem->posix_condvar, &sem->posix_mutex) != 0 )
+   if (pthread_cond_wait(&sem->posix_condvar, &sem->mutex.posix_mutex) != 0 )
    {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to block the thread\n");
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to block the thread\n");
       return __PO_HI_ERROR_SEM_WAIT;
    }
 #endif
 #ifdef __PO_HI_RTEMS_CLASSIC_API
+   if (rtems_semaphore_release (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
+   {
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to release to next obtain the rtems_sem\n");
+      return __PO_HI_ERROR_SEM_WAIT;
+   }
+   rtems_task_wake_after (1);
+   //rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
    if (rtems_semaphore_obtain (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
    {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to obtain the rtems_sem\n");
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to obtain the rtems_sem\n");
       return __PO_HI_ERROR_SEM_WAIT;
    }
 #endif
 #ifdef XENO_NATIVE
    /** Locking the mutex */
-   if (rt_mutex_acquire (&sem->xeno_mutex, TM_INFINITE) != 0 )
-   {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to acquire/lock mutex\n");
-      return __PO_HI_ERROR_SEM_WAIT;
-   }
+   //if (__po_hi_mutex_lock(&sem->mutex, TM_INFINITE) != 0 )
+   //{
+   //   __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to acquire/lock mutex\n");
+   //   return __PO_HI_ERROR_SEM_WAIT;
+   //}
    /** Waiting on a condition and unlocking the mutex while doing so */
    if (rt_cond_wait (&sem->xeno_condvar, TM_INFINITE) != 0 )
    {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to block the task\n");
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to block the task\n");
       return __PO_HI_ERROR_SEM_WAIT;
    }
 #endif
 #ifdef _WIN32
-   /** Waiting for ownership of the specified critical section object */
-   EnterCriticalSection(&sem->win32_criticalsection);
-   /** Sleeps on the condition variable and releases the critical section */
-   if (SleepConditionVariableCS(&sem->win32_condvar, &sem->win32_criticalsection, INFINITE) == 0)
-   {
-     __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Sleeping failed \n");
-     return __PO_HI_ERROR_SEM_WAIT;
-   }
+  /** Letting go of the ownership to wait for it later */
+  LeaveCriticalSection(&sem->win32_criticalsection);
+  /** Event object */
+  int ret = WaitForSingleObject (&sem->win32_event,INFINITE);
+  if (ret == WAIT_FAILED)
+  {
+     __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Wait failed\n");
+  }
+  /** Waiting for ownership of the specified critical section object */
+  EnterCriticalSection(&sem->win32_criticalsection);
 
 #endif
    return __PO_HI_SUCCESS;
+}
+
+/** To work only on a mutex */
+int __po_hi_sem_mutex_wait(__po_hi_sem_t* sem){
+
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)|| defined (XENO_NATIVE)  
+  if (__po_hi_mutex_lock(&sem->mutex, TM_INFINITE) != 0 )
+  {
+     __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to acquire/lock mutex\n");
+     return __PO_HI_ERROR_SEM_WAIT;
+  }
+#ifdef __PO_HI_RTEMS_CLASSIC_API
+if (rtems_semaphore_obtain (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
+   {
+     __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to obtain the rtems_sem\n");
+     return __PO_HI_ERROR_SEM_WAIT;
+   }
+
+#ifdef _WIN32
+  EnterCriticalSection(&sem->win32_criticalsection);
+
 }
 
 
@@ -219,49 +212,128 @@ int __po_hi_sem_release(__po_hi_sem_t* sem)
    /** Unblocking a thread */
    if (pthread_cond_signal(&sem->posix_condvar) != 0 )
    {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to unblock the thread\n");
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to unblock the thread\n");
       return __PO_HI_ERROR_SEM_RELEASE;
    }
 
    /** Unlocking the mutex */
-   if (pthread_mutex_unlock (&sem->posix_mutex) != 0 )
+   if (__po_hi_mutex_unlock(&sem->p_mutex) != 0 )
    {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to unlock mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to unlock mutex\n");
       return __PO_HI_ERROR_SEM_RELEASE;
    }
 #endif
 #ifdef __PO_HI_RTEMS_CLASSIC_API
    if (rtems_semaphore_release (sem->rtems_sem) != RTEMS_SUCCESSFUL)
    {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to release the rtems_sem\n");
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to release the rtems_sem\n");
       return __PO_HI_ERROR_SEM_RELEASE;
    }
 #endif
 #ifdef XENO_NATIVE
-   
-   /** Waiting on a condition and unlocking the mutex while doing so */
-   if (rt_cond_signal (&sem->xeno_condvar) != 0 )
+
+   /** Unblocking all tasks */
+   if (rt_cond_broadcast (&sem->xeno_condvar) != 0 )
    {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to unblock the task\n");
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to unblock the task\n");
       return __PO_HI_ERROR_SEM_RELEASE;
    }
 
    /** Unlocking the mutex */
-   if (rt_mutex_release (&sem->xeno_mutex) != 0 )
+   if (__po_hi_mutex_unlock(&sem->x_mutex) != 0 )
    {
-      __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to unlock mutex\n");
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to unlock mutex\n");
       return __PO_HI_ERROR_SEM_RELEASE;
    }
+   
 #endif
 #ifdef _WIN32
-   //Before or after the exitCriticalSection ?
-   /** Sleeps on the condition variable and releases the critical section */
-   WakeConditionVariable(&sem->win32_condvar);
-
-   /** Waiting for ownership of the specified critical section object */
-   LeaveCriticalSection(&sem->win32_criticalsection);
-
+  /** Waiting for ownership of the specified critical section object */
+  LeaveCriticalSection(&sem->win32_criticalsection);
+  if (! SetEvent(&sem->win32_event)
+  {
+      __DEBUGMSG("SetEvent failed (%d)\n", GetLastError());
+      return __PO_HI_ERROR_SEM_RELEASE;
+  } 
 #endif
   return __PO_HI_SUCCESS;
 }
+
+/** To work only on a mutex */
+int __po_hi_sem_mutex_release(__po_hi_sem_t* sem){
+
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)|| defined (XENO_NATIVE)  
+  if (__po_hi_mutex_unlock(&sem->mutex, TM_INFINITE) != 0 )
+  {
+     __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to unlock the mutex\n");
+     return __PO_HI_ERROR_SEM_RELEASE;
+  }
+#ifdef __PO_HI_RTEMS_CLASSIC_API
+if (rtems_semaphore_release (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
+   {
+     __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to release the rtems_sem\n");
+     return __PO_HI_ERROR_SEM_RELEASE;
+   }
+
+#ifdef _WIN32
+  EnterCriticalSection(&sem->win32_criticalsection);
+
+}
+
+
+int __po_hi_sem_init_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id)
+{ 
+  int result = __po_hi_sem_init(array[id], __PO_HI_MUTEX_REGULAR, 0, id);
+  __DEBUGMSG("SEM_INIT task number : %d, result : %d\n", id, result);
+  assert(result == __PO_HI_SUCCESS);
+
+#if defined (POSIX) || defined (XENO_POSIX)
+   // XXX disabled for OS X
+#ifndef __MACH__ // OS X bugs on this attribute
+   result = pthread_mutexattr_setpshared((array[id].p_mutex).posix_mutexattr,PTHREAD_PROCESS_SHARED);
+   __DEBUGMSG("MACH, setpshared task : %d, result : %d\n", id, result);
+   assert(result == __PO_HI_SUCCESS);
+#endif
+#endif
+
+  return result;
+}
+
+/** TO ACCESS TO THE SEM_GQUEUE_ARRAY */
+int __po_hi_sem_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id)
+{
+  int result = PO_HI_SUCCESS;
+  result = __po_hi_sem_wait(&array[id]);
+  __DEBUGMSG("SEM_WAIT task number : %d, result : %d\n", id, result);
+  return result;
+}
+
+int __po_hi_sem_mutex_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id)
+{
+  int result = PO_HI_SUCCESS;
+  result = __po_hi_sem_mutex_wait(&array[id]);
+  __DEBUGMSG("SEM_WAIT task number : %d, result : %d\n", id, result);
+  return result;
+
+}
+
+int __po_hi_sem_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id)
+{
+  int result = PO_HI_SUCCESS;
+  result = __po_hi_sem_release(&array[id]);
+  __DEBUGMSG("SEM_RELEASE task number : %d, result : %d\n", id, result);
+  return result;
+}
+
+int __po_hi_sem_mutex_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id)
+{
+  int result = PO_HI_SUCCESS;
+  result = __po_hi_sem_mutex_release(&array[id]);
+  __DEBUGMSG("SEM_RELEASE task number : %d, result : %d\n", id, result);
+  return result;
+
+}
+
+
+
 

@@ -13,7 +13,6 @@
 
 #include <stdint.h>
 #include <deployment.h>
-#include <po_hi_gqueue.h>
 
 //#define __PO_HI_PROTECTED_TYPE_REGULAR    0
 //#define __PO_HI_PROTECTED_TYPE_PIP        1
@@ -41,38 +40,70 @@
 #endif
 
 
+typedef enum
+{
+   __PO_HI_PROTECTED_REGULAR     = 1,
+   __PO_HI_SEM_REGULAR         = 1,
+   __PO_HI_PROTECTED_PIP         = 2,
+   __PO_HI_SEM_PIP             = 2,
+   __PO_HI_PROTECTED_PCP         = 3,
+   __PO_HI_SEM_PCP             = 3,
+   __PO_HI_PROTECTED_IPCP        = 4,
+   __PO_HI_SEM_IPCP            = 4,
+   __PO_HI_PROTECTED_INVALID     = 1
+}__po_hi_protected_protocol_t;
+
+typedef __po_hi_protected_protocol_t __po_hi_sem_protocol_t;
+
 typedef struct
-{    
+{
+   __po_hi_sem_protocol_t   protocol;
+   int                        priority;
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   //protocol and priority to add
-   __po_hi_mutex_t      mutex;
+   pthread_mutex_t      posix_mutex;
+   pthread_mutexattr_t  posix_mutexattr;
    pthread_cond_t       posix_condvar;
    pthread_condattr_t   posix_condattr;
 #endif
 #if defined (__PO_HI_RTEMS_CLASSIC_API)
    rtems_id             rtems_sem;
-   rtems_id		rtems_barrier;
 #endif
+//a modifier
 #if defined (XENO_NATIVE)
-   __po_hi_mutex_t      mutex;
-   RT_COND              xeno_condvar;
+   RT_MUTEX             xeno_mutex;
+   RT_COND              xevo_condvar;
 #endif
 #if defined (_WIN32)
-   HANDLE               win32_event;
-   CRITICAL_SECTION     win32_criticalsection;
+   CRITICAL_SECTION    win32_criticalsection;
+   CONDITION_VARIABLE   win32_condvar;
 #endif
 }__po_hi_sem_t;
 
 
-/** Basics functions on semaphores */
-int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_sem_protocol_t protocol, const int priority, int nb);
+
+int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_sem_protocol_t protocol, const int priority);
 int __po_hi_sem_wait(__po_hi_sem_t* sem);
 int __po_hi_sem_release(__po_hi_sem_t* sem);
 
-/** Functions used to fill the __po_hi_gqueues_semaphores array */
-int init_sem_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
-int sem_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
-int sem_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+
+
+
+
+//sem_t inut si pthread mutex_t
+//semaphore.h dans quel cas
+//protected _protocol_t?
+//mtuex df comme binary protocol
+//on vire les mutex aprtout
+
+
+
+
+
+
+
+
+
+
 
 
 
