@@ -9,9 +9,9 @@
  */
 
 
-
-#include <po_hi_config.h>
 #include <po_hi_returns.h>
+#include <po_hi_config.h>
+
 #include <po_hi_debug.h>
 #include <po_hi_task.h>
 #include <po_hi_types.h>
@@ -19,6 +19,7 @@
 #include <po_hi_semaphore.h>
 
 #include <deployment.h>
+#include <assert.h>
 
 
 //#ifndef __PO_HI_NB_PROTECTED
@@ -41,9 +42,9 @@
 #endif
 
 /** TO INITIALIZE THE STRUCTURES */
-int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_sem_protocol_t protocol, const int priority, int nb)
+int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol, const int priority, int id)
 {
-   if (sem == NULL)
+   __PO_HI_DEBUG_INFO ("[SEM] Sem Task %d is initialized", id);
    {
       return __PO_HI_INVALID;
    }
@@ -89,19 +90,20 @@ int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_sem_protocol_t protocol, 
 #ifdef __PO_HI_RTEMS_CLASSIC_API
     /** RTEMS Semaphore initialization */
     //Check name
-    rtems_status_code code = rtems_semaphore_create (rtems_build_name ('G', 'S', 'E' , 'A' + (char) nb), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &sem->rtems_sem);
+    rtems_status_code code = rtems_semaphore_create (rtems_build_name ('G', 'S', 'E' , 'A' + (char) id), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &sem->rtems_sem);
     if (code != RTEMS_SUCCESSFUL)
     {
-      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Cannot create semaphore of task %d, error code=%d\n", nb, code);
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Cannot create semaphore of task %d, error code=%d\n", id, code);
       return __PO_HI_ERROR_SEM_CREATE;
     }
     /** Barrier initialization */
     //Check name
-    code = rtems_barrier_create (rtems_build_name ('G', 'S', 'I' , 'A' + (char)         nb),RTEMS_BARRIER_AUTOMATIC_RELEASE , 10, &sem->rtems_barrier);
+    code = rtems_barrier_create (rtems_build_name ('G', 'S', 'I' , 'A' + (char) id),RTEMS_BARRIER_AUTOMATIC_RELEASE , 10, &sem->rtems_barrier);
     if (code != RTEMS_SUCCESSFUL)
     {
-      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Cannot create barrier of task %d, error code=%d\n", nb, code);
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Cannot create barrier of task %d, error code=%d\n", id, code);
       return __PO_HI_ERROR_SEM_CREATE;
+
     }
 
 #endif
@@ -127,7 +129,7 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
 {
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
    /** Locking the mutex */
-   if (__po_hi_mutex_trylock(&sem->mutex) != 0 )
+   if (pthread_mutex_trylock(&sem->mutex.posix_mutex) != 0 )
    {
       __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to trylock mutex\n");
       return __PO_HI_ERROR_SEM_WAIT;
@@ -187,21 +189,23 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
 int __po_hi_sem_mutex_wait(__po_hi_sem_t* sem){
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)|| defined (XENO_NATIVE)  
-  if (__po_hi_mutex_lock(&sem->mutex, TM_INFINITE) != 0 )
+  if (__po_hi_mutex_lock(&sem->mutex) != 0 )
   {
      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to acquire/lock mutex\n");
      return __PO_HI_ERROR_SEM_WAIT;
   }
+#endif
 #ifdef __PO_HI_RTEMS_CLASSIC_API
-if (rtems_semaphore_obtain (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
+  if (rtems_semaphore_obtain (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
    {
      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to obtain the rtems_sem\n");
      return __PO_HI_ERROR_SEM_WAIT;
    }
-
+#endif
 #ifdef _WIN32
   EnterCriticalSection(&sem->win32_criticalsection);
-
+#endif
+  return __PO_HI_SUCCESS;
 }
 
 
@@ -217,7 +221,7 @@ int __po_hi_sem_release(__po_hi_sem_t* sem)
    }
 
    /** Unlocking the mutex */
-   if (__po_hi_mutex_unlock(&sem->p_mutex) != 0 )
+   if (__po_hi_mutex_unlock(&sem->mutex) != 0 )
    {
       __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to unlock mutex\n");
       return __PO_HI_ERROR_SEM_RELEASE;
@@ -263,36 +267,38 @@ int __po_hi_sem_release(__po_hi_sem_t* sem)
 int __po_hi_sem_mutex_release(__po_hi_sem_t* sem){
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)|| defined (XENO_NATIVE)  
-  if (__po_hi_mutex_unlock(&sem->mutex, TM_INFINITE) != 0 )
+  if (__po_hi_mutex_unlock(&sem->mutex) != 0 )
   {
      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to unlock the mutex\n");
      return __PO_HI_ERROR_SEM_RELEASE;
   }
+#endif
 #ifdef __PO_HI_RTEMS_CLASSIC_API
 if (rtems_semaphore_release (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
    {
      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to release the rtems_sem\n");
      return __PO_HI_ERROR_SEM_RELEASE;
    }
-
+#endif
 #ifdef _WIN32
   EnterCriticalSection(&sem->win32_criticalsection);
-
+#endif
+  return __PO_HI_SUCCESS;
 }
 
-
+/** TO INITIALIZE THE SEM_GQUEUE_ARRAY */
 int __po_hi_sem_init_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id)
 { 
-  int result = __po_hi_sem_init(array[id], __PO_HI_MUTEX_REGULAR, 0, id);
+  int result = __po_hi_sem_init(&array[id], __PO_HI_MUTEX_REGULAR, 0, id);
   __DEBUGMSG("SEM_INIT task number : %d, result : %d\n", id, result);
-  assert(result == __PO_HI_SUCCESS);
+  //assert(result == __PO_HI_SUCCESS);
 
 #if defined (POSIX) || defined (XENO_POSIX)
    // XXX disabled for OS X
 #ifndef __MACH__ // OS X bugs on this attribute
-   result = pthread_mutexattr_setpshared((array[id].p_mutex).posix_mutexattr,PTHREAD_PROCESS_SHARED);
+   result = pthread_mutexattr_setpshared(&array[id].mutex.posix_mutexattr,PTHREAD_PROCESS_SHARED);
    __DEBUGMSG("MACH, setpshared task : %d, result : %d\n", id, result);
-   assert(result == __PO_HI_SUCCESS);
+   //assert(result == __PO_HI_SUCCESS);
 #endif
 #endif
 
@@ -302,7 +308,7 @@ int __po_hi_sem_init_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_
 /** TO ACCESS TO THE SEM_GQUEUE_ARRAY */
 int __po_hi_sem_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id)
 {
-  int result = PO_HI_SUCCESS;
+  int result = __PO_HI_SUCCESS;
   result = __po_hi_sem_wait(&array[id]);
   __DEBUGMSG("SEM_WAIT task number : %d, result : %d\n", id, result);
   return result;
@@ -310,7 +316,7 @@ int __po_hi_sem_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_
 
 int __po_hi_sem_mutex_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id)
 {
-  int result = PO_HI_SUCCESS;
+  int result = __PO_HI_SUCCESS;
   result = __po_hi_sem_mutex_wait(&array[id]);
   __DEBUGMSG("SEM_WAIT task number : %d, result : %d\n", id, result);
   return result;
@@ -319,7 +325,7 @@ int __po_hi_sem_mutex_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi
 
 int __po_hi_sem_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id)
 {
-  int result = PO_HI_SUCCESS;
+  int result = __PO_HI_SUCCESS;
   result = __po_hi_sem_release(&array[id]);
   __DEBUGMSG("SEM_RELEASE task number : %d, result : %d\n", id, result);
   return result;
@@ -327,7 +333,7 @@ int __po_hi_sem_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_ta
 
 int __po_hi_sem_mutex_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id)
 {
-  int result = PO_HI_SUCCESS;
+  int result = __PO_HI_SUCCESS;
   result = __po_hi_sem_mutex_release(&array[id]);
   __DEBUGMSG("SEM_RELEASE task number : %d, result : %d\n", id, result);
   return result;

@@ -11,6 +11,7 @@
 #ifndef __PO_HI_SEMAPHORE_H__
 #define __PO_HI_SEMAPHORE_H__
 
+#include <po_hi_protected.h>
 #include <stdint.h>
 #include <deployment.h>
 #include <po_hi_gqueue.h>
@@ -65,14 +66,21 @@ typedef struct
 
 
 /** Basics functions on semaphores */
-int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_sem_protocol_t protocol, const int priority, int nb);
+int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol, const int priority, int nb);
 int __po_hi_sem_wait(__po_hi_sem_t* sem);
+int __po_hi_sem_mutex_wait(__po_hi_sem_t* sem);
 int __po_hi_sem_release(__po_hi_sem_t* sem);
+int __po_hi_sem_mutex_release(__po_hi_sem_t* sem);
+
 
 /** Functions used to fill the __po_hi_gqueues_semaphores array */
-int init_sem_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
-int sem_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
-int sem_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+int __po_hi_sem_init_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+int __po_hi_sem_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+int __po_hi_sem_mutex_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+int __po_hi_sem_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+int __po_hi_sem_mutex_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+
+
 
 
 

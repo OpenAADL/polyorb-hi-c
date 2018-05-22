@@ -2,8 +2,8 @@
 # middleware written for generated code from AADL models.
 # You should use it with the Ocarina toolsuite.
 
-CYGPATH_U = @CYGPATH_U@
-CYGPATH_W = @CYGPATH_U@
+CYGPATH_U = echo
+CYGPATH_W = echo
 
 GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align -Wjump-misses-init -Wswitch-enum
 
@@ -193,7 +193,7 @@ INCLUDE += -I$(LOCAL_RUNTIME_PATH)/src \
 -I$(LOCAL_RUNTIME_PATH)/include/monitoring \
 -I$(LOCAL_RUNTIME_PATH)/src/monitoring/cheddar_scheduling
 
-CPPFLAGS += -std=c++1y -g @BOOST_CPPFLAGS@
+CPPFLAGS += -std=c++1y -g -I/include/boost-0
 LDFLAGS += -lstdc++
 endif
 
