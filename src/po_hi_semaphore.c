@@ -45,9 +45,7 @@
 int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol, const int priority, int id)
 {
    __PO_HI_DEBUG_INFO ("[SEM] Sem Task %d is initialized", id);
-   {
-      return __PO_HI_INVALID;
-   }
+
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
    /** Attribute and mutex initialization */
    //Verify The protocol and priority used here
@@ -157,7 +155,7 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
 #endif
 #ifdef XENO_NATIVE
    /** Locking the mutex */
-   //if (__po_hi_mutex_lock(&sem->mutex, TM_INFINITE) != 0 )
+   //if (__po_hi_mutex_lock(&sem->mutex) != __PO_HI_SUCCESS )
    //{
    //   __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to acquire/lock mutex\n");
    //   return __PO_HI_ERROR_SEM_WAIT;
@@ -189,7 +187,7 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
 int __po_hi_sem_mutex_wait(__po_hi_sem_t* sem){
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)|| defined (XENO_NATIVE)  
-  if (__po_hi_mutex_lock(&sem->mutex) != 0 )
+  if (__po_hi_mutex_lock(&sem->mutex) != __PO_HI_SUCCESS )
   {
      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to acquire/lock mutex\n");
      return __PO_HI_ERROR_SEM_WAIT;
@@ -221,7 +219,7 @@ int __po_hi_sem_release(__po_hi_sem_t* sem)
    }
 
    /** Unlocking the mutex */
-   if (__po_hi_mutex_unlock(&sem->mutex) != 0 )
+   if (__po_hi_mutex_unlock(&sem->mutex) != __PO_HI_SUCCESS )
    {
       __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to unlock mutex\n");
       return __PO_HI_ERROR_SEM_RELEASE;
@@ -244,7 +242,7 @@ int __po_hi_sem_release(__po_hi_sem_t* sem)
    }
 
    /** Unlocking the mutex */
-   if (__po_hi_mutex_unlock(&sem->x_mutex) != 0 )
+   if (__po_hi_mutex_unlock(&sem->x_mutex) != __PO_HI_SUCCESS )
    {
       __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to unlock mutex\n");
       return __PO_HI_ERROR_SEM_RELEASE;
@@ -267,7 +265,7 @@ int __po_hi_sem_release(__po_hi_sem_t* sem)
 int __po_hi_sem_mutex_release(__po_hi_sem_t* sem){
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)|| defined (XENO_NATIVE)  
-  if (__po_hi_mutex_unlock(&sem->mutex) != 0 )
+  if (__po_hi_mutex_unlock(&sem->mutex) != __PO_HI_SUCCESS )
   {
      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to unlock the mutex\n");
      return __PO_HI_ERROR_SEM_RELEASE;
@@ -290,15 +288,17 @@ if (rtems_semaphore_release (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RT
 int __po_hi_sem_init_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id)
 { 
   int result = __po_hi_sem_init(&array[id], __PO_HI_MUTEX_REGULAR, 0, id);
+  //printf("result sem_init_gqueue = %d\n", result);
   __DEBUGMSG("SEM_INIT task number : %d, result : %d\n", id, result);
   //assert(result == __PO_HI_SUCCESS);
 
 #if defined (POSIX) || defined (XENO_POSIX)
    // XXX disabled for OS X
 #ifndef __MACH__ // OS X bugs on this attribute
-   result = pthread_mutexattr_setpshared(&array[id].mutex.posix_mutexattr,PTHREAD_PROCESS_SHARED);
-   __DEBUGMSG("MACH, setpshared task : %d, result : %d\n", id, result);
-   //assert(result == __PO_HI_SUCCESS);
+   if (pthread_mutexattr_setpshared(&array[id].mutex.posix_mutexattr,PTHREAD_PROCESS_SHARED) !=0){
+     __DEBUGMSG("MACH, setpshared task : %d, result : %d\n", id, result);
+     return __PO_HI_ERROR_PTHREAD_MUTEX;
+   }
 #endif
 #endif
 

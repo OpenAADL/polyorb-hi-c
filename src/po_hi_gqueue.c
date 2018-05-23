@@ -119,6 +119,7 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 
   /** Using the semaphore API to initialize the semaphore_gqueue array */
   int res = __po_hi_sem_init_gqueue(__po_hi_gqueues_semaphores,id);
+  //printf("res dans gqueeu = %d\n", res);
   __DEBUGMSG("GQUEUE_SEM_INIT %d %d\n", id, res);
   assert(res == __PO_HI_SUCCESS);
 
