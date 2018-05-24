@@ -1,0 +1,492 @@
+# This is a part of PolyORB-HI-C distribution, a minimal
+# middleware written for generated code from AADL models.
+# You should use it with the Ocarina toolsuite.
+
+CYGPATH_U = echo
+CYGPATH_W = echo
+
+GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align -Wjump-misses-init -Wswitch-enum
+
+all: build-node
+
+LOCAL_RUNTIME_PATH=$(shell pwd)/../polyorb-hi-c
+
+# Test whether we are simply including this makefile, e.g. to get some
+# configuration parameters, or used as part of the general build from
+# an Ocarina generated makefile
+
+ifneq ($strip ($(wildcard $(LOCAL_RUNTIME_PATH)/config)),)
+include $(RUNTIME_PATH)/make/Makefile.$(TARGET)
+else
+include $(LOCAL_RUNTIME_PATH)/make/Makefile.$(TARGET)
+endif
+
+# Include user-defined makefile
+-include ../../userdefined.mk
+
+ifneq ($(USE_CPP_LINKER),)
+LD=$(LD_CPP)
+endif
+
+build-node: compile-node
+
+################################################################################
+# Configuration
+#
+# In userdefined.mk, we defined the following variables
+# - USER_CFLAGS   : Additional flags to compile .c files
+# - USER_CPPFLAGS : Additional flags to compile .cpp files
+# - USER_CC       : User overrides CC compiler
+# - USER_CPP      : User ovverides CPP compiler
+
+ifneq ($(USER_CC),)
+CC=$(USER_CC)
+endif
+
+ifneq ($(USER_CPP),)
+CPP=$(USER_CPP)
+endif
+
+ifneq ($(USER_LD),)
+LD=$(USER_LD)
+endif
+
+CFLAGS=$(TARGET_CFLAGS) $(USER_CFLAGS) $(GCC_GENERIC_CFLAGS)
+CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
+LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS)
+
+ifdef USE_GPROF
+CFLAGS+=-D__PO_HI_USE_GPROF -pg
+endif
+
+ifeq ($(ENABLE_DYNAMIC_CONFIGURATION),1)
+CFLAGS+=-D__PO_HI_USE_DYNAMIC_CONFIGURATION
+endif
+
+ifeq ($(NEED_TRANSPORT),yes)
+CFLAGS+=-D__PO_HI_USE_TRANSPORT
+endif
+
+INCLUDE=-I. -I"${shell $(CYGPATH_W) "${LOCAL_RUNTIME_PATH}/include"}"
+
+ifdef TARGET_INCLUDE
+INCLUDE += $(TARGET_INCLUDE)
+endif
+
+ifdef USER_SOURCES_DIRS
+INCLUDE+=$(USER_SOURCES_DIRS)
+endif
+
+INCLUDE+=$(USER_INCLUDE)
+
+ifndef $(TARGET_NAME)
+TARGET_NAME=$(TARGET)
+endif
+
+INCLUDE+=-DTARGET=$(TARGET_NAME)
+
+################################################################################
+# Files to be compiled
+
+ifeq ($(NEED_TRANSPORT), yes)
+   PO_HI_OBJS = po_hi_task.o po_hi_time.o po_hi_protected.o		\
+	po_hi_main.o po_hi_messages.o po_hi_marshallers.o		\
+	po_hi_giop.o po_hi_utils.o po_hi_types.o po_hi_monitor.o	\
+	po_hi_storage.o po_hi_gqueue.o po_hi_driver_exarm.o	\
+	po_hi_driver_keyboard.o					\
+	po_hi_driver_exarm_ni_6071e_analog.o			\
+	po_hi_driver_exarm_ni_6071e_digital.o			\
+	po_hi_driver_usbbrick_spacewire.o			\
+	po_hi_driver_linux_serial.o				\
+	po_hi_driver_leon_serial.o				\
+	po_hi_driver_leon_eth.o					\
+	po_hi_driver_serial_common.o				\
+	po_hi_driver_sockets.o					\
+	po_hi_driver_rtems_ne2000.o				\
+	po_hi_driver_rasta_serial.o				\
+	po_hi_driver_rasta_common.o				\
+	po_hi_driver_rasta_1553.o				\
+	po_hi_driver_xc4v_fpga.o				\
+	po_hi_driver_rasta_1553_brmlib.o			\
+	po_hi_driver_rasta_spacewire.o $(ACTUAL_TRANSPORT)	\
+	po_hi_transport.o $(TARGET_TRANSPORT_SOURCES)
+
+   GENERATED_OBJS = activity.o subprograms.o types.o request.o	\
+	marshallers.o deployment.o naming.o main.o
+else
+   PO_HI_OBJS = po_hi_task.o po_hi_time.o po_hi_utils.o		\
+	po_hi_protected.o po_hi_monitor.o po_hi_storage.o	\
+	po_hi_main.o
+
+   GENERATED_OBJS = activity.o subprograms.o deployment.o types.o	\
+	main.o
+endif
+
+
+ifeq ($(TARGET), $(filter $(TARGET), linux32 linux64 linux32-xenomai-posix linux32-xenomai-native))
+PO_HI_OBJS += po_hi_lua.o
+endif
+
+ifeq ($(USE_ASN1_DEPLOYMENT), yes)
+generate-asn1-deployment:
+	if [ ! -d ../asn-types ]; then mkdir -p ../asn-types ; fi
+	mono $(which asn1.exe) -c -uPER $(ASN_SOURCES) -o ../asn-types
+	for f in real.o asn1crt.o acn.o ber.o xer.o; do \
+	   c_file="`basename $$f .o`.c"; \
+	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f ../asn-types/$$c_file || exit 1 ; \
+	done
+	for f in $(ASN_SOURCES); do \
+	   c_file="`basename $$f .asn`.c"; \
+	   o_file="`basename $$f .asn`.o"; \
+      if [ -f ../asn-types/$$c_file ]; then $(CC) $(INCLUDE) $(CFLAGS) -c -o $$o_file ../asn-types/$$c_file || exit 1 ; fi \
+	done
+
+GENERATED_OBJS += real.o asn1crt.o xer.o ber.o acn.o $(ASN_OBJS)
+LDFLAGS += -lm
+CFLAGS+=-DPO_HI_USE_ASN1 -I../../ -I../asn-types/
+
+else
+generate-asn1-deployment:
+
+endif
+
+################################################################################
+# Simulink
+
+ifdef SIMULINK_NODE
+   PO_HI_OBJS += po_hi_simulink.o
+endif
+
+ifdef SIMULINK_DIR
+   INCLUDE += -I$(SIMULINK_DIR) \
+	      -I$(SIMULINK_DIRECTORY)/simulink/include \
+	      -I$(SIMULINK_DIRECTORY)/extern/include \
+	      -I$(SIMULINK_DIRECTORY)/rtw/c/src \
+	      -I$(SIMULINK_DIRECTORY)/rtw/c/src/ext_mode/common \
+	      -I$(SIMULINK_DIRECTORY)/rtw/c/libsrc
+   CFLAGS += -DRT -DUSE_RTMODEL -DMODEL=$(SIMULINK_NODE) -DRT -DNUMST=2 -DTID01EQ=1 -DNCSTATES=0 -DUNIX -DMT=0 -DHAVESTDIO
+   LDFLAGS += $(SIMULINK_LDFLAGS)
+endif
+
+################################################################################
+# SCADE
+
+ifdef SCADE_DIR
+INCLUDE += -I$(SCADE_DIR)
+USER_OBJS += $(SCADE_DIR)/*.o
+endif
+
+################################################################################
+# General LINUXTASTE stuff
+check-linuxtaste:
+	if [ ! -d $$LINUXTASTE_PATH/output/staging ]; then \
+		echo "Please define the LINUXTASTE_PATH variable" ; \
+      echo "It should point to the directory where the distro was built" && exit 2 ; \
+	fi
+
+################################################################################
+# TASTE-RUNTIME-MONITORING
+
+ifeq ($(MONITORING), true)
+
+MONITORING_OBJS = trace_manager.o remote_configuration.o
+PO_HI_CPPOBJS += $(MONITORING_OBJS)
+PO_HI_OBJS += um_threads.o
+
+INCLUDE += -I$(LOCAL_RUNTIME_PATH)/src \
+-I$(LOCAL_RUNTIME_PATH)/src/monitoring \
+-I$(LOCAL_RUNTIME_PATH)/include \
+-I$(LOCAL_RUNTIME_PATH)/include/monitoring \
+-I$(LOCAL_RUNTIME_PATH)/src/monitoring/cheddar_scheduling
+
+CPPFLAGS += -std=c++1y -g -I/include/boost-0
+LDFLAGS += -lstdc++
+endif
+
+hyperperiod-cheddar:
+	python get_cheddar_schedule.py
+	python parser_cheddar_et.py
+
+################################################################################
+# Code coverage + runtime-analysis
+
+# gcov
+ifeq ($(COVERAGE), gcov)
+CFLAGS  += -fprofile-arcs -ftest-coverage -lgcov -coverage
+LDFLAGS += -fprofile-arcs -ftest-coverage -lgcov -coverage
+endif
+
+# gnatcoverage
+ifeq ($(COVERAGE), gnatcov)
+CFLAGS  += -g -fpreserve-control-flow -fdump-scos -ffunction-sections -fdata-sections -Wl,--gc-sections
+LDFLAGS += -g -fpreserve-control-flow -fdump-scos -ffunction-sections -fdata-sections -Wl,--gc-sections
+endif
+
+# valgrind
+ifeq ($(VALGRIND_PROF), true)
+CFLAGS  += -g
+LDFLAGS += -g
+endif
+
+################################################################################
+# General compilation rules
+
+compile-po-hi:
+ifdef SIMULINK_DIR
+	(cd $(SIMULINK_DIR) && $(MAKE) -f $(SIMULINK_NODE).mk  && rm -f grt_main.o)
+endif
+
+ifdef SCADE_DIR
+	(cd $(SCADE_DIR) && for v in `ls *.c`; do $(CC) -c $$v; done)
+endif
+
+	for f in $(PO_HI_OBJS); do \
+	   c_file="`basename $$f .o`.c"; \
+	   c_file_dirname="`dirname $$f`"; \
+      if [ -n "$$c_file_dirname" ]; then \
+	 if [ ! -d $$c_file_dirname ]; then mkdir -p $$c_file_dirname ; fi ; \
+	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(LOCAL_RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
+      else \
+	      $(CC) $(INCLUDE) $(CFLAGS) -c -o $$f '$(LOCAL_RUNTIME_PATH)/src/'$$c_file || exit 1 ; \
+      fi ; \
+	done
+
+	for f in $(PO_HI_CPPOBJS); do \
+	   c_file="`basename $$f .o`.cc"; \
+	   c_file_dirname="`dirname $$f`"; \
+      if [ -n "$$c_file_dirname" ]; then \
+	 if [ ! -d $$c_file_dirname ]; then mkdir -p $$c_file_dirname ; fi ; \
+	      $(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(LOCAL_RUNTIME_PATH)/src/'$$c_file_dirname'/'$$c_file  || exit 1 ; \
+      else \
+	      $(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $$f '$(LOCAL_RUNTIME_PATH)/src/'$$c_file || exit 1 ; \
+      fi ; \
+	done
+
+compile-node: $(BINARY)
+
+ifeq ($(TARGET), $(filter $(TARGET), leon3-scoc3 leon.rtems leon.rtems_posix))
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
+$(BINARY):
+	if [  x"$$RTEMS_MAKEFILE_PATH" = x"" ]; then \
+		echo "Please define the RTEMS_MAKEFILE_PATH variable, exiting" ; \
+	else \
+		$(MAKE) generate-asn1-deployment compile-c-files compile-cpp-files compile-ada-files target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) ; \
+		$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) $(CFLAGS) ; \
+	fi
+endif
+
+ifeq ($(TARGET), leon3-xm3)
+$(BINARY):
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
+$(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
+	$(make-exe)
+endif
+
+
+ifeq ($(TARGET), $(filter $(TARGET), x86.rtems x86.rtems_posix))
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
+$(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
+	$(make-exe)
+	cp $(BINARY) binary
+
+ifeq ($(NEED_TRANSPORT), yes)
+run: $(BINARY)
+	pidof qemu >/dev/null 2>&1 ; if [ $$?  -eq 0 ]; then \
+		( sleep 5 ; qemu -net nic,model=ne2k_pci,macaddr=52:54:00:12:34:93 -net socket,connect=127.0.0.1:12345 -fda $(LOCAL_RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a -serial /dev/stdout ; )& \
+		echo "Launching QEMU in connect mode" ; \
+	else \
+		qemu -net nic,model=ne2k_pci,macaddr=52:54:00:12:34:92 -net socket,listen=:12345 -fda $(LOCAL_RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a -serial /dev/stdout; \
+		echo "Launching QEMU in listen mode" ; \
+	fi
+else
+run: $(BINARY)
+	qemu -fda $(LOCAL_RUNTIME_PATH)/utils/x86-rtems-boot.img -hda fat:. -boot a
+endif #NEED_TRANSPORT
+endif #TARGET=x86qemu
+
+ifeq ($(TARGET), nds.rtems)
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
+$(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
+	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
+endif
+
+
+ifeq ($(TARGET), gumstix.rtems)
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
+$(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS)
+	$(make-exe)
+endif
+
+ifeq ($(TARGET), compcert)
+$(BINARY):
+	@if [ x"$(shell which ccomp)" = x ]; then \
+		echo "Compcert not installed, exiting" ; \
+	else \
+		$(MAKE) generate-asn1-deployment compile-c-files compile-cpp-files compile-ada-files target-objects compile-po-hi $(GENERATED_OBJS) $(TARGET_OBJECTS); \
+		$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS); \
+	fi
+endif
+
+ifeq ($(TARGET), $(filter $(TARGET), native bench linux32 linux64))
+EXE=$(BINARY)
+$(BINARY):
+	$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-cpp-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
+	$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(PO_HI_CPPOBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
+endif
+
+ifeq ($(TARGET), $(filter $(TARGET), win32))
+EXE=$(BINARY).exe
+$(BINARY):
+	@if [ x"$(shell which i686-w64-mingw32-gcc)" = x ]; then \
+		echo "Windows compiler is not installed in your system, exiting" ; \
+	else \
+		$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS) ; \
+		$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) ; \
+	fi
+endif
+
+ifeq ($(TARGET), $(filter $(TARGET), linux32-xenomai-posix linux32-xenomai-native))
+EXE=$(BINARY)
+$(BINARY):
+	@if [ x"$(shell which xeno-config)" = x ]; then \
+		echo "Xenomai is not installed in your system, exiting" ; \
+	else \
+		$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS) ; \
+		$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) ; \
+	fi
+endif
+
+ifeq ($(TARGET), arm.dslinux)
+$(BINARY): generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
+	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
+endif
+
+ifeq ($(TARGET), x86.linuxtaste)
+$(BINARY): check-linuxtaste generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
+	$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
+endif
+
+ifeq ($(TARGET), freertos)
+OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
+$(BINARY): generate-asn1-deployment compile-po-hi compile-c-files compile-cpp-files $(USER_OBJS) $(GENERATED_OBJS) $(COMPILE_FREERTOS_OBJ)
+	$(make-exe)
+	$(LD) $(LDFLAGS) -o $(EXE).elf $(PO_HI_OBJS) $(GENERATED_OBJS) $(COMPILE_FREERTOS_OBJ) $(USER_OBJS)  $(USER_LIBS)
+endif
+
+%.o: %.cpp
+	$(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
+
+%.o: %.cc
+	$(CXX) $(INCLUDE) $(CPPFLAGS) -c -o $@ $<
+
+%.o: %.c
+	$(CC) $(INCLUDE) $(CFLAGS) -c -o $@ $<
+
+%.o: %.s
+	$(AS) $(INCLUDE) $(CFLAGS) -c -o $@ $<
+
+clean: #target-clean
+	@-rm -f *~ *.o *.al temp.* *.metrix $(BINARY) $(BINARY).bin $(BINARY).bt $(BINARY).num $(BINARY).nxe b~*.* *.ali *.gcda *.gcno *.log *.xml
+	@-rm -rf drivers
+	if test ! "$(CLEANDIRS)" = "";  then \
+	  rm -rf $(CLEANDIRS); \
+	fi
+
+generate-doc:
+	@if [ -d generated-documentation ]; then rm  -rf generated-documentation ; fi
+	@( DOXYBIN=`which doxygen 2>/dev/null` && if [ -x "$$DOXYBIN" ]; then ` which doxygen` doxygen.cfg ; fi ) || exit 0
+
+
+ifdef USE_GPROF
+gprof:
+	./$(BINARY)
+	gprof ./$(BINARY) > gprof.out
+endif
+
+################################################################################
+# Generate Python wrapper for generated code, suppose the generated
+# code uses the DLL target, and assumes a Linux OS for ld
+
+python_wrapper:
+	swig -python -I$(LOCAL_RUNTIME_PATH)/include -outdir . -o po_hi_c_python_wrap.c $(LOCAL_RUNTIME_PATH)/src/po_hi_c_python.i
+
+	$(CC) -fPIC -c po_hi_c_python_wrap.c $(INCLUDE) $(CFLAGS) `python-config --includes`
+	ld -dylib po_hi_c_python_wrap.o $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(PO_HI_CPPOBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) `python-config --libs` -o _po_hi_c_python.so
+
+################################################################################
+# Execution of scripts to collect information for sonarqube.
+# Note: it assumes a complete and running installation of sonarqube
+
+sonar_run: clean
+	   make all > build.log
+	   make cppcheck
+	   make --ignore-errors valgrind_xml
+	   make sonarproperties
+	   make coverage
+	   sonar-scanner
+
+export SONAR_PROJECT_DIR=$(PWD)/..
+export SONAR_RESULTS_RELATIVE_PATH=$(shell echo "$(PWD)" | sed  's:$(SONAR_PROJECT_DIR)/::g')
+export TEMPLATE_PATH=$(shell sed -e 's:polyorb-hi-c/.*:polyorb-hi-c:' <<< $(PWD))
+
+################################################################################
+# sonarproperties: generation of configuration file for sonarqube
+#
+
+export SONAR_PROJECT_DIR=$(PWD)/..
+export SONAR_RESULTS_RELATIVE_PATH=$(shell echo "$(PWD)" | sed  's:$(SONAR_PROJECT_DIR)/::g')
+
+sonarproperties:
+	cp $(RUNTIME_PATH)/utils/template_sonar-project.properties tmpsonar-project.properties
+	sed -i 's/@PROJECT_KEY@/$(MAINAPP):$(BINARY)/g' tmpsonar-project.properties
+	sed -i 's/@PROJECT_NAME@/$(MAINAPP)::$(BINARY)/g' tmpsonar-project.properties
+	sed -i 's:@MASTER_PROJECT_DIR@:$(SONAR_PROJECT_DIR):g' tmpsonar-project.properties
+	echo "#sources files for analysis" >> tmpsonar-project.properties
+	echo "sonar.sources = $(PWD), $(LOCAL_RUNTIME_PATH)/src" >> tmpsonar-project.properties
+	echo "#Include files" >> tmpsonar-project.properties
+	echo "sonar.cxx.includeDirectories=$(LOCAL_RUNTIME_PATH)/include, $(LOCAL_RUNTIME_PATH)/include/silulator, $(LOCAL_RUNTIME_PATH)/include/monitoring, $(LOCAL_RUNTIME_PATH)/include/drivers, $(LOCAL_RUNTIME_PATH)/include/drivers/configuration, $(PWD)" >> tmpsonar-project.properties
+	echo "#Reports to sonarqube" >> tmpsonar-project.properties
+	sed  's:$(SONAR_PROJECT_DIR)/::g' <<< $(PWD)
+	echo "sonar.cxx.cppcheck.reportPath=$(SONAR_RESULTS_RELATIVE_PATH)/cppcheck.xml" >> tmpsonar-project.properties
+	echo "sonar.cxx.compiler.reportPath=$(SONAR_RESULTS_RELATIVE_PATH)/build.log" >> tmpsonar-project.properties
+	echo "sonar.cxx.valgrind.reportPath=$(SONAR_RESULTS_RELATIVE_PATH)/valgrind*.xml" >> tmpsonar-project.properties
+	echo "sonar.cxx.coverage.reportPath=$(SONAR_RESULTS_RELATIVE_PATH)/gcovr*.xml" >> tmpsonar-project.properties
+	echo "sonar.cxx.coverage.itReportPat=$(SONAR_RESULTS_RELATIVE_PATH)/gcovr*.xml" >> tmpsonar-project.properties
+	echo "sonar.cxx.coverage.overallReportPath=$(SONAR_RESULTS_RELATIVE_PATH)/gcovr*.xml" >> tmpsonar-project.properties
+	cp tmpsonar-project.properties sonar-project.properties
+
+################################################################################
+# cppcheck: run the static code analyser, see http://cppcheck.sourceforge.net
+#
+
+CPPCHECK_FLAGS= -v --enable=all --xml-version=2 --std=c99 --platform=unix64 --rule-file=gnu.cfg --rule-file=std.cfg --rule-file=posix.cfg
+
+cppcheck:
+	cppcheck $(CPPCHECK_FLAGS) $(INCLUDE) -I$(LOCAL_RUNTIME_PATH)/include  $(TARGET_CFLAGS) $(USER_CFLAGS) $(LOCAL_RUNTIME_PATH)/src $(PWD) 2> cppcheck.xml
+
+################################################################################
+# valgrind: run the valgrind binary analyser
+#
+
+valgrind:
+	cp $(RUNTIME_PATH)/utils/template_prof_gen.sh prof_gen.sh
+	chmod +x+w prof_gen.sh
+	sed -i 's/@PROGRAM_NAME@/$(BINARY)/g' prof_gen.sh
+	sh prof_gen.sh --output-dir-name=valgrind_output --check=call
+	sh prof_gen.sh --output-dir-name=valgrind_output --check=cache
+	sh prof_gen.sh --output-dir-name=valgrind_output --check=mem
+
+valgrind_xml:
+	valgrind --tool=memcheck --leak-check=full --xml=yes --xml-file=valgrind_memcheck.xml ./$(BINARY)
+
+valgrind_log:
+	valgrind --tool=memcheck --leak-check=full --log-file=valgrind_memcheck.log ./$(BINARY)
+
+################################################################################
+# collect code coverage metrics
+
+coverage:
+	cp $(RUNTIME_PATH)/utils/template_lcov_gen.sh lcov_gen.sh
+	chmod +x+w lcov_gen.sh
+	sh lcov_gen.sh --output-dir-name=govcoverage_output
+	gcovr -r $(SONAR_PROJECT_DIR) -s -x -o gcovr_report.xml
