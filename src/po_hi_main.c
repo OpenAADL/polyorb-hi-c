@@ -23,7 +23,7 @@
 /* included files from PolyORB-HI-C */
 
 #if defined (MONITORING)
-#include <trace_manager.hh>
+#include <trace_manager.h>
 #endif
 /* Headers from run-time verification */
 
@@ -290,7 +290,9 @@ int __po_hi_initialize ()
    /*!
     * Initialize the monitoring trace if needed
     */
+printf("soon monitoring\n ");
 #if defined (MONITORING)
+printf("trace_init");
    trace_initialize ();
 #endif
 
