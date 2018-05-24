@@ -3,7 +3,7 @@ AADL_FILES = $(srcdir)/ping-local.aadl					\
 	$(srcdir)/ping-local-xenomai-native.aadl			\
 	$(srcdir)/ping-local-xenomai-posix.aadl				\
 	$(srcdir)/ping-xenomai-posix.aadl $(srcdir)/software.aadl	\
-	$(srcdir)/ping.aadl
+	$(srcdir)/ping.aadl $(srcdir)/ping-xtratum.aadl
 
 SCENARIO_FILES = $(srcdir)/scenario.aadl				\
 	$(srcdir)/scenario-local-xenomai-posix.aadl			\
