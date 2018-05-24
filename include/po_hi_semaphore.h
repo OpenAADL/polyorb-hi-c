@@ -41,11 +41,10 @@
 #include <windows.h>
 #endif
 
-
+/** Structure defining a semaphore */
 typedef struct
 {    
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   //protocol and priority to add
    __po_hi_mutex_t      mutex;
    pthread_cond_t       posix_condvar;
    pthread_condattr_t   posix_condattr;
@@ -65,19 +64,90 @@ typedef struct
 }__po_hi_sem_t;
 
 
-/** Basics functions on semaphores */
+/** USED TO WORK ON SEMAPHORES */
+
+/** A semaphore sem is initialized.
+ * The protocol and priority attributes are used by the API mutex.
+ * The attribute nb is the identifier of the task, used to name
+ * the rtems semaphore.
+ * 
+ * Returns __PO_HI_SUCCESS if successful.
+ * Can return __PO_HI_ERROR_SEM_CREATE if there is an error.
+*/
+
 int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol, const int priority, int nb);
+
+/** Only The condition variables of a semaphore are told to wait.
+ * To ensure the protection, the po_hi_sem_mutex_wait must be used before !
+ * The lock must has been taken already (tested in POSIX by a trylock).
+ * This function is used when make a sem_wait is separated in two steps : 
+   * Locking the mutex (role of po_hi_sem_mutex_wait).
+   * Make a test and then making a condvar_wait (role of po_hi_sem_wait).
+ * 
+ * Returns __PO_HI_SUCCESS if successful.
+ * Can return __PO_HI_ERROR_SEM_WAIT if there is an error.
+*/
 int __po_hi_sem_wait(__po_hi_sem_t* sem);
+
+/** The mutex attribute of a semaphore is locked.
+ * This function is used when make a sem_wait is separated in two steps : 
+   * Locking the mutex (role of po_hi_sem_mutex_wait).
+   * Make a test and then making a condvar_wait (role of po_hi_sem_wait).
+ * 
+ * This function is also used when only a mutex is needed in the gqueue.
+ * Returns __PO_HI_SUCCESS if successful.
+ * Can return __PO_HI_ERROR_SEM_WAIT if there is an error.
+*/
 int __po_hi_sem_mutex_wait(__po_hi_sem_t* sem);
+
+/** The semaphore is COMPLETELY RELEASED. (both condvar and mutex).
+ * Returns __PO_HI_SUCCESS if successful.
+ * Can return __PO_HI_ERROR_SEM_RELEASE if there is an error.
+*/
 int __po_hi_sem_release(__po_hi_sem_t* sem);
+
+/** The mutex attribute of a semaphore is released.
+ * This function is used when you don't want to do a condvar_signal, and
+ * want to let it stay on a wait mode.
+ * This function is also used when only a mutex is needed in the gqueue.
+ * Returns __PO_HI_SUCCESS if successful.
+ * Can return __PO_HI_ERROR_SEM_RELEASE if there is an error.
+*/
 int __po_hi_sem_mutex_release(__po_hi_sem_t* sem);
 
 
-/** Functions used to fill the __po_hi_gqueues_semaphores array */
+/** USED TO FILL THE SEMAPHORE GQUEUE ARRAY 
+ * Only those functions are used directly in the gqueue 
+ * Their result will be tested in the gqueue with an assert */
+
+/** Used to do the po_hi_sem_init function on a semaphore contained in the semaphore array 
+ * Returns the result of that function applied to the specified semaphore.
+ * Returns __PO_HI_SUCCESS if successful.
+*/
 int __po_hi_sem_init_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+
+/** Used to do the po_hi_sem_wait function on a semaphore contained in the semaphore array 
+ * Returns the result of that function applied to the specified semaphore.
+ * Returns __PO_HI_SUCCESS if successful.
+*/
 int __po_hi_sem_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+
+/** Used to do the po_hi_sem_mutex_wait function on a semaphore contained in the semaphore array 
+ * Returns the result of that function applied to the specified semaphore.
+ * Returns __PO_HI_SUCCESS if successful.
+*/
 int __po_hi_sem_mutex_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+
+/** Used to do the po_hi_sem_release function on a semaphore contained in the semaphore array 
+ * Returns the result of that function applied to the specified semaphore.
+ * Returns __PO_HI_SUCCESS if successful.
+*/
 int __po_hi_sem_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+
+/** Used to do the po_hi_sem_mutex_release function on a semaphore contained in the semaphore array 
+ * Returns the result of that function applied to the specified semaphore.
+ * Returns __PO_HI_SUCCESS if successful.
+*/
 int __po_hi_sem_mutex_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
 
 

@@ -87,7 +87,6 @@ int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol
 #endif
 #ifdef __PO_HI_RTEMS_CLASSIC_API
     /** RTEMS Semaphore initialization */
-    //Check name
     rtems_status_code code = rtems_semaphore_create (rtems_build_name ('G', 'S', 'E' , 'A' + (char) id), 1, RTEMS_BINARY_SEMAPHORE, __PO_HI_DEFAULT_PRIORITY, &sem->rtems_sem);
     if (code != RTEMS_SUCCESSFUL)
     {
@@ -95,7 +94,6 @@ int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol
       return __PO_HI_ERROR_SEM_CREATE;
     }
     /** Barrier initialization */
-    //Check name
     code = rtems_barrier_create (rtems_build_name ('G', 'S', 'I' , 'A' + (char) id),RTEMS_BARRIER_AUTOMATIC_RELEASE , 10, &sem->rtems_barrier);
     if (code != RTEMS_SUCCESSFUL)
     {
@@ -107,12 +105,10 @@ int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol
 #endif
 #ifdef _WIN32
     /** Initializing event and critical section*/
-    //Verify whether a condvar wouldn't be better
     sem->win32_event = CreateEvent (NULL, FALSE, FALSE, NULL);
-    //Check whether wouldn't also test  ERROR_ALREADY_EXISTS
     if (sem->win32_event == NULL)
     {
-      __PO_HI_DEBUG_CRITICAL ("CreateEvent failed (%d)\n", GetLastError());
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] CreateEvent failed (%d)\n", GetLastError());
       return __PO_HI_ERROR_SEM_CREATE;
     }
     InitializeCriticalSection(&sem->win32_criticalsection);
@@ -155,6 +151,7 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
 #endif
 #ifdef XENO_NATIVE
    /** Locking the mutex */
+   //Already been done
    //if (__po_hi_mutex_lock(&sem->mutex) != __PO_HI_SUCCESS )
    //{
    //   __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to acquire/lock mutex\n");
@@ -174,7 +171,7 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
   int ret = WaitForSingleObject (&sem->win32_event,INFINITE);
   if (ret == WAIT_FAILED)
   {
-     __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Wait failed\n");
+     __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Wait failed\n");
   }
   /** Waiting for ownership of the specified critical section object */
   EnterCriticalSection(&sem->win32_criticalsection);
@@ -290,7 +287,7 @@ int __po_hi_sem_init_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_
   int result = __po_hi_sem_init(&array[id], __PO_HI_MUTEX_REGULAR, 0, id);
   //printf("result sem_init_gqueue = %d\n", result);
   __DEBUGMSG("SEM_INIT task number : %d, result : %d\n", id, result);
-  //assert(result == __PO_HI_SUCCESS);
+
 
 #if defined (POSIX) || defined (XENO_POSIX)
    // XXX disabled for OS X
@@ -310,7 +307,7 @@ int __po_hi_sem_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_
 {
   int result = __PO_HI_SUCCESS;
   result = __po_hi_sem_wait(&array[id]);
-  __DEBUGMSG("SEM_WAIT task number : %d, result : %d\n", id, result);
+  __DEBUGMSG("SEM_WAIT_GQUEUE task number : %d, result : %d\n", id, result);
   return result;
 }
 
@@ -318,7 +315,7 @@ int __po_hi_sem_mutex_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi
 {
   int result = __PO_HI_SUCCESS;
   result = __po_hi_sem_mutex_wait(&array[id]);
-  __DEBUGMSG("SEM_WAIT task number : %d, result : %d\n", id, result);
+  __DEBUGMSG("SEM_MUTEX_WAIT_GQUEUE task number : %d, result : %d\n", id, result);
   return result;
 
 }
@@ -327,7 +324,7 @@ int __po_hi_sem_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_ta
 {
   int result = __PO_HI_SUCCESS;
   result = __po_hi_sem_release(&array[id]);
-  __DEBUGMSG("SEM_RELEASE task number : %d, result : %d\n", id, result);
+  __DEBUGMSG("SEM_RELEASE_GQUEUE task number : %d, result : %d\n", id, result);
   return result;
 }
 
@@ -335,7 +332,7 @@ int __po_hi_sem_mutex_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po
 {
   int result = __PO_HI_SUCCESS;
   result = __po_hi_sem_mutex_release(&array[id]);
-  __DEBUGMSG("SEM_RELEASE task number : %d, result : %d\n", id, result);
+  __DEBUGMSG("SEM_MUTEX_RELEASE_GQUEUE task number : %d, result : %d\n", id, result);
   return result;
 
 }

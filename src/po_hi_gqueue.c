@@ -119,10 +119,8 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 
   /** Using the semaphore API to initialize the semaphore_gqueue array */
   int res = __po_hi_sem_init_gqueue(__po_hi_gqueues_semaphores,id);
-  //printf("res dans gqueeu = %d\n", res);
   __DEBUGMSG("GQUEUE_SEM_INIT %d %d\n", id, res);
   assert(res == __PO_HI_SUCCESS);
-
 
    off = 0;
    for (tmp=0;tmp<nb_ports;tmp++)
@@ -158,7 +156,6 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 }
 
 
-
 void __po_hi_gqueue_store_out (__po_hi_task_id id,
                                __po_hi_local_port_t port,
                                __po_hi_request_t* request)
@@ -188,10 +185,9 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 #endif
 
 
-
   /** Locking only a mutex */
   int result = __po_hi_sem_mutex_wait_gqueue(__po_hi_gqueues_semaphores,id);
-  __DEBUGMSG("GQUEUE_SEM_MUTEX_WAIT %d %d\n", id, result);
+  __DEBUGMSG("GQUEUE_SEM_MUTEX_WAIT on task %d result = %d\n", id, result);
   assert(result == __PO_HI_SUCCESS);
 
 
@@ -240,7 +236,7 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
       }
       __po_hi_gqueues_queue_is_empty[id] = 0;
    }
-  /** Releasing a semaphore */
+  /** Releasing a complete semaphore */
   int rel = __po_hi_sem_release_gqueue(__po_hi_gqueues_semaphores,id);
   __DEBUGMSG("GQUEUE_SEM_RELEASE %d %d\n", id, rel);
   assert(rel == __PO_HI_SUCCESS);
@@ -262,7 +258,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
     {
       __PO_HI_INSTRUMENTATION_VCD_WRITE("0t%d\n", id);
 
-    /** Telling the semaphore to wait */
+    /** Telling the semaphore to wait with putting its condvar on wait mode */
     int res_sem =  __po_hi_sem_wait_gqueue(__po_hi_gqueues_semaphores,id);
     __DEBUGMSG("GQUEUE_SEM_WAIT %d %d\n", id, result);
     assert(res_sem == __PO_HI_SUCCESS);
@@ -321,7 +317,7 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
    {
       while (__po_hi_gqueues_port_is_empty[id][port] == 1)
       {
-        /** Telling the semaphore to wait */
+        /** Telling the semaphore to wait with putting its condvar on wait mode */
         int res_sem =  __po_hi_sem_wait_gqueue(__po_hi_gqueues_semaphores,id);
         __DEBUGMSG("GQUEUE_SEM_WAIT %d %d\n", id, result);
         assert(res_sem == __PO_HI_SUCCESS);
