@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2016 ESA & ISAE.
+ * Copyright (C) 2010-2018 ESA & ISAE.
  */
 
 /*! \file po_hi_driver_rasta_serial.c
@@ -57,6 +57,7 @@ int po_hi_c_driver_rasta_serial_fd_write[__PO_HI_NB_DEVICES];
 
 __po_hi_request_t    __po_hi_c_driver_serial_rasta_request;
 __po_hi_msg_t        __po_hi_c_driver_serial_rasta_poller_msg;
+__po_hi_mutex_t      __po_hi_c_rasta_serial_send_mutex;
 
 /*!
  * \fn void __po_hi_c_driver_serial_rasta_poller (const __po_hi_device_id dev_id)
@@ -142,7 +143,7 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
       __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Cannot get the name of the device !\n");
       return;
    }
-
+   __po_hi_mutex_init (&__po_hi_c_rasta_serial_send_mutex,__PO_HI_MUTEX_REGULAR, 0);
    __po_hi_transport_set_sending_func (id, __po_hi_c_driver_serial_rasta_sender);
 
     /* provide the spacewire driver with AMBA Plug&Play
@@ -272,6 +273,7 @@ int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const _
 
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
 
+   __po_hi_mutex_lock (&__po_hi_c_rasta_serial_send_mutex);
    __po_hi_msg_reallocate (&__po_hi_c_driver_serial_rasta_sender_msg);
 
    request->port = destination_port;
@@ -282,7 +284,7 @@ int __po_hi_c_driver_serial_rasta_sender (const __po_hi_task_id task_id, const _
    n = write (po_hi_c_driver_rasta_serial_fd_write[dev_id], &__po_hi_c_driver_serial_rasta_sender_msg, __PO_HI_MESSAGES_MAX_SIZE);
 
    __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] write() returns %d\n", n);
-
+   __po_hi_mutex_unlock (&__po_hi_c_rasta_serial_send_mutex);
    request->port = __PO_HI_GQUEUE_INVALID_PORT;
 
    return 1;

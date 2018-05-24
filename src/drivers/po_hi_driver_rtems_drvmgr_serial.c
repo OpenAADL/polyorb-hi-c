@@ -41,6 +41,7 @@ int po_hi_c_driver_rtems_drvmgr_serial_fd_write[__PO_HI_NB_DEVICES];
 
 __po_hi_request_t    __po_hi_c_driver_rtems_drvmgr_serial_request;
 __po_hi_msg_t        __po_hi_c_driver_rtems_drvmgr_serial_poller_msg;
+__po_hi_mutex_t      __po_hi_c_rtems_serial_send_mutex;
 
 /*!
  * \fn void __po_hi_c_driver_rtems_drvmgr_serial_poller (const __po_hi_device_id dev_id)
@@ -135,7 +136,7 @@ int __po_hi_c_driver_rtems_drvmgr_serial_sender (const __po_hi_task_id task_id, 
    }
 
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
-
+   __po_hi_mutex_lock (&__po_hi_c_rtems_serial_send_mutex);
    __po_hi_msg_reallocate (&__po_hi_c_driver_rtems_drvmgr_serial_sender_msg);
 
    request->port = destination_port;
@@ -152,7 +153,7 @@ int __po_hi_c_driver_rtems_drvmgr_serial_sender (const __po_hi_task_id task_id, 
 	      __PO_HI_MESSAGES_MAX_SIZE);
    
    __PO_HI_DEBUG_DEBUG ("[DRVMGR SERIAL] write() returns %d\n", n);
-   
+   __po_hi_mutex_unlock (&__po_hi_c_rtems_serial_send_mutex);
    request->port = __PO_HI_GQUEUE_INVALID_PORT;
 
    return 1;
@@ -185,7 +186,7 @@ void __po_hi_c_driver_rtems_drvmgr_serial_init (__po_hi_device_id id)
      __PO_HI_DEBUG_INFO ("[DRVMGR SERIAL] Cannot get the name of the device !\n");
      return;
    }
-
+   __po_hi_mutex_init (&__po_hi_c_rtems_serial_send_mutex,__PO_HI_MUTEX_REGULAR, 0);
    __po_hi_transport_set_sending_func (id, __po_hi_c_driver_rtems_drvmgr_serial_sender);
    
    /* provide the spacewire driver with AMBA Plug&Play

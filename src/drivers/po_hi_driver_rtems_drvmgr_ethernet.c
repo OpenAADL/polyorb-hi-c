@@ -79,19 +79,19 @@ __po_hi_device_id leon_eth_device_id;
 
 #include <bsp/network_interface_add.h>
 
-#ifdef RTEMS_USE_LOOPBACK 
+#ifdef RTEMS_USE_LOOPBACK
 /*
  * Loopback interface
  */
 extern void rtems_bsdnet_loopattach();
 static struct rtems_bsdnet_ifconfig loopback_config = {
-	"lo0",				/* name */
-	rtems_bsdnet_loopattach,	/* attach function */
+        "lo0",				/* name */
+        rtems_bsdnet_loopattach,	/* attach function */
 
-	NULL,				/* link to next interface */
+        NULL,				/* link to next interface */
 
-	"127.0.0.1",			/* IP address */
-	"255.0.0.0",			/* IP net mask */
+        "127.0.0.1",			/* IP address */
+        "255.0.0.0",			/* IP net mask */
 };
 #endif
 
@@ -99,36 +99,36 @@ static struct rtems_bsdnet_ifconfig loopback_config = {
  * Network configuration
  */
 struct rtems_bsdnet_config rtems_bsdnet_config = {
-#ifdef RTEMS_USE_LOOPBACK 
-	&loopback_config,		/* link to next interface */
+#ifdef RTEMS_USE_LOOPBACK
+        &loopback_config,		/* link to next interface */
 #else
-	NULL,				/* No more interfaces */
+        NULL,				/* No more interfaces */
 #endif
 
 #if (defined (RTEMS_USE_BOOTP))
-	rtems_bsdnet_do_bootp,
+        rtems_bsdnet_do_bootp,
 #else
-	NULL,
+        NULL,
 #endif
 
-	64,			/* Default network task priority */
-	128*1024,		/* Default mbuf capacity */
-	256*1024,		/* Default mbuf cluster capacity */
+        64,			/* Default network task priority */
+        128*1024,		/* Default mbuf capacity */
+        256*1024,		/* Default mbuf cluster capacity */
 
 #if (!defined (RTEMS_USE_BOOTP))
-	"rtems_host",		/* Host name */
-	"localnet",		/* Domain name */
-	"192.168.0.1",		/* Gateway */
-	"192.168.0.1",		/* Log host */
-	{"192.168.0.1" },	/* Name server(s) */
-	{"192.168.0.1" },	/* NTP server(s) */
+        "rtems_host",		/* Host name */
+        "localnet",		/* Domain name */
+        "192.168.0.1",		/* Gateway */
+        "192.168.0.1",		/* Log host */
+        {"192.168.0.1" },	/* Name server(s) */
+        {"192.168.0.1" },	/* NTP server(s) */
 
 #endif /* !RTEMS_USE_BOOTP */
 
 };
 
 /* Table used by network interfaces that register themselves using the
- * network_interface_add routine. From this table the IP address, netmask 
+ * network_interface_add routine. From this table the IP address, netmask
  * and Ethernet MAC address of an interface is taken.
  *
  * The network_interface_add routine puts the interface into the
@@ -138,14 +138,14 @@ struct rtems_bsdnet_config rtems_bsdnet_config = {
  */
 struct ethernet_config interface_configs[] =
 {
-	{ "192.168.0.42", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x79}},
-	{ "192.168.1.67", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x7A}},
-	{ "192.168.2.67", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x7B}},
-	{ "192.168.3.67", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x7C}},
-	{ "192.168.4.67", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x7D}},
-	{ "192.168.5.67", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x7E}},
-	{ "192.168.6.67", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x7F}},
-	{NULL, NULL, {0,0,0,0,0,0}}
+        { "192.168.0.42", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x79}},
+        { "192.168.1.67", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x7A}},
+        { "192.168.2.67", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x7B}},
+        { "192.168.3.67", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x7C}},
+        { "192.168.4.67", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x7D}},
+        { "192.168.5.67", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x7E}},
+        { "192.168.6.67", "255.255.255.0", {0x00, 0x80, 0x7F, 0x22, 0x61, 0x7F}},
+        {NULL, NULL, {0,0,0,0,0,0}}
 };
 #define INTERFACE_CONFIG_CNT (sizeof(interface_configs)/sizeof(struct ethernet_config) - 1)
 
@@ -164,6 +164,7 @@ struct ethernet_config interface_configs[] =
 /******************************************************************************/
 __po_hi_request_t          __po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request;
 __po_hi_msg_t              __po_hi_c_driver_rtems_drvmgr_ethernet_poller_msg;
+__po_hi_mutex_t            __po_hi_c_rtems_ethernet_send_mutex;
 
 void __po_hi_c_driver_rtems_drvmgr_ethernet_poller (const __po_hi_device_id dev_id)
 {
@@ -370,8 +371,8 @@ int  __po_hi_c_driver_rtems_drvmgr_ethernet_sender (__po_hi_task_id task, __po_h
 
    if (nodes[associated_device].socket == -1 ) {
       __DEBUGMSG
-	(" [DRIVER SOCKETS] Invalid socket for port-id %d, device-id %d\n",
-	 destination_port, associated_device);
+        (" [DRIVER SOCKETS] Invalid socket for port-id %d, device-id %d\n",
+         destination_port, associated_device);
       return __PO_HI_ERROR_TRANSPORT_SEND;
    }
 
@@ -383,9 +384,9 @@ int  __po_hi_c_driver_rtems_drvmgr_ethernet_sender (__po_hi_task_id task, __po_h
    size_to_write = __PO_HI_MESSAGES_MAX_SIZE;
 
    if (getsockopt (nodes[associated_device].socket,
-		   SOL_SOCKET, SO_ERROR, &optval, &optlen) == -1) {
+                   SOL_SOCKET, SO_ERROR, &optval, &optlen) == -1) {
       __DEBUGMSG (" [error getsockopt() in file %s, line%d ]\n",
-		  __FILE__, __LINE__);
+                  __FILE__, __LINE__);
       close (nodes[associated_device].socket);
       nodes[associated_device].socket = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;
@@ -393,7 +394,7 @@ int  __po_hi_c_driver_rtems_drvmgr_ethernet_sender (__po_hi_task_id task, __po_h
 
    if (optval != 0) {
      __DEBUGMSG (" [error getsockopt() return code in file %s, line%d ]\n",
-		 __FILE__, __LINE__);
+                 __FILE__, __LINE__);
      close (nodes[associated_device].socket);
      nodes[associated_device].socket = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;
@@ -404,12 +405,12 @@ int  __po_hi_c_driver_rtems_drvmgr_ethernet_sender (__po_hi_task_id task, __po_h
 
    if (signal (SIGPIPE, SIG_IGN) == SIG_ERR) {
       __DEBUGMSG (" [error signal() return code in file %s, line%d ]\n",
-		  __FILE__, __LINE__);
+                  __FILE__, __LINE__);
       close (nodes[associated_device].socket);
       nodes[associated_device].socket = -1;
       return __PO_HI_ERROR_TRANSPORT_SEND;
    }
-   
+
    switch (protocol_id)
    {
 #ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
@@ -434,46 +435,50 @@ int  __po_hi_c_driver_rtems_drvmgr_ethernet_sender (__po_hi_task_id task, __po_h
    default:
      {
        request->port = destination_port;
-       
+       __po_hi_mutex_lock
+         (&__po_hi_c_rtems_ethernet_send_mutex);
        __po_hi_msg_reallocate
-	 (&__po_hi_c_driver_rtems_drvmgr_ethernet_sender_msg);
+         (&__po_hi_c_driver_rtems_drvmgr_ethernet_sender_msg);
 
        __po_hi_marshall_request
-	 (request, &__po_hi_c_driver_rtems_drvmgr_ethernet_sender_msg);
+         (request, &__po_hi_c_driver_rtems_drvmgr_ethernet_sender_msg);
 
        size_to_write =  __po_hi_msg_length
-	 (&__po_hi_c_driver_rtems_drvmgr_ethernet_sender_msg);
-       
+         (&__po_hi_c_driver_rtems_drvmgr_ethernet_sender_msg);
+
 #ifdef __PO_HI_DEBUG
        __po_hi_messages_debug (&__po_hi_c_driver_rtems_drvmgr_ethernet_sender_msg);
 #endif
-       
+
        /* Note: in the following, we send first the size of the
-	  message, then the subset of the message buffer we actually
-	  used. */
-       
+          message, then the subset of the message buffer we actually
+          used. */
+
        int msg_size_network = size_to_write;
 
        len = write (nodes[associated_device].socket,
-		    &msg_size_network, sizeof (int));
+                    &msg_size_network, sizeof (int));
 
        len = write
-	 (nodes[associated_device].socket,
-	  &(__po_hi_c_driver_rtems_drvmgr_ethernet_sender_msg.content),
-	  size_to_write);
+         (nodes[associated_device].socket,
+          &(__po_hi_c_driver_rtems_drvmgr_ethernet_sender_msg.content),
+          size_to_write);
 
        if (len != size_to_write) {
-	 __DEBUGMSG (" [error write() length in file %s, line%d ]\n",
-		     __FILE__, __LINE__);
-	 close (nodes[associated_device].socket);
-	 nodes[associated_device].socket = -1;
-	 return __PO_HI_ERROR_TRANSPORT_SEND;
+         __DEBUGMSG (" [error write() length in file %s, line%d ]\n",
+                     __FILE__, __LINE__);
+         close (nodes[associated_device].socket);
+         nodes[associated_device].socket = -1;
+         __po_hi_mutex_unlock (&__po_hi_c_rtems_ethernet_send_mutex);
+         return __PO_HI_ERROR_TRANSPORT_SEND;
        }
+
+       __po_hi_mutex_unlock (&__po_hi_c_rtems_ethernet_send_mutex);
        request->port = __PO_HI_GQUEUE_INVALID_PORT;
        break;
      }
    }
-   
+
    return __PO_HI_SUCCESS;
 }
 
@@ -500,7 +505,7 @@ void __po_hi_c_driver_rtems_drvmgr_ethernet_init (__po_hi_device_id id)
    interface_configs[0].ip_addr = ipconf->address;
 
    printf ("----> %s\n", interface_configs[0].ip_addr);
-   
+
    if (ipconf->exist.netmask == 1) {
      interface_configs[0].ip_netmask= ipconf->netmask;
    }
@@ -514,12 +519,12 @@ void __po_hi_c_driver_rtems_drvmgr_ethernet_init (__po_hi_device_id id)
    {
       rtems_bsdnet_config.name_server[0] = ipconf->dns;
    }
-   
+
    /* Initializes drvmgr subsystem */
    __po_hi_c_driver_drvmgr_init ();
 
    // xxxx mf if this is not the first driver to be initialized
-   
+
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_DEBUG
    rtems_bsdnet_show_if_stats ();
    rtems_bsdnet_show_inet_routes ();
@@ -528,6 +533,7 @@ void __po_hi_c_driver_rtems_drvmgr_ethernet_init (__po_hi_device_id id)
 #endif
 
    leon_eth_device_id = id;
+   __po_hi_mutex_init (&__po_hi_c_rtems_ethernet_send_mutex,__PO_HI_MUTEX_REGULAR, 0);
    __po_hi_transport_set_sending_func (leon_eth_device_id, __po_hi_c_driver_rtems_drvmgr_ethernet_sender);
 
    for (node = 0 ; node < __PO_HI_NB_DEVICES ; node++)

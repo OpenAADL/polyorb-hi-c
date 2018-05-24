@@ -46,6 +46,7 @@ uint32_t po_hi_c_driver_serial_sending_wait;
 
 __po_hi_request_t __po_hi_c_driver_serial_linux_request;
 __po_hi_msg_t     __po_hi_c_driver_serial_linux_poller_msg;
+__po_hi_mutex_t   __po_hi_c_linux_serial_send_mutex;
 
 void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
 {
@@ -127,6 +128,7 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
 
    __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Init sender\n");
 
+   __po_hi_mutex_init (&__po_hi_c_linux_serial_send_mutex,__PO_HI_MUTEX_REGULAR, 0);
    __po_hi_transport_set_sending_func (id, __po_hi_c_driver_serial_linux_sender);
 
    serialconf = (__po_hi_c_serial_conf_t*)__po_hi_get_device_configuration (id);
@@ -327,6 +329,7 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
    }
 
    destination_port     = __po_hi_gqueue_get_destination (task_id, local_port, 0);
+   __po_hi_mutex_lock (&__po_hi_c_linux_serial_send_mutex);
 
    __po_hi_msg_reallocate (&__po_hi_c_driver_serial_linux_sender_msg);
 
@@ -383,7 +386,7 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
       __PO_HI_DEBUG_DEBUG ("%x", __po_hi_c_driver_serial_linux_sender_msg.content[ts]);
    }
    __PO_HI_DEBUG_DEBUG ("\n");
-
+   __po_hi_mutex_unlock (&__po_hi_c_linux_serial_send_mutex);
    request->port = __PO_HI_GQUEUE_INVALID_PORT;
 
    return 1;
