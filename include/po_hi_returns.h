@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2018 ESA & ISAE.
  */
 
 #ifndef __PO_HI_RETURNS_H__
@@ -38,6 +38,7 @@
 #define __PO_HI_ERROR_TRANSPORT_SEND      -55
 #define __PO_HI_ERROR_PTHREAD_BARRIER     -56
 
+/* Errors related to the protected and semaphore API */
 #define __PO_HI_ERROR_PROTECTED_LOCK      -60
 #define __PO_HI_ERROR_PROTECTED_UNLOCK    -61
 #define __PO_HI_ERROR_PROTECTED_CREATE    -62
@@ -45,6 +46,10 @@
 #define __PO_HI_ERROR_MUTEX_LOCK          -60
 #define __PO_HI_ERROR_MUTEX_UNLOCK        -61
 #define __PO_HI_ERROR_MUTEX_CREATE        -62
+
+#define __PO_HI_ERROR_SEM_WAIT            -60
+#define __PO_HI_ERROR_SEM_RELEASE         -61
+#define __PO_HI_ERROR_SEM_CREATE          -62
 
 /* GIOP error code */
 #define __PO_HI_GIOP_INVALID_SIZE         -100

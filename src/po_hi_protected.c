@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2018 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -94,6 +94,7 @@ int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
 int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t protocol, const int priority)
 {
 #ifdef __PO_HI_RTEMS_CLASSIC_API
+//illogic
    static int nb_mutex = 0;
 #endif
 
