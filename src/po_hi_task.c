@@ -249,6 +249,7 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
  * Entry ports monitoring at dispatch if MONITORING is defined
  */
 #if defined (MONITORING)
+printf("record_event");
   record_event(PERIODIC, WAIT_FOR, task, invalid_port_t, invalid_port_t, invalid_local_port_t, invalid_local_port_t, NULL);
 #endif
 
@@ -701,6 +702,7 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
    */
 
 #if defined (MONITORING)
+  printf("record_event");
   //__DEBUGMSG ("Periodic_task_creation\n");
   record_event(PERIODIC, CREATION, id, invalid_port_t, invalid_port_t, invalid_local_port_t, invalid_local_port_t, NULL);
 #endif
@@ -756,6 +758,7 @@ int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
    */
 
 #if defined (MONITORING)
+printf("record_event");
 //__DEBUGMSG ("Sporadic_task_creation\n");
   record_event(SPORADIC, CREATION, id, invalid_port_t, invalid_port_t, invalid_local_port_t, invalid_local_port_t, NULL);
 #endif

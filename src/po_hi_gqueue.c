@@ -246,6 +246,7 @@ void __po_hi_gqueue_store_out (__po_hi_task_id id,
    __PO_HI_DEBUG_DEBUG ("__po_hi_gqueue_store_out() from task %d on port %d\n", id, port);
 
 #if defined (MONITORING)
+printf("record_event");
    record_event(ANY, STORE_OUT, id, invalid_port_t, invalid_port_t, port, invalid_local_port_t, request);
 #endif
 
@@ -440,6 +441,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
   *port = __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_offset[id]];
 
 #if defined (MONITORING)
+printf("record_event");
    record_event(SPORADIC, WAIT_FOR, id, invalid_port_t, invalid_port_t, *port, invalid_local_port_t, NULL);
 #endif
 
@@ -534,6 +536,7 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
    }
 
 #if defined (MONITORING)
+printf("record_event");
    record_event(ANY, GET_VALUE, id, invalid_port_t, invalid_port_t, port, invalid_local_port_t , request);
 #endif
 

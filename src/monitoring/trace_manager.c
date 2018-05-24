@@ -7,8 +7,7 @@
 //#include <pthread.h>
 #include <deployment.h>
 #include <string.h>
-#include <iostream>
-#include <fstream>
+
 
 #include <po_hi_debug.h>
 #include <po_hi_task.h>
@@ -33,10 +32,13 @@ void trace_initialize(){
 }
 
 
+
+
 /** Recording all events, trace_managing */
 int record_event(int event, int stat, __po_hi_task_id t_id, __po_hi_port_t p_src, __po_hi_port_t p_dest, __po_hi_local_port_t port_src,__po_hi_local_port_t port_dest, __po_hi_request_t *p_req){
 	/** CREATION OF STREAM */
-	FILE *history;
+        printf("IN PROGRAM");
+	FILE *history = NULL;
 	/** CREATION OF THE STRUCTURE TO BE SENT TO TASK_LOG */
 	characteristics my_task;
 	characteristics *p_my_task = &my_task;
@@ -73,13 +75,20 @@ int record_event(int event, int stat, __po_hi_task_id t_id, __po_hi_port_t p_src
 	}
 	
 	/** LOCKING THE MUTEX */
+	printf("lock");
 	__po_hi_mutex_lock (&__po_hi_c_trace_mutex);
-
+        printf("locked");
 
 	/** IF the log array is complete */
 	if (nb_struct >= 10){
 		/* A stream is opened */
-		history = fopen("history.txt", "w" );
+                printf("open");
+		history = fopen("history.txt", "a+" );
+                if (history == NULL){
+			printf("no history file is opened or created");
+			return __PO_HI_INVALID;
+ 		}
+                printf("close");
 		fseek(history, 0, SEEK_END);
 		/* The copying is done */
 		for (int i = 0; i < 10; i++){

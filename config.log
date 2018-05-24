@@ -796,6 +796,7 @@ config.status:957: creating share/make/Makefile.common
 config.status:957: creating share/make/Makefile.native
 config.status:957: creating support/Makefile
 config.status:957: creating include/po_hi_config.h
+config.status:1138: include/po_hi_config.h is unchanged
 config.status:1186: executing depfiles commands
 
 ## ---------------- ##

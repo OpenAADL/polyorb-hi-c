@@ -189,9 +189,8 @@ check-linuxtaste:
 
 ifeq ($(MONITORING), true)
 
-MONITORING_OBJS = trace_manager.o remote_configuration.o
-PO_HI_CPPOBJS += $(MONITORING_OBJS)
-PO_HI_OBJS += um_threads.o
+MONITORING_OBJS = trace_manager.o 
+PO_HI_OBJS += $(MONITORING_OBJS)
 
 INCLUDE += -I$(LOCAL_RUNTIME_PATH)/src \
 -I$(LOCAL_RUNTIME_PATH)/src/monitoring \
@@ -199,8 +198,6 @@ INCLUDE += -I$(LOCAL_RUNTIME_PATH)/src \
 -I$(LOCAL_RUNTIME_PATH)/include/monitoring \
 -I$(LOCAL_RUNTIME_PATH)/src/monitoring/cheddar_scheduling
 
-CPPFLAGS += -std=c++1y -g -I/include/boost-0
-LDFLAGS += -lstdc++
 endif
 
 hyperperiod-cheddar:

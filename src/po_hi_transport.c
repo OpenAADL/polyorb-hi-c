@@ -170,6 +170,7 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 #endif
    /** The trace_managing is done for every step of the for loop */
 #if defined (MONITORING)
+printf("record_event");
    record_event(ANY, TRANSPORT_SEND, id, port, destination_port, local_port, __po_hi_get_local_port_from_global_port (destination_port), request);
 #endif
 
