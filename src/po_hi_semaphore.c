@@ -115,11 +115,10 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
 {
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
    /* Locking the mutex */
-   if (pthread_mutex_trylock(&sem->mutex.posix_mutex) != 0 )
-   {
-      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to trylock mutex\n");
-      return __PO_HI_ERROR_SEM_WAIT;
+   if (pthread_mutex_trylock(&sem->mutex.posix_mutex) == 0 ) {
+     pthread_mutex_lock(&sem->mutex.posix_mutex);
    }
+   
    /* Waiting on a condition and unlocking the mutex while doing so */
    if (pthread_cond_wait(&sem->posix_condvar, &sem->mutex.posix_mutex) != 0 )
    {
@@ -168,6 +167,7 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
   EnterCriticalSection(&sem->win32_criticalsection);
 
 #endif
+  
    return __PO_HI_SUCCESS;
 }
 
