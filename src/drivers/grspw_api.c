@@ -25,10 +25,9 @@
 
 #include <rtems.h>
 
-/** SpaceWire parameters */
+/* SpaceWire parameters */
 #define SPW_PROT_ID 3
 
-/*****************************************************************************/
 /* Configuration of the driver */
 
 /* Total number of packets */
@@ -46,21 +45,21 @@
 /** Macros used with the GRSPW devices */
 #define DEV(device) ((struct grspw_dev *)(device))
 
-/**DECLARATION OF STRUCTURES AND RTEMS ELEMENTS */
+/* DECLARATION OF STRUCTURES AND RTEMS ELEMENTS */
 
- /* Declaration of the transmission/reception task used in test_app */
+/* Declaration of the transmission/reception task used in test_app */
 rtems_task dma_task_rx(rtems_task_argument unused);
 rtems_task dma_task_tx(rtems_task_argument unused);
 
 /* Tasks ID corresponding*/
 rtems_id tid_dma_rx, tid_dma_tx;
 
-/******************************************************************************/
 /* Driver internal data structures */
 
-/** Structure used as a bridge in the grspw_pkt data and header
-implementation. */
-
+/**
+ * \struct spwpkt.
+ * \brief Structure used as a bridge in the grspw_pkt data and header implementation.
+ */
 struct spwpkt {
   struct grspw_pkt p;
 
@@ -82,7 +81,7 @@ struct spwpkt pkts[DEVS_MAX][PKT_NBR];
 /** Integer that will represent the maximum number of devices */
 int nospw;
 
-/** FORWARD DECLARATION OF ELEMENTS USED IN grspw_api_init FUNCTION */
+/* FORWARD DECLARATION OF ELEMENTS USED IN grspw_api_init FUNCTION */
 
 /* Declaration of semaphores responsible of the synchronization between tasks */
 rtems_id dma_sem;
@@ -95,22 +94,11 @@ extern int router_setup_custom(void);
 void init_pkts(void);
 int dev_init(int idx);
 
-/** AUXILIARY INITIALIZATION FUNCTION :
- * Initializing the devices.
- *
- * Application thread
- *  TDRX. SpaceWire DMA RX task. Handles reception of SpaceWire
- *        packets on all SpaceWire devices.
- *  TDTX. SpaceWire DMA RX task. Handles transmission of SpaceWire
- *        packets on all SpaceWire devices.
- *  Then Semaphores : dma_sync_rx and dma_sync tx.
- *  Then the reception and transmission tasks are started.
- */
 void grspw_api_init(void){
   int i;
   extern struct router_hw_info router_hw;
 
-  /** INITIALIZING ROUTER PORTS, DEVICES AND DMA */
+  /* INITIALIZING ROUTER PORTS, DEVICES AND DMA */
   /* Initialize two GRSPW AMBA ports */
   printf("Setting up SpaceWire router\n");
   if (router_setup_custom()) {
@@ -202,14 +190,14 @@ void grspw_api_init(void){
   rtems_task_start(tid_dma_tx, dma_task_tx, 0);
 
 }
-
-/** Function that initialize all packets of the application, splitting them in RX and TX packets.
- * Using the spwpkt structure as a bridge to fill the different packets.
- * The initialized TX packets are put in the tx_buf_list to be sent (in test_app).
- * The initialized RX packets are put in the rx_list so that the "prepare" function (in dma_rx)
- * put them in the rx_ready list, to provide empty packets for Reception.
- * Used in test_app.
-*/
+/**
+ * \brief Function that initialize all packets of the application, splitting them in RX and TX packets.
+ * 
+ * Using the spwpkt structure as a bridge to fill the different packets. \n
+ * The initialized TX packets are put in the tx_buf_list to be sent (in test_app). \n
+ * The initialized RX packets are put in the rx_list so that the "prepare" function (in dma_rx) 
+ * put them in the rx_ready list, to provide empty packets for Reception. \n
+ */
 void init_pkts(void){
   struct spwpkt *pkt;
   int i, j;
@@ -252,14 +240,14 @@ void init_pkts(void){
   }
 }
 
-/** Function playing with the timecode */
+/* Function playing with the timecode */
 void app_tc_isr(void *data, int tc);
 void app_tc_isr(void *data, int tc){
         struct grspw_device *dev = data;
         printf("GRSPW%d: TC-ISR received 0x%02x\n", dev->index, tc);
 }
 
-/** Structure used to configure a GRSPW-device cfg attribute */
+/** Variable used to configure a GRSPW-device cfg attribute */
 struct grspw_config dev_def_cfg =
 {
   .adrcfg =
@@ -312,11 +300,15 @@ struct grspw_config dev_def_cfg =
   },
 };
 
-/** Function fully initializing the idx Device.
+/**
+ * \brief Function fully initializing the idx Device.
+ * 
  * It especially returns an error message if only one port is available or
- * if the device can't open correctly.
- * It also resets all packets lists.
- * Used in test_app.
+ * if the device can't open correctly. \n
+ * It also resets all packets lists. \
+ * \param idx identifier of the device.
+ * \return 0 if successful.
+ * \return -1 if there is an error.
  */
 int dev_init(int idx){
         struct grspw_device *dev = &devs[idx];
@@ -401,11 +393,16 @@ int dev_init(int idx){
         return 0;
 }
 
-/** Function that close all dma channels for a specified device idx.
+/**
+ * \brief Function that close all dma channels for a specified device idx.
+ *
  * If the dma channel is active,
- * it is closed and the NULL value is imput in the dma array.
- * If the closing is correctly done, returns 0.
- * Used in dev_cleanup which is used in test_app.
+ * it is closed and the NULL value is imput in the dma array. \n
+ * If the closing is correctly done, returns 0. \n
+ * 
+ * \param idx identifier of the device.
+ * \return 0 if a successful closing is done.
+ * \return the result of dma_close if there is an error.
  */
 int dev_dma_close_all(int idx){
   struct grspw_device *dev = &devs[idx];
@@ -422,13 +419,6 @@ int dev_dma_close_all(int idx){
   }
   return 0;
 }
-
-/** Function that close and clean the idx GRSPW-device.
- * All dma channels need to be closed before closing the device.
- * Error messages are returned whether the dma isn't closed correctly
- * Or if it's the case for the device.
- * Used in test_app.
- */
 
 void dev_cleanup(int idx){
   struct grspw_device *dev = &devs[idx];
@@ -453,20 +443,8 @@ void dev_cleanup(int idx){
   dev->dh = NULL;
 }
 
-/** FORWARD DECLARATION OF PKT_INIT_HDR FUNCTION */
+/* FORWARD DECLARATION OF PKT_INIT_HDR FUNCTION */
 void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx);
-
-/** Function following a sending process:
- * A packet is taking at the head of the tx_buf_list.
- * Its data content is extracted from the "message" parameter.
- * Its header is initialized according to the content of the p_route parameter.
- * Its length is initalized thanks to the message_size parameter.
- * The pkt is then added to the tx_list (to be sent).
- * The dma_sem semaphore is used so that the tasks don't overlap.
- * The dma_sync_tx is used so that the task isn't periodic but is triggered
- * only when something is about to be sent.
- * The function is called in the test_app Task, used with the sending command (x command).
-*/
 
 size_t grspw_sending
 (int device,
@@ -518,17 +496,6 @@ size_t grspw_sending
   return message_size_sent;
 }
 
-/** Function following a receiving process:
- * A packet is taking at the head of the tx_buf_list (of the specified device).
- * Its data content is extracted from the "message" parameter.
- * Its header is initialized according to the content of the p_route parameter.
- * Its length is initalized thanks to the message_size parameter.
- * The pkt is then added to the tx_list (to be sent).
- * The dma_sem semaphore is used so that the tasks don't overlap.
- * The dma_sync_rx is used so that the task isn't periodic but is triggered
- * only when something is about to be received.
- * The function is called in the test_app Task, used qith the receiving command (r command).
-*/
 size_t grspw_receiving(int device,void *message){
   rtems_semaphore_obtain(dma_sync_rx, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
   rtems_semaphore_obtain(dma_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
@@ -586,10 +553,13 @@ size_t grspw_receiving(int device,void *message){
   return message_size_received;
 }
 
-/** SpaceWire packet payload (data) content layout.
+/**
+ * \struct pkt_hdr.
+ * \brief SpaceWire packet payload (data) content layout.
+ * 
  * Structure used to fill the first bytes of the GRSPW-pkt Data.
  * It is particularly used in the pkt_init_hdr function.
-*/
+ */
 struct pkt_hdr {
   unsigned char addr;
   unsigned char protid;
@@ -604,12 +574,18 @@ struct pkt_hdr {
   unsigned int data[PKT_SIZE + EXTRA_BYTES];
 };
 
-/** Function that initialize the packet header of the pkt, and the Data payload header.
- * The pkt is leaving the idx Device.
- * The pkt_hdr structure is used to modify the first bytes of the GRSPW-pkt Data (destination, device..).
+/**
+ * \brief Function that initialize the packet header of the pkt, and the Data payload header.
+ * 
+ * The pkt is leaving the idx Device. \n
+ * The pkt_hdr structure is used to modify the first bytes of the GRSPW-pkt Data (destination, device..). \n
  * The hdr array is used to implement in the GRSPW-pkt Hdr the different Adresses,
- * IF there are non-first Destination Addresses.
-*/
+ * IF there are non-first Destination Addresses. \n
+ * 
+ * \param pkt the pkt targeted. 
+ * \param route the routing table. 
+ * \param idx identifier of the device. 
+ */
 void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx){
   int i;
   struct pkt_hdr *pkt_hdr = (struct pkt_hdr *)pkt->data;
@@ -637,16 +613,18 @@ void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx){
   pkt_hdr->resv2 = 0;
 }
 
-/** FORWARD DECLARATION OF FUNCTIONS USED IN TRANSMISSION AND RECEPTION */
+/* FORWARD DECLARATION OF FUNCTIONS USED IN TRANSMISSION AND RECEPTION */
 int dma_process_rx(struct grspw_device *dev);
 int dma_process_tx(struct grspw_device *dev);
 
-/** Task handling the reception.
- * The dma_sem semaphore is used so that the tasks don't overlap.
+/**
+ * \brief Task handling the reception.
+ * 
+ * The dma_sem semaphore is used so that the tasks don't overlap. \n
  * The dma_sync_rx is used so that the task isn't periodic but is triggered
- * only when something is about to be received.
- * It checks all active devices and calls the dma_process_rx function.
-*/
+ * only when something is about to be received. \n
+ * It checks all active devices and calls the dma_process_rx function. \n
+ */
 rtems_task dma_task_rx(rtems_task_argument unused){
   int i;
   struct grspw_device *dev;
@@ -667,14 +645,14 @@ rtems_task dma_task_rx(rtems_task_argument unused){
   printf(" DMA task shutdown\n");
   rtems_task_delete(RTEMS_SELF);
 }
-
-/** Task handling the transmission.
- * The dma_sem semaphore is used so that the tasks don't overlap.
+/**
+ * \brief Task handling the transmission.
+ * 
+ * The dma_sem semaphore is used so that the tasks don't overlap. \n
  * The dma_sync_tx is used so that the task isn't periodic but is triggered
- * only when something is about to be sent.
- * It checks all active devices and calls the dma_process_tx function.
-*/
-
+ * only when something is about to be sent. \n
+ * It checks all active devices and calls the dma_process_tx function. \n
+ */
 rtems_task dma_task_tx(rtems_task_argument unused){
   int i;
   struct grspw_device *dev;
@@ -697,18 +675,20 @@ rtems_task dma_task_tx(rtems_task_argument unused){
   rtems_task_delete(RTEMS_SELF);
 }
 
-/** Function called in the task dma_process_rx, used in the receiving process :
-
- * The list lst is cleared to receive the received packets.
- * - A rx_wait is done, then the packets are received from the RX_RECV
- *   list (cf documentation) with rx_recv.
- * - The obtained message is printed, then the packets are moved
+/**
+ * \brief Function called in the task dma_process_rx, used in the receiving process.
+ *
+ * The list lst is cleared to receive the received packets. \n
+ * A rx_wait is done, then the packets are received from the RX_RECV
+ *   list (cf documentation) with rx_recv. \n
+ * The obtained message is printed, then the packets are moved
  *   (append) to the rx_buf_list. (They will be moved from the
- *   rx_buf_list to the rx_list in the grspw_receiving function.)
- * - Then the reception is prepared with rx_prepare with putting Empty
- *   packet from rx_list to RX-READY (cf documentation).
- * - The rx_list is then cleared.
-*/
+ *   rx_buf_list to the rx_list in the grspw_receiving function.) \n
+ * Then the reception is prepared with rx_prepare with putting Empty
+ *   packet from rx_list to RX-READY (cf documentation). \n
+ * The rx_list is then cleared. \n
+ * \return 0 if there is no conflict.
+ */
 int dma_process_rx(struct grspw_device *dev){
 
   int cnt, rc;
@@ -729,7 +709,7 @@ int dma_process_rx(struct grspw_device *dev){
     printf(" DMA DRVQ RX_RECV: %d\n", rx_recv);
     printf(" DMA DRVQ RX_HWCNT: %d\n", rx_hwcnt);
   }
-  /*** RX PART ***/
+  /* RX PART */
   /* Try to receive packets on receiver interface */
   grspw_list_clr(&lst);
 
@@ -824,6 +804,19 @@ int dma_process_rx(struct grspw_device *dev){
   return 0;
 }
 
+/**
+ * \brief Function called in the task dma_process_tx, used in the sending process.
+ *
+ * The list lst is cleared to receive the sent packets. \n
+ * The packets are received from the TX_SENT list (cf documentation) with tx_reclaim. \n
+ * The packets are moved (append) to the tx_buf_list. \n
+ * (They will be moved from the tx_buf_list to the tx_list in the grspw_sending function.) \n
+ * The obtained message is printed. \n
+ * Then the sending is prepared with tx_send with putting the packet from tx_list to TX-SEND (cf documentation). \n
+ * The tx_list is then cleared. \n
+ * \return 0 if there is no conflict.
+ */
+
 /** Function called in the task dma_process_tx, used in the sending process :
  * The list lst is cleared to receive the sent packets.
  * The packets are received from the TX_SENT list (cf documentation) with tx_reclaim.
@@ -852,7 +845,7 @@ int dma_process_tx(struct grspw_device *dev){
     printf(" DMA DRVQ TX_HWCNT: %d\n", tx_hwcnt);
   }
 
-  /*** TX PART ***/
+  /* TX PART */
   /* Reclaim already transmitted buffers */
   /* Initialize cnt to receive as many packets as possible */
   cnt = -1;
