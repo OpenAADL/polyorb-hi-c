@@ -13,3 +13,13 @@ doc/version.texi
 support/mdate-sh
 support/texinfo.tex
 
+include/po_hi_config.h
+include/po_hi_config.h.in
+include/stamp-h1
+share/make/Makefile.common
+share/make/Makefile.native
+support/compile
+support/config.guess
+support/config.sub
+support/install-sh
+support/missing
