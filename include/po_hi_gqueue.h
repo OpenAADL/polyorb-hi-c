@@ -23,6 +23,29 @@
 #include <request.h>
 #include <po_hi_types.h>
 
+/**
+ * \brief Initialize a global queue.
+ *
+ * In a distributed system, each task has
+ * its own global queue. This function is invoked by each thead to
+ * create its global queue, according to its information (number of
+ * ports, destination of each port ...).
+
+ * \param id id of the task associated to this queue.
+ * \param nb_ports number of ports for task 'id'.
+ * \param queue XXX.
+ * \param sizes size of the FIFO for each port, or __PO_HI_GQUEUE_FIFO_OUT if this is an out port.
+ * \param first XXX.
+ * \param offsets offset position for each queue in the global queue.
+ * \param woffsets 
+ * \param n_dest number of destinations for each port.
+ * \param destinations destination for each port.
+ * \param used_size  XXX.
+ * \param history  XXX.
+ * \param recent  XXX.
+ * \param empties  XXX.
+ * \param total_fifo_sizes XXX.
+ */
 void __po_hi_gqueue_init (__po_hi_task_id       id,
 			  __po_hi_port_id_t     nb_ports,
 			  __po_hi_port_t        queue[],
@@ -37,103 +60,98 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
 			  __po_hi_request_t     recent[],
 			  __po_hi_port_id_t     empties[],
 			  __po_hi_uint32_t      total_fifo_size);
-/*
- * Initialize a global queue. In a distributed system, each task has
- * its own global queue. This function is invoked by each thead to
- * create its global queue, according to its information (number of
- * ports, destination of each port ...).
- *
- *
- * id : id of the task associated to this queue
- * nb_ports : number of ports for task 'id'
- * queue : XXX
- * sizes : size of the FIFO for each port, or __PO_HI_GQUEUE_FIFO_OUT
- *         if this is an out port;
- * first
- * ofssets: offset position for each queue in the global
- *          queue
- * woffsets :
- * n_dest : number of destinations for each port;
- * destinations : destination for each port;
- * used_size : XXX
- * history : XXX
- * recent : XXX
- * empties : XXX
- * total_fifo_sizes: XXX
- */
 
+
+
+/**
+ * \brief Store a value for an OUT port.
+ * 
+ * \param id task-id which owns the global queue.
+ * \param port port that store the value (local).
+ * \param request pointer towards the request to store in the queue.
+ */
 void __po_hi_gqueue_store_out (__po_hi_task_id id,
                                __po_hi_local_port_t port,
                                __po_hi_request_t* request);
-/* Store a value for an OUT port.
- *
- * The id argument correspond to the task-id which own the global
- * queue. The second argument is the port that store the value. The
- * last argument is the request to store in the queue.
- */
 
+
+
+/*
+ * \brief Send a value for an out port.
+ * 
+ * \param id task-id which has the global queue.
+ * \param port number of the port that will send the data.
+ * \param request pointer towards the request to store in the queue.
+ */
 /*
 int __po_hi_gqueue_send_output (__po_hi_task_id id,
                                  __po_hi_port_t port);
 */
-/*
- * Send a value for an out port.
- *
- * The first argument is the id of the task which have the global
- * queue. The second argument is the number of port that will send the
- * data
+
+
+/**
+ * \brief Get the value on the specified port.
+ * 
+ * If the port is an output, this function will return nothing,
+ * but will not produce an error. 
+ * 
+ * \param id task-id which owns the global queue.
+ * \param port number of port that received the data.
+ * \param request pointer to store the received data.
+ * \return 0 if there is no error in the assert.
  */
-
-
 int __po_hi_gqueue_get_value(__po_hi_task_id id,
 			     __po_hi_local_port_t port,
 			     __po_hi_request_t* request);
-/*
- * Get the value on the specified port.
- *
- * The id parameter corresponds to the task-id in the local
- * process. The port argument is the number of the port that received
- * the data. The request argument is a pointer to store the received
- * data. If the port is an output, this function will return nothing,
- * but will not produce an error.
- */
 
+/**
+ * \brief Dequeue the value on a port.
+ * 
+ * This function should not be called several times, until
+ * you know what you do.
+ * 
+ * \param id task-id in the local process.
+ * \param port port number.
+ * \return __PO_HI_SUCCESS if there is no error in the assert.
+ */
 int __po_hi_gqueue_next_value(__po_hi_task_id id,
 			      __po_hi_local_port_t port);
-/*
- * Dequeue the value on a port. The argument id is the task identifier
- * in the local process. The second argument is the port number for
- * the thread. This function should not be called several times, until
- * you know what you do.
- */
 
+/**
+ * \brief Return the number of events that are pending of a port.
+ * 
+ * \param id task-identifier in the local process.
+ * \param port port identifier (or port number) for the thread.
+ * \return the number of events that are pending of a port.
+ */
 int __po_hi_gqueue_get_count(__po_hi_task_id id,
 			     __po_hi_local_port_t port);
-/*
- * Return the number of events that are pending of a port. The first
- * argument is the task identifier in the local process. The second
- * argument is the port identifier (or port number) for the thread.
- */
 
+/**
+ * \brief Wait until an event is received on any port for a given thread.
+ * 
+ * When the function returns, the port argument will contrain the port-id that received the event.
+ * 
+ * \param id thread identifier in the local process.
+ * \param port pointer to a port value.
+ */
 void __po_hi_gqueue_wait_for_incoming_event(__po_hi_task_id id,
 					    __po_hi_local_port_t* port);
-/*
- * Wait until an event is received on any port for a given thread. The
- * first argument is the thread identifier in the local process. The
- * second argument is a pointer to a port value. When the function
- * returns, the port argument will contrain the port-id that received
- * the event.
- */
 
+/**
+ * \brief Store a value in a IN port.
+ * 
+ * The request argument contrains the request that will be stored in the queue.
+ * 
+ * \param id task identifier in the local process.
+ * \param port port identifier for the local thread.
+ * \param request pointer towards what will be stored in the queue.
+ * \return the number of events that are pending of a port.
+ */
 __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 					 __po_hi_local_port_t port,
 					 __po_hi_request_t* request);
-/*
- * Store a value in a IN port. The first argument is the task
- * identifier in the local process. The second argument is the port
- * identifier for the local thread. The request argument contrains the
- * request that will be stored in the queue.
- */
+
 
 __po_hi_request_t*  __po_hi_gqueue_get_most_recent_value
          (const __po_hi_task_id task_id,
@@ -147,21 +165,24 @@ __po_hi_port_t __po_hi_gqueue_get_destination (const __po_hi_task_id task_id,
 uint8_t __po_hi_gqueue_get_destinations_number (const __po_hi_task_id task_id,
                                                 const __po_hi_local_port_t local_port);
 
-/*
- * Access the size of a port. The first argument is the task
- * identifier in the local process. The second argument is the port
- * identifier for the local thread.
- */
 
+/**
+ * \brief Access the size of a port. 
+ * 
+ * \param id task identifier in the local process.
+ * \param port port identifier for the local thread.
+ * \return size of port.
+ */
 __po_hi_port_id_t __po_hi_gqueue_get_port_size(const __po_hi_task_id id,
                                             const __po_hi_local_port_t port);
 
-/*
- * Access the used size of a port. The first argument is the task
- * identifier in the local process. The second argument is the port
- * identifier for the local thread.
+/**
+ * \brief Access the used size of a port. 
+ * 
+ * \param id task identifier in the local process.
+ * \param port port identifier for the local thread.
+ * \return size of port.
  */
-
 __po_hi_port_id_t __po_hi_gqueue_used_size( __po_hi_task_id id, __po_hi_local_port_t port);
 
 __po_hi_port_id_t  po_hi_gqueues_queue_is_empty(__po_hi_task_id id);
