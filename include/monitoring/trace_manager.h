@@ -2,14 +2,20 @@
 #include <request.h>
 #include <po_hi_time.h>
 
-/** Nature of the task traced */
+/**
+ * \enum events.
+ * \brief Nature of the task traced.
+ */
 typedef enum {
 	PERIODIC = 1,
 	SPORADIC = -1,
         ANY = 0,
 } events;
 
-/** Step in which the traced-task is */
+/**
+ * \enum steps.
+ * \brief Step in which the traced-task is.
+ */
 typedef enum {
 	/* The task has just been creatd */
 	CREATION = 0,
@@ -19,7 +25,10 @@ typedef enum {
 	GET_VALUE = 4,
 } steps;
 
-/** Structure stored when an event is recorded */
+/**
+ * \struct characteristics.
+ * \brief Structure stored when an event is recorded.
+ */
 typedef struct characteristics characteristics;
 
 struct characteristics{
@@ -34,20 +43,32 @@ struct characteristics{
 	__po_hi_request_t *p_request;
 };
 
-/** Function initializing the mutex  */
+/**
+ * \brief Function initializing the mutex.
+ */
 void trace_initialize();
 
-/** Function used to trace a task. */
-/* The stored events (under the form of "characteristics" structures) are sent in an array 
+/**
+ * \brief Function used to trace a task.
+ * 
+ * The stored events (under the form of "characteristics" structures) are sent in an array 
  * and written in the history.txt file.
- * t_id is the task_id.
- * p_src and p_dest are the GLOBAL  source and destination ports if they exists / are retrievable.
- * port_src and port_dest are the LOCAL source and destination ports if they exists / are retrievable.
- * p_req is a pointer toward the request if it exists and is retrievable.
- * CONVENTION : 
+ * 
+ * WARNING.
  * If an operation is made without movement, that is to say with no source or destination (such as waiting for an event),
  * the concerned port is stored in the "src" port.
-*/
+ * 
+ * \param event The nature of the task.
+ * \param status The step in which the task is.
+ * \param task_id Identifier of the task.
+ * \param p_src and p_dest, the GLOBAL source and destination ports if they exists / are retrievable.
+ * \param port_src and port_dest, the LOCAL source and destination ports if they exists / are retrievable.
+ * \param p_req a pointer toward the request if it exists and is retrievable.
+ * 
+ * \return __PO_HI_SUCCESS if successful.
+ * \return __PO_HI_INVALID if there is an error with the txt file.
+ * \return __PO_HI_UNAVAILABLE is the time isn't retrievable.
+ */
 int record_event
 (int event, 
  int status, 

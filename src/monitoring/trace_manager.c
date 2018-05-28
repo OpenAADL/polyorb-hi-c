@@ -22,11 +22,11 @@
 
 __po_hi_mutex_t      __po_hi_c_trace_mutex;
 
-/** Array receiving all tasks */
+/* Array receiving all tasks */
 characteristics task_log[MAX_STRUCT];
-/** Integer allowing to move in the task_log array */
+/* Integer allowing to move in the task_log array */
 int nb_struct = 0;
-/** Initializing the mutex in the main.c */
+/* Initializing the mutex in the main.c */
 void trace_initialize(){
 	__po_hi_mutex_init (&__po_hi_c_trace_mutex,__PO_HI_MUTEX_REGULAR, 0);	
 }
@@ -34,31 +34,31 @@ void trace_initialize(){
 
 
 
-/** Recording all events, trace_managing */
+/* Recording all events, trace_managing */
 int record_event(int event, int stat, __po_hi_task_id t_id, __po_hi_port_t p_src, __po_hi_port_t p_dest, __po_hi_local_port_t port_src,__po_hi_local_port_t port_dest, __po_hi_request_t *p_req){
-	/** CREATION OF STREAM */
+	/* CREATION OF STREAM */
         printf("IN PROGRAM");
 	FILE *history = NULL;
-	/** CREATION OF THE STRUCTURE TO BE SENT TO TASK_LOG */
+	/* CREATION OF THE STRUCTURE TO BE SENT TO TASK_LOG */
 	characteristics my_task;
 	characteristics *p_my_task = &my_task;
-	/** EVENT */
+	/* EVENT */
 	events ev = event;
 	p_my_task->event = ev;
-	/** STATUS */
+	/* STATUS */
 	steps step = stat;	
 	p_my_task->status = step; 
-	/** TASK ID */
+	/* TASK ID */
 	p_my_task->task_id = t_id;
-	/** GLOBAL PORT SRC */
+	/* GLOBAL PORT SRC */
 	p_my_task->global_port_src = p_src;
-	/** GLOBAL PORT DEST */
+	/* GLOBAL PORT DEST */
 	p_my_task->global_port_dest = p_dest;
-	/** PORT LOCAL SRC */
+	/* PORT LOCAL SRC */
 	p_my_task->loc_port_src = port_src;
-	/** PORT LOCAL DEST */
+	/* PORT LOCAL DEST */
 	p_my_task->loc_port_dest = port_dest;
-	/** TIME */
+	/* TIME */
 	__po_hi_time_t time;
 	int gettime = __po_hi_get_time (&time);
 	if (gettime == __PO_HI_SUCCESS){
@@ -68,18 +68,18 @@ int record_event(int event, int stat, __po_hi_task_id t_id, __po_hi_port_t p_src
 		printf("Can't get the time, break");
 		return __PO_HI_UNAVAILABLE;
 	}
-	/** REQUEST */
+	/* REQUEST */
 	p_my_task->p_request = malloc (sizeof(__po_hi_request_t));
 	if (p_req != NULL){
 		memcpy(p_my_task->p_request, p_req, sizeof(__po_hi_request_t));
 	}
 	
-	/** LOCKING THE MUTEX */
+	/* LOCKING THE MUTEX */
 	printf("lock");
 	__po_hi_mutex_lock (&__po_hi_c_trace_mutex);
         printf("locked");
 
-	/** IF the log array is complete */
+	/* IF the log array is complete */
 	if (nb_struct >= 10){
 		/* A stream is opened */
                 printf("open");
@@ -103,13 +103,13 @@ int record_event(int event, int stat, __po_hi_task_id t_id, __po_hi_port_t p_src
 		fclose(history);
 	}
 
-	/** If the log array isn't complete, write in it */
+	/* If the log array isn't complete, write in it */
 	if (nb_struct < 10){
 		task_log[nb_struct] = my_task;
 		nb_struct += 1;
 	}
 
-	/** UNLOCKING THE MUTEX */
+	/* UNLOCKING THE MUTEX */
 	__po_hi_mutex_unlock (&__po_hi_c_trace_mutex);
 
 	return __PO_HI_SUCCESS;
