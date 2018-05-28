@@ -43,7 +43,7 @@
 #endif
 
 #if defined (MONITORING) /* Headers from run-time verification */
-#include <trace_manager.hh>
+#include <trace_manager.h>
 #endif
 
 #define __PO_HI_GQUEUE_OUT_PORT constant_out_identifier
@@ -167,6 +167,12 @@ void __po_hi_gqueue_store_out (__po_hi_task_id id,
    ptr = &__po_hi_gqueues_most_recent_values[id][port];
    memcpy (ptr, request, sizeof (__po_hi_request_t));
    __PO_HI_DEBUG_DEBUG ("__po_hi_gqueue_store_out() from task %d on port %d\n", id, port);
+
+#if defined (MONITORING)
+printf("record_event");
+   record_event(ANY, STORE_OUT, id, invalid_port_t, invalid_port_t, port, invalid_local_port_t, request);
+#endif
+
 }
 
 __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
@@ -268,7 +274,12 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
 
   *port = __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_offset[id]];
 
-/* Releasing only the mutex of the semaphore*/
+#if defined (MONITORING)
+  printf("record_event");
+  record_event(SPORADIC, WAIT_FOR, id, invalid_port_t, invalid_port_t, *port, invalid_local_port_t, NULL);
+
+  /** Releasing only the mutex of the semaphore*/
+
   int res = __po_hi_sem_mutex_release_gqueue(__po_hi_gqueues_semaphores,id);
   __DEBUGMSG("GQUEUE_SEM_MTUEX_RELEASE %d %d\n", id, res);
   assert(res == __PO_HI_SUCCESS);
@@ -326,7 +337,8 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
    }
 
 #if defined (MONITORING)
-   update_sporadic_dispatch (id, port);
+printf("record_event");
+   record_event(ANY, GET_VALUE, id, invalid_port_t, invalid_port_t, port, invalid_local_port_t , request);
 #endif
 
    if (__po_hi_gqueues_used_size[id][port] == 0)

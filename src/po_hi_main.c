@@ -290,7 +290,9 @@ int __po_hi_initialize ()
    /*!
     * Initialize the monitoring trace if needed
     */
+printf("soon monitoring\n ");
 #if defined (MONITORING)
+printf("trace_init");
    trace_initialize ();
 #endif
 

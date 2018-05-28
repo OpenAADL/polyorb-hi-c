@@ -701,7 +701,6 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
    */
 
 #if defined (MONITORING)
-  //__DEBUGMSG ("Periodic_task_creation\n");
   record_event(PERIODIC, CREATION, id, invalid_port_t, invalid_port_t, invalid_local_port_t, invalid_local_port_t, NULL);
 #endif
 
@@ -756,7 +755,6 @@ int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
    */
 
 #if defined (MONITORING)
-//__DEBUGMSG ("Sporadic_task_creation\n");
   record_event(SPORADIC, CREATION, id, invalid_port_t, invalid_port_t, invalid_local_port_t, invalid_local_port_t, NULL);
 #endif
 
