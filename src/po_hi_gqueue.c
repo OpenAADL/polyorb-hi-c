@@ -169,7 +169,6 @@ void __po_hi_gqueue_store_out (__po_hi_task_id id,
    __PO_HI_DEBUG_DEBUG ("__po_hi_gqueue_store_out() from task %d on port %d\n", id, port);
 
 #if defined (MONITORING)
-printf("record_event");
    record_event(ANY, STORE_OUT, id, invalid_port_t, invalid_port_t, port, invalid_local_port_t, request);
 #endif
 
@@ -267,17 +266,17 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
 
     /* Telling the semaphore to wait with putting its condvar on wait mode */
     int res_sem =  __po_hi_sem_wait_gqueue(__po_hi_gqueues_semaphores,id);
-    __DEBUGMSG("GQUEUE_SEM_WAIT %d %d\n", id, result);
+    __DEBUGMSG("GQUEUE_SEM_WAIT %d %d\n", id, res_sem);
     assert(res_sem == __PO_HI_SUCCESS);
-      __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", id);
+    __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", id);
     }
 
   *port = __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_offset[id]];
 
 #if defined (MONITORING)
-  printf("record_event");
   record_event(SPORADIC, WAIT_FOR, id, invalid_port_t, invalid_port_t, *port, invalid_local_port_t, NULL);
-
+#endif
+  
   /** Releasing only the mutex of the semaphore*/
 
   int res = __po_hi_sem_mutex_release_gqueue(__po_hi_gqueues_semaphores,id);
@@ -337,7 +336,6 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
    }
 
 #if defined (MONITORING)
-printf("record_event");
    record_event(ANY, GET_VALUE, id, invalid_port_t, invalid_port_t, port, invalid_local_port_t , request);
 #endif
 
