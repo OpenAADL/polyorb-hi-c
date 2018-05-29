@@ -1,4 +1,5 @@
-C_FILES = $(srcdir)/producer-consumer.c  $(srcdir)/devicesconf.c
+C_FILES = $(srcdir)/producer-consumer.c $(srcdir)/devicesconf.c	\
+	$(srcdir)/devicesconf_spw.c
 
 AADL_FILES = $(srcdir)/producer_consumer.aadl $(srcdir)/software.aadl
 
