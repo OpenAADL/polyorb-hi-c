@@ -109,10 +109,10 @@ public
 
   subcomponents
     pr_A : process A.Impl;
-    Device_A : device ocarina_drivers::rasta_spacewire.pohic
+    Device_A : device ocarina_drivers::rasta_spacewire.grspw_pohic
     {Source_Text => ("devicesconf_spw.c");};
     pr_B : process B.Impl;
-    Device_B :  device ocarina_drivers::rasta_spacewire.pohic
+    Device_B : device ocarina_drivers::rasta_spacewire.grspw_pohic
     {Source_Text => ("devicesconf_spw.c");};
     CPU_A : processor the_processor.i;
     CPU_B : processor the_processor.i;
