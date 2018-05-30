@@ -197,7 +197,7 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
   assert(result == __PO_HI_SUCCESS);
 
 
-   if (__po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA)
+   if (__po_hi_gqueue_get_port_size(id,port) == __PO_HI_GQUEUE_FIFO_INDATA)
    {
      memcpy(ptr,request,sizeof(*request));
    }
@@ -205,7 +205,7 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
    {
      __DEBUGMSG ("[GQUEUE] Received  message for task %d, port %d\n", id, port);
 
-      if (__po_hi_gqueues_used_size[id][port] == __po_hi_gqueues_sizes[id][port])
+      if (__po_hi_gqueue_used_size(id,port) == __po_hi_gqueue_get_port_size(id,port))
       {
         /* Releasing only a mutex */
         int res = __po_hi_sem_mutex_release_gqueue(__po_hi_gqueues_semaphores,id);
@@ -230,7 +230,7 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
       __po_hi_gqueues_woffsets[id][port] =  (__po_hi_gqueues_woffsets[id][port] + 1 ) % __po_hi_gqueues_sizes[id][port];
 
       __po_hi_gqueues_used_size[id][port]++;
-      __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueues_used_size[id][port], id, port);
+      __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueue_used_size(id,port), id, port);
 
       __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_woffset[id]] = port;
       __po_hi_gqueues_global_history_woffset[id] = (__po_hi_gqueues_global_history_woffset[id] + 1 ) % __po_hi_gqueues_total_fifo_size[id];
@@ -260,7 +260,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
   __DEBUGMSG("GQUEUE_SEM_MUTEX_WAIT %d %d\n", id, result);
   assert(result == __PO_HI_SUCCESS);
 
-  while(__po_hi_gqueues_queue_is_empty[id] == 1)
+  while(po_hi_gqueues_queue_is_empty(id) == 1)
     {
       __PO_HI_INSTRUMENTATION_VCD_WRITE("0t%d\n", id);
 
@@ -288,16 +288,15 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
 
 int __po_hi_gqueue_get_count( __po_hi_task_id id, __po_hi_local_port_t port)
 {
-   if (__po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA)
+   if (__po_hi_gqueue_get_port_size(id,port) == __PO_HI_GQUEUE_FIFO_INDATA)
    {
       return 1; /* data port are always of size 1 */
    }
    else
    {
-      return (__po_hi_gqueues_used_size[id][port]);
+      return (__po_hi_gqueue_used_size(id,port));
    }
 }
-
 
 int __po_hi_gqueue_get_value (__po_hi_task_id      id,
                               __po_hi_local_port_t port,
@@ -321,10 +320,19 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
   assert(result == __PO_HI_SUCCESS);
 
    /*
+    * If the port is an OUTPUT, with no value queued, the function returns
+    * nothing.
+    */
+   if (__po_hi_gqueue_get_port_size(id,port) == 0)
+   {
+    __DEBUGMSG("THE PORT IS AN OUTPUT, REQUEST NOT SET UP");
+    return 0;
+   }
+   /*
     * If the port is an event port, with no value queued, then we block
     * the thread.
     */
-   if (__po_hi_gqueues_sizes[id][port] != __PO_HI_GQUEUE_FIFO_INDATA)
+   if (__po_hi_gqueue_get_port_size(id,port) != __PO_HI_GQUEUE_FIFO_INDATA)
    {
       while (__po_hi_gqueues_port_is_empty[id][port] == 1)
       {
@@ -334,12 +342,10 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
         assert(res_sem == __PO_HI_SUCCESS);
       }
    }
-
-#if defined (MONITORING)
-   record_event(ANY, GET_VALUE, id, invalid_port_t, invalid_port_t, port, invalid_local_port_t , request);
-#endif
-
-   if (__po_hi_gqueues_used_size[id][port] == 0)
+   /*
+    * The request is set up
+    */
+   if (__po_hi_gqueue_used_size(id,port) == 0)
    {
       memcpy (request, ptr, sizeof (__po_hi_request_t));
       //update_runtime (id, port, ptr);
@@ -349,6 +355,10 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
       ptr = ((__po_hi_request_t *) &__po_hi_gqueues[id][port]) +  __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port];
       memcpy (request, ptr, sizeof (__po_hi_request_t));
    }
+
+#if defined (MONITORING)
+   record_event(ANY, GET_VALUE, id, invalid_port_t, invalid_port_t, port, invalid_local_port_t , request);
+#endif
 
    __PO_HI_DEBUG_INFO ("[GQUEUE] Task %d get a value on port %d\n", id, port);
 
@@ -370,7 +380,7 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
       there is a next value or not */
 
    /* XXX change and use assert ? */
-   if (__po_hi_gqueues_sizes[id][port] == __PO_HI_GQUEUE_FIFO_INDATA)
+   if (__po_hi_gqueue_get_port_size(id,port) == __PO_HI_GQUEUE_FIFO_INDATA)
    {
       return 1;
    }
@@ -386,9 +396,9 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
 
    __po_hi_gqueues_used_size[id][port]--;
 
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueues_used_size[id][port], id, port);
+   __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueue_used_size(id,port), id, port);
 
-   if (__po_hi_gqueues_used_size[id][port] == 0)
+   if (__po_hi_gqueue_used_size(id,port) == 0)
    {
       __po_hi_gqueues_n_empty[id]++;
       __po_hi_gqueues_port_is_empty[id][port] = 1;
@@ -417,7 +427,7 @@ __po_hi_request_t*  __po_hi_gqueue_get_most_recent_value (const __po_hi_task_id 
   return (&__po_hi_gqueues_most_recent_values[task_id][local_port]);
 }
 
-uint8_t __po_hi_gqueue_get_destinations_number (const __po_hi_task_id task_id, const __po_hi_local_port_t local_port)
+__po_hi_port_id_t __po_hi_gqueue_get_destinations_number (const __po_hi_task_id task_id, const __po_hi_local_port_t local_port)
 {
   return (__po_hi_gqueues_n_destinations[task_id][local_port]);
 }
@@ -440,24 +450,4 @@ __po_hi_port_id_t __po_hi_gqueue_used_size( __po_hi_task_id id, __po_hi_local_po
 __po_hi_port_id_t po_hi_gqueues_queue_is_empty( __po_hi_task_id id)
 {
    return __po_hi_gqueues_queue_is_empty[id];
-}
-
-__po_hi_request_t*
-__po_hi_gqueues_get_request(__po_hi_task_id id, __po_hi_local_port_t port)
-
- {
-  __po_hi_request_t* request ;
-  __po_hi_request_t* ptr ;
-  request = calloc(1,sizeof(__po_hi_request_t));
-  ptr = &__po_hi_gqueues_most_recent_values[id][port];
-   if (__po_hi_gqueues_used_size[id][port] == 0)
-   {
-      memcpy (request, ptr, sizeof (__po_hi_request_t));
-      //update_runtime (id, port, ptr);
-   }
-   else
-   {
-      ptr = ((__po_hi_request_t *) &__po_hi_gqueues[id][port]) +  __po_hi_gqueues_first[id][port] + __po_hi_gqueues_offsets[id][port];
-      memcpy (request, ptr, sizeof (__po_hi_request_t));
-   }	return request;
 }
