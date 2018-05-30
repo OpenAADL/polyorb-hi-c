@@ -127,7 +127,7 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
    }
 
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
-   if (rtems_semaphore_release (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
+   if (rtems_semaphore_release (sem->rtems_sem) != RTEMS_SUCCESSFUL)
    {
       __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to release to next obtain the rtems_sem\n");
       return __PO_HI_ERROR_SEM_WAIT;
@@ -253,7 +253,7 @@ int __po_hi_sem_mutex_release(__po_hi_sem_t* sem){
      return __PO_HI_ERROR_SEM_RELEASE;
   }
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
-if (rtems_semaphore_release (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
+if (rtems_semaphore_release (sem->rtems_sem) != RTEMS_SUCCESSFUL)
    {
      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to release the rtems_sem\n");
      return __PO_HI_ERROR_SEM_RELEASE;

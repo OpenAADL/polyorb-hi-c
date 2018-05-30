@@ -21,6 +21,8 @@
 #include <po_hi_returns.h>
 #include <po_hi_gqueue.h>
 #include <po_hi_main.h>
+#include <po_hi_protected.h>
+
 #include <drivers/po_hi_driver_rasta_common.h>
 #include <drivers/po_hi_rtems_utils.h>
 #include <drivers/po_hi_driver_leon_eth.h>

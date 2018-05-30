@@ -95,6 +95,9 @@ int __po_hi_gqueue_send_output (__po_hi_task_id id,
  * If the port is an output, this function will return nothing,
  * but will not produce an error. 
  * 
+ * If the port is an *IN* event port, this function will return 
+ * the last value received in the request parameter, or block until an event arrives.
+ * 
  * \param id task-id which owns the global queue.
  * \param port number of port that received the data.
  * \param request pointer to store the received data.
@@ -152,17 +155,47 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
 					 __po_hi_local_port_t port,
 					 __po_hi_request_t* request);
 
-
+/**
+ * \brief Access the most recent value queued.
+ *  
+ * The program fetches the most recent value on this port in the __po_hi_gqueue_get_most_recent_value array. 
+ * It gives the result in the form of a request.
+ * WARNING the function doesn't take into account whether the port is an output or input, if the port is empty or not.
+ * For this details, see the function get_value.
+ * 
+ * \param task_id task identifier in the local process.
+ * \param local_port port identifier for the local thread.
+ * \return the request.
+ */
 __po_hi_request_t*  __po_hi_gqueue_get_most_recent_value
          (const __po_hi_task_id task_id,
           const __po_hi_local_port_t local_port);
 
-
+/**
+ * \brief Access the destination port thanks to the destination number.
+ *  
+ * The program fetches the destination port.
+ * \param task_id task identifier in the local process.
+ * \param local_port port identifier for the local thread.
+ * \param destination_number the number of the destination (__po_hi_gqueue_get_destinations_number function).
+ * \return the port.
+ */
 __po_hi_port_t __po_hi_gqueue_get_destination (const __po_hi_task_id task_id,
                                                const __po_hi_local_port_t local_port,
                                                const uint8_t destination_number);
 
-uint8_t __po_hi_gqueue_get_destinations_number (const __po_hi_task_id task_id,
+/**
+ * \brief Access the destination number (for a specified port).
+ *  
+ * The program fetches the destination number in the __po_hi_gqueues_n_destinations array.
+ * It gives the destination number in the form of a __po_hi_port_id_t.
+ * It can be used then to get the destination port with the get_destination function.
+ * 
+ * \param task_id task identifier in the local process.
+ * \param local_port port identifier for the local thread.
+ * \return the number.
+ */
+__po_hi_port_id_t __po_hi_gqueue_get_destinations_number (const __po_hi_task_id task_id,
                                                 const __po_hi_local_port_t local_port);
 
 
@@ -185,8 +218,14 @@ __po_hi_port_id_t __po_hi_gqueue_get_port_size(const __po_hi_task_id id,
  */
 __po_hi_port_id_t __po_hi_gqueue_used_size( __po_hi_task_id id, __po_hi_local_port_t port);
 
+/**
+ * \brief Check whether the queue belonging to the id task is empty.
+ *  
+ * The program checks the array __po_hi_gqueues_queue_is_empty.
+ * \param id task identifier in the local process.
+ * \return the value in the array.
+ * \return 0 and 1 if the queue is not empty because of array construction.
+ */
 __po_hi_port_id_t  po_hi_gqueues_queue_is_empty(__po_hi_task_id id);
-
-__po_hi_request_t* __po_hi_gqueues_get_request(__po_hi_task_id id, __po_hi_local_port_t port);
 
 #endif /* __PO_HI_GQUEUE_H__ */
