@@ -21,6 +21,8 @@
 #include <po_hi_messages.h>
 #include <po_hi_transport.h>
 #include <po_hi_gqueue.h>
+#include <po_hi_protected.h>
+
 #include <drivers/po_hi_driver_serial_common.h>
 /* po-hi-c related files */
 
@@ -58,7 +60,7 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
    unsigned long swap_value;
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Hello, i'm the serial poller , must read %d bytes!\n",
-			__PO_HI_MESSAGES_MAX_SIZE);
+                        __PO_HI_MESSAGES_MAX_SIZE);
 
    __po_hi_msg_reallocate (&__po_hi_c_driver_serial_linux_poller_msg);
 
@@ -67,12 +69,12 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
    while (n < __PO_HI_MESSAGES_MAX_SIZE)
    {
        if (read (po_hi_c_driver_serial_fd_read, &(__po_hi_c_driver_serial_linux_poller_msg.content[n]), 1) != 1)
-	{
-	    __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Cannot read !\n");
-	    return;
-	}
+        {
+            __PO_HI_DEBUG_CRITICAL ("[LINUX SERIAL] Cannot read !\n");
+            return;
+        }
 
-	n++;
+        n++;
    }
 
 
@@ -106,7 +108,7 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
    if (__po_hi_c_driver_serial_linux_request.port > __PO_HI_NB_PORTS)
    {
       __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Invalid port number %d !\n",
-			   __po_hi_c_driver_serial_linux_request.port);
+                           __po_hi_c_driver_serial_linux_request.port);
       return;
    }
 
@@ -158,7 +160,7 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
 
    tcgetattr (po_hi_c_driver_serial_fd_write, &oldtio);  /* save current serial port settings */
    tcgetattr (po_hi_c_driver_serial_fd_write, &newtio);  /* save current serial port settings */
-        
+
    newtio.c_cflag |= CREAD ;
    newtio.c_iflag = IGNPAR | IGNBRK;
    newtio.c_lflag |= ICANON;
@@ -193,7 +195,7 @@ void __po_hi_c_driver_serial_linux_init_sender (__po_hi_device_id id)
          break;
    }
 
-   /* 
+   /*
     * clean the serial line and activate the settings for the port
     */
    if (tcflush (po_hi_c_driver_serial_fd_write, TCIOFLUSH) == -1)
@@ -242,7 +244,7 @@ void __po_hi_c_driver_serial_linux_init_receiver (__po_hi_device_id id)
 
    tcgetattr (po_hi_c_driver_serial_fd_read, &oldtio);  /* save current serial port settings */
    tcgetattr (po_hi_c_driver_serial_fd_read, &newtio);  /* save current serial port settings */
-        
+
    newtio.c_cflag |= CREAD ;
    newtio.c_iflag = IGNPAR | IGNBRK;
    newtio.c_lflag |= ICANON;
@@ -352,9 +354,9 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
          fsync(po_hi_c_driver_serial_fd_write);
 
          if (n <= 0)
-   	   {
-      	    __PO_HI_DEBUG_DEBUG (" [LINUX SERIAL] failed to write !\n");
-   	   }
+           {
+            __PO_HI_DEBUG_DEBUG (" [LINUX SERIAL] failed to write !\n");
+           }
       }
 
    }
@@ -365,17 +367,17 @@ int  __po_hi_c_driver_serial_linux_sender (__po_hi_task_id task_id, __po_hi_port
       fsync(po_hi_c_driver_serial_fd_write);
 
       if (n < 0)
-   	{
-      	 __PO_HI_DEBUG_CRITICAL (" [LINUX SERIAL] failed !\n");
-   	}
+        {
+         __PO_HI_DEBUG_CRITICAL (" [LINUX SERIAL] failed !\n");
+        }
       else if((0 <= n)&(n < __PO_HI_MESSAGES_MAX_SIZE))
-   	{
-      	 __PO_HI_DEBUG_CRITICAL (" [LINUX SERIAL] Unable write !\n");
-   	}
+        {
+         __PO_HI_DEBUG_CRITICAL (" [LINUX SERIAL] Unable write !\n");
+        }
       else
-   	{
-      	 __PO_HI_DEBUG_DEBUG (" [LINUX SERIAL] OK !\n");
-   	}
+        {
+         __PO_HI_DEBUG_DEBUG (" [LINUX SERIAL] OK !\n");
+        }
 
    }
 
