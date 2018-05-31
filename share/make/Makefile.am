@@ -1,6 +1,4 @@
-EXTRA_DIST=$(builddir)/Makefile.common $(srcdir)/Makefile.arm.dslinux	\
-             $(srcdir)/Makefile.arm.n770 $(srcdir)/Makefile.leon.ork	\
-             $(srcdir)/Makefile.leon3-xm3				\
+EXTRA_DIST=$(builddir)/Makefile.common $(srcdir)/Makefile.leon3-xm3	\
              $(srcdir)/Makefile.leon3-scoc3				\
              $(srcdir)/Makefile.leon3-xtratum				\
              $(srcdir)/Makefile.leon.rtems				\
@@ -10,12 +8,7 @@ EXTRA_DIST=$(builddir)/Makefile.common $(srcdir)/Makefile.arm.dslinux	\
              $(srcdir)/Makefile.linux32-xenomai-native			\
              $(srcdir)/Makefile.linux32-xenomai-posix			\
              $(srcdir)/Makefile.linux64 $(srcdir)/Makefile.win32	\
-             $(srcdir)/Makefile.x86.rtems				\
-             $(srcdir)/Makefile.x86.rtems_posix				\
              $(srcdir)/Makefile.x86.linuxtaste				\
-             $(srcdir)/Makefile.nds.rtems				\
-             $(srcdir)/Makefile.gumstix.rtems				\
-             $(srcdir)/Makefile.spif.rtems				\
              $(srcdir)/Makefile.template $(srcdir)/Makefile.freertos
 
 CLEANFILES = *~
