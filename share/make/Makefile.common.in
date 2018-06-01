@@ -255,7 +255,7 @@ endif
 
 compile-node: $(BINARY)
 
-ifeq ($(TARGET), $(filter $(TARGET), leon3-scoc3 leon.rtems leon.rtems_posix))
+ifeq ($(TARGET), $(filter $(TARGET), leon3-scoc3 leon.rtems leon.rtems_posix air))
 OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
 $(BINARY):
 	if [  x"$$RTEMS_MAKEFILE_PATH" = x"" ]; then \
