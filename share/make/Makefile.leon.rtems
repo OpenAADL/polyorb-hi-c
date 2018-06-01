@@ -21,55 +21,46 @@ endef
 MANAGERS = all
 LIBS = -lrtemsall -lc
 
-CC                           = $(CC_FOR_TARGET)
-CPP                          = $(CXX_FOR_TARGET)
-LD                           = $(LD_FOR_TARGET)
-GPROF                        = sparc-rtems-gprof
-
-TARGET_SOURCES               =
-#TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
-TARGET_TRANSPORT_SOURCES     =
-
-TARGET_CFLAGS                = -D__PO_HI_RTEMS_CLASSIC_API -DLEON_RTEMS $(GCC_GENERIC_FLAGS)  $(CPU_FLAGS) $(AM_FLAGS) $(GCCSPECS)
+POHI_CFLAGS                = -D__PO_HI_RTEMS_CLASSIC_API -DLEON_RTEMS $(GCC_GENERIC_FLAGS)
 TARGET_INCLUDE               = -I$(RUNTIME_PATH)/config/leon-rtems/
 
 TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
 
 ifndef RTEMS_API
-   TARGET_CFLAGS                +=  -DRTEMS48
+   POHI_CFLAGS                +=  -DRTEMS48
    TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.8/ -lm
 endif
 
 ifeq ($(RTEMS_API),4.8)
-   TARGET_CFLAGS                +=  -DRTEMS48
+   POHI_CFLAGS                +=  -DRTEMS48
    TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.8/  -lm
 endif
 
 ifeq ($(RTEMS_API),4.10)
-   TARGET_CFLAGS                +=  -DRTEMS410
+   POHI_CFLAGS                +=  -DRTEMS410
 endif
 
 ifeq ($(RTEMS_API),4.11)
-   TARGET_CFLAGS                +=  -DRTEMS411
+   POHI_CFLAGS                +=  -DRTEMS411
    TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.11/ -lm
 endif
 
 ifeq ($(RTEMS_API),4.12)
-   TARGET_CFLAGS                +=  -DRTEMS412
+   POHI_CFLAGS                +=  -DRTEMS412
    TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.12/ -lm
 endif
 
 ifeq ($(RTEMS_API),5)
-   TARGET_CFLAGS                +=  -DRTEMS412
+   POHI_CFLAGS                +=  -DRTEMS412
    TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.12/ -lm
 endif
 
 ifeq ($(RTEMS_BSP),leon3)
-   TARGET_CFLAGS                +=  -DGRLEON3
+   POHI_CFLAGS                +=  -DGRLEON3
 endif
 
 ifeq ($(RTEMS_BSP),leon2)
-   TARGET_CFLAGS                +=  -DGRLEON2
+   POHI_CFLAGS                +=  -DGRLEON2
 endif
 
 

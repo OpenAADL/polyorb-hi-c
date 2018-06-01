@@ -27,12 +27,12 @@ TARGET_SOURCES               =
 #TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
 TARGET_TRANSPORT_SOURCES     = 
 
-TARGET_CFLAGS                = -D__PO_HI_RTEMS_CLASSIC_API -DLEON_RTEMS $(GCC_GENERIC_FLAGS)  $(CPU_FLAGS) $(AM_FLAGS) $(GCCSPECS)
+POHI_CFLAGS                = -D__PO_HI_RTEMS_CLASSIC_API -DLEON_RTEMS $(GCC_GENERIC_FLAGS)  $(CPU_FLAGS) $(AM_FLAGS) $(GCCSPECS)
 TARGET_INCLUDE               = -I $(RUNTIME_PATH)/config/leon-rtems/
 
 TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
 
-TARGET_CFLAGS                +=  -DRTEMS410
+POHI_CFLAGS                +=  -DRTEMS410
    
 target-clean:
 

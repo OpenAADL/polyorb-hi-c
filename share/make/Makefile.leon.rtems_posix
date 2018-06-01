@@ -13,25 +13,7 @@ LIBS = -lrtemsall -lc
 -include $(RTEMS_CUSTOM)
 -include $(PROJECT_ROOT)/make/leaf.cfg
 
-define bsp-post-link
-   $(NM) -g -n $@ > $(basename $@).num
-   $(SIZE) $@
-endef
-
-CC                           = $(CC_FOR_TARGET)
-CPP                          = $(CXX_FOR_TARGET)
-LD                           = $(LD_FOR_TARGET)
-GPROF                        = sparc-rtems-gprof
-
-TARGET_SOURCES               =
-#TARGET_TRANSPORT_SOURCES     = $(RUNTIME_PATH)/config/leon-rtems/config.c
-TARGET_TRANSPORT_SOURCES     =
-
-TARGET_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS $(GCC_GENERIC_FLAGS) $(CPU_FLAGS) $(AM_FLAGS) $(GCCSPECS)
-
-TARGET_INCLUDE               =
-
-TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
+POHI_CFLAGS                = -DRTEMS_POSIX -DLEON_RTEMS $(GCC_GENERIC_FLAGS)
 
 ##############################################################################
 # RTEMS_API is defined as part of RTEMS BSP Makefile. It reports the
@@ -41,30 +23,30 @@ TARGET_LDFLAGS               = -lrtemsbsp -lc -lm
 # variant of RTEMS.
 
 ifndef RTEMS_API
-   TARGET_CFLAGS                +=  -DRTEMS48
+   POHI_CFLAGS                +=  -DRTEMS48
    TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.8/ -lm
 endif
 
 ifeq ($(RTEMS_API),4.8)
-   TARGET_CFLAGS                +=  -DRTEMS48
+   POHI_CFLAGS                +=  -DRTEMS48
 endif
 
 ifeq ($(RTEMS_API),4.10)
-   TARGET_CFLAGS                +=  -DRTEMS410
+   POHI_CFLAGS                +=  -DRTEMS410
 endif
 
 ifeq ($(RTEMS_API),4.11)
-   TARGET_CFLAGS                +=  -DRTEMS411
+   POHI_CFLAGS                +=  -DRTEMS411
    TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.11/ -lm
 endif
 
 ifeq ($(RTEMS_API),4.12)
-   TARGET_CFLAGS                +=  -DRTEMS412
+   POHI_CFLAGS                +=  -DRTEMS412
    TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.12/ -lm
 endif
 
 ifeq ($(RTEMS_API),5)
-   TARGET_CFLAGS                +=  -DRTEMS412
+   POHI_CFLAGS                +=  -DRTEMS412
    TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.12/ -lm
 endif
 
@@ -78,20 +60,20 @@ endif
 # LEON3: RCC 1.3 macro to enables LEON3 peripherals.
 
 ifeq ($(RTEMS_BSP),gr740)
-   TARGET_CFLAGS                +=  -DGRLEON3
+   POHI_CFLAGS                +=  -DGRLEON3
 endif
 
 ifeq ($(RTEMS_BSP),leon3)
-   TARGET_CFLAGS                +=  -DGRLEON3 -DLEON3
+   POHI_CFLAGS                +=  -DGRLEON3 -DLEON3
 endif
 
 # leon3_sf is provided by RCC 1.3
 ifeq ($(RTEMS_BSP),leon3_sf)
-   TARGET_CFLAGS                +=  -DGRLEON3 -DLEON3
+   POHI_CFLAGS                +=  -DGRLEON3 -DLEON3
 endif
 
 ifeq ($(RTEMS_BSP),leon2)
-   TARGET_CFLAGS                +=  -DGRLEON2
+   POHI_CFLAGS                +=  -DGRLEON2
 endif
 
 ifdef USE_GPROF
@@ -109,6 +91,5 @@ LINK_LIBS+=-lm
 
 emulate-qemu: $(BINARY)
 	qemu-system-sparc -M at697 -nographic -kernel $(BINARY).exe
-
 
 target-clean:

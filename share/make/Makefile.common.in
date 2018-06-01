@@ -51,7 +51,7 @@ ifneq ($(USER_LD),)
 LD=$(USER_LD)
 endif
 
-CFLAGS=$(TARGET_CFLAGS) $(USER_CFLAGS) $(GCC_GENERIC_CFLAGS)
+CFLAGS=$(POHI_CFLAGS) $(USER_CFLAGS) $(GCC_GENERIC_CFLAGS)
 CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
 LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS)
 
@@ -183,7 +183,7 @@ check-linuxtaste:
 
 ifeq ($(MONITORING), true)
 
-MONITORING_OBJS = trace_manager.o 
+MONITORING_OBJS = trace_manager.o
 PO_HI_OBJS += $(MONITORING_OBJS)
 CFLAGS += -DMONITORING
 INCLUDE += -I$(LOCAL_RUNTIME_PATH)/src \
@@ -261,21 +261,26 @@ $(BINARY):
 	if [  x"$$RTEMS_MAKEFILE_PATH" = x"" ]; then \
 		echo "Please define the RTEMS_MAKEFILE_PATH variable, exiting" ; \
 	else \
-		$(MAKE) generate-asn1-deployment compile-c-files compile-cpp-files compile-ada-files target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) ; \
-		$(CC) -o $(BINARY) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) $(CFLAGS) ; \
+		$(MAKE) generate-asn1-deployment compile-c-files compile-cpp-files compile-ada-files target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(BINARY).exe ;\
 	fi
+
+$(BINARY).exe:
+	$(make-exe)
+
 endif
 
 ### The following is to be revisited
 ifeq ($(TARGET), leon3-xm3)
 OBJS = $(USER_OBJS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(EXTERNAL_OBJECTS)
 $(BINARY):
-	if [ x"$(shell which sparc-rtems-gcc)" = x ]; then \
-		echo "XtratuM not installed, exiting" ; \
-	else \
-		$(MAKE) generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS); \
-	fi
+	@echo XtratuM target disabled
 endif
+#if [ x"$(shell which sparc-rtems-gcc)" = x ]; then \
+#		echo "XtratuM not installed, exiting" ; \
+#	else \
+#		$(MAKE) generate-asn1-deployment target-objects compile-po-hi $(USER_OBJS) $(GENERATED_OBJS); \
+#	fi
+
 
 
 ifeq ($(TARGET), $(filter $(TARGET), x86.rtems x86.rtems_posix))
@@ -343,12 +348,14 @@ endif
 ifeq ($(TARGET), $(filter $(TARGET), linux32-xenomai-posix linux32-xenomai-native))
 EXE=$(BINARY)
 $(BINARY):
-	@if [ x"$(shell which xeno-config)" = x ]; then \
-		echo "Xenomai is not installed in your system, exiting" ; \
-	else \
-		$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS) ; \
-		$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) ; \
-	fi
+	@echo Xenomai target disabled
+
+#@if [ x"$(shell which xeno-config)" = x ]; then \
+#		echo "Xenomai is not installed in your system, exiting" ; \
+#	else \
+#		$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS) ; \
+#		$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) ; \
+#	fi
 endif
 
 ifeq ($(TARGET), arm.dslinux)
@@ -457,7 +464,7 @@ sonarproperties:
 CPPCHECK_FLAGS= -v --enable=all --xml-version=2 --std=c99 --platform=unix64 --rule-file=gnu.cfg --rule-file=std.cfg --rule-file=posix.cfg
 
 cppcheck:
-	cppcheck $(CPPCHECK_FLAGS) $(INCLUDE) -I$(LOCAL_RUNTIME_PATH)/include  $(TARGET_CFLAGS) $(USER_CFLAGS) $(LOCAL_RUNTIME_PATH)/src $(PWD) 2> cppcheck.xml
+	cppcheck $(CPPCHECK_FLAGS) $(INCLUDE) -I$(LOCAL_RUNTIME_PATH)/include  $(POHI_CFLAGS) $(USER_CFLAGS) $(LOCAL_RUNTIME_PATH)/src $(PWD) 2> cppcheck.xml
 
 ################################################################################
 # valgrind: run the valgrind binary analyser
