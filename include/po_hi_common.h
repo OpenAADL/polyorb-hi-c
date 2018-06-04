@@ -48,11 +48,11 @@
    #define CONFIGURE_MAXIMUM_TASKS 20
    #define CONFIGURE_MAXIMUM_POSIX_THREADS               __PO_HI_NB_TASKS + 10
 
-   #define CONFIGURE_MAXIMUM_SEMAPHORES    20 // IRQ layer needs one semaphore
-   #define CONFIGURE_MAXIMUM_MESSAGE_QUEUES    20
+   #define CONFIGURE_MAXIMUM_SEMAPHORES 20 // GRSPW1 IRQ layer needs one semaphore
+   #define CONFIGURE_MAXIMUM_MESSAGE_QUEUES 20
    #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 32
    #define CONFIGURE_MAXIMUM_DRIVERS 32
-   #define CONFIGURE_MAXIMUM_PERIODS             1
+   #define CONFIGURE_MAXIMUM_PERIODS 1
 
    #define CONFIGURE_POSIX_INIT_THREAD_TABLE
 
@@ -93,22 +93,25 @@
  #ifdef CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
   #define CONFIGURE_DRIVER_AMBAPP_GAISLER_APBUART
  #endif
-#endif
+
+ #define CONFIGURE_DRIVER_AMBAPP_GAISLER_SPW_ROUTER /* SpaceWire Router  */
+ #define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRSPW2     /* SpaceWire Packet driver */
+
+ #ifdef __PO_HI_NEED_DRIVER_GRETH
+  #define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRETH      /* GRETH Driver enabled*/
+  #define CONFIGURE_DRIVER_PCI_GR_LEON4_N2X          /* GR-CPCI-LEON4-N2X has two GRETH network MACs */
+  #define ENABLE_NETWORK
+ #endif
+
+#endif /* defined(RTEMS_DRVMGR_STARTUP) && defined(LEON3) */
 
 void *POSIX_Init (void);
-
-#define CONFIGURE_DRIVER_AMBAPP_GAISLER_SPW_ROUTER /* SpaceWire Router  */
-#define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRSPW2     /* SpaceWire Packet driver */
-
-#ifdef __PO_HI_NEED_DRIVER_GRETH
-#define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRETH      /* GRETH Driver enabled*/
-#define CONFIGURE_DRIVER_PCI_GR_LEON4_N2X          /* GR-CPCI-LEON4-N2X has two GRETH network MACs */
-#define ENABLE_NETWORK
-#endif
 
 #endif  /*GRLEON3 && RTEMS412*/
 
 #include <rtems/confdefs.h>
+
+#if defined(RTEMS_DRVMGR_STARTUP) && defined(LEON3)
 #include <drvmgr/drvmgr_confdefs.h>
 
 /* config.c is directly provided by RCC1.3 and initialized drivers per
@@ -116,6 +119,7 @@ void *POSIX_Init (void);
  */
 
 #include "../src/config.c"
+#endif /* defined(RTEMS_DRVMGR_STARTUP) && defined(LEON3) */
 
 #endif  /* RTEMS_POSIX */
 
