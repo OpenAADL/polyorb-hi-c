@@ -1,12 +1,16 @@
+package scenario
+public
+  with Ocarina_Config;
+
 system topsystem
 properties
   Ocarina_Config::AADL_Files           =>
     ("latency.aadl");
   Ocarina_Config::Generator            => polyorb_hi_c;
   Ocarina_Config::Needed_Property_Sets =>
-    (value (Ocarina_Config::Data_Model),
-     value (Ocarina_Config::Deployment),
-     value (Ocarina_Config::Cheddar_Properties));
+    (Ocarina_Config::Data_Model,
+     Ocarina_Config::Deployment,
+     Ocarina_Config::Cheddar_Properties);
   Ocarina_Config::AADL_Version         => AADLv2;
   Ocarina_Config::Use_Components_Library => true;
   Ocarina_Config::Root_System_Name
@@ -15,3 +19,5 @@ end topsystem;
 
 system implementation topsystem.distributedallperiodicdelayed
 end topsystem.distributedallperiodicdelayed;
+
+end scenario;
