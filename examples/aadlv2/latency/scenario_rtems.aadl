@@ -1,18 +1,15 @@
-system topsystem
-properties
-  Ocarina_Config::Timeout_Property     => 1000ms;
-  Ocarina_Config::Use_Components_Library => true;
-  Ocarina_Config::AADL_Files           => 
-    ("latency.aadl");
-  Ocarina_Config::Generator            => polyorb_hi_c;
-  Ocarina_Config::Root_System_Name => "topsystem.RTEMS";
-  Ocarina_Config::Needed_Property_Sets => 
-    (value (Ocarina_Config::Data_Model),
-     value (Ocarina_Config::Deployment),
-     value (Ocarina_Config::Cheddar_Properties));
-  Ocarina_Config::AADL_Version         => AADLv2;
-end topsystem;
+package scenario
+public
+  with Ocarina_Config;
 
-system implementation topsystem.distributedallperiodicdelayed
-end topsystem.distributedallperiodicdelayed;
+  system topsystem extends Ocarina_Library::Default_PolyORB_HI_C_Config
+  properties
+    Ocarina_Config::AADL_Files           =>
+      ("latency.aadl");
+    Ocarina_Config::Root_System_Name => "topsystem.RTEMS";
+  end topsystem;
 
+  system implementation topsystem.distributedallperiodicdelayed
+  end topsystem.distributedallperiodicdelayed;
+
+end scenario;

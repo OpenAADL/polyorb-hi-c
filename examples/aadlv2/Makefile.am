@@ -1,6 +1,6 @@
 SUBDIRS = d3.1.3-1 ping rma sunseeker producer-consumer some-types	\
 	some-types-stdint flight-mgmt import monitor lua cpp		\
-	packet-store file-store
+	packet-store file-store latency
 
 SAMPLE_DIR = ${shell $(CYGPATH_U) '$(OCARINA_PREFIX)/examples/ocarina/polyorb-hi-c/aadlv2'}
 
@@ -20,4 +20,3 @@ check-all:
 	for dir in $(SUBDIRS); do \
                 ($(MAKE) -C $${dir} check-all) || exit 1;  \
         done
-
