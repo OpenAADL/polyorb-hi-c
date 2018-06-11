@@ -208,6 +208,7 @@ AC_OUTPUT([
         examples/aadlv1/rma/Makefile
         examples/aadlv1/sunseeker/Makefile
         examples/aadlv2/Makefile
+        examples/aadlv2/code_coverage/Makefile
         examples/aadlv2/cpp/Makefile
         examples/aadlv2/d3.1.3-1/Makefile
         examples/aadlv2/import/Makefile

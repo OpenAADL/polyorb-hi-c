@@ -549,31 +549,3 @@ int __po_hi_wait_initialization (void)
   return (__PO_HI_UNAVAILABLE);
 #endif
 }
-
-#ifdef __PO_HI_USE_GPROF
-void __po_hi_wait_end_of_instrumentation ()
-{
-#ifdef __PO_HI_RTEMS_CLASSIC_API
-   rtems_task_wake_after (10000000 / _TOD_Microseconds_per_tick);
-#else
-   #include <po_hi_time.h>
-   #include <unistd.h>
-
-   __po_hi_time_t now;
-   __po_hi_time_t ten_secs;
-   __po_hi_time_t time_to_wait;
-   __po_hi_get_time (&now);
-   __po_hi_seconds (&ten_secs, 10);
-   __po_hi_add_times (&time_to_wait, &ten_secs, &now);
-   __po_hi_delay_until (&time_to_wait);
-#endif
-  __DEBUGMSG ("Call exit()\n");
-  __po_hi_tasks_killall ();
-   exit (1);
-
-  __DEBUGMSG ("exit() called\n");
-#ifdef __PO_HI_RTEMS_CLASSIC_API
-  rtems_task_delete (rtems_self ());
-#endif
-}
-#endif
