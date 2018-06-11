@@ -1,21 +1,16 @@
 package Software
 public
   with Data_Model;
+  with Base_Types;
 
 ----------
 -- Data --
 ----------
 
-data Boolean_Type
-properties
-  Data_Model::Data_Representation => integer;
-  Source_Data_Size => 2 Bytes;
+data Boolean_Type extends Base_Types::Boolean
 end Boolean_Type;
 
-data Integer_Type
-properties
-  Data_Model::Data_Representation => integer;
-  Source_Data_Size => 4 Bytes;
+data Integer_Type extends Base_Types::Integer
 end Integer_Type;
 
 -----------------
@@ -69,7 +64,7 @@ features
 end Emitter_Wrapper;
 
 subprogram implementation Emitter_Wrapper.Impl
-calls 
+calls
 Mycalls: {
   B_Spg : subprogram Emit_Boolean;
   I_Spg : subprogram Emit_Integer;
@@ -87,11 +82,11 @@ thread Emitter
 features
   Boolean_Source : out event data port Boolean_Type;
   Integer_Source : out event data port Integer_Type;
-  
+
 end Emitter;
 
 thread implementation Emitter.Impl
-calls 
+calls
 Mycalls: {
   Emitter_Wrapper : subprogram Emitter_Wrapper.Impl;
 };
@@ -109,7 +104,7 @@ features
 end Boolean_Receiver;
 
 thread implementation Boolean_Receiver.Impl
-calls 
+calls
 Mycalls: {
   B_Spg : subprogram Receive_Boolean;
 };
@@ -126,7 +121,7 @@ features
 end Integer_Receiver;
 
 thread implementation Integer_Receiver.Impl
-calls 
+calls
 Mycalls: {
   I_Spg : subprogram Receive_Integer;
 };

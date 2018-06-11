@@ -5,6 +5,7 @@ public
 
   system some_types extends Ocarina_Library::Default_PolyORB_HI_C_Config
   properties
+    Ocarina_Config::Timeout_Property     => 10500ms;
     Ocarina_Config::Referencial_Files    =>
     ("node_a", "node_a.ref",
     "node_b", "node_b.ref");
