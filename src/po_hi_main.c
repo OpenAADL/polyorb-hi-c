@@ -253,19 +253,33 @@ int __po_hi_initialize ()
          switch (pkind)
          {
             case __PO_HI_IN_DATA_INTER_PROCESS:
-               portno = XM_create_sampling_port (__po_hi_transport_get_model_name (tmp), __po_hi_transport_get_queue_size (tmp), XM_DESTINATION_PORT);
+               portno = XM_create_sampling_port
+                 (__po_hi_transport_get_model_name (tmp),
+                  __po_hi_transport_get_queue_size (tmp),
+                  XM_DESTINATION_PORT);
                break;
 
             case __PO_HI_OUT_DATA_INTER_PROCESS:
-               portno = XM_create_sampling_port (__po_hi_transport_get_model_name (tmp), __po_hi_transport_get_queue_size (tmp), XM_SOURCE_PORT);
+               portno = XM_create_sampling_port
+                 (__po_hi_transport_get_model_name (tmp),
+                  __po_hi_transport_get_queue_size (tmp),
+                  XM_SOURCE_PORT);
                break;
 
             case __PO_HI_IN_EVENT_DATA_INTER_PROCESS:
-               portno = XM_create_queuing_port (__po_hi_transport_get_model_name (tmp), __po_hi_transport_get_queue_size (tmp), __po_hi_transport_get_data_size (tmp), XM_DESTINATION_PORT);
+               portno = XM_create_queuing_port
+                 (__po_hi_transport_get_model_name (tmp),
+                  __po_hi_transport_get_queue_size (tmp),
+                  __po_hi_transport_get_data_size (tmp),
+                  XM_DESTINATION_PORT);
                break;
 
             case __PO_HI_OUT_EVENT_DATA_INTER_PROCESS:
-               portno = XM_create_queuing_port (__po_hi_transport_get_model_name (tmp), __po_hi_transport_get_queue_size (tmp), __po_hi_transport_get_data_size (tmp), XM_SOURCE_PORT);
+               portno = XM_create_queuing_port
+                 (__po_hi_transport_get_model_name (tmp),
+                  __po_hi_transport_get_queue_size (tmp),
+                  __po_hi_transport_get_data_size (tmp),
+                  XM_SOURCE_PORT);
                break;
 
             default:
@@ -273,17 +287,147 @@ int __po_hi_initialize ()
                break;
          }
 
-         if (portno < 0)
-         {
-               __DEBUGMSG ("[MAIN] Cannot open port %d, name=%s, return=%d\n", tmp, __po_hi_transport_get_model_name (tmp), portno);
-         }
-         else
-         {
-               __po_hi_transport_xtratum_port_init (tmp, portno);
-               __DEBUGMSG ("[MAIN] Port %d (name=%s) created, identifier = %d\n", tmp, __po_hi_transport_get_model_name (tmp), portno);
+         if (portno < 0) {
+           __DEBUGMSG ("[MAIN] Cannot open port %d, name=%s, return=%d\n",
+                       tmp, __po_hi_transport_get_model_name (tmp), portno);
+         } else {
+           __po_hi_transport_xtratum_port_init (tmp, portno);
+           __DEBUGMSG ("[MAIN] Port %d (name=%s) created, identifier = %d\n",
+                       tmp, __po_hi_transport_get_model_name (tmp), portno);
          }
 
       }
+   }
+#endif
+
+#if (defined (AIR_HYPERVISOR) && (__PO_HI_NB_PORTS > 0))
+   #include <deployment.h>
+   #include <po_hi_types.h>
+   #include <po_hi_transport.h>
+
+   #include <a653.h>
+   #include <air.h>
+   #include <imaspex.h>
+
+   __po_hi_port_kind_t        pkind;
+   __po_hi_port_t             tmp;
+   __po_hi_node_t             tmpnode;
+   __po_hi_node_t             mynode;
+   int                        portno;
+   int rc;
+
+   SYSTEM_TIME_TYPE PERIOD = 1000000;
+   PARTITION_ID_TYPE self_id;
+
+   /* Initialize inter-partition communication subsystem */
+   imaspex_init();
+
+   GET_PARTITION_ID(&self_id, &rc);
+   if(NO_ERROR != rc) {
+     printf("GET_PARTITION_ID error %d\n", rc);
+   }
+
+   printf("Initializing partition %d...\n", self_id);
+
+   mynode = __po_hi_transport_get_mynode ();
+
+   for (tmp = 0 ; tmp < __PO_HI_NB_PORTS ; tmp++)
+   {
+      pkind = __po_hi_transport_get_port_kind (tmp);
+      tmpnode = __po_hi_transport_get_node_from_entity
+        (__po_hi_get_entity_from_global_port (tmp));
+
+      if ((tmpnode == mynode) &&
+          ( (pkind ==  __PO_HI_IN_DATA_INTER_PROCESS)          ||
+            (pkind ==  __PO_HI_OUT_DATA_INTER_PROCESS)         ||
+            (pkind ==  __PO_HI_IN_EVENT_DATA_INTER_PROCESS)    ||
+            (pkind ==  __PO_HI_OUT_EVENT_DATA_INTER_PROCESS)
+          )) {
+
+        __DEBUGMSG ("[MAIN] Should init port %d\n", tmp);
+
+        portno = -1;
+        switch (pkind) {
+
+        case __PO_HI_IN_DATA_INTER_PROCESS:
+          CREATE_SAMPLING_PORT
+            (__po_hi_transport_get_model_name (tmp),
+             __po_hi_transport_get_data_size (tmp),
+             DESTINATION,
+             PERIOD,
+             &portno,
+             &rc);
+
+          if (rc != NO_ERROR) {
+            __DEBUGMSG("=>>> CREATE_SAMPLING_PORT error %d %d %d %d\n",
+                   rc, INVALID_MODE, INVALID_CONFIG,
+                   __po_hi_transport_get_queue_size (tmp));
+          }
+          break;
+
+        case __PO_HI_OUT_DATA_INTER_PROCESS:
+          CREATE_SAMPLING_PORT
+            (__po_hi_transport_get_model_name (tmp),
+             __po_hi_transport_get_data_size (tmp),
+             SOURCE,
+             PERIOD,
+             &portno,
+             &rc);
+
+          if (rc != NO_ERROR) {
+            __DEBUGMSG("CREATE_SAMPLING_PORT error %d\n", rc);
+          }
+          break;
+
+        case __PO_HI_IN_EVENT_DATA_INTER_PROCESS:
+          CREATE_QUEUING_PORT
+                 (__po_hi_transport_get_model_name (tmp),
+                  1024,
+                  __po_hi_transport_get_queue_size (tmp),
+                  DESTINATION,
+                  FIFO,
+                  &portno,
+                  &rc);
+
+          if (rc != NO_ERROR) {
+            __DEBUGMSG("CREATE_QUEUING_PORT error %d\n", rc);
+          }
+          break;
+
+        case __PO_HI_OUT_EVENT_DATA_INTER_PROCESS:
+          CREATE_QUEUING_PORT
+                 (__po_hi_transport_get_model_name (tmp),
+                  1024, //__po_hi_transport_get_data_size (tmp),
+                  __po_hi_transport_get_queue_size (tmp),
+                  SOURCE,
+                  FIFO,
+                  &portno,
+                  &rc);
+
+          if (rc != NO_ERROR) {
+            __DEBUGMSG("CREATE_QUEUING_PORT error %d\n", rc);
+          }
+          break;
+
+        default:
+          __DEBUGMSG ("[MAIN] Port kind not handled for port %d\n", tmp);
+          break;
+        }
+
+        if (portno < 0) {
+          __DEBUGMSG ("[MAIN] Cannot open port %d, name=%s, return=%d\n",
+                      tmp, __po_hi_transport_get_model_name (tmp), portno);
+        } else {
+          __po_hi_transport_xtratum_port_init (tmp, portno);
+          __DEBUGMSG ("[MAIN] Port %d (name=%s) created, identifier = %d\n",
+                      tmp, __po_hi_transport_get_model_name (tmp), portno);
+        }
+      }
+   }
+
+   SET_PARTITION_MODE(NORMAL, &rc);
+   if (NO_ERROR != rc) {
+     __DEBUGMSG("SET_PARTITION_MODE error %d\n", rc);
    }
 #endif
 

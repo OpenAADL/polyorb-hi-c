@@ -58,12 +58,22 @@ extern __po_hi_bus_id*                    __po_hi_devices_accessed_buses[__PO_HI
 extern __po_hi_protocol_t        __po_hi_ports_protocols[__PO_HI_NB_PORTS][__PO_HI_NB_PORTS];
 #endif
 
-#ifdef XM3_RTEMS_MODE
+#if defined(XM3_RTEMS_MODE) || defined(AIR_HYPERVISOR)
+
 
 #include <deployment.h>
 #include <po_hi_types.h>
 #include <po_hi_transport.h>
+
+#if defined(AIR_HYPERVISOR)
+#include <air.h>
+#include <a653.h>
+#endif
+
+#ifdef XM3_RTEMS_MODE
 #include <xm.h>
+#endif
+
 int                           __po_hi_xtratum_port[__PO_HI_NB_PORTS];
 #endif
 
@@ -136,41 +146,75 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 #endif
 
       }
-#ifndef XM3_RTEMS_MODE
-      else
-      {
-            __PO_HI_DEBUG_DEBUG (" [deliver remotely]\n");
-            __po_hi_transport_call_sending_func_by_port (id, port);
+
+#ifdef XM3_RTEMS_MODE /* for XTratuM */
+      else {
+        __po_hi_port_kind_t pkind = __po_hi_transport_get_port_kind (port);
+        int ret = -1;
+        if (pkind == __PO_HI_OUT_DATA_INTER_PROCESS) {
+          ret = XM_write_sampling_message
+            (__po_hi_xtratum_port[port],
+             request, sizeof (__po_hi_request_t));
+        }
+
+        if (pkind == __PO_HI_OUT_EVENT_DATA_INTER_PROCESS) {
+          ret = XM_send_queuing_message
+            (__po_hi_xtratum_port[port],
+             request, sizeof (__po_hi_request_t));
+         }
+
+         if (ret < 0) {
+           __PO_HI_DEBUG_CRITICAL
+             ("[GQUEUE] Error delivering using inter-partitions ports, %d\n",
+              ret);
+         } else {
+           __PO_HI_DEBUG_DEBUG
+             ("[GQUEUE] Data delivered using inter-partitions ports, %d\n",
+              ret);
+         }
       }
-#else /* for XTratuM */
-      else
-      {
-         __po_hi_port_kind_t pkind = __po_hi_transport_get_port_kind (port);
-         int ret;
-         ret = -1;
-         if (pkind == __PO_HI_OUT_DATA_INTER_PROCESS)
-         {
-            ret = XM_write_sampling_message (__po_hi_xtratum_port[port], request, sizeof (__po_hi_request_t));
+
+#elif defined (AIR_HYPERVISOR) /* for AIR */
+      else {
+        __po_hi_port_kind_t pkind = __po_hi_transport_get_port_kind (port);
+        int ret = -1;
+        if (pkind == __PO_HI_OUT_DATA_INTER_PROCESS) {
+          WRITE_SAMPLING_MESSAGE
+            (__po_hi_xtratum_port[port],
+             request, sizeof (__po_hi_request_t),
+             &ret);
+        }
+
+        if (pkind == __PO_HI_OUT_EVENT_DATA_INTER_PROCESS) {
+          SEND_QUEUING_MESSAGE
+            (__po_hi_xtratum_port[port],
+             request, sizeof (__po_hi_request_t),
+             INFINITE_TIME_VALUE, &ret);
          }
 
-         if (pkind == __PO_HI_OUT_EVENT_DATA_INTER_PROCESS)
-         {
-            ret = XM_send_queuing_message (__po_hi_xtratum_port[port], request, sizeof (__po_hi_request_t));
+         if (ret != 0) {
+           __PO_HI_DEBUG_CRITICAL
+             ("[GQUEUE] Error delivering using inter-partitions ports, %d\n",
+              ret);
+         } else {
+           __PO_HI_DEBUG_DEBUG
+             ("[GQUEUE] Data delivered using inter-partitions ports, %d\n",
+              ret);
          }
+      }
 
-         if (ret < 0)
-         {
-            __PO_HI_DEBUG_CRITICAL ("[GQUEUE] Cannot deliver the data using inter-partitions ports, return=%d\n", ret);
-         }
-         else
-         {
-            __PO_HI_DEBUG_DEBUG ("[GQUEUE] Data delivered using inter-partitions ports, return=%d\n", ret);
-         }
+#else
+      else {
+        __PO_HI_DEBUG_DEBUG (" [deliver remotely]\n");
+        __po_hi_transport_call_sending_func_by_port (id, port);
       }
 #endif
-   /** The trace_managing is done for every step of the for loop */
+
+      /** The trace_managing is done for every step of the for loop */
 #if defined (MONITORING)
-   record_event(ANY, TRANSPORT_SEND, id, port, destination_port, local_port, __po_hi_get_local_port_from_global_port (destination_port), request);
+      record_event
+        (ANY, TRANSPORT_SEND, id, port, destination_port, local_port,
+         __po_hi_get_local_port_from_global_port (destination_port), request);
 #endif
 
    }
@@ -497,7 +541,7 @@ __po_hi_protocol_conf_t*    __po_hi_transport_get_protocol_configuration (const 
 #endif
 }
 
-#ifdef XM3_RTEMS_MODE
+#if defined(XM3_RTEMS_MODE) || defined(AIR_HYPERVISOR)
 void __po_hi_transport_xtratum_port_init (const __po_hi_port_t portno, int val)
 {
    __po_hi_xtratum_port[portno] = val;
