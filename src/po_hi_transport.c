@@ -58,25 +58,27 @@ extern __po_hi_bus_id*                    __po_hi_devices_accessed_buses[__PO_HI
 extern __po_hi_protocol_t        __po_hi_ports_protocols[__PO_HI_NB_PORTS][__PO_HI_NB_PORTS];
 #endif
 
-#if defined(XM3_RTEMS_MODE) || defined(AIR_HYPERVISOR)
-
+#if defined(AIR_HYPERVISOR)
+#include <air.h>
+#include <a653.h>
 
 #include <deployment.h>
 #include <po_hi_types.h>
 #include <po_hi_transport.h>
 
-#if defined(AIR_HYPERVISOR)
-#include <air.h>
-#include <a653.h>
+long int  __po_hi_air_port[__PO_HI_NB_PORTS];
+/* Store either SAMPLING_PORT_ID_TYPE or QUEUING_PORT_ID_TYPE */
 #endif
 
 #ifdef XM3_RTEMS_MODE
 #include <xm.h>
-#endif
 
-int                           __po_hi_xtratum_port[__PO_HI_NB_PORTS];
-#endif
+#include <deployment.h>
+#include <po_hi_types.h>
+#include <po_hi_transport.h>
 
+int      __po_hi_xtratum_port[__PO_HI_NB_PORTS];
+#endif
 
 int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 {
@@ -177,22 +179,23 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 #elif defined (AIR_HYPERVISOR) /* for AIR */
       else {
         __po_hi_port_kind_t pkind = __po_hi_transport_get_port_kind (port);
-        int ret = -1;
+        RETURN_CODE_TYPE ret;
+
         if (pkind == __PO_HI_OUT_DATA_INTER_PROCESS) {
           WRITE_SAMPLING_MESSAGE
-            (__po_hi_xtratum_port[port],
+            (__po_hi_air_port[port],
              request, sizeof (__po_hi_request_t),
              &ret);
         }
 
         if (pkind == __PO_HI_OUT_EVENT_DATA_INTER_PROCESS) {
           SEND_QUEUING_MESSAGE
-            (__po_hi_xtratum_port[port],
+            (__po_hi_air_port[port],
              request, sizeof (__po_hi_request_t),
              INFINITE_TIME_VALUE, &ret);
          }
 
-         if (ret != 0) {
+         if (ret != NO_ERROR) {
            __PO_HI_DEBUG_CRITICAL
              ("[GQUEUE] Error delivering using inter-partitions ports, %d\n",
               ret);
@@ -541,7 +544,7 @@ __po_hi_protocol_conf_t*    __po_hi_transport_get_protocol_configuration (const 
 #endif
 }
 
-#if defined(XM3_RTEMS_MODE) || defined(AIR_HYPERVISOR)
+#if defined(XM3_RTEMS_MODE)
 void __po_hi_transport_xtratum_port_init (const __po_hi_port_t portno, int val)
 {
    __po_hi_xtratum_port[portno] = val;
@@ -550,5 +553,17 @@ void __po_hi_transport_xtratum_port_init (const __po_hi_port_t portno, int val)
 int __po_hi_transport_xtratum_get_port (const __po_hi_port_t portno)
 {
    return __po_hi_xtratum_port[portno];
+}
+#endif
+
+#if defined(AIR_HYPERVISOR)
+void __po_hi_transport_air_port_init (const __po_hi_port_t portno, long int val)
+{
+   __po_hi_air_port[portno] = val;
+}
+
+long int __po_hi_transport_air_get_port (const __po_hi_port_t portno)
+{
+   return __po_hi_air_port[portno];
 }
 #endif

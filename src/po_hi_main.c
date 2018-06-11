@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2016 ESA & ISAE.
+ * Copyright (C) 2010-2018 ESA & ISAE.
  */
 
 
@@ -305,16 +305,16 @@ int __po_hi_initialize ()
    #include <po_hi_types.h>
    #include <po_hi_transport.h>
 
-   #include <a653.h>
    #include <air.h>
+   #include <a653.h>
    #include <imaspex.h>
 
    __po_hi_port_kind_t        pkind;
    __po_hi_port_t             tmp;
    __po_hi_node_t             tmpnode;
    __po_hi_node_t             mynode;
-   int                        portno;
-   int rc;
+   long int                   portno;
+   RETURN_CODE_TYPE rc;
 
    SYSTEM_TIME_TYPE PERIOD = 1000000;
    PARTITION_ID_TYPE self_id;
@@ -327,7 +327,7 @@ int __po_hi_initialize ()
      printf("GET_PARTITION_ID error %d\n", rc);
    }
 
-   printf("Initializing partition %d...\n", self_id);
+   __DEBUGMSG("Initializing partition %ld...\n", self_id);
 
    mynode = __po_hi_transport_get_mynode ();
 
@@ -359,9 +359,8 @@ int __po_hi_initialize ()
              &rc);
 
           if (rc != NO_ERROR) {
-            __DEBUGMSG("=>>> CREATE_SAMPLING_PORT error %d %d %d %d\n",
-                   rc, INVALID_MODE, INVALID_CONFIG,
-                   __po_hi_transport_get_queue_size (tmp));
+            __PO_HI_DEBUG_CRITICAL
+              ("CREATE_SAMPLING_PORT error %d\n", rc);
           }
           break;
 
@@ -375,7 +374,7 @@ int __po_hi_initialize ()
              &rc);
 
           if (rc != NO_ERROR) {
-            __DEBUGMSG("CREATE_SAMPLING_PORT error %d\n", rc);
+            __PO_HI_DEBUG_CRITICAL("CREATE_SAMPLING_PORT error %d\n", rc);
           }
           break;
 
@@ -390,7 +389,7 @@ int __po_hi_initialize ()
                   &rc);
 
           if (rc != NO_ERROR) {
-            __DEBUGMSG("CREATE_QUEUING_PORT error %d\n", rc);
+            __PO_HI_DEBUG_CRITICAL("CREATE_QUEUING_PORT error %d\n", rc);
           }
           break;
 
@@ -405,21 +404,23 @@ int __po_hi_initialize ()
                   &rc);
 
           if (rc != NO_ERROR) {
-            __DEBUGMSG("CREATE_QUEUING_PORT error %d\n", rc);
+            __PO_HI_DEBUG_CRITICAL("CREATE_QUEUING_PORT error %d\n", rc);
           }
           break;
 
         default:
-          __DEBUGMSG ("[MAIN] Port kind not handled for port %d\n", tmp);
+          __PO_HI_DEBUG_CRITICAL
+            ("[MAIN] Port kind not handled for port %d\n", tmp);
           break;
         }
 
         if (portno < 0) {
-          __DEBUGMSG ("[MAIN] Cannot open port %d, name=%s, return=%d\n",
-                      tmp, __po_hi_transport_get_model_name (tmp), portno);
+          __PO_HI_DEBUG_CRITICAL
+            ("[MAIN] Cannot open port %d, name=%s, return=%ld\n",
+             tmp, __po_hi_transport_get_model_name (tmp), portno);
         } else {
-          __po_hi_transport_xtratum_port_init (tmp, portno);
-          __DEBUGMSG ("[MAIN] Port %d (name=%s) created, identifier = %d\n",
+          __po_hi_transport_air_port_init (tmp, portno);
+          __DEBUGMSG ("[MAIN] Port %d (name=%s) created, identifier = %ld\n",
                       tmp, __po_hi_transport_get_model_name (tmp), portno);
         }
       }
