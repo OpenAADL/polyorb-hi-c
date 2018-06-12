@@ -60,7 +60,7 @@
    #define CONFIGURE_EXTRA_TASK_STACKS         (40 * RTEMS_MINIMUM_STACK_SIZE)
    #define CONFIGURE_POSIX_INIT_THREAD_STACK_SIZE (40 * RTEMS_MINIMUM_STACK_SIZE)
 
-   #define CONFIGURE_MICROSECONDS_PER_TICK     RTEMS_MILLISECONDS_TO_MICROSECONDS(2)
+   #define CONFIGURE_MICROSECONDS_PER_TICK   5000
 
 /*****************************************************************************/
 /* Driver Manager configuration for RTEMS 5                                  */
@@ -105,9 +105,9 @@
 
 #endif /* defined(RTEMS_DRVMGR_STARTUP) && defined(LEON3) */
 
-void *POSIX_Init (void);
-
 #endif  /*GRLEON3 && RTEMS412*/
+
+void *POSIX_Init (void);
 
 #include <rtems/confdefs.h>
 
