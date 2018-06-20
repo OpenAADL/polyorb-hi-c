@@ -5,7 +5,8 @@
 CYGPATH_U = @CYGPATH_U@
 CYGPATH_W = @CYGPATH_U@
 
-GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align -Wjump-misses-init
+GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option	\
+	-Wcast-align -Wjump-misses-init
 
 # -Wswitch-enum silent this flag, too verbose
 
