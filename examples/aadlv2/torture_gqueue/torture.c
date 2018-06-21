@@ -60,6 +60,8 @@ sem_t *semaphore;
 
 /*****************************************************************************/
 void period(__po_hi_task_id self) {
+  int i, j;
+
   if (init){
     semaphore = sem_open("aadl", O_CREAT|O_EXCL, 0644, 0);
     init = false;
@@ -117,7 +119,7 @@ void period(__po_hi_task_id self) {
     printf("\n*** TEST PERIODIC 1 ***\n");
     count_p4 = __po_hi_gqueue_get_count(self, port_p4);
     assert (count_p4 == 0);
-    for (int i = 1; i <= number; i++){
+    for (i = 1; i <= number; i++){
       sent_lvl = lvl;
       r1.port = REQUEST_PORT (per_thread, p3);
       r1.PORT_VARIABLE (per_thread,p3) = lvl;
@@ -139,7 +141,7 @@ void period(__po_hi_task_id self) {
     __po_hi_request_t request;
     int reception;
     count_p4 = __po_hi_gqueue_get_count(self, port_p4);
-    for (int j = 0; j < count_p4; j++) {
+    for (j = 0; j < count_p4; j++) {
     __po_hi_gqueue_get_value(self,port_p4,&(request));
     reception = request.PORT_VARIABLE(per_thread,p4);
 #if defined (TEST_VERBOSE)
@@ -208,7 +210,7 @@ void test_sporad_1(__po_hi_task_id self) {
 
 /*****************************************************************************/
 void test_sporad_2(__po_hi_task_id self) {
-  int reception;
+  int i, reception;
   __po_hi_request_t request;
   __po_hi_local_port_t tryport;
   printf ("\n*** TEST SPORADIC 2 ***\n");
@@ -217,7 +219,7 @@ void test_sporad_2(__po_hi_task_id self) {
   assert (count_p1 == 1);
   assert (count_p2 == 1);
   /* All values are dequeued */
-  for (int i = 0; i < count_p1 + count_p2 ; i++) {
+  for (i = 0; i < count_p1 + count_p2 ; i++) {
     __po_hi_gqueue_wait_for_incoming_event(self, &tryport);
     if (i == 0){
       /* The sending is done first on port p1 to port p1 */
@@ -333,7 +335,7 @@ void test_sporad_4(__po_hi_task_id self) {
 /*****************************************************************************/
 void test_sporad_5(__po_hi_task_id self) {
 
-    int reception;
+  int i, j, reception;
   __po_hi_request_t request;
 
   printf ("\n*** TEST SPORADIC 5 ****\n");
@@ -391,10 +393,10 @@ void test_sporad_5(__po_hi_task_id self) {
   assert (count_p1 == 1);
   assert (count_p2 == 1);
 
-  for (int i = 0; i < count_p1; i++) {
+  for (i = 0; i < count_p1; i++) {
     __po_hi_gqueue_next_value (self,port_p1);
   }
-  for (int j = 0; j < count_p2; j++) {
+  for (j = 0; j < count_p2; j++) {
     __po_hi_gqueue_next_value (self,port_p2);
   }
 
