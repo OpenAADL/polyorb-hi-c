@@ -1,17 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <fcntl.h>           /* For O_* constants */
+#include <sys/stat.h>        /* For mode constants */
+#include <semaphore.h>
+#include <string.h>
+#include <stdbool.h>
 
 /* Files generated from AADL model */
 #include <request.h>
-
-
 #include <deployment.h>
+
 #include <po_hi_transport.h>
-#include <string.h>
-#include <stdbool.h>
 #include <po_hi_gqueue.h>
-#include <semaphore.h>
 
 /*****************************************************************************/
 /* Helper macros to access AADL entities                                     */
