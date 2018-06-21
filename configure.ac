@@ -224,6 +224,7 @@ AC_OUTPUT([
         examples/aadlv2/some-types/Makefile
         examples/aadlv2/some-types-stdint/Makefile
         examples/aadlv2/sunseeker/Makefile
+        examples/aadlv2/torture_gqueue/Makefile
         tools/Makefile
         tools/check-symbols/Makefile
         tools/check-symbols/examples/Makefile
