@@ -45,7 +45,10 @@ void user_emit_array (software__array_type* data_source)
 {
   int i;
   for (i = 0; i < 16; i++)
-    (*data_source)[i]=i;
+    {
+      (*data_source)[i]=i;
+    }
+  
 }
 
 void user_emit_bounded_array (software__bounded_array_type* data_source)
@@ -91,7 +94,7 @@ void user_receive_array (software__array_type data)
   for (i = 0; i < 16; i++)
     assert (data[i] == i);
 
-  printf (" OK \n");
+  printf ("\n");
   fflush(stdout);
 }
 

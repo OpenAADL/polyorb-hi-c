@@ -24,8 +24,13 @@ then
   mkdir $OUTPUT_DIR
 fi
 
-lcov -c -i -d . -o .coverage.base
-lcov -c -d . -o .coverage.run
-lcov -d . -a .coverage.base -a .coverage.run -o .coverage.total
+lcov -c -i -d ./some_types_stdint_impl/node_a/ -o .coverage.base_node_a
+lcov -c -d ./some_types_stdint_impl/node_a/ -o .coverage.run_node_a
+lcov -d ./some_types_stdint_impl/node_a/ -a .coverage.base_node_a -a .coverage.run_node_a -o .coverage.total
+
+lcov -c -i -d ./some_types_stdint_impl/node_b -o .coverage.base_node_b
+lcov -c -d ./some_types_stdint_impl/node_b -o .coverage.run_node_b
+lcov -d ./some_types_stdint_impl/node_b -a .coverage.base_node_a -a .coverage.run_node_a -a .coverage.base_node_b -a .coverage.run_node_b -o .coverage.total
+
 genhtml --no-branch-coverage -o $OUTPUT_DIR .coverage.total
-rm -f .coverage.base .coverage.run .coverage.total
+#genhtml --no-branch-coverage -o b_$OUTPUT_DIR .coverage.total_b
