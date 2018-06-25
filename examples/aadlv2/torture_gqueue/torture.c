@@ -62,9 +62,15 @@ sem_t *semaphore;
 void period(__po_hi_task_id self) {
   int i, j;
 
-  if (init){
-    semaphore = sem_open("aadl", O_CREAT|O_EXCL, 0644, 0);
+  if (init == true){
+    semaphore = sem_open("/aadl", O_CREAT|O_EXCL, S_IRUSR | S_IWUSR, 1);
+    if (semaphore == NULL) {
+      sem_unlink ("/aadl");
+      semaphore = sem_open("/aadl", O_CREAT|O_EXCL, S_IRUSR | S_IWUSR, 1);
+    }
+
     init = false;
+
   }
 
   /* *** Boolean and semaphore launching the following test with
@@ -190,6 +196,8 @@ void sporad(__po_hi_task_id self) {
   }
   /* Test to observe the awaited behavior of a sporadic task */
   if (number > 2){
+    sem_unlink("/aadl");
+    sem_close(semaphore);
     exit(0);
   }
   /* Boolean and semaphore launching the next type of test */
