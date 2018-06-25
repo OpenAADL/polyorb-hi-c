@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2018 ESA & ISAE.
  */
 
 #ifndef __PO_HI_TRANSPORT__
@@ -294,13 +294,19 @@ int __po_hi_transport_call_sending_func_by_port (__po_hi_task_id, __po_hi_port_t
 
 __po_hi_transport_sending_func __po_hi_transport_get_sending_func (const __po_hi_device_id device);
 
+/*
+ * These functions map PolyORB-HI/C ports to Xtratum (resp. AIR) ones
+ */
 
 #ifdef XM3_RTEMS_MODE
 void __po_hi_transport_xtratum_port_init (const __po_hi_port_t portno, int val);
 int __po_hi_transport_xtratum_get_port (const __po_hi_port_t portno);
 #endif
 
-
+#ifdef AIR_HYPERVISOR
+void __po_hi_transport_air_port_init (const __po_hi_port_t portno, long int val);
+long int __po_hi_transport_air_get_port (const __po_hi_port_t portno);
+#endif
 
 #endif /* __PO_HI_NB_PORTS > 0 */
 

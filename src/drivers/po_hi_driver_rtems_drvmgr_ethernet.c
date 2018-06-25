@@ -545,7 +545,7 @@ void __po_hi_c_driver_rtems_drvmgr_ethernet_init (__po_hi_device_id id)
 
    ip_port = (unsigned short)ipconf->port;
 
-   __DEBUGMSG ("My configuration, addr=%s, port=%d\n", ipconf->address, ip_port);
+   printf ("*** WARNING the IP configuration is defined in %s, check it matches your setup\n", __FILE__);
 
    /*
     * If the current node port has a port number, then it has to

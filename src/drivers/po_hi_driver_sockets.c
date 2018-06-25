@@ -39,6 +39,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <assert.h>
+#include <errno.h>
 
 #ifndef _WIN32
 #include <netdb.h>
@@ -220,7 +221,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
       case invalid_protocol:
       default:
       {
-	 request->port = destination_port;
+         request->port = destination_port;
          __po_hi_mutex_lock (&__po_hi_c_sockets_send_mutex);
 
          __po_hi_msg_reallocate (&__po_hi_c_sockets_send_msg);
@@ -233,7 +234,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 #endif
          if (__po_hi_c_sockets_write_sockets[remote_device] != -1)
          {
-	    int  len;
+            int  len;
 
             /* Note: in the following, we send first the size of the
                message, then the subset of the message buffer we
@@ -406,16 +407,16 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
       for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
       {
          __DEBUGMSG ("[DRIVER SOCKETS] Try to watch if it comes from device %d (socket=%d)\n",
-		     dev, __po_hi_c_sockets_read_sockets[dev]);
+                     dev, __po_hi_c_sockets_read_sockets[dev]);
          if ( (__po_hi_c_sockets_read_sockets[dev] != -1 ) &&
-	      FD_ISSET(__po_hi_c_sockets_read_sockets[dev], &selector))
+              FD_ISSET(__po_hi_c_sockets_read_sockets[dev], &selector))
          {
             __DEBUGMSG ("[DRIVER SOCKETS] Receive message from dev %d\n", dev);
 #ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
             {
 
                protocol_conf = __po_hi_transport_get_protocol_configuration
-		 (virtual_bus_myprotocol_i);
+                 (virtual_bus_myprotocol_i);
 
                int datareceived;
                len = recv (__po_hi_c_sockets_read_sockets[dev], &datareceived, sizeof (int), MSG_WAITALL);
@@ -436,7 +437,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
 #ifdef _WIN32
             len = recv (__po_hi_c_sockets_read_sockets[dev],
-			__po_hi_c_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, 0);
+                        __po_hi_c_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, 0);
 #else
 
             /* In the following, we first retrieve the size of the
@@ -444,10 +445,10 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
             int datareceived;
             len = recv (__po_hi_c_sockets_read_sockets[dev], &datareceived, sizeof (int),
-			MSG_WAITALL);
+                        MSG_WAITALL);
             datareceived  = __po_hi_swap_byte (datareceived);
             len = recv (__po_hi_c_sockets_read_sockets[dev],
-			__po_hi_c_sockets_poller_msg.content, datareceived, MSG_WAITALL);
+                        __po_hi_c_sockets_poller_msg.content, datareceived, MSG_WAITALL);
 #endif
 
             __po_hi_c_sockets_poller_msg.length = len;
@@ -466,7 +467,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
             __po_hi_unmarshall_request (&__po_hi_c_sockets_poller_received_request, &__po_hi_c_sockets_poller_msg);
 #endif
-	    __DEBUGMSG ("[DRIVER SOCKETS] Delivering message to %d\n",__po_hi_c_sockets_poller_received_request.port );
+            __DEBUGMSG ("[DRIVER SOCKETS] Delivering message to %d\n",__po_hi_c_sockets_poller_received_request.port );
             __po_hi_main_deliver (&__po_hi_c_sockets_poller_received_request);
          }
       }
@@ -542,13 +543,14 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
          return;
       }
 
-      __DEBUGMSG ("Socket created for addr=%s, port=%d, socket value=%d\n", ipconf->address, ip_port, __po_hi_c_sockets_listen_socket);
+      __DEBUGMSG ("Socket created for addr=%s, port=%d, socket value=%d\n",
+                  ipconf->address, ip_port, __po_hi_c_sockets_listen_socket);
 
       reuse = 1;
 
       if (setsockopt (__po_hi_c_sockets_listen_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof (reuse)))
       {
-         __DEBUGMSG ("[DRIVER SOCKETS] Error while making the receiving socket reusable\n");
+         __PO_HI_DEBUG_CRITICAL ("[DRIVER SOCKETS] Error while making the receiving socket reusable\n");
       }
 
       sa.sin_addr.s_addr = htonl (INADDR_ANY);   /* We listen on all adresses */
@@ -557,12 +559,12 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
       if( bind (__po_hi_c_sockets_listen_socket, (struct sockaddr *) &sa , sizeof (struct sockaddr_in) ) < 0 )
       {
-         __DEBUGMSG ("Unable to bind socket and port on socket %d\n", __po_hi_c_sockets_listen_socket);
+         __PO_HI_DEBUG_CRITICAL ("Unable to bind socket and port on socket %d\n", __po_hi_c_sockets_listen_socket);
       }
 
       if( listen (__po_hi_c_sockets_listen_socket, __PO_HI_NB_DEVICES) < 0 )
       {
-         __DEBUGMSG ("Cannot listen on socket %d\n", __po_hi_c_sockets_listen_socket);
+         __PO_HI_DEBUG_CRITICAL ("Cannot listen on socket %d\n", __po_hi_c_sockets_listen_socket);
       }
 
       /*
@@ -573,7 +575,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
       __po_hi_initialize_add_task ();
       __po_hi_create_generic_task
-	(-1, 0,__PO_HI_MAX_PRIORITY, 0, 0, (void* (*)(void))__po_hi_sockets_poller, &dev_id);
+        (-1, 0,__PO_HI_MAX_PRIORITY, 0, 0, (void* (*)(void))__po_hi_sockets_poller, &dev_id);
       /* For now, we force affinity to 0 */
    }
 
@@ -603,7 +605,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
       if (ip_port == 0)
       {
-         __DEBUGMSG ("[DRIVER SOCKETS] Invalid remote port\n");
+         __PO_HI_DEBUG_CRITICAL ("[DRIVER SOCKETS] Invalid remote port\n");
          continue;
       }
 
@@ -613,21 +615,21 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 
          if (__po_hi_c_sockets_write_sockets[dev] == -1 )
          {
-            __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d is not created\n", dev);
+            __PO_HI_DEBUG_CRITICAL ("[DRIVER SOCKETS] Socket for dev %d is not created\n", dev);
             return;
          }
 
-	 int NoDelayFlag = 1;
-	 if(setsockopt(__po_hi_c_sockets_write_sockets[dev],IPPROTO_TCP,TCP_NODELAY,&NoDelayFlag,sizeof(NoDelayFlag))){
-	   __DEBUGMSG ("[DRIVER SOCKETS] Unable to set TCP_NODELAY for dev %d\n", dev);
-	 }
+         int NoDelayFlag = 1;
+         if(setsockopt(__po_hi_c_sockets_write_sockets[dev],IPPROTO_TCP,TCP_NODELAY,&NoDelayFlag,sizeof(NoDelayFlag))){
+           __PO_HI_DEBUG_CRITICAL ("[DRIVER SOCKETS] Unable to set TCP_NODELAY for dev %d\n", dev);
+         }
 
          __DEBUGMSG ("[DRIVER SOCKETS] Socket for dev %d created, value=%d\n", dev, __po_hi_c_sockets_write_sockets[dev]);
 
          hostinfo = gethostbyname ((char*)ipconf->address);
          if (hostinfo == NULL )
          {
-            __DEBUGMSG ("[DRIVER SOCKETS] Error while getting host informations for device %d\n", dev);
+            __PO_HI_DEBUG_CRITICAL ("[DRIVER SOCKETS] Error while getting host informations for device %d\n", dev);
          }
 
          sa.sin_port = htons (ip_port);
@@ -667,7 +669,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
          }
          else
          {
-            __DEBUGMSG ("connect() failed, return=%d\n", ret);
+           __PO_HI_DEBUG_CRITICAL ("connect() failed, return=%d, %s\n", ret, strerror(errno));
          }
 
 #else
@@ -683,7 +685,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
 #endif
             if (ret != sizeof (__po_hi_device_id))
             {
-               __DEBUGMSG ("[DRIVER SOCKETS] Device %d cannot send his id, expected size=%lu, return value=%d\n", dev_id, sizeof (__po_hi_device_id), ret);
+               __PO_HI_DEBUG_CRITICAL ("[DRIVER SOCKETS] Device %d cannot send his id, expected size=%lu, return value=%d\n", dev_id, sizeof (__po_hi_device_id), ret);
             }
             else
             {
@@ -711,7 +713,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
          __po_hi_get_time (&current_time);
          __po_hi_milliseconds (&tmptime, 500);
          __po_hi_add_times (&mytime, &current_time, &tmptime);
-         __DEBUGMSG ("[DRIVER SOCKETS] Cannot connect on device %d, wait 500ms\n", dev);
+         __PO_HI_DEBUG_CRITICAL ("[DRIVER SOCKETS] Cannot connect on device %d, wait 500ms\n", dev);
          __po_hi_delay_until (&mytime);
       }
    }
