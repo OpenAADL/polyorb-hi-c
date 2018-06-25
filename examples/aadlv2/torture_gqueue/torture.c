@@ -178,7 +178,7 @@ void period(__po_hi_task_id self) {
    printf("\n\n*** TEST PERIODIC 2 ***\n");
    count_p6 = __po_hi_gqueue_get_count(self, port_p6);
    assert (count_p6 == 0);
-   for (int i = 1; i < number ; i++){
+   for (i = 1; i < number ; i++){
       sent_lvl = lvl;
       r1.port = REQUEST_PORT (per_thread, p5);
       r1.PORT_VARIABLE (per_thread,p5) = lvl;
@@ -199,7 +199,7 @@ void period(__po_hi_task_id self) {
   if ((number == 3)&&(count_p6 == 1)){
     printf ("\n*** An error message should appear *** \n\n");
     count_p6 = __po_hi_gqueue_get_count(self, port_p6);
-    for (int j = 0; j < count_p6; j++) {
+    for (j = 0; j < count_p6; j++) {
     __po_hi_gqueue_next_value (self,port_p6);
     }
      printf ("\n*** If so, error message test passed *** \n\n");
