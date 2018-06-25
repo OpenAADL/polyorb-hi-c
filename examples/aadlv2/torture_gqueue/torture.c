@@ -44,11 +44,15 @@ int number = 0;
 int count_p1;
 int count_p2;
 int count_p4;
+int count_p5;
+int count_p6;
 
 __po_hi_local_port_t port_p1 = LOCAL_PORT (spo_thread,p1);
 __po_hi_local_port_t port_p2 = LOCAL_PORT (spo_thread,p2);
 __po_hi_local_port_t port_p4 = LOCAL_PORT (per_thread,p4);
 __po_hi_local_port_t port_p3 = LOCAL_PORT (per_thread,p3);
+__po_hi_local_port_t port_p5 = LOCAL_PORT (per_thread,p5);
+__po_hi_local_port_t port_p6 = LOCAL_PORT (per_thread,p6);
 
 /*
  * Semaphore used to coordinate the period and sporad tasks : At the
@@ -68,9 +72,7 @@ void period(__po_hi_task_id self) {
       sem_unlink ("/aadl");
       semaphore = sem_open("/aadl", O_CREAT|O_EXCL, S_IRUSR | S_IWUSR, 1);
     }
-
     init = false;
-
   }
 
   /* *** Boolean and semaphore launching the following test with
@@ -85,8 +87,9 @@ void period(__po_hi_task_id self) {
   __po_hi_request_t r1;
   __po_hi_request_t r2;
 
+/*****************************************************************************/
   /* *** Initial Test of the different functions *** */
-
+  /* *** Test of gqueue with one message *** */
   if (number < 2){
     /* Message sent on Period Port 1 to Sporad port 2 */
     sent_lvl = lvl;
@@ -118,6 +121,7 @@ void period(__po_hi_task_id self) {
        &r2);
   }
 
+/*****************************************************************************/
   /* *** Test of two messages sent on one port *** */
   /* Transmission */
   count_p4 = __po_hi_gqueue_get_count(self, port_p4);
@@ -164,17 +168,49 @@ void period(__po_hi_task_id self) {
     sem_post(semaphore);
   }
 
-   /* ****Test of awaited behavior of a sporadic task**** */
-  if (number > 2){
-     int a = 42;
-     r1.port = REQUEST_PORT (per_thread, p1);
-     r1.PORT_VARIABLE (per_thread,p1) = a;
-     __po_hi_gqueue_store_out
-       (self,
-        LOCAL_PORT (per_thread, p1),
-        &r1);
-     __po_hi_send_output (self,REQUEST_PORT(per_thread, p1));
-     a++;
+/*****************************************************************************/
+   /* *** Test of gqueue error message *** */
+   /* Transmission */
+
+  count_p6 = __po_hi_gqueue_get_count(self, port_p6);
+  if ((number == 3 )&&(count_p6 == 0)){
+
+   printf("\n\n*** TEST PERIODIC 2 ***\n");
+   count_p6 = __po_hi_gqueue_get_count(self, port_p6);
+   assert (count_p6 == 0);
+   for (int i = 1; i < number ; i++){
+      sent_lvl = lvl;
+      r1.port = REQUEST_PORT (per_thread, p5);
+      r1.PORT_VARIABLE (per_thread,p5) = lvl;
+      lvl++;
+#if defined (TEST_VERBOSE)
+      printf("\n Storeout P1 to P2, task id = %d, port id = %d", self, LOCAL_PORT (per_thread, p5));
+#endif
+      __po_hi_gqueue_store_out
+        (self,
+         LOCAL_PORT (per_thread, p5),
+         &r1);
+      __po_hi_send_output (self,REQUEST_PORT(per_thread, p5));
+    }
+  }
+  /* Reception */
+
+  count_p6 = __po_hi_gqueue_get_count(self, port_p6);
+  if ((number == 3)&&(count_p6 == 1)){
+    printf ("\n*** An error message should appear *** \n\n");
+    count_p6 = __po_hi_gqueue_get_count(self, port_p6);
+    for (int j = 0; j < count_p6; j++) {
+    __po_hi_gqueue_next_value (self,port_p6);
+    }
+     printf ("\n*** If so, error message test passed *** \n\n");
+    first_iteration = true;
+    sem_post(semaphore);
+  }
+
+  if (number > 3){
+          sem_unlink("/aadl");
+          sem_close(semaphore);
+          exit(0);
   }
 }
 
@@ -194,12 +230,7 @@ void sporad(__po_hi_task_id self) {
     /* FIFO test on reception port P2 */
     test_sporad_5 (self);
   }
-  /* Test to observe the awaited behavior of a sporadic task */
-  if (number > 2){
-    sem_unlink("/aadl");
-    sem_close(semaphore);
-    exit(0);
-  }
+
   /* Boolean and semaphore launching the next type of test */
   first_iteration = true;
   sem_post(semaphore);

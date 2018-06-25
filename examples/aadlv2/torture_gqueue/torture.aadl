@@ -15,6 +15,8 @@ public
     P2 : out event data port int;
     P3 : out event data port int;
     P4 : in event data port int { Queue_Size => 42;};
+    P5 : out event data port int;
+    P6 : in event data port int {Queue_Size => 1;};
   properties
     Dispatch_Protocol => Periodic;
     Period => 1000  ms;
@@ -56,6 +58,7 @@ public
     C2 : port Per_thread.P1 -> Spo_thread.P2;
     C3 : port Spo_thread.P3 -> Spo_thread.P4;
     C4 : port Per_thread.P3 -> Per_thread.P4;
+    C5 : port Per_thread.P5 -> Per_thread.P6;
 
   end Torture_Software.impl;
 

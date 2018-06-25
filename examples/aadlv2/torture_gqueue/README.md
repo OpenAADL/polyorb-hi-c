@@ -90,6 +90,13 @@ constitutes a control assay.
 
 ## Periodic Test details
 
+Each time messages are sent by the periodic task and received by itself.
+
+The Per Port P3 is linked to the Per Port P4.
+The Per Port P5 is linked to the Per Port P6.
+
+Test Periodic 1 :
+
 This time, two messages are sent on the port P3 towards port P4 of the
 periodic task : the task are sending messages to itself.
 
@@ -112,3 +119,13 @@ incrementation is of 1 at each awakening, it is easy to recover the
 previous value sent thanks to the assertion : reception == sent_lvl -
 number + j + 1.  The value is then dequeued to get to the following
 value.
+
+Test Periodic 2 :
+
+This time two messages are as well sent to the periodic task to itself.
+
+The goal is to verify whether, if the queue is full, an error message is well sent.
+We set up a reception port with a size of 1 and we sent 2 messages to this port.
+
+If a message is printed, then the test is passed.
+The user is able to see it itself on the console.
