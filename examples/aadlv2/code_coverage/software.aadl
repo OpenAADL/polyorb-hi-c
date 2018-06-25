@@ -16,6 +16,9 @@ end Integer_Type;
 data Natural_Type extends Base_Types::Natural
 end Natural_Type;
 
+data Array_Type extends Base_Types::Array
+end Array_Type;
+
 data Integer_8_Type extends Base_Types::Integer_8
 end Integer_8_Type;
 
@@ -60,7 +63,7 @@ subprogram Emit_Boolean
 features
   Data_Source : out parameter Boolean_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_boolean";
   source_text     => ("some-types-stdint.c");
 end Emit_Boolean;
@@ -69,7 +72,7 @@ subprogram Receive_Boolean
 features
   Data_Sink : in parameter Boolean_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_boolean";
   source_text     => ("some-types-stdint.c");
 end Receive_Boolean;
@@ -78,7 +81,7 @@ subprogram Emit_Integer
 features
   Data_Source : out parameter Integer_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_integer";
   source_text     => ("some-types-stdint.c");
 end Emit_Integer;
@@ -87,7 +90,7 @@ subprogram Receive_Integer
 features
   Data_Sink : in parameter Integer_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_integer";
   source_text     => ("some-types-stdint.c");
 end Receive_Integer;
@@ -96,7 +99,7 @@ subprogram Emit_Natural
 features
   Data_Source : out parameter Natural_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_natural";
   source_text     => ("some-types-stdint.c");
 end Emit_Natural;
@@ -105,17 +108,35 @@ subprogram Receive_Natural
 features
   Data_Sink : in parameter Natural_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_natural";
   source_text     => ("some-types-stdint.c");
 end Receive_Natural;
+
+subprogram Emit_Array
+features
+   Data_Source : out parameter Array_Type;
+  properties
+    source_language => (C);
+    source_name     => "user_emit_array";
+    source_text     => ("some-types-stdint.c");
+  end Emit_Array;
+
+subprogram Receive_Array
+  features
+    Data_Sink : in parameter Array_Type;
+  properties
+    source_language => (C);
+    source_name     => "user_receive_array";
+    source_text     => ("some-types-stdint.c");
+  end Receive_Array;
 
 
 subprogram Emit_Integer_8
 features
   Data_Source : out parameter Integer_8_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_int8";
   source_text     => ("some-types-stdint.c");
 end Emit_Integer_8;
@@ -124,7 +145,7 @@ subprogram Receive_Integer_8
 features
   Data_Sink : in parameter Integer_8_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_int8";
   source_text     => ("some-types-stdint.c");
 end Receive_Integer_8;
@@ -133,7 +154,7 @@ subprogram Emit_Integer_16
 features
   Data_Source : out parameter Integer_16_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_int16";
   source_text     => ("some-types-stdint.c");
 end Emit_Integer_16;
@@ -142,7 +163,7 @@ subprogram Receive_Integer_16
 features
   Data_Sink : in parameter Integer_16_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_int16";
   source_text     => ("some-types-stdint.c");
 end Receive_Integer_16;
@@ -151,7 +172,7 @@ subprogram Emit_Integer_32
 features
   Data_Source : out parameter Integer_32_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_int32";
   source_text     => ("some-types-stdint.c");
 end Emit_Integer_32;
@@ -160,7 +181,7 @@ subprogram Receive_Integer_32
 features
   Data_Sink : in parameter Integer_32_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_int32";
   source_text     => ("some-types-stdint.c");
 end Receive_Integer_32;
@@ -169,7 +190,7 @@ subprogram Emit_Integer_64
 features
   Data_Source : out parameter Integer_64_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_int64";
   source_text     => ("some-types-stdint.c");
 end Emit_Integer_64;
@@ -178,7 +199,7 @@ subprogram Receive_Integer_64
 features
   Data_Sink : in parameter Integer_64_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_int64";
   source_text     => ("some-types-stdint.c");
 end Receive_Integer_64;
@@ -189,7 +210,7 @@ subprogram Emit_Unsigned_8
 features
   Data_Source : out parameter Unsigned_8_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_uint8";
   source_text     => ("some-types-stdint.c");
 end Emit_Unsigned_8;
@@ -198,7 +219,7 @@ subprogram Receive_Unsigned_8
 features
   Data_Sink : in parameter Unsigned_8_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_uint8";
   source_text     => ("some-types-stdint.c");
 end Receive_Unsigned_8;
@@ -207,7 +228,7 @@ subprogram Emit_Unsigned_16
 features
   Data_Source : out parameter Unsigned_16_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_uint16";
   source_text     => ("some-types-stdint.c");
 end Emit_Unsigned_16;
@@ -216,7 +237,7 @@ subprogram Receive_Unsigned_16
 features
   Data_Sink : in parameter Unsigned_16_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_uint16";
   source_text     => ("some-types-stdint.c");
 end Receive_Unsigned_16;
@@ -225,7 +246,7 @@ subprogram Emit_Unsigned_32
 features
   Data_Source : out parameter Unsigned_32_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_uint32";
   source_text     => ("some-types-stdint.c");
 end Emit_Unsigned_32;
@@ -234,7 +255,7 @@ subprogram Receive_Unsigned_32
 features
   Data_Sink : in parameter Unsigned_32_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_uint32";
   source_text     => ("some-types-stdint.c");
 end Receive_Unsigned_32;
@@ -243,7 +264,7 @@ subprogram Emit_Unsigned_64
 features
   Data_Source : out parameter Unsigned_64_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_uint64";
   source_text     => ("some-types-stdint.c");
 end Emit_Unsigned_64;
@@ -252,7 +273,7 @@ subprogram Receive_Unsigned_64
 features
   Data_Sink : in parameter Unsigned_64_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_uint64";
   source_text     => ("some-types-stdint.c");
 end Receive_Unsigned_64;
@@ -263,7 +284,7 @@ subprogram Emit_Float
 features
   Data_Source : out parameter Float_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_float0";
   source_text     => ("some-types-stdint.c");
 end Emit_Float;
@@ -272,7 +293,7 @@ subprogram Receive_Float
 features
   Data_Sink : in parameter Float_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_float0";
   source_text     => ("some-types-stdint.c");
 end Receive_Float;
@@ -281,7 +302,7 @@ subprogram Emit_Float_32
 features
   Data_Source : out parameter Float_32_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_float32";
   source_text     => ("some-types-stdint.c");
 end Emit_Float_32;
@@ -290,7 +311,7 @@ subprogram Receive_Float_32
 features
   Data_Sink : in parameter Float_32_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_float32";
   source_text     => ("some-types-stdint.c");
 end Receive_Float_32;
@@ -299,7 +320,7 @@ subprogram Emit_Float_64
 features
   Data_Source : out parameter Float_64_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_float64";
   source_text     => ("some-types-stdint.c");
 end Emit_Float_64;
@@ -308,7 +329,7 @@ subprogram Receive_Float_64
 features
   Data_Sink : in parameter Float_64_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_float64";
   source_text     => ("some-types-stdint.c");
 end Receive_Float_64;
@@ -317,7 +338,7 @@ subprogram Emit_Character
 features
   Data_Source : out parameter Character_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_emit_char";
   source_text     => ("some-types-stdint.c");
 end Emit_Character;
@@ -326,11 +347,10 @@ subprogram Receive_Character
 features
   Data_Sink : in parameter Character_Type;
 properties
-  source_language => C;
+  source_language => (C);
   source_name     => "user_receive_char";
   source_text     => ("some-types-stdint.c");
 end Receive_Character;
-
 
 --------------------------
 -- Wrappers Subprograms --
@@ -341,6 +361,7 @@ features
   Boolean_Source : out parameter Boolean_Type;
   Integer_Source : out parameter Integer_Type;
   Natural_Source : out parameter Natural_Type;
+  Array_Source   : out parameter Array_Type;
 
   Integer_8_Source : out parameter Integer_8_Type;
   Integer_16_Source : out parameter Integer_16_Type;
@@ -365,6 +386,7 @@ Mycalls: {
   B_Spg : subprogram Emit_Boolean;
   I_Spg : subprogram Emit_Integer;
   N_Spg : subprogram Emit_Natural;
+  A_Spg : subprogram Emit_Array;
   
   I_8_Spg : subprogram Emit_Integer_8;
   I_16_Spg : subprogram Emit_Integer_16;
@@ -384,7 +406,8 @@ Mycalls: {
 connections
   parameter B_Spg.Data_Source -> Boolean_Source;
   parameter I_Spg.Data_Source -> Integer_Source;
-  parameter N_Spg.Data_Source -> Natural_Source;  
+  parameter N_Spg.Data_Source -> Natural_Source;
+  parameter A_Spg.Data_Source -> Array_Source;
   
   parameter I_8_Spg.Data_Source -> Integer_8_Source;
   parameter I_16_Spg.Data_Source -> Integer_16_Source;
@@ -413,6 +436,7 @@ features
   Boolean_Source : out event data port Boolean_Type;
   Integer_Source : out event data port Integer_Type;
   Natural_Source : out event data port Natural_Type;
+  Array_Source   : out event data port Array_Type; 
 
   Integer_8_Source : out event data port Integer_8_Type;
   Integer_16_Source : out event data port Integer_16_Type;
@@ -439,7 +463,8 @@ connections
   parameter Emitter_Wrapper.Boolean_Source -> Boolean_Source;
   parameter Emitter_Wrapper.Integer_Source -> Integer_Source;
   parameter Emitter_Wrapper.Natural_Source -> Natural_Source;
-
+  parameter Emitter_Wrapper.Array_Source -> Array_Source;
+ 
   parameter Emitter_Wrapper.Integer_8_Source -> Integer_8_Source;
   parameter Emitter_Wrapper.Integer_16_Source -> Integer_16_Source;
   parameter Emitter_Wrapper.Integer_32_Source -> Integer_32_Source;
@@ -510,6 +535,22 @@ properties
   Period            => 10 Ms;
 end Natural_Receiver.Impl;
 
+thread Array_Receiver
+  features
+    Data_Sink : in event data port Array_Type;
+  end Array_Receiver;
+
+  thread implementation Array_Receiver.Impl
+  calls
+    Mycalls: {
+    A_Spg : subprogram Receive_Array;
+    };
+  connections
+    parameter Data_Sink -> A_Spg.Data_Sink;
+  properties
+    Dispatch_Protocol => Sporadic;
+    Period            => 10 ms;
+end Array_Receiver.Impl;
 
 
 thread Integer_8_Receiver
