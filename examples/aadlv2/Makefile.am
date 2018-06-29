@@ -1,6 +1,7 @@
 SUBDIRS = d3.1.3-1 ping rma sunseeker producer-consumer some-types	\
 	some-types-stdint flight-mgmt import monitor lua cpp		\
-	packet-store file-store latency code_coverage torture_gqueue
+	packet-store file-store latency code_coverage torture_gqueue	\
+	rpc
 
 SAMPLE_DIR = ${shell $(CYGPATH_U) '$(OCARINA_PREFIX)/examples/ocarina/polyorb-hi-c/aadlv2'}
 
