@@ -25,7 +25,7 @@
  * therefore limited to the identifier of a task.
  */
 
-typedef __aadl_context __po_hi_task_id;
+typedef __po_hi_task_id  __aadl_context;
 
 /**
  * Helper macros to access AADL entities
