@@ -80,13 +80,16 @@ long int  __po_hi_air_port[__PO_HI_NB_PORTS];
 int      __po_hi_xtratum_port[__PO_HI_NB_PORTS];
 #endif
 
+
 int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 {
+   
    __po_hi_request_t*    request;
    __po_hi_uint8_t       ndest;
    __po_hi_uint8_t       i;
    __po_hi_local_port_t  local_port;
    __po_hi_port_t        destination_port;
+   __po_hi_local_port_t  destination_port_local;
    __po_hi_entity_t      destination_entity;
 
    local_port  = __po_hi_get_local_port_from_global_port (port);
@@ -94,13 +97,13 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 
    if (request->port == -1)
    {
-      __PO_HI_DEBUG_DEBUG ("Send output task %d, port %d : no value to send\n", id, port);
+      __PO_HI_DEBUG_DEBUG ("Send output task %d, global port %d : no value to send\n", id, port);
       return __PO_HI_SUCCESS;
    }
 
    ndest          = __po_hi_gqueue_get_destinations_number (id, local_port);
    assert(ndest);
-   __PO_HI_DEBUG_DEBUG ("Send value, emitter task %d, emitter port %d, emitter entity %d, destination ports :\n", id,  port, __po_hi_port_global_to_entity[port]);
+   __PO_HI_DEBUG_DEBUG ("Send value, emitter task %d, emitter port %d, emitter port local %d, emitter entity %d, destination ports list:\n", id,  port, local_port, __po_hi_port_global_to_entity[port]);
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_INFO
    __DEBUGMSG ("Packet to send: |");
@@ -119,13 +122,18 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
    }
    __DEBUGMSG ("|\n");
 #endif
-
    for (i=0 ; i < __po_hi_gqueue_get_destinations_number (id, local_port) ; i++)
    {
       destination_port     = __po_hi_gqueue_get_destination (id, local_port, i);
+      destination_port_local  = __po_hi_get_local_port_from_global_port (destination_port);
       destination_entity   = __po_hi_get_entity_from_global_port (destination_port);
       assert(destination_entity != -1);
-      __PO_HI_DEBUG_DEBUG ("\t%d (entity=%d)", destination_port, destination_entity);
+      __PO_HI_DEBUG_DEBUG ("Destination number %d, global port \t%d, local port %d, (entity=%d)", i, destination_port, destination_port_local, destination_entity);
+      if ((__po_hi_gqueue_used_size(id, destination_port_local) == __po_hi_gqueue_get_port_size(id, destination_port_local)) && (__po_hi_gqueue_get_port_size(id, destination_port_local) != __PO_HI_GQUEUE_FIFO_INDATA)){
+        /* The gqueue on the destination port is full, error message transmitted */
+        __PO_HI_DEBUG_CRITICAL("[TRANSPORT] QUEUE FULL ON THE DESTINATION PORT, NOT TRANSMITTED, task-id=%d, port=%d", id, destination_port_local);
+        return __PO_HI_ERROR_QUEUE_FULL;
+      } 
 
       request->port = destination_port;
 
@@ -219,7 +227,6 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
         (ANY, TRANSPORT_SEND, id, port, destination_port, local_port,
          __po_hi_get_local_port_from_global_port (destination_port), request);
 #endif
-
    }
 
    request->port = __PO_HI_GQUEUE_INVALID_PORT;
@@ -230,6 +237,7 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 
    return __PO_HI_SUCCESS;
 }
+
 
 __po_hi_node_t __po_hi_transport_get_node_from_entity (const __po_hi_entity_t entity)
 {

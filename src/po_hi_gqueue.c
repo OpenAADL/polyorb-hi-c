@@ -268,6 +268,7 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
     assert(__po_hi_gqueues_used_size[id][i] == 0);
     assert(__po_hi_gqueues_most_recent_values[id][i].port == __PO_HI_GQUEUE_INVALID_PORT);
     if (i > 0){
+      /* Usually HAS TO be right */
       //assert(__po_hi_gqueues_first[id][i] >= 0);
     }
   }
@@ -317,7 +318,6 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
       __DEBUGMSG ("__po_hi_gqueue_store_in : NULL POINTER\n");
     }
 #endif
-
   /* Locking only a mutex */
   __PO_HI_DEBUG_DEBUG ("\nWaiting on Store_in on task %d, port = %d, size of port = %d\n", id, port,__po_hi_gqueue_get_port_size(id, port));
   int result = __po_hi_sem_mutex_wait_gqueue(__po_hi_gqueues_semaphores,id);
@@ -327,6 +327,7 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
   if (__po_hi_gqueue_get_port_size(id,port) == __PO_HI_GQUEUE_FIFO_INDATA)
     {
       memcpy(ptr,request,sizeof(*request));
+      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] BEWARE, for a FIFO_INDATA port, the used_size is always at 0 (not augmented in a store_in) task-id=%d, port=%d\n", id, port);
     }
   else
     {
@@ -386,7 +387,6 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
   int rel = __po_hi_sem_release_gqueue(__po_hi_gqueues_semaphores,id);
   __DEBUGMSG("GQUEUE_SEM_RELEASE %d %d\n", id, rel);
   assert(rel == __PO_HI_SUCCESS);
-
   __DEBUGMSG ("[GQUEUE] store_in completed\n");
 
 #ifdef __PO_HI_GQUEUE_ASSERTIONS
@@ -460,6 +460,7 @@ int __po_hi_gqueue_get_count( __po_hi_task_id id, __po_hi_local_port_t port)
 {
   if (__po_hi_gqueue_get_port_size(id,port) == __PO_HI_GQUEUE_FIFO_INDATA)
     {
+      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] BEWARE a FIFO_INDATA port will always have a get_count of 1, even if empty, task-id=%d, port=%d\n", id, port);
       return 1; /* data port are always of size 1 */
     }
   else
@@ -488,15 +489,21 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
    * If the port is an OUTPUT, with no value queued, the function returns
    * nothing.
    */
-  if (__po_hi_gqueue_get_port_size(id,port) == 0)
+  if (__po_hi_gqueue_get_port_size(id,port) == -2)
     {
+      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] OUTPUT PORT, REQUEST NOT SET UP, task-id=%d, port=%d\n", id, port);
       __DEBUGMSG("THE PORT IS AN OUTPUT, REQUEST NOT SET UP");
-      return 0;
+        /* Releasing only the mutex of the semaphore*/
+       int rel = __po_hi_sem_mutex_release_gqueue(__po_hi_gqueues_semaphores,id);
+       __DEBUGMSG("GQUEUE_SEM_MUTEX_RELEASE %d %d\n", id, rel);
+       assert(rel == __PO_HI_SUCCESS);
+      return __PO_HI_INVALID;
     }
   /*
    * If the port is an event port, with no value queued, then we block
    * the thread.
    */
+  /* Empty port case 1 : NO FIFO INDATA */
   if (__po_hi_gqueue_get_port_size(id,port) != __PO_HI_GQUEUE_FIFO_INDATA)
     {
       while (__po_hi_gqueues_port_is_empty[id][port] == 1)
@@ -507,7 +514,8 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
           assert(res_sem == __PO_HI_SUCCESS);
         }
     }
-  if (__po_hi_gqueue_used_size(id,port) == 0)
+  /* Empty port case 2 : FIFO INDATA */
+  if ((__po_hi_gqueue_get_port_size(id,port) == __PO_HI_GQUEUE_FIFO_INDATA) && (__po_hi_gqueue_used_size(id,port) == 0))
     {
       memcpy (request, ptr, sizeof (__po_hi_request_t));
       //update_runtime (id, port, ptr);
@@ -536,7 +544,7 @@ int __po_hi_gqueue_get_value (__po_hi_task_id      id,
   assert(res == __PO_HI_SUCCESS);
 
   __PO_HI_DEBUG_DEBUG("After get_value for task-id %d , port = %d, offset = %d, woffset = %d, history_offset = %d, history_woffset = %d, port size = %d, fifo size = %d, gqueues adress = %d \n\n", id, port, __po_hi_gqueues_offsets[id][port], __po_hi_gqueues_woffsets[id][port],__po_hi_gqueues_global_history_offset[id],__po_hi_gqueues_global_history_woffset[id], __po_hi_gqueues_sizes[id][port], __po_hi_gqueues_total_fifo_size[id], __po_hi_gqueues[id]);
-  return 0;
+  return __PO_HI_SUCCESS;
 }
 
 /******************************************************************************/
@@ -550,11 +558,11 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
   __po_hi_port_id_t nb_empty =  __po_hi_gqueues_n_empty[id];
 #endif
 
-  /* incomplete semantics, should discriminate and report whether
+  /* Incomplete semantics, Should discriminate and report whether
      there is a next value or not */
-  /* XXX change and use assert ? */
   if (__po_hi_gqueue_get_port_size(id,port) == __PO_HI_GQUEUE_FIFO_INDATA)
     {
+      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] BEWARE, for a FIFO_INDATA port, the used_size is always at 0 (not reduced in a next_value) task-id=%d, port=%d\n", id, port);
       return 1;
     }
 
