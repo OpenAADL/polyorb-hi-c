@@ -88,6 +88,20 @@ sent, but the previous one (inferior by 1).  assert (reception !=
 sent_level ); assert (reception == sent_level - 1); The other port
 constitutes a control assay.
 
+Test Sporadic 6 :
+
+These tests are used to verify the behavior when working with IN DATA PORTS 
+and not IN EVENT DATA PORTS. It allows us to get a coverage of 100% of the code 
+with this test file.
+Initially we verify that the reception has been done well.
+First we use a get_value function, and then a next_value before verifying that 
+a get_count on a IN DATA PORT always gives back the value 1 and an used_size 
+always giving back the value 0.
+Thay behavior awaited is illustrated by Beware Warnings.
+We try a get_value on an empty port and finally we dequeue the event
+sent from Period Port P2 to Sporad Port P1 to trigger the sporadic task.
+
+
 ## Periodic Test details
 
 Each time messages are sent by the periodic task and received by itself.
@@ -124,8 +138,13 @@ Test Periodic 2 :
 
 This time two messages are as well sent to the periodic task to itself.
 
-The goal is to verify whether, if the queue is full, an error message is well sent.
-We set up a reception port with a size of 1 and we sent 2 messages to this port.
-
-If a message is printed, then the test is passed.
-The user is able to see it itself on the console.
+The goal is to verify whether, if the queue is full, only a message is received 
+and it is the first one.The transport file must send an error message and prevent 
+the sending of the file.
+The goal is then to verify whether the store_in function is also blocked 
+when the queue of the destined port isfull.
+In both cases we verify that the message first sent is not erased by the other ones,
+respectively supposedly not transmitted and not stored_in.
+If messages are printed, then the test is passed.
+In another hand, the goal is to verify that a get_value on an output port 
+gives right back an error message.
