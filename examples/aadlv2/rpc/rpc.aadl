@@ -121,6 +121,7 @@ public
     Source_Name     => "rpc_client";
     Source_Text     => ("rpc.c");
   end Client_Side_Function;
+
   ---------------
   -- Processor --
   ---------------
