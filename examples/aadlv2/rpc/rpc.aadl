@@ -1,0 +1,152 @@
+package RPC
+
+--  This example illustrates how to emulate RPC synchronous (or
+--  rendez-vous) interactions using a tuple of parameter/return value
+--  ports, and the AADL runtime services.
+
+public
+  with Data_Model;
+  with Deployment;
+
+  ---------------
+  -- Processes --
+  ---------------
+
+  --  RPC_Process host two threads interacting in a synchronou way: a
+  --  client and a server
+
+  process RPC_Process
+  end RPC_Process;
+
+  process implementation RPC_Process.Impl
+  subcomponents
+    Client_T : thread Client_Thread.Impl;
+    Server_T : thread Server_Thread.Impl;
+
+  connections
+    C1 : port Client_T.Out_Parameter -> Server_T.In_Parameter;
+    C2 : port Server_T.Return_Value -> Client_T.Return_Value;
+
+  end RPC_Process.Impl;
+
+  -------------
+  -- Threads --
+  -------------
+
+  thread Client_Thread
+  features
+    Out_Parameter : out event data port Alpha_Type;
+    Return_Value : in event data port Alpha_Type;
+
+  end Client_Thread;
+
+  thread implementation Client_Thread.Impl
+
+    --  In the case of the client-side of the RPC: the corresponding
+    --  AADL subprogram is *NOT* connected to AADL thread ports. The
+    --  Client_Side_Function interacts directly with the port
+    --  variables to emulate a RPC synchronous call:
+    --
+    -- 1/ we send the parameter through the "out_parameter" port
+    -- 2/ we block and wait for return parameters through the return_value
+
+  properties
+    Dispatch_Protocol => Periodic;
+    Period            => 1 sec;
+    Priority => 110;
+
+    Compute_Entrypoint => classifier (Client_Side_Function);
+  end Client_Thread.Impl;
+
+  thread Server_Thread
+  features
+    In_Parameter : in event data port Alpha_Type;
+    Return_Value : out event data port Alpha_Type;
+  end Server_Thread;
+
+  thread implementation Server_Thread.Impl
+
+    -- In the case of the server-side RPC: the server function is
+    -- connected to the input parameter and return value ports, we
+    -- take advantage of port-to-parameter conenctions to hook the
+    -- server code directly. It is sporadic to reflect it server
+    -- nature: ut reacts to incoming events representing the arrival
+    -- of in parameters and will answer back through the return_value
+    -- port.
+
+  calls
+    Mycalls: {
+    S_Spg : subprogram Server_Side_Function;
+    };
+  connections
+    parameter S_Spg.Return_Value -> Return_Value;
+    parameter In_Parameter -> S_Spg.In_Parameter;
+
+  properties
+    Dispatch_Protocol => Sporadic;
+    Period            => 10 ms;
+  end Server_Thread.Impl;
+
+  ----------
+  -- Data --
+  ----------
+
+  data Alpha_Type
+  properties
+    Data_Model::Data_Representation => integer;
+  end Alpha_Type;
+
+  -----------------
+  -- Subprograms --
+  -----------------
+
+  subprogram Server_Side_Function
+  features
+    In_Parameter : in parameter Alpha_Type;
+    Return_Value : out parameter Alpha_Type;
+
+  properties
+    Source_Language => (C);
+    Source_Name     => "rpc_server";
+    Source_Text     => ("rpc.c");
+  end Server_Side_Function;
+
+  subprogram Client_Side_Function
+  features
+    Out_Parameter : out parameter Alpha_Type;
+    Return_Value : in parameter Alpha_Type;
+
+  properties
+    Source_Language => (C);
+    Source_Name     => "rpc_client";
+    Source_Text     => ("rpc.c");
+  end Client_Side_Function;
+
+  ---------------
+  -- Processor --
+  ---------------
+
+  processor the_processor
+  properties
+    Deployment::Execution_Platform => Native;
+  end the_processor;
+
+  processor implementation the_processor.i
+  end the_processor.i;
+
+  ------------
+  -- System --
+  ------------
+
+  system RPC
+  end RPC;
+
+  system implementation RPC.Impl
+  subcomponents
+    RPC : process RPC_Process.Impl;
+    CPU : processor the_processor.i;
+  properties
+    Actual_Processor_Binding => (reference (CPU)) applies to RPC;
+  end RPC.Impl;
+
+end RPC;

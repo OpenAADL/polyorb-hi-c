@@ -1,121 +1,292 @@
 package Some_types
 public
+
   with Software;
   with Deployment;
   with ocarina_drivers;
   with ocarina_buses;
 
----------------
--- Processor --
----------------
+  ---------------
+  -- Processor --
+  ---------------
 
-processor the_processor
-properties
-  Deployment::Execution_Platform => Native;
-end the_processor;
+  processor the_processor
+  properties
+    Deployment::Execution_Platform => Native;
+  end the_processor;
 
----------------
--- Processes --
----------------
+  ---------------
+  -- Processes --
+  ---------------
 
-process A
-features
-  Out_Boolean : out event data port Software::Boolean_Type;
-  Out_Integer : out event data port Software::Integer_Type;
-end A;
+  process A
+  features
+    Out_Boolean : out event data port Software::Boolean_Type;
+    Out_Integer : out event data port Software::Integer_Type;
+    Out_Natural : out event data port Software::Natural_Type;
+    Out_Array   : out event data port Software::Array_Type;
 
-process implementation A.Impl
-subcomponents
-  Emitter_Thread : thread Software::Emitter.Impl;
-connections
-  port Emitter_Thread.Boolean_Source -> Out_Boolean;
-  port Emitter_Thread.Integer_Source -> Out_Integer;
-end A.Impl;
+    Out_Integer_8 : out event data port Software::Integer_8_Type;
+    Out_Integer_16 : out event data port Software::Integer_16_Type;
+    Out_Integer_32 : out event data port Software::Integer_32_Type;
+    Out_Integer_64 : out event data port Software::Integer_64_Type;
 
-process B
-features
-  In_Boolean  : in event data port Software::Boolean_Type;
-  In_Integer  : in event data port Software::Integer_Type;
-end B;
+    Out_Unsigned_8 : out event data port Software::Unsigned_8_Type;
+    Out_Unsigned_16 : out event data port Software::Unsigned_16_Type;
+    Out_Unsigned_32 : out event data port Software::Unsigned_32_Type;
+    Out_Unsigned_64 : out event data port Software::Unsigned_64_Type;
 
-process implementation B.Impl
-subcomponents
-  Boolean_Rcv_Thread : thread Software::Boolean_Receiver.Impl;
-  Integer_Rcv_Thread : thread Software::Integer_Receiver.Impl;
-connections
-  port In_Boolean -> Boolean_Rcv_Thread.Data_Sink;
-  port In_Integer -> Integer_Rcv_Thread.Data_Sink;
-end B.Impl;
+    Out_Float : out event data port Software::Float_Type;
+    Out_Float_32 : out event data port Software::Float_32_Type;
+    Out_Float_64 : out event data port Software::Float_64_Type;
+    Out_Character : out event data port Software::Character_Type;
 
+  end A;
 
-process singleProcess
-end singleProcess;
+  process implementation A.Impl
+  subcomponents
+    Emitter_Thread : thread Software::Emitter.Impl;
+  connections
 
-process implementation singleProcess.impl
-subcomponents
-  Emitter_Thread     : thread Software::Emitter.Impl;
-  Boolean_Rcv_Thread : thread Software::Boolean_Receiver.Impl;
-  Integer_Rcv_Thread : thread Software::Integer_Receiver.Impl;
-connections
-  port Emitter_Thread.Boolean_Source -> Boolean_Rcv_Thread.Data_Sink;
-  port Emitter_Thread.Integer_Source -> Integer_Rcv_Thread.Data_Sink;
-end singleProcess.impl;
+    port Emitter_Thread.Boolean_Source -> Out_Boolean;
+    port Emitter_Thread.Integer_Source -> Out_Integer;
+    port Emitter_Thread.Natural_Source -> Out_Natural;
+    port Emitter_Thread.Array_Source -> Out_Array;
 
-------------
--- System --
-------------
+    port Emitter_Thread.Integer_8_Source -> Out_Integer_8;
+    port Emitter_Thread.Integer_16_Source -> Out_Integer_16;
+    port Emitter_Thread.Integer_32_Source -> Out_Integer_32;
+    port Emitter_Thread.Integer_64_Source -> Out_Integer_64;
 
-system Some_Types_Stdint
-end Some_Types_Stdint;
+    port Emitter_Thread.Unsigned_8_Source -> Out_Unsigned_8;
+    port Emitter_Thread.Unsigned_16_Source -> Out_Unsigned_16;
+    port Emitter_Thread.Unsigned_32_Source -> Out_Unsigned_32;
+    port Emitter_Thread.Unsigned_64_Source -> Out_Unsigned_64;
 
-system implementation Some_Types_Stdint.Impl
-subcomponents
-  Node_A : process A.Impl;
-  Node_B : process B.Impl;
-  Device_A : device ocarina_drivers::generic_sockets_ip.pohic
-               {Source_Text => ("devicesconf.c");};
-  Device_B : device ocarina_drivers::generic_sockets_ip.pohic
-               {Source_Text => ("devicesconf.c");};
-  CPU_A : processor the_processor;
-  CPU_B : processor the_processor;
-  the_bus : bus ocarina_buses::ip.i;
-connections
-  bus access the_bus -> Device_A.link;
-  bus access the_bus -> Device_B.link;
+    port Emitter_Thread.Float_Source -> Out_Float;
+    port Emitter_Thread.Float_32_Source -> Out_Float_32;
+    port Emitter_Thread.Float_64_Source -> Out_Float_64;
+    port Emitter_Thread.Character_Source -> Out_Character;
 
-  port Node_A.Out_Boolean -> Node_B.In_Boolean
+  end A.Impl;
+
+  process B
+  features
+    In_Boolean : in event data port Software::Boolean_Type;
+    In_Integer : in event data port Software::Integer_Type;
+    In_Natural : in event data port Software::Natural_Type;
+    In_Array   : in event data port Software::Array_Type;
+
+    In_Integer_8  : in event data port Software::Integer_8_Type;
+    In_Integer_16 : in event data port Software::Integer_16_Type;
+    In_Integer_32 : in event data port Software::Integer_32_Type;
+    In_Integer_64 : in event data port Software::Integer_64_Type;
+
+    In_Unsigned_8  : in event data port Software::Unsigned_8_Type;
+    In_Unsigned_16 : in event data port Software::Unsigned_16_Type;
+    In_Unsigned_32 : in event data port Software::Unsigned_32_Type;
+    In_Unsigned_64 : in event data port Software::Unsigned_64_Type;
+
+    In_Float     : in event data port Software::Float_Type;
+    In_Float_32  : in event data port Software::Float_32_Type;
+    In_Float_64  : in event data port Software::Float_64_Type;
+    In_Character : in event data port Software::Character_Type;
+
+  end B;
+
+  process implementation B.Impl
+  subcomponents
+    Boolean_Rcv_Thread : thread Software::Boolean_Receiver.Impl;
+    Integer_Rcv_Thread : thread Software::Integer_Receiver.Impl;
+    Natural_Rcv_Thread : thread Software::Natural_Receiver.Impl;
+    Array_Rcv_Thread  : thread Software::Array_Receiver.Impl;
+
+    Integer_8_Rcv_Thread : thread Software::Integer_8_Receiver.Impl;
+    Integer_16_Rcv_Thread : thread Software::Integer_16_Receiver.Impl;
+    Integer_32_Rcv_Thread : thread Software::Integer_32_Receiver.Impl;
+    Integer_64_Rcv_Thread : thread Software::Integer_64_Receiver.Impl;
+
+    Unsigned_8_Rcv_Thread : thread Software::Unsigned_8_Receiver.Impl;
+    Unsigned_16_Rcv_Thread : thread Software::Unsigned_16_Receiver.Impl;
+    Unsigned_32_Rcv_Thread : thread Software::Unsigned_32_Receiver.Impl;
+    Unsigned_64_Rcv_Thread : thread Software::Unsigned_64_Receiver.Impl;
+
+    Float_Rcv_Thread : thread Software::Float_Receiver.Impl;
+    Float_32_Rcv_Thread : thread Software::Float_32_Receiver.Impl;
+    Float_64_Rcv_Thread : thread Software::Float_64_Receiver.Impl;
+    Character_Rcv_Thread : thread Software::Character_Receiver.Impl;
+
+  connections
+    port In_Boolean -> Boolean_Rcv_Thread.Data_Sink;
+    port In_Integer -> Integer_Rcv_Thread.Data_Sink;
+    port In_Natural -> Natural_Rcv_Thread.Data_Sink;
+    port In_Array         -> Array_Rcv_Thread.Data_Sink;
+
+    port In_Integer_8 -> Integer_8_Rcv_Thread.Data_Sink;
+    port In_Integer_16 -> Integer_16_Rcv_Thread.Data_Sink;
+    port In_Integer_32 -> Integer_32_Rcv_Thread.Data_Sink;
+    port In_Integer_64 -> Integer_64_Rcv_Thread.Data_Sink;
+
+    port In_Unsigned_8 -> Unsigned_8_Rcv_Thread.Data_Sink;
+    port In_Unsigned_16 -> Unsigned_16_Rcv_Thread.Data_Sink;
+    port In_Unsigned_32 -> Unsigned_32_Rcv_Thread.Data_Sink;
+    port In_Unsigned_64 -> Unsigned_64_Rcv_Thread.Data_Sink;
+
+    port In_Float -> Float_Rcv_Thread.Data_Sink;
+    port In_Float_32 -> Float_32_Rcv_Thread.Data_Sink;
+    port In_Float_64 -> Float_64_Rcv_Thread.Data_Sink;
+    port In_Character -> Character_Rcv_Thread.Data_Sink;
+
+  end B.Impl;
+
+  process singleProcess
+  end singleProcess;
+
+  process implementation singleProcess.impl
+  subcomponents
+    Emitter_Thread     : thread Software::Emitter.Impl;
+    Boolean_Rcv_Thread : thread Software::Boolean_Receiver.Impl;
+    Integer_Rcv_Thread : thread Software::Integer_Receiver.Impl;
+    Natural_Rcv_Thread : thread Software::Natural_Receiver.Impl;
+    Array_Rcv_Thread   : thread Software::Array_Receiver.Impl;
+
+    Integer_8_Rcv_Thread : thread Software::Integer_8_Receiver.Impl;
+    Integer_16_Rcv_Thread : thread Software::Integer_16_Receiver.Impl;
+    Integer_32_Rcv_Thread : thread Software::Integer_32_Receiver.Impl;
+    Integer_64_Rcv_Thread : thread Software::Integer_64_Receiver.Impl;
+
+    Unsigned_8_Rcv_Thread : thread Software::Unsigned_8_Receiver.Impl;
+    Unsigned_16_Rcv_Thread : thread Software::Unsigned_16_Receiver.Impl;
+    Unsigned_32_Rcv_Thread : thread Software::Unsigned_32_Receiver.Impl;
+    Unsigned_64_Rcv_Thread : thread Software::Unsigned_64_Receiver.Impl;
+
+    Float_Rcv_Thread : thread Software::Float_Receiver.Impl;
+    Float_32_Rcv_Thread : thread Software::Float_32_Receiver.Impl;
+    Float_64_Rcv_Thread : thread Software::Float_64_Receiver.Impl;
+    Character_Rcv_Thread : thread Software::Character_Receiver.Impl;
+
+  connections
+    port Emitter_Thread.Boolean_Source -> Boolean_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Integer_Source -> Integer_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Natural_Source -> Natural_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Array_Source   -> Array_Rcv_Thread.Data_Sink;
+
+    port Emitter_Thread.Integer_8_Source -> Integer_8_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Integer_16_Source -> Integer_16_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Integer_32_Source -> Integer_32_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Integer_64_Source -> Integer_64_Rcv_Thread.Data_Sink;
+
+    port Emitter_Thread.Unsigned_8_Source -> Unsigned_8_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Unsigned_16_Source -> Unsigned_16_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Unsigned_32_Source -> Unsigned_32_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Unsigned_64_Source -> Unsigned_64_Rcv_Thread.Data_Sink;
+
+    port Emitter_Thread.Float_Source -> Float_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Float_32_Source -> Float_32_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Float_64_Source -> Float_64_Rcv_Thread.Data_Sink;
+    port Emitter_Thread.Character_Source -> Character_Rcv_Thread.Data_Sink;
+
+  end singleProcess.impl;
+
+  ------------
+  -- System --
+  ------------
+
+  system Some_Types_Stdint
+  end Some_Types_Stdint;
+
+  system implementation Some_Types_Stdint.Impl
+  subcomponents
+    Node_A : process A.Impl;
+    Node_B : process B.Impl;
+    Device_A : device ocarina_drivers::generic_sockets_ip.pohic
+    {Source_Text => ("devicesconf.c");};
+    Device_B : device ocarina_drivers::generic_sockets_ip.pohic
+    {Source_Text => ("devicesconf.c");};
+    CPU_A : processor the_processor;
+    CPU_B : processor the_processor;
+    the_bus : bus ocarina_buses::ip.i;
+  connections
+    bus access the_bus -> Device_A.link;
+    bus access the_bus -> Device_B.link;
+
+    port Node_A.Out_Boolean -> Node_B.In_Boolean
     {Actual_Connection_Binding => (reference (the_bus));};
-  port Node_A.Out_Integer -> Node_B.In_Integer
+
+    port Node_A.Out_Integer -> Node_B.In_Integer
     {Actual_Connection_Binding => (reference (the_bus));};
-properties
-  actual_processor_binding => (reference (CPU_A)) applies to Node_A;
-  actual_processor_binding => (reference (CPU_B)) applies to Node_B;
 
-  actual_processor_binding => (reference (CPU_A)) applies to Device_A;
-  actual_processor_binding => (reference (CPU_B)) applies to Device_B;
-end Some_Types_Stdint.Impl;
+    port Node_A.Out_Natural -> Node_B.In_Natural
+    {Actual_Connection_Binding => (reference (the_bus));};
 
-system Some_Types_local
-end Some_Types_local;
+    port Node_A.Out_Array -> Node_B.In_Array
+    {Actual_Connection_Binding => (reference (the_bus));};
 
-system implementation Some_Types_local.impl
-subcomponents
-  CPU_A: processor the_processor;
-  sometypesstdint: process singleProcess.impl;
-properties
-  Actual_Processor_Binding => reference (CPU_A) applies to sometypesstdint;
-end Some_Types_local.impl;
+    port Node_A.Out_Integer_8 -> Node_B.In_Integer_8
+    {Actual_Connection_Binding => (reference (the_bus));};
 
-system implementation Some_Types_local.Xenomai
-   extends Some_Types_local.impl
-properties
-  Deployment::Execution_Platform => linux32_xenomai_native applies to CPU_A;
-end Some_Types_local.Xenomai;
+    port Node_A.Out_Integer_16 -> Node_B.In_Integer_16
+    {Actual_Connection_Binding => (reference (the_bus));};
 
-system implementation Some_Types_local.RTEMS
-   extends Some_Types_local.impl
-properties
-   Deployment::Execution_platform => LEON_RTEMS applies to CPU_A ;
-end Some_Types_local.RTEMS;
+    port Node_A.Out_Integer_32 -> Node_B.In_Integer_32
+    {Actual_Connection_Binding => (reference (the_bus));};
+
+    port Node_A.Out_Integer_64 -> Node_B.In_Integer_64
+    {Actual_Connection_Binding => (reference (the_bus));};
+
+    port Node_A.Out_Unsigned_8 -> Node_B.In_Unsigned_8
+    {Actual_Connection_Binding => (reference (the_bus));};
+
+    port Node_A.Out_Unsigned_16 -> Node_B.In_Unsigned_16
+    {Actual_Connection_Binding => (reference (the_bus));};
+
+    port Node_A.Out_Unsigned_32 -> Node_B.In_Unsigned_32
+    {Actual_Connection_Binding => (reference (the_bus));};
+
+    port Node_A.Out_Unsigned_64 -> Node_B.In_Unsigned_64
+    {Actual_Connection_Binding => (reference (the_bus));};
+
+    port Node_A.Out_Float -> Node_B.In_Float
+    {Actual_Connection_Binding => (reference (the_bus));};
+
+    port Node_A.Out_Float_32 -> Node_B.In_Float_32
+    {Actual_Connection_Binding => (reference (the_bus));};
+
+    port Node_A.Out_Float_64 -> Node_B.In_Float_64
+    {Actual_Connection_Binding => (reference (the_bus));};
+
+    port Node_A.Out_Character -> Node_B.In_Character
+    {Actual_Connection_Binding => (reference (the_bus));};
+
+  properties
+    actual_processor_binding => (reference (CPU_A)) applies to Node_A;
+    actual_processor_binding => (reference (CPU_B)) applies to Node_B;
+
+    actual_processor_binding => (reference (CPU_A)) applies to Device_A;
+    actual_processor_binding => (reference (CPU_B)) applies to Device_B;
+  end Some_Types_Stdint.Impl;
+
+  system Some_Types_local
+  end Some_Types_local;
+
+  system implementation Some_Types_local.impl
+  subcomponents
+    CPU_A: processor the_processor;
+    sometypesstdint: process singleProcess.impl;
+  properties
+    Actual_Processor_Binding => reference (CPU_A) applies to sometypesstdint;
+  end Some_Types_local.impl;
+
+  system implementation Some_Types_local.Xenomai
+  extends Some_Types_local.impl
+  properties
+    Deployment::Execution_Platform => linux32_xenomai_native applies to CPU_A;
+  end Some_Types_local.Xenomai;
+
+  system implementation Some_Types_local.RTEMS
+  extends Some_Types_local.impl
+  properties
+    Deployment::Execution_platform => LEON_RTEMS applies to CPU_A ;
+  end Some_Types_local.RTEMS;
 
 end Some_Types;

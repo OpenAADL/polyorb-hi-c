@@ -1,0 +1,82 @@
+package Torture
+public
+
+  with Data_Model;
+  with Deployment;
+
+  data Int
+  properties
+    Data_Model::Data_Representation => Integer;
+  end Int;
+
+  thread Per1
+  features
+    P1 : out event data port int;
+    P2 : out event data port int;
+    P3 : out event data port int;
+    P4 : in event data port int { Queue_Size => 42;};
+    P5 : out event data port int;
+    P6 : in event data port int {Queue_Size => 1;};
+    P7 : out data port int; --  XXX
+  properties
+    Dispatch_Protocol => Periodic;
+    Period => 1000  ms;
+    Compute_Execution_Time => 1 ms .. 2 ms;
+    Priority => 2;
+
+    Source_Language => (C);                --  Link to code source
+    Compute_Entrypoint_Source_Text => "period";
+    Source_Text => ("torture.c");
+  end Per1;
+
+  thread Spo1
+  features
+    P1 : in event data port int { Queue_Size => 42;};
+    P2 : in event data port int { Queue_Size => 42;};
+    P3 : in data port int;
+  properties
+    Dispatch_Protocol => Sporadic;         --  Concurrency configuration
+    Period => 100 ms;
+    Compute_Execution_Time => 1 ms .. 2 ms;
+    Priority => 2;
+
+    Source_Language => (C);                --  Link to code source
+    Compute_Entrypoint_Source_Text => "sporad";
+    Source_Text => "torture.c";
+  end Spo1;
+
+  process Torture_Software
+  end Torture_Software;
+
+  process implementation Torture_Software.impl
+  subcomponents
+    Per_thread             : thread Per1;
+    Spo_thread             : thread Spo1;
+
+  connections
+    C1 : port Per_thread.P2 -> Spo_thread.P1;
+    C2 : port Per_thread.P1 -> Spo_thread.P2;
+    C3 : port Per_thread.P3 -> Per_thread.P4;
+    C4 : port Per_thread.P5 -> Per_thread.P6;
+    C5 : port Per_thread.P7 -> Spo_thread.P3;
+
+  end Torture_Software.impl;
+
+  processor CPU
+  properties
+    Scheduling_Protocol => (POSIX_1003_HIGHEST_PRIORITY_FIRST_PROTOCOL);
+    Deployment::Execution_Platform => Native;
+  end CPU;
+
+  system Torture
+  end Torture;
+
+  system implementation Torture.impl
+  subcomponents
+    Software : process Torture_Software.impl;
+    Hardware : processor CPU;
+  properties
+    Actual_Processor_Binding => (reference (Hardware)) applies to Software;
+  end Torture.impl;
+
+end Torture;

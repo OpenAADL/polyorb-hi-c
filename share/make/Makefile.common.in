@@ -6,9 +6,6 @@ CYGPATH_U = @CYGPATH_U@
 CYGPATH_W = @CYGPATH_U@
 
 # Regarding compilation warning flags:
-#
-# - Gaisler's RTEMS 4.10 doesn't currently support Wjump-misses-init.
-#   Let's wait one more release cycle before adding this in.
 # - -Wswitch-enum silent this flag, too verbose
 
 GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align \

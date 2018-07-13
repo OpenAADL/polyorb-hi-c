@@ -48,7 +48,7 @@
  */
 void __po_hi_gqueue_init (__po_hi_task_id       id,
 			  __po_hi_port_id_t     nb_ports,
-			  __po_hi_port_t        queue[],
+			  __po_hi_request_t     queue[],
 			  __po_hi_port_id_t     sizes[],
 			  __po_hi_port_id_t     first[],
 			  __po_hi_port_id_t     offsets[],

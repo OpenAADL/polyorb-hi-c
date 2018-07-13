@@ -12,7 +12,7 @@ EXTRA_DIST = $(srcdir)/po_hi_common.h $(srcdir)/po_hi_debug.h		\
 	     $(srcdir)/po_hi_task.h $(srcdir)/po_hi_time.h		\
 	     $(srcdir)/po_hi_types.h $(srcdir)/po_hi_main.h		\
 	     $(srcdir)/po_hi_simulink.h $(srcdir)/po_hi_transport.h	\
-	     $(srcdir)/po_hi_semaphore.h
+	     $(srcdir)/po_hi_semaphore.h $(srcdir)/aadl.h
 
 CLEANFILES = *~
 
