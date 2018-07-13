@@ -5,9 +5,14 @@
 CYGPATH_U = @CYGPATH_U@
 CYGPATH_W = @CYGPATH_U@
 
-GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align -Wjump-misses-init
+# Regarding compilation warning flags:
+#
+# - Gaisler's RTEMS 4.10 doesn't currently support Wjump-misses-init.
+#   Let's wait one more release cycle before adding this in.
+# - -Wswitch-enum silent this flag, too verbose
 
-# -Wswitch-enum silent this flag, too verbose
+GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align \
+		    -Wswitch
 
 all: build-node
 
@@ -119,7 +124,7 @@ else
 endif
 
 
-ifeq ($(TARGET), $(filter $(TARGET), linux32 linux64 linux32-xenomai-posix linux32-xenomai-native linux32_dll linux64_dll))
+ifeq ($(TARGET), $(filter $(TARGET), linux32 linux64 linux32-xenomai-posix linux32-xenomai-native linux_dll))
 PO_HI_OBJS += po_hi_lua.o
 endif
 
@@ -329,10 +334,9 @@ $(BINARY):
 	fi
 endif
 
-ifeq ($(TARGET), $(filter $(TARGET), native bench linux32 linux64 linux32_dll linux64_dll))
+ifeq ($(TARGET), $(filter $(TARGET), native bench linux32 linux64 linux_dll))
 EXE=$(BINARY)$(EXEEXT)
-$(BINARY):
-	$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-cpp-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
+$(BINARY): generate-asn1-deployment target-objects compile-c-files compile-cpp-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
 	$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(PO_HI_CPPOBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
 endif
 
