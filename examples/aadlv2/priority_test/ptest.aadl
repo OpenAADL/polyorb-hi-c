@@ -1,0 +1,129 @@
+--  This AADL model illustrates how to conduct schedulability analysis
+--  using Cheddar, and then code generation of periodic tasks.
+--
+--  Three periodic tasks run in parrallel, without interaction, in order
+--  to analyse Periodic Priority behavior.
+--
+--  Study Case Cottet, F., & Grolleau, E. (2005). Systèmes temps réel de contrôle-commande:
+--  conception et implémentation. Dunod. Page 501. Using RTEMS.
+
+package PTEST
+public
+  with Deployment;
+
+  -----------------
+  -- Subprograms --
+  -----------------
+
+  subprogram Ptest_Spg_1
+  properties
+    source_language => (C);
+    source_name     => "task_1";
+    source_text     => ("ptest.c");
+  end Ptest_Spg_1;
+
+  subprogram Ptest_Spg_2
+  properties
+    source_language => (C);
+    source_name     => "task_2";
+    source_text     => ("ptest.c");
+  end Ptest_Spg_2;
+
+  subprogram Ptest_Spg_3
+  properties
+    source_language => (C);
+    source_name     => "task_3";
+    source_text     => ("ptest.c");
+  end Ptest_Spg_3;
+
+  -------------
+  -- Threads --
+  -------------
+
+  thread Task
+  end Task;
+
+  thread implementation Task.impl_1
+  calls
+    Mycalls: {
+    P_Spg : subprogram Ptest_Spg_1;
+    };
+  properties
+    Dispatch_Protocol                  => periodic;
+    Period                             => 600ms;
+    Priority => 30;
+  end Task.impl_1;
+
+  thread implementation Task.impl_2
+  calls
+    Mycalls: {
+    P_Spg : subprogram Ptest_Spg_2;
+    };
+  properties
+    Dispatch_Protocol                  => periodic;
+    Period                             => 800ms;
+    Priority => 20;
+    Dispatch_offset                    => 200ms;
+  end Task.impl_2;
+
+  thread implementation Task.impl_3
+  calls
+    Mycalls: {
+    P_Spg : subprogram Ptest_Spg_3;
+    };
+  properties
+    Dispatch_Protocol                  => periodic;
+    Period                             => 1200ms;
+    Priority => 10;
+  end Task.impl_3;
+
+  ---------------
+  -- Processor --
+  ---------------
+
+  processor cpurm
+  properties
+    Deployment::Execution_Platform => native;
+  end cpurm;
+
+  processor implementation cpurm.impl
+  properties
+    Scheduling_Protocol => (Posix_1003_Highest_Priority_First_Protocol);
+    Priority_Range => 0 .. 255;
+  end cpurm.impl;
+
+  ---------------
+  -- Processes --
+  ---------------
+
+  process node_a
+  end node_a;
+
+  process implementation node_a.impl
+  subcomponents
+    Task1 : thread Task.impl_1;
+    Task2 : thread Task.impl_2;
+    Task3 : thread Task.impl_3;
+  end node_a.impl;
+
+  ------------
+  -- System --
+  ------------
+
+  system ptest
+  end ptest;
+
+  system implementation ptest.impl
+  subcomponents
+    ptest : process node_a.impl;
+    cpu_rm : processor cpurm.impl;
+  properties
+    Actual_Processor_Binding => (reference (cpu_rm)) applies to ptest;
+  end ptest.impl;
+
+  system implementation ptest.rtems_impl extends ptest.impl
+  properties
+    Deployment::Execution_platform => LEON_RTEMS_POSIX applies to cpu_rm;
+  end ptest.rtems_impl;
+
+end PTEST;

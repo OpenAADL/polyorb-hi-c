@@ -220,6 +220,7 @@ AC_OUTPUT([
         examples/aadlv2/packet-store/Makefile
         examples/aadlv2/file-store/Makefile
         examples/aadlv2/latency/Makefile
+        examples/aadlv2/priority_test/Makefile
         examples/aadlv2/rma/Makefile
         examples/aadlv2/rpc/Makefile
         examples/aadlv2/some-types/Makefile
