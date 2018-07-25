@@ -48,6 +48,7 @@ void burnproc(int loop)
   //Temporal Variable
   __po_hi_time_t  tstart;
   __po_hi_time_t  tfin;
+  int i, j, r;
 
   double * E1;
   E1 = (double *)malloc(N9 * sizeof (double));
@@ -60,11 +61,11 @@ void burnproc(int loop)
       fflush (stdout);}
 
   //Main Loop
-  for (int j=0; j<loop ;j++){
+  for (j=0; j<loop ;j++){
 
     //Initializing the array.
 
-    for (int r = 0 ; r < N9 ; r++)
+    for (r = 0 ; r < N9 ; r++)
       {
 	E1[r] = 0.0;
       }
@@ -79,7 +80,7 @@ void burnproc(int loop)
 
     //Module 8: Procedure Calls
     Z = E1[4];
-    for (int i = 0; i < N8;){
+    for (i = 0; i < N8;){
       i++;
       P3(Y * (double)i , Y + Z, &Z);
     }
