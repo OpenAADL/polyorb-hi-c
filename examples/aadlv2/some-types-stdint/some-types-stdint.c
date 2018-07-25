@@ -16,11 +16,13 @@ void user_emit_boolean( int16_t* boolean)
   }
   *boolean = boolean_type_var;
   printf ("Sending boolean : %d\n", *boolean);
+  fflush (stdout); 
 }
 
 void user_receive_boolean (int16_t boolean)
 {
   printf ("Receiving boolean : %d\n", boolean);
+  fflush (stdout); 
 }
 
 void user_emit_integer( int32_t* integer)
@@ -28,9 +30,11 @@ void user_emit_integer( int32_t* integer)
   integer_type_var++;
   *integer = integer_type_var;
   printf ("Emetting integer : %d\n", *integer);
+  fflush (stdout); 
 }
 
 void user_receive_integer (int32_t integer)
 {
   printf ("Receiving integer : %d\n", integer);
+  fflush (stdout); 
 }

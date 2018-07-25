@@ -13,9 +13,11 @@ void user_produce_spg (int* data)
    printf ("At time %3lu:%3lu, produce : %d\n",
            mytime.tv_sec % 3600, mytime.tv_nsec / 1000000,
            produce_data);
+           fflush(stdout);
 #else
    *data = produce_data;
    printf ("Produce %d\n", *data);
+   fflush(stdout);
 #endif
    produce_data++;
 }
@@ -26,8 +28,10 @@ void user_consume_spg (int data)
    struct timespec mytime;
    clock_gettime (CLOCK_REALTIME, &mytime);
    printf( "At time %3lu:%3lu, consume : %d\n", mytime.tv_sec % 3600 , mytime.tv_nsec/1000000,data);
+   fflush(stdout);
 #else
    printf ("Consume %d\n", data);
+   fflush(stdout);
 #endif
 
 }
