@@ -11,4 +11,4 @@ include $(srcdir)/../../Makefile.common
 
 EXTRA_DIST = $(AADL_FILES) $(SCENARIO_FILES) $(C_FILES)
 
-CLEANDIRS =
+CLEANDIRS = topsystem_local topsystem_rtems

@@ -16,4 +16,4 @@ EXTRA_DIST = $(AADL_FILES) $(SCENARIO_FILES) $(C_FILES)
 
 CLEANDIRS = pc_simple_impl pc_simple_local pc_simple_rtems		\
 	pc_simple_loopback pc_simple_loopback_spw pc_simple_impl_spw	\
-	pc_simple_impl_spw2
+	pc_simple_impl_spw2 pc_simple_loopback_rtems_ethernet
