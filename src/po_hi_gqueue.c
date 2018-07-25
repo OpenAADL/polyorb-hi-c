@@ -327,7 +327,7 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
   if (__po_hi_gqueue_get_port_size(id,port) == __PO_HI_GQUEUE_FIFO_INDATA)
     {
       memcpy(ptr,request,sizeof(*request));
-      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] BEWARE, for a FIFO_INDATA port, the used_size is always at 0 (not augmented in a store_in) task-id=%d, port=%d\n", id, port);
+      __PO_HI_DEBUG_INFO ("[GQUEUE] BEWARE, for a FIFO_INDATA port, the used_size is always at 0 (not augmented in a store_in) task-id=%d, port=%d\n", id, port);
     }
   else
     {
@@ -460,7 +460,7 @@ int __po_hi_gqueue_get_count( __po_hi_task_id id, __po_hi_local_port_t port)
 {
   if (__po_hi_gqueue_get_port_size(id,port) == __PO_HI_GQUEUE_FIFO_INDATA)
     {
-      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] BEWARE a FIFO_INDATA port will always have a get_count of 1, even if empty, task-id=%d, port=%d\n", id, port);
+      __PO_HI_DEBUG_INFO ("[GQUEUE] BEWARE a FIFO_INDATA port will always have a get_count of 1, even if empty, task-id=%d, port=%d\n", id, port);
       return 1; /* data port are always of size 1 */
     }
   else
@@ -562,7 +562,7 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
      there is a next value or not */
   if (__po_hi_gqueue_get_port_size(id,port) == __PO_HI_GQUEUE_FIFO_INDATA)
     {
-      __PO_HI_DEBUG_CRITICAL ("[GQUEUE] BEWARE, for a FIFO_INDATA port, the used_size is always at 0 (not reduced in a next_value) task-id=%d, port=%d\n", id, port);
+      __PO_HI_DEBUG_INFO ("[GQUEUE] BEWARE, for a FIFO_INDATA port, the used_size is always at 0 (not reduced in a next_value) task-id=%d, port=%d\n", id, port);
       return 1;
     }
 
