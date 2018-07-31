@@ -22,10 +22,7 @@
 #include <po_hi_messages.h>
 #include <po_hi_returns.h>
 
-#include <po_hi_driver_drvmgr_common.h>
-/* Common drvmgr initialization */
-
-#include <start_dundee_api.h>
+#include <star_dundee_api.h>
 
 __po_hi_request_t    __po_hi_c_driver_stardundee_request;
 __po_hi_msg_t        __po_hi_c_driver_stardundee_poller_msg;
@@ -105,8 +102,6 @@ int __po_hi_c_driver_stardundee_sender
 
    __po_hi_device_id       dev_id;
 
-   struct route_entry route; /* Routing table */
-
    dev_id = __po_hi_get_device_from_port (port);
 
    if (dev_id == invalid_device_id) {
@@ -143,9 +138,6 @@ int __po_hi_c_driver_stardundee_sender
 
    len = -1;
 
-   memset(&route, 0, sizeof(route));
-   route.dstadr[0]= 1;
-
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_DEBUG
    __PO_HI_DEBUG_DEBUG ("Message content: |0x");
    for (ts = 0 ; ts < __PO_HI_MESSAGES_MAX_SIZE ; ts++) {
@@ -181,10 +173,6 @@ void __po_hi_c_driver_stardundee_init (__po_hi_device_id id)
 {
    unsigned int node_addr;
    __po_hi_c_spacewire_conf_t* drv_conf;
-
-   /* Initializes drvmgr subsystem */
-
-   __po_hi_c_driver_drvmgr_init ();
 
    /* Set sending callback function */
 
