@@ -1,13 +1,13 @@
 C_FILES = $(srcdir)/producer-consumer.c $(srcdir)/devicesconf.c	\
 	$(srcdir)/devicesconf_spw.c
 
-AADL_FILES = $(srcdir)/producer_consumer.aadl $(srcdir)/software.aadl
+AADL_FILES = $(srcdir)/producer_consumer.aadl $(srcdir)/software.aadl	\
+$(srcdir)/scenario_spw.aadl
 
 SCENARIO_FILES = $(srcdir)/scenario.aadl				\
 	$(srcdir)/scenario_local.aadl					\
 	$(srcdir)/scenario_loopback.aadl				\
-	$(srcdir)/scenario_rtems.aadl $(srcdir)/scenario_spw.aadl	\
-	$(srcdir)/scenario_spw2.aadl					\
+	$(srcdir)/scenario_rtems.aadl $(srcdir)/scenario_spw2.aadl	\
 	$(srcdir)/scenario_loopback_rtems.aadl
 
 include $(srcdir)/../../Makefile.common

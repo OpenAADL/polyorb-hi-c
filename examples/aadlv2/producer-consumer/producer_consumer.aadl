@@ -1,5 +1,10 @@
 package Producer::Consumer
+
+--  This example illustrates various kind of deployment for a basic
+--  producer/consumer system
+
 public
+
   with Deployment, Software;
   with ocarina_drivers;
   with ocarina_buses;
@@ -20,6 +25,12 @@ public
   ---------------
   -- Processes --
   ---------------
+
+  --  We define two families of processes
+  --  * processes A and B for distributed system, with cross
+  --    communication, each process hosting both a producer and a
+  --    consumer thread, to test all kind of communication stacks
+  --  * process singleProcess, for internal communications, to test RTOS
 
   process A
   features
@@ -100,19 +111,20 @@ public
     actual_processor_binding => (reference (CPU_B)) applies to Device_B;
   end PC_Simple.Impl;
 
+  -----------------------------------------------------------------------------
+
   system implementation PC_Simple.Impl_Spw
-    --  Producer/Consummer, refined to LEON/RTEMS POSIX with SpaceWire
-    --  communications using rasta_spacewire.pohic driver, based on
-    --  GRSPW IOCTL driver.
+    --  Producer/Consummer, for Linux targets  with SpaceWire
+    --  communications using Star Dundee Mk3
 
     --  XXXX check why we cannot extend the previous impl
 
   subcomponents
     pr_A : process A.Impl;
-    Device_A : device ocarina_drivers::rasta_spacewire.grspw_pohic
+    Device_A : device ocarina_drivers::star_dundee_mk3_spacewire.pohic
     {Source_Text => ("devicesconf_spw.c");};
     pr_B : process B.Impl;
-    Device_B : device ocarina_drivers::rasta_spacewire.grspw_pohic
+    Device_B : device ocarina_drivers::star_dundee_mk3_spacewire.pohic
     {Source_Text => ("devicesconf_spw.c");};
     CPU_A : processor the_processor.i;
     CPU_B : processor the_processor.i;
@@ -128,18 +140,18 @@ public
     {Actual_Connection_Binding => (reference (the_bus));};
 
   properties
-    Deployment::Execution_Platform => LEON_RTEMS_POSIX applies to CPU_A;
-    Deployment::Execution_Platform => LEON_RTEMS_POSIX applies to CPU_B;
     actual_processor_binding => (reference (CPU_A)) applies to pr_A;
     actual_processor_binding => (reference (CPU_B)) applies to pr_B;
     actual_processor_binding => (reference (CPU_A)) applies to Device_A;
     actual_processor_binding => (reference (CPU_B)) applies to Device_B;
   end PC_Simple.Impl_Spw;
 
+  -----------------------------------------------------------------------------
+
   system implementation PC_Simple.Impl_Spw2
     --  Producer/Consummer, refined to LEON/RTEMS POSIX with SpaceWire
-    --  communications using rasta_spacewire.pohic driver, based on
-    --  GRSPW IOCTL driver.
+    --  communications using rasta_spacewire.grspw_pohic driver, based on
+    --  GRSPW Packet driver.
 
   subcomponents
     pr_A : process A.Impl;
@@ -171,6 +183,8 @@ public
 
   end PC_Simple.Impl_Spw2;
 
+  -----------------------------------------------------------------------------
+
   system implementation PC_Simple.Loopback
     -- Variant of Producer/Consummer using TCP/IP sockets in loopback mode
 
@@ -190,12 +204,15 @@ public
     actual_processor_binding => (reference (CPU_A)) applies to Device_A;
   end PC_Simple.Loopback;
 
+  -----------------------------------------------------------------------------
+
   system implementation PC_Simple.Loopback_Spw
     --  Loopback variant using SpaceWire
     --
     --  Note; does not work properly, as we cannot perform loopback
     --  with rasta_spacewire.pohic driver. Used only to test proper
     --  sending.
+
   subcomponents
     pr_A : process A.Impl;
     Device_A : device ocarina_drivers::rasta_spacewire.grspw_pohic
@@ -214,6 +231,8 @@ public
 
     Deployment::Execution_Platform => LEON_RTEMS_POSIX applies to CPU_A;
   end PC_Simple.Loopback_Spw;
+
+  -----------------------------------------------------------------------------
 
   system implementation PC_Simple.Loopback_RTEMS_Ethernet
     --  Loopback variant using SpaceWire
@@ -239,22 +258,26 @@ public
     Deployment::Execution_Platform => LEON_RTEMS_POSIX applies to CPU_A;
   end PC_Simple.Loopback_RTEMS_Ethernet;
 
-  system implementation PC_Simple.local
+  -----------------------------------------------------------------------------
+
+  system implementation PC_Simple.Local
   subcomponents
     prodr_cons : process singleProcess.Impl;
     CPU_A : processor the_processor.i;
   properties
     actual_processor_binding => (reference (CPU_A)) applies to prodr_cons;
-  end PC_Simple.local;
+  end PC_Simple.Local;
 
-  system implementation PC_Simple.Xenomai
-  extends PC_Simple.local
+  -----------------------------------------------------------------------------
+
+  system implementation PC_Simple.Xenomai extends PC_Simple.local
   properties
     Deployment::Execution_Platform => linux32_xenomai_native applies to CPU_A;
   end PC_Simple.Xenomai;
 
-  system implementation PC_Simple.RTEMS
-  extends PC_Simple.local
+  -----------------------------------------------------------------------------
+
+  system implementation PC_Simple.RTEMS extends PC_Simple.local
   properties
     Deployment::Execution_platform => LEON_RTEMS_POSIX applies to CPU_A ;
   end PC_Simple.RTEMS;
