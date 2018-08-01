@@ -2,7 +2,7 @@
 
 __po_hi_c_spacewire_conf_t pohidrv_device_a = {
   .devname = "/dev/grspw0",
-  .nodeaddr = 30,
+  .nodeaddr = 1,
   .corefreq = 0,
   .clockdiv = 0,
   .use_router = FALSE,
@@ -21,7 +21,7 @@ __po_hi_c_spacewire_conf_t pohidrv_device_a = {
 
 __po_hi_c_spacewire_conf_t pohidrv_device_b = {
   .devname = "/dev/grspw1",
-  .nodeaddr = 30,
+  .nodeaddr = 3,
   .corefreq = 0,
   .clockdiv = 0,
   .use_router = FALSE,
