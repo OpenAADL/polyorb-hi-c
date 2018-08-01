@@ -35,7 +35,41 @@ char                 __po_hi_c_driver_stardundee_sndbuf[__PO_HI_MESSAGES_MAX_SIZ
 void __po_hi_c_driver_stardundee_poller (const __po_hi_device_id dev_id) {
   int len;
   int ts;
+  STAR_DEVICE_ID selectedDevice;
+  STAR_CHANNEL_ID selectedChannel;
+  unsigned char channel_number;
+  unsigned int node_addr;
+  /** Finding the Device_ID **/
+ /* The number of devices that were found */
+  U32 deviceCount = 0;
+ /* TEST IF */
+  STAR_DEVICE_ID * devices = STAR_getDeviceList(&deviceCount);
+ if (dev_id >= deviceCount){
+    printf("invalid device id for the poller\n");
+ }
+  selectedDevice = devices[dev_id];
+  STAR_destroyDeviceList(devices);
 
+  /** Finding the Channel_ID **/
+  //STAR_CHANNEL_DIRECTION channelDirection = STAR_CHANNEL_DIRECTION_INOUT;
+   __po_hi_c_spacewire_conf_t* drv_conf;
+  drv_conf = (__po_hi_c_spacewire_conf_t*)
+     __po_hi_get_device_configuration (dev_id);
+  node_addr = drv_conf->nodeaddr;
+  if(!isChannelValid(selectedDevice, node_addr)){
+     printf("Invalid channel number for the poller\n");
+     return PO_HI_ERROR;
+  }
+  channel_number = (unsigned char) node_addr;
+
+  STAR_CHANNEL_DIRECTION channelDirection = STAR_CHANNEL_DIRECTION_IN;
+  selectedChannel = STAR_openChannelToLocalDevice(selectedDevice, channelDirection,
+        (unsigned char)* channelNumber, 1);
+   printf("node_addr = %d, channel_number= %c, channel_id= %c\n",node_addr, channel_number,selectedChannel);
+  if(selectedChannel==0){
+    printf("Channel %d could not be opened FOR POLLER.\n", node_addr);
+    return PO_HI_ERROR;
+  }
   while (true) {
     __PO_HI_DEBUG_DEBUG ("[STAR DUNDEE MK3] Poller task activated \n");
 
@@ -47,7 +81,7 @@ void __po_hi_c_driver_stardundee_poller (const __po_hi_device_id dev_id) {
 
     len = dundee_receiving
       (&__po_hi_c_driver_stardundee_poller_msg.content[0],
-       1); // XXX hard coded
+       selectedChannel); // XXX hard coded
 
     __PO_HI_DEBUG_DEBUG
       ("[STAR DUNDEE MK3] Poller received a message, len=%d\n", len);
@@ -78,6 +112,7 @@ void __po_hi_c_driver_stardundee_poller (const __po_hi_device_id dev_id) {
       __po_hi_main_deliver (&__po_hi_c_driver_stardundee_request);
     }
   }
+  (void)STAR_closeChannel(selectedChannel);
 }
 
 /******************************************************************************/
@@ -93,6 +128,46 @@ int __po_hi_c_driver_stardundee_sender
    int i;
    int ts;
 
+   STAR_DEVICE_ID selectedDevice;
+   STAR_CHANNEL_ID selectedChannel;
+   unsigned char channel_number;
+   unsigned int node_addr;
+   /** Finding the Device_ID **/
+   /* The number of devices that were found */
+   U32 deviceCount = 0;
+   /* Get the list of available SpaceWire devices */
+   STAR_DEVICE_ID * devices = STAR_getDeviceList(&deviceCount);
+   if (dev_id >= deviceCount){
+     printf("invalid device id for the sender\n");
+   }
+   selectedDevice = devices[dev_id];
+   STAR_destroyDeviceList(devices);
+
+   /** Finding the Channel_ID **/
+   //STAR_CHANNEL_DIRECTION channelDirection = STAR_CHANNEL_DIRECTION_INOUT;
+   __po_hi_c_spacewire_conf_t* drv_conf;
+   drv_conf = (__po_hi_c_spacewire_conf_t*)
+     __po_hi_get_device_configuration (dev_id);
+   node_addr = drv_conf->nodeaddr;
+
+   if(!isChannelValid(selectedDevice, node_addr)){
+     printf("Invalid channel number for the sender\n");
+     return PO_HI_ERROR;
+   }
+
+   channel_number = (unsigned char) node_addr;
+   STAR_CHANNEL_DIRECTION channelDirection = STAR_CHANNEL_DIRECTION_OUT;
+   selectedChannel = STAR_openChannelToLocalDevice
+     (selectedDevice, channelDirection,
+      (unsigned char)* channelNumber,
+      1);
+
+   printf("node_addr = %d, channel_number= %c, channel_id= %c\n",node_addr, channel_number,selectedChannel);
+
+   if(selectedChannel==0){
+     printf("Channel %d could not be opened FOR SENDER.\n", node_addr);
+     return PO_HI_ERROR;
+   }
    __po_hi_c_spacewire_conf_t* sender_conf;
    __po_hi_c_spacewire_conf_t* receiver_conf;
 
@@ -150,7 +225,7 @@ int __po_hi_c_driver_stardundee_sender
    len = dundee_sending
      (__po_hi_c_driver_stardundee_sender_msg.content,
       __PO_HI_MESSAGES_MAX_SIZE, // XXX hard coded
-      0); // XXX hard coded
+      selectedChannel); // XXX hard coded
 
    if (len < 0) {
       __PO_HI_DEBUG_CRITICAL (" [STAR DUNDEE MK3] failed !\n");
@@ -162,7 +237,7 @@ int __po_hi_c_driver_stardundee_sender
    }
 
    request->port = __PO_HI_GQUEUE_INVALID_PORT;
-
+   (void)STAR_closeChannel(selectedChannel);
    return __PO_HI_SUCCESS;
 }
 
@@ -195,5 +270,30 @@ void __po_hi_c_driver_stardundee_init (__po_hi_device_id id)
 
    __PO_HI_DEBUG_DEBUG
      ("[STAR DUNDEE MK3] Initialization complete\n");
+}
 
+int isChannelValid(STAR_DEVICE_ID device, unsigned int channel){
+  /* Get available channels */
+  U32 channelMask = STAR_getDeviceChannels(device);
+
+  printf("test :channel is : %d \n", channel);
+  /* Define counter for loop */
+  unsigned int index;
+
+  /* For all possible channels (apart from port 0) */
+  for (index = 1; index < 32; index++)
+    {
+      /* If the channel exists */
+      if ((channelMask >> index) & 1)
+        {
+          /* If this is the channel that we are looking for */
+          if(index == channel)
+            {
+              /* Return true */
+              return 1;
+            }
+        }
+    }
+    /* Return false if channel is invalid */
+  return 0;
 }
