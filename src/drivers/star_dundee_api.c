@@ -25,26 +25,37 @@ size_t dundee_sending
   }
 
   /* Create a message_size packet to be transmitted, terminated with an EOP */
-  STAR_STREAM_ITEM *pTxStreamItem;
+  STAR_STREAM_ITEM *pHeader, *pTxStreamItem, *packet[2];
   STAR_SPACEWIRE_ADDRESS *pAddress = NULL;
 
-  /* Note: for the moment, message_size is only the size of the data
-     (without header) */
-
-  pTxStreamItem = STAR_createPacket
-    (pAddress, message, message_size, STAR_EOP_TYPE_EOP);
+  unsigned char header[4] = { '1', '3', '0', '0'};
+  
+  pHeader = STAR_createDataChunk
+    (header, 4, 1, STAR_EOP_TYPE_NONE);
+  if (!pTxStreamItem){
+    __PO_HI_DEBUG_CRITICAL
+      ("Couldn't create the stream item to be transmitted.\n");
+    return 0;
+  }
+  
+  pTxStreamItem = STAR_createDataChunk
+    (message, message_size, 0, STAR_EOP_TYPE_EOP);
   if (!pTxStreamItem){
     __PO_HI_DEBUG_CRITICAL
       ("Couldn't create the stream item to be transmitted.\n");
     return 0;
   }
 
+  packet[0] = pHeader;
+  packet[1] = pTxStreamItem;
+  
   /* Create a transfer operation to transmit the packet */
 
   STAR_TRANSFER_OPERATION *pTxTransOp;
-  pTxTransOp = STAR_createTxOperation(&pTxStreamItem, 1);
+  pTxTransOp = STAR_createTxOperation(&packet, 2);
   if (!pTxTransOp){
     __PO_HI_DEBUG_CRITICAL("Couldn't create the transmit operation.\n");
+    STAR_destroyStreamItem(pHeader);
     STAR_destroyStreamItem(pTxStreamItem);
     return 0;
   }
@@ -64,6 +75,7 @@ size_t dundee_sending
   (void)STAR_disposeTransferOperation(pTxTransOp);
 
   /* Destroy the transmit packet */
+  STAR_destroyStreamItem(pHeader);
   STAR_destroyStreamItem(pTxStreamItem);
 
   /* Return the size of the data */
@@ -116,7 +128,7 @@ size_t dundee_receiving(void* message, STAR_CHANNEL_ID selectedChannel){
 
   /* Here the length is both header and data */
 
-  memcpy (message, pReceiveBuffer, receiveBufferLength);
+  memcpy (message, pReceiveBuffer + 4, receiveBufferLength - 4);
 
   /* Display the bytes in the packet */
   __PO_HI_DEBUG_CRITICAL("Received packet contents:\n");
