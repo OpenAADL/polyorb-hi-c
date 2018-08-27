@@ -119,7 +119,7 @@ int __po_hi_c_driver_drvmgr_grspw_sender
    dev_id = __po_hi_get_device_from_port (port);
 
    if (dev_id == invalid_device_id) {
-      __PO_HI_DEBUG_DEBUG ("[RASTA SPW] Invalid device id for sending\n");
+      __PO_HI_DEBUG_DEBUG ("[GRSPW] Invalid device id for sending\n");
       return __PO_HI_UNAVAILABLE;
    }
 
