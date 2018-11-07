@@ -55,6 +55,10 @@ ifeq ($(RTEMS_API),5)
    TARGET_LDFLAGS               += -L$(RUNTIME_PATH)/libs/leon-rtems4.12/ -lm
 endif
 
+ifeq ($(RTEMS_BSP),gr740_smp)
+   POHI_CFLAGS                +=  -DGRLEON3
+endif
+
 ifeq ($(RTEMS_BSP),leon3)
    POHI_CFLAGS                +=  -DGRLEON3
 endif
