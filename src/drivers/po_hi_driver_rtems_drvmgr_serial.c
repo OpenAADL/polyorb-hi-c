@@ -222,7 +222,6 @@ void __po_hi_c_driver_rtems_drvmgr_serial_init (__po_hi_device_id id)
    newtio.c_lflag |= ICANON;
    newtio.c_cc[VMIN]=1;
    newtio.c_cc[VTIME]=0;
-   cfmakeraw (&newtio);
 
    switch (__po_hi_c_driver_serial_common_get_speed (id))
      {
@@ -250,6 +249,8 @@ void __po_hi_c_driver_rtems_drvmgr_serial_init (__po_hi_device_id id)
         __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Unknwon speed for the serial line\n");
         break;
      }
+
+   cfmakeraw (&newtio);
 
    max_size = 1024;
 #ifdef __PO_HI_MESSAGES_MAX_SIZE
