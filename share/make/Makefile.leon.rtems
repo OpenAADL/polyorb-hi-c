@@ -59,6 +59,11 @@ ifeq ($(RTEMS_BSP),gr740_smp)
    POHI_CFLAGS                +=  -DGRLEON3
 endif
 
+# leon3_smp is provided by RCC 1.3
+ifeq ($(RTEMS_BSP),leon3_smp)
+   POHI_CFLAGS                +=  -DGRLEON3 -DLEON3
+endif
+
 ifeq ($(RTEMS_BSP),leon3)
    POHI_CFLAGS                +=  -DGRLEON3
 endif
