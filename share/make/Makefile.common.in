@@ -59,6 +59,12 @@ CFLAGS=$(POHI_CFLAGS) $(USER_CFLAGS) $(GCC_GENERIC_CFLAGS)
 CPPFLAGS=$(CFLAGS) $(USER_CPPFLAGS)
 LDFLAGS=$(TARGET_LDFLAGS) $(USER_LDFLAGS)
 
+# Note: RTEMS expects user-provided libraries to be present in LD_LIBS
+# macro. These will be added automatically to the linking phase
+ifeq ($(TARGET), $(filter $(TARGET), leon3-scoc3 leon.rtems leon.rtems_posix air))
+LD_LIBS=$(USER_LDFLAGS)
+endif
+
 ifdef USE_GPROF
 CFLAGS+=-D__PO_HI_USE_GPROF -pg
 endif
