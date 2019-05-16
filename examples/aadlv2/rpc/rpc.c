@@ -8,7 +8,6 @@
 #include <po_hi_transport.h>
 #include <po_hi_gqueue.h>
 
-
 /******************************************************************************/
 /* In the case of the client-side of the RPC: the corresponding AADL
  * subprogram is *NOT* connected to AADL thread ports. We interact
@@ -34,18 +33,17 @@ void rpc_client (__po_hi_task_id self) {
    &req);
   __po_hi_send_output (self,REQUEST_PORT(client_t, out_parameter));
 
-   printf ("Client thread: sending parameter %d\n", i);
+  printf ("Client thread: sending parameter %d\n", i);
 
   __po_hi_gqueue_wait_for_incoming_event(self, &return_value_port);
   __po_hi_gqueue_get_value(self,return_value_port,&req);
   __po_hi_gqueue_next_value(self,return_value_port);
 
-   printf ("Client received: %d\n",
-             req.PORT_VARIABLE(client_t,return_value));
+  printf ("Client received: %d\n",
+          req.PORT_VARIABLE(client_t,return_value));
 
-i++;
-printf ("[END of RPC]\n\n");
-
+  i++;
+  printf ("[END of RPC]\n\n");
 }
 
 /******************************************************************************/
