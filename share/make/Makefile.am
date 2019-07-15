@@ -10,7 +10,7 @@ EXTRA_DIST=$(builddir)/Makefile.common $(srcdir)/Makefile.leon3-xm3	\
 	     $(srcdir)/Makefile.linux64 $(srcdir)/Makefile.win32	\
 	     $(srcdir)/Makefile.x86.linuxtaste				\
 	     $(srcdir)/Makefile.template $(srcdir)/Makefile.freertos	\
-	     $(srcdir)/Makefile.air
+	     $(srcdir)/Makefile.air $(srcdir)/polyorb_hi_c.gpr
 
 CLEANFILES = *~
 

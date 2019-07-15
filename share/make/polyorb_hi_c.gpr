@@ -1,0 +1,170 @@
+------------------------------------------------------------------------------
+--                                                                          --
+--                          PolyORB HI COMPONENTS                           --
+--                                                                          --
+--                           P O L Y O R B _ H I                            --
+--                                                                          --
+--                              P r o j e c t                               --
+--                                                                          --
+--                        Copyright (C) 2019 OpenAADL                       --
+--                                                                          --
+-- PolyORB-HI is free software; you can redistribute it and/or modify under --
+-- terms of the  GNU General Public License as published  by the Free Soft- --
+-- ware  Foundation;  either version 3,  or (at your option) any later ver- --
+-- sion. PolyORB-HI is distributed in the hope that it will be useful, but  --
+-- WITHOUT ANY WARRANTY; without even the implied warranty of               --
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                     --
+--                                                                          --
+-- As a special exception under Section 7 of GPL version 3, you are granted --
+-- additional permissions described in the GCC Runtime Library Exception,   --
+-- version 3.1, as published by the Free Software Foundation.               --
+--                                                                          --
+-- You should have received a copy of the GNU General Public License and    --
+-- a copy of the GCC Runtime Library Exception along with this program;     --
+-- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
+-- <http://www.gnu.org/licenses/>.                                          --
+--                                                                          --
+--               PolyORB-HI/C is maintained by the TASTE project            --
+--                      (taste-users@lists.tuxfamily.org)                   --
+--                                                                          --
+------------------------------------------------------------------------------
+
+--  Root project file for PolyORB-HI/C, to be used with GPRBuild
+
+project PolyORB_HI_C is
+
+   --  Run with
+
+   --   gprbuild -p -P../polyorb-hi-c/make/polyorb_hi_c.gpr
+   --   -XTARGET=`uname` -XBUILD="Debug" -XBUILD_DIR=$PWD
+   --   -XUSER_INCLUDE_PATH=$PWD/../..  -XUSER_SRC=...
+
+   --  Configuration of the build is done through the following variables:
+   --  * TARGET
+   --  * BUILD
+   --  * BUILD_DIR
+   --  * USER_INCLUDE_PATH
+   --  * USER_SRC
+
+   --  TARGET: configuration of the target. Some compiler flags are
+   --  target-specific. Target must be passed on the command line
+   --  using either the uname command (for native builds), or the name
+   --  of the target (for cross builds). See below for valid values.
+
+   type Target_Type is ("Linux", "Darwin");
+   Target : Target_Type := external ("TARGET", "Linux");
+
+  --  BUILD: configuration of the build. Either "Debug" or "Release"
+
+   type Build_Type is ("Debug", "Release");
+   Build : Build_Type := external ("CFG", "Debug");
+
+   --  BUILD_DIR: build directory of the PolyORB-HI/C partition,
+
+   Build_Dir := external ("BUILD_DIR");
+
+   --  USER_INCLUDE_PATH is used to pass external directories to search
+   --  for source code, e.g. user-defined code
+
+   User_Include_Path := external_as_list("USER_INCLUDE_PATH", ":");
+
+   --  USER_SRC is the list of user-provided source files,
+   --  e.g. functional code for threads, driver code, etc.
+
+   User_Files := external_as_list("USER_SRC", ":");
+
+   ----------------------------------------------------------------------------
+   --  The part below this line is generic for all projects
+
+   for Source_Dirs use
+      (Build_Dir,
+       Build_Dir & "/../polyorb-hi-c/src",
+       Build_Dir & "/../polyorb-hi-c/include")
+        & User_Include_Path;
+
+   for Object_Dir use Build_Dir & "/obj";
+   for Exec_Dir   use Build_Dir;
+
+   for Languages use ("C");
+
+   for Main use ("main.c");
+
+   --  Common_Files is the set of PolyORB-HI/C source code, plus
+   --  generated code. These files should be the common set of
+   --  required files.
+   --
+   --  Other files should be brought as user-code through AADL
+   --  patterns for threads or device drivers.
+
+   Common_Files := ("po_hi_task.c", "po_hi_time.c", "po_hi_utils.c",
+                    "po_hi_protected.c", "po_hi_monitor.c",
+                    "po_hi_gqueue.c", "po_hi_semaphore.c",
+                    "po_hi_storage.c", "po_hi_messages.c",
+                    "po_hi_marshallers.c", "po_hi_utils.c",
+                    "po_hi_transport.c", "po_hi_types.c",
+                    "po_hi_monitor.c", "po_hi_main.c", "activity.c",
+                    "subprograms.c", "deployment.c", "types.c",
+                    "naming.c", "main.c");
+
+   for Source_Files use Common_Files & User_Files;
+
+   --------------------------
+   -- Target Configuration --
+   --------------------------
+
+   Target_CFLAGS := ();
+   Target_LDFLAGS := ();
+
+   -- POSIX-based targets, namely Linux and Darwin have various support
+   -- of POSIX, we have to adjust these by setting additional macros
+
+   case Target is
+      when "Linux" =>
+         Target_CFLAGS := ("-DTARGET=native", "-DPOSIX", "-D_POSIX_SOURCE",
+                            "-D_GNU_SOURCE");
+         Target_LDFLAGS := ("-lpthread", "-lrt", "-lm");
+
+      when "Darwin" =>
+         Target_CFLAGS := ("-DTARGET=native", "-DPOSIX", "-D_XOPEN_SOURCE");
+         Target_LDFLAGS := ("-lpthread", "-lm");
+   end case;
+
+   --------------
+   -- Compiler --
+   --------------
+
+   --  Common compiler options
+
+   --  GCC warnings defaults, for more details see
+   --  https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
+
+   Common_Options := ("-Wall",
+                      "-Wextra",
+                      "-fdiagnostics-show-option",
+                      "-Wcast-align",
+                      "-Wswitch");
+
+   Debug_Options := ("-g");
+
+   package Compiler is
+      case Build is
+         when "Release" =>
+            for Default_Switches ("C") use
+               Common_Options & Target_CFLAGS;
+
+         when "Debug" =>
+         for Default_Switches ("C") use
+           Common_Options & Debug_Options & Target_CFLAGS;
+      end case;
+      end Compiler;
+
+   ------------
+   -- Linker --
+   ------------
+
+   package Linker is
+      for Default_Switches ("C") use
+         ("-g") & Target_LDFLAGS;
+   end Linker;
+
+end PolyORB_HI_C;
