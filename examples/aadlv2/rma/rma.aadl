@@ -100,6 +100,12 @@ public
     Actual_Processor_Binding => (reference (cpu_rm)) applies to rma;
   end rma.impl;
 
+  system implementation rma.compcert
+  extends rma.impl
+  properties
+    Deployment::Execution_Platform => native_compcert applies to cpu_rm;
+  end rma.compcert;
+
   system implementation rma.Xenomai
   extends rma.impl
   properties
