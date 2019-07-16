@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -14,10 +14,6 @@
 
 /* Headers from PolyORB-HI-C */
 
-#if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API) || defined (FREERTOS)
-#else
-#include <xlocale.h>
-#endif
 #include <string.h>
 
 /* Headers from the executive */
@@ -35,8 +31,8 @@ void __po_hi_msg_reallocate (__po_hi_msg_t* message)
 }
 
 void __po_hi_msg_write (__po_hi_msg_t*  msg,
-			void*           data,
-			__po_hi_uint32_t len)
+                        void*           data,
+                        __po_hi_uint32_t len)
 {
   memcpy (msg->content, data, len);
   msg->length = len;
@@ -48,11 +44,11 @@ int __po_hi_msg_length (__po_hi_msg_t* msg)
 
 
 void __po_hi_msg_copy (__po_hi_msg_t* dest,
-		       __po_hi_msg_t* src)
+                       __po_hi_msg_t* src)
 {
   memcpy (dest->content,
-	  src->content,
-	  __PO_HI_MESSAGES_MAX_SIZE);
+          src->content,
+          __PO_HI_MESSAGES_MAX_SIZE);
   dest->length = src->length;
 }
 
@@ -157,22 +153,22 @@ void __po_hi_messages_debug (__po_hi_msg_t* msg)
 
      if (Index_Hexa >= 45)
        {
-	 Hexa[Index_Hexa] = '\0';
-	 ASCII[Index_ASCII] = '\0';
-	 printf ("%s  ||  %s\n", Hexa, ASCII);
-	 Index_Hexa = 0;
-	 Index_ASCII = 0;
-	 for (i = 0 ; i < 50 ; i++)
-	   Hexa[i] = ' ';
+         Hexa[Index_Hexa] = '\0';
+         ASCII[Index_ASCII] = '\0';
+         printf ("%s  ||  %s\n", Hexa, ASCII);
+         Index_Hexa = 0;
+         Index_ASCII = 0;
+         for (i = 0 ; i < 50 ; i++)
+           Hexa[i] = ' ';
 
-	 for (i = 0 ; i < 17 ; i++)
-	   ASCII[i] = ' ';
+         for (i = 0 ; i < 17 ; i++)
+           ASCII[i] = ' ';
        }
    }
    if (Index_Hexa > 0)
      {
        for (i = Index_Hexa ; i<44 ; i++)
-	 Hexa[i] = ' ';
+         Hexa[i] = ' ';
        Index_Hexa = 45;
 
        Hexa[Index_Hexa] = '\0';

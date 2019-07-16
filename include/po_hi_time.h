@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2014 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE.
  */
 
 #ifndef __PO_HI_TIME_H__
@@ -14,11 +14,6 @@
 #include <po_hi_types.h>
 
 #ifndef HAVE_CLOCK_GETTIME
-#if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API)
-#else
-#include <xlocale.h>
-#endif
-
 #include <time.h>
 #endif
 

@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE.
  */
 
 #if defined (__linux__) || defined (RTEMS412)
@@ -35,7 +35,6 @@
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
 #if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API)
 #else
-#include <xlocale.h>
 #include <unistd.h>
 #endif
 
