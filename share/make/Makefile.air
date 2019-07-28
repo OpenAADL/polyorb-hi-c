@@ -9,20 +9,24 @@
 MANAGERS = all
 LIBS = -lrtemsall -lc
 
--include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
--include $(RTEMS_CUSTOM)
--include $(PROJECT_ROOT)/make/leaf.cfg
-
 # PolyORb-HI/C specific flags
 POHI_CFLAGS = -DRTEMS_POSIX -DLEON_RTEMS $(GCC_GENERIC_FLAGS)
 
 # RTEMS/AIR specific flags
-POHI_CFLAGS += -DAIR_HYPERVISOR -I$(AIR_ROOT)/pmk/core/include -I$(AIR_ROOT)/pmk/arch/sparc/include -I$(AIR_ROOT)/install/libs/imaspex/include/
-
-include $(AIR_ROOT)/Makefile.inc
+POHI_CFLAGS += -DAIR_HYPERVISOR -I$(AIR_ROOT)/pmk/core/include	\
+-I$(AIR_ROOT)/pmk/arch/sparc/include				\
+-I$(AIR_ROOT)/install/libs/imaspex/include/
 
 LD_LIBS = $(AIR_LIBS)/libprintf/libprintf.a			\
-	$(AIR_LIBS)/libair/libair.a $(AIR_LIBS)/imaspex/imaspex.a
+$(AIR_LIBS)/libair/libair.a $(AIR_LIBS)/imaspex/imaspex.a
+
+LINK_LIBS += $(AIR_LIBS)/libprintf/libprintf.a \
+$(AIR_LIBS)/libair/libair.a $(AIR_LIBS)/imaspex/imaspex.a
+
+-include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
+-include $(RTEMS_CUSTOM)
+-include $(PROJECT_ROOT)/make/leaf.cfg
+
 
 CPPFLAGS += -DAIR_HYPERVISOR./ -I./ -B./ -I../common/ -B../common/ -B$(AIR_LIBS)/libprintf/ -B$(AIR_LIBS)/libair/
 
