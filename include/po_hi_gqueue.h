@@ -131,6 +131,42 @@ int __po_hi_gqueue_get_count(__po_hi_task_id id,
 			     __po_hi_local_port_t port);
 
 /**
+ * \brief Compute dispatch condition :
+ * return 1 when the condition of one of the transitions that stemmed from the next 
+ * complete state is verified (i.e. all its dispatch triggers received events on 
+ * their corresponding ports) else return 0. 
+ * It also sets the index of the transition to execute according to the condition that is
+ * verified.
+ *
+ * \param id thread identifier in the local process.
+ * \param next_complete_state the struct that contains arrays informations about 
+ * transitions and dispatch triggers of the next complete state.
+ * \param initial_sizes_of_dispatch_triggers_of_all_transitions array that contains the number of
+ * events that are pending each dispatch ports of all transitions.
+ * \param index_transition_to_execute the index of transition to execute,
+ * this parameter will be set according to the transition whose condition is verified.
+ */
+__po_hi_bool_t __po_hi_gqueue_compute_index_transition_to_execute  (__po_hi_task_id id,
+                                                                    __po_hi_ba_automata_state_t* next_complete_state,
+                                                                    int* initial_sizes_of_dispatch_triggers_of_all_transitions,
+                                                                    __po_hi_int32_t* index_transition_to_execute);
+
+/**
+ * \brief Wait until all the specified dispatch events (according to the next complete state) 
+ * are received on the corresponding ports for a given thread.
+ *
+ * \param id thread identifier in the local process.
+ * \param next_complete_state the struct that contains arrays informations about 
+ * transitions and dispatch triggers of the next complete state.
+ * \param index_transition_to_execute the index of transition to execute,
+ * this parameter will be set according to the transition whose condition is verified.
+ */
+ void __po_hi_gqueue_wait_for_specific_incoming_events (__po_hi_task_id id,
+                                                       __po_hi_ba_automata_state_t* next_complete_state,
+                                                       __po_hi_int32_t* index_transition_to_execute);
+
+
+/**
  * \brief Wait until an event is received on any port for a given thread.
  * 
  * When the function returns, the port argument will contrain the port-id that received the event.
