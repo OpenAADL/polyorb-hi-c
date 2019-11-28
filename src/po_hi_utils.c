@@ -75,7 +75,7 @@ pthread_mutexattr_t     __po_hi_vcd_mutex_attr;
 #if __PO_HI_NB_PORTS > 0
 extern __po_hi_int8_t*        __po_hi_gqueues_sizes[__PO_HI_NB_TASKS];
 extern __po_hi_uint8_t*       __po_hi_gqueues_used_size[__PO_HI_NB_TASKS];
-extern __po_hi_int8_t         __po_hi_gqueues_nb_ports[__PO_HI_NB_TASKS];
+extern __po_hi_port_id_t      __po_hi_gqueues_nb_ports[__PO_HI_NB_TASKS];
 #endif
 
 void __po_hi_instrumentation_vcd_init ()
