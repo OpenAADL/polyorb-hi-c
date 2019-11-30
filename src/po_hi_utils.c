@@ -75,7 +75,7 @@ pthread_mutexattr_t     __po_hi_vcd_mutex_attr;
 #if __PO_HI_NB_PORTS > 0
 extern __po_hi_int8_t*        __po_hi_gqueues_sizes[__PO_HI_NB_TASKS];
 extern __po_hi_uint8_t*       __po_hi_gqueues_used_size[__PO_HI_NB_TASKS];
-extern __po_hi_int8_t         __po_hi_gqueues_nb_ports[__PO_HI_NB_TASKS];
+extern __po_hi_port_id_t      __po_hi_gqueues_nb_ports[__PO_HI_NB_TASKS];
 #endif
 
 void __po_hi_instrumentation_vcd_init ()
@@ -88,6 +88,7 @@ void __po_hi_instrumentation_vcd_init ()
    char                    buf[1024];
    int                     size_to_write = 0;
    time_t                  current_time;
+   char                    __po_hi_vcd_filename[100];
 
    if (VCD_state == VCD_UNCHECKED) {
      VCD_state = NULL == getenv("VCD_ENABLED")?VCD_DISABLED:VCD_ENABLED;
@@ -108,7 +109,8 @@ void __po_hi_instrumentation_vcd_init ()
       {
          __DEBUGMSG("[POHIC-INSTRUMENTATION] Could not get time\n");
       }
-      __po_hi_vcd_file = open ("bench.vcd", O_WRONLY|O_CREAT|O_SYNC, S_IRUSR|S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
+      sprintf(__po_hi_vcd_filename, "%s.vcd",__PO_HI_MY_NODE_NAME);
+      __po_hi_vcd_file = open (__po_hi_vcd_filename, O_WRONLY|O_CREAT|O_SYNC, S_IRUSR|S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
       if (__po_hi_vcd_file > 0)
       {
          write (__po_hi_vcd_file, "$date\n", 6);
