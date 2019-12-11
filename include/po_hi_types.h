@@ -129,6 +129,16 @@ typedef struct
 
 } __po_hi_ba_automata_state_t;
 
+/* __po_hi_vcd_event_kind_t : this type enumerates the different
+ * kinds of events caught in the vcd trace */ 
+typedef enum
+{
+  __po_hi_task_wait_dispatch,
+  __po_hi_task_dispatched,
+  __po_hi_store_in_port_queue,
+  __po_hi_next_value_port_queue,
+} __po_hi_vcd_event_kind_t;
+
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint32_t size);
 
 #endif /* __PO_HI_TYPES_H_ */
