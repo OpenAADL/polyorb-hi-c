@@ -479,7 +479,10 @@ int __po_hi_wait_initialization (void)
 
   pthread_mutex_unlock (&mutex_init);
 
-   __PO_HI_INSTRUMENTATION_VCD_INIT
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)  
+  /* initialize parameters used to save the vcd trace */
+  __PO_HI_INITIALIZE_VCD_TRACE
+#endif
 
   return (__PO_HI_SUCCESS);
 

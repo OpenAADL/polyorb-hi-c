@@ -367,8 +367,10 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
       __PO_HI_DEBUG_DEBUG ("\nBefore used_size ++, Store_in for task = %d, __po_hi_gqueues_used_size[id][port] = %d\n", id, __po_hi_gqueues_used_size[id][port]);
       __po_hi_gqueues_used_size[id][port]++;
       __PO_HI_DEBUG_DEBUG ("\nAfter used_size ++ , Store_in for task = %d, __po_hi_gqueues_used_size[id][port] = %d\n",id,  __po_hi_gqueues_used_size[id][port]);
-      __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueue_used_size(id,port), id, port);
-
+      
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+      __po_hi_save_event_in_vcd_trace(__po_hi_compute_timestamp(), __po_hi_store_in_port_queue, id, port, __po_hi_gqueue_used_size(id,port));
+#endif      
       /* The port where information has been written is stored */
       __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_woffset[id]] = port;
       __po_hi_gqueues_global_history_woffset[id] = (__po_hi_gqueues_global_history_woffset[id] + 1 ) % __po_hi_gqueues_total_fifo_size[id];
@@ -476,21 +478,21 @@ void __po_hi_gqueue_wait_for_specific_incoming_events (__po_hi_task_id id,
   
   while (! __po_hi_gqueue_compute_index_transition_to_execute(id, next_complete_state, initial_sizes_of_dispatch_triggers_of_all_transitions, index_transition_to_execute))
     {
-      __PO_HI_INSTRUMENTATION_VCD_WRITE("0t%d\n", id);
-
       /* Telling the semaphore to wait with putting its condvar on wait mode */
       int res_sem =  __po_hi_sem_wait_gqueue(__po_hi_gqueues_semaphores,id);
       __DEBUGMSG("GQUEUE_SEM_WAIT %d %d\n", id, res_sem);
       assert(res_sem == __PO_HI_SUCCESS);
-      __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", id);
     }
 
 #if defined (MONITORING)
   record_event(SPORADIC, WAIT_FOR, id, invalid_port_t, invalid_port_t, *port, invalid_local_port_t, NULL);
 #endif
 
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+    __po_hi_save_event_in_vcd_trace (__po_hi_compute_timestamp(), __po_hi_task_dispatched, id, invalid_local_port_t, -1);
+#endif      
   /** Releasing only the mutex of the semaphore*/
-
+  
   int res = __po_hi_sem_mutex_release_gqueue(__po_hi_gqueues_semaphores,id);
   __DEBUGMSG("GQUEUE_SEM_MTUEX_RELEASE %d %d\n", id, res);
   assert(res == __PO_HI_SUCCESS);
@@ -504,6 +506,9 @@ void __po_hi_gqueue_wait_for_specific_incoming_events (__po_hi_task_id id,
 void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
                                              __po_hi_local_port_t* port)
 {
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+  __po_hi_save_event_in_vcd_trace(__po_hi_compute_timestamp(), __po_hi_task_wait_dispatch, id, invalid_local_port_t, -1);
+#endif
   /* Locking only the mutex of the semaphore */
   int result = __po_hi_sem_mutex_wait_gqueue(__po_hi_gqueues_semaphores,id);
   __DEBUGMSG("GQUEUE_SEM_MUTEX_WAIT %d %d\n", id, result);
@@ -511,13 +516,10 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
 
   while(po_hi_gqueues_queue_is_empty(id) == 1)
     {
-      __PO_HI_INSTRUMENTATION_VCD_WRITE("0t%d\n", id);
-
       /* Telling the semaphore to wait with putting its condvar on wait mode */
       int res_sem =  __po_hi_sem_wait_gqueue(__po_hi_gqueues_semaphores,id);
       __DEBUGMSG("GQUEUE_SEM_WAIT %d %d\n", id, res_sem);
       assert(res_sem == __PO_HI_SUCCESS);
-      __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", id);
     }
 
   *port = __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_offset[id]];
@@ -526,8 +528,11 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
   record_event(SPORADIC, WAIT_FOR, id, invalid_port_t, invalid_port_t, *port, invalid_local_port_t, NULL);
 #endif
 
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+  __po_hi_save_event_in_vcd_trace (__po_hi_compute_timestamp(), __po_hi_task_dispatched, id, invalid_local_port_t, -1);
+#endif
   /** Releasing only the mutex of the semaphore*/
-
+  
   int res = __po_hi_sem_mutex_release_gqueue(__po_hi_gqueues_semaphores,id);
   __DEBUGMSG("GQUEUE_SEM_MTUEX_RELEASE %d %d\n", id, res);
   assert(res == __PO_HI_SUCCESS);
@@ -663,7 +668,10 @@ int __po_hi_gqueue_next_value (__po_hi_task_id id, __po_hi_local_port_t port)
   __PO_HI_DEBUG_DEBUG ("\nBefore -- on size, Next_value for task id = %d, __po_hi_gqueues_used_size[id][port] = %d\n",id, __po_hi_gqueues_used_size[id][port]);
   __po_hi_gqueues_used_size[id][port]--;
   __PO_HI_DEBUG_DEBUG ("\nAfter -- on size , Next_value for task id = %d, __po_hi_gqueues_used_size[id][port] = %d\n",id, __po_hi_gqueues_used_size[id][port]);
-  __PO_HI_INSTRUMENTATION_VCD_WRITE("r%d p%d.%d\n", __po_hi_gqueue_used_size(id,port), id, port);
+
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+  __po_hi_save_event_in_vcd_trace(__po_hi_compute_timestamp(), __po_hi_next_value_port_queue, id, port, __po_hi_gqueue_used_size(id,port));
+#endif
 
   if (__po_hi_gqueue_used_size(id,port) == 0)
     {
