@@ -10,62 +10,41 @@ extern "C" {
 #endif
 
 
+typedef asn1SccUint __po_hi_c_Node_Addr_T;
 
-typedef asn1SccSint __po_hi_c_Node_Addr_T;
-
-#define __po_hi_c_Node_Addr_T_REQUIRED_BYTES_FOR_ENCODING       1 
-#define __po_hi_c_Node_Addr_T_REQUIRED_BITS_FOR_ENCODING        5
-#define __po_hi_c_Node_Addr_T_REQUIRED_BYTES_FOR_ACN_ENCODING   1 
-#define __po_hi_c_Node_Addr_T_REQUIRED_BITS_FOR_ACN_ENCODING    5
-#define __po_hi_c_Node_Addr_T_REQUIRED_BYTES_FOR_XER_ENCODING   47
 
 void __po_hi_c_Node_Addr_T_Initialize(__po_hi_c_Node_Addr_T* pVal);
-flag __po_hi_c_Node_Addr_T_IsConstraintValid(const __po_hi_c_Node_Addr_T* val, int* pErrCode);
-#ifndef ERR___po_hi_c_Node_Addr_T 
-#define ERR___po_hi_c_Node_Addr_T		1001  /*(0 .. 31)*/
-#endif
 
+#define ERR_NODE_ADDR_T		1  /**/
+flag __po_hi_c_Node_Addr_T_IsConstraintValid(const __po_hi_c_Node_Addr_T* pVal, int* pErrCode);
 typedef enum {
     __po_hi_c_mil1553a = 0,
     __po_hi_c_mil1553b = 1
 } __po_hi_c_Standard_T;
 
-#define __po_hi_c_Standard_T_REQUIRED_BYTES_FOR_ENCODING       1 
-#define __po_hi_c_Standard_T_REQUIRED_BITS_FOR_ENCODING        1
-#define __po_hi_c_Standard_T_REQUIRED_BYTES_FOR_ACN_ENCODING   1 
-#define __po_hi_c_Standard_T_REQUIRED_BITS_FOR_ACN_ENCODING    1
-#define __po_hi_c_Standard_T_REQUIRED_BYTES_FOR_XER_ENCODING   44
+// please use the following macros to avoid breaking code.
+#define __po_hi_c_Standard_T_mil1553a __po_hi_c_mil1553a
+#define __po_hi_c_Standard_T_mil1553b __po_hi_c_mil1553b
 
 void __po_hi_c_Standard_T_Initialize(__po_hi_c_Standard_T* pVal);
-flag __po_hi_c_Standard_T_IsConstraintValid(const __po_hi_c_Standard_T* val, int* pErrCode);
-#ifndef ERR___po_hi_c_Standard_T_unknown_enumeration_value 
-#define ERR___po_hi_c_Standard_T_unknown_enumeration_value		1003  /**/
-#endif
-#ifndef ERR___po_hi_c_Standard_T 
-#define ERR___po_hi_c_Standard_T		1002  /**/
-#endif
 
+#define ERR_STANDARD_T		8  /**/
+flag __po_hi_c_Standard_T_IsConstraintValid(const __po_hi_c_Standard_T* pVal, int* pErrCode);
 typedef enum {
     __po_hi_c_controller = 0,
     __po_hi_c_terminal = 1,
     __po_hi_c_monitor = 2
 } __po_hi_c_Mode_T;
 
-#define __po_hi_c_Mode_T_REQUIRED_BYTES_FOR_ENCODING       1 
-#define __po_hi_c_Mode_T_REQUIRED_BITS_FOR_ENCODING        2
-#define __po_hi_c_Mode_T_REQUIRED_BYTES_FOR_ACN_ENCODING   1 
-#define __po_hi_c_Mode_T_REQUIRED_BITS_FOR_ACN_ENCODING    2
-#define __po_hi_c_Mode_T_REQUIRED_BYTES_FOR_XER_ENCODING   36
+// please use the following macros to avoid breaking code.
+#define __po_hi_c_Mode_T_controller __po_hi_c_controller
+#define __po_hi_c_Mode_T_terminal __po_hi_c_terminal
+#define __po_hi_c_Mode_T_monitor __po_hi_c_monitor
 
 void __po_hi_c_Mode_T_Initialize(__po_hi_c_Mode_T* pVal);
-flag __po_hi_c_Mode_T_IsConstraintValid(const __po_hi_c_Mode_T* val, int* pErrCode);
-#ifndef ERR___po_hi_c_Mode_T_unknown_enumeration_value 
-#define ERR___po_hi_c_Mode_T_unknown_enumeration_value		1005  /**/
-#endif
-#ifndef ERR___po_hi_c_Mode_T 
-#define ERR___po_hi_c_Mode_T		1004  /**/
-#endif
 
+#define ERR_MODE_T		15  /**/
+flag __po_hi_c_Mode_T_IsConstraintValid(const __po_hi_c_Mode_T* pVal, int* pErrCode);
 typedef enum {
     __po_hi_c_none = 0,
     __po_hi_c_bus_a = 1,
@@ -73,35 +52,18 @@ typedef enum {
     __po_hi_c_both = 3
 } __po_hi_c_Bus_T;
 
-#define __po_hi_c_Bus_T_REQUIRED_BYTES_FOR_ENCODING       1 
-#define __po_hi_c_Bus_T_REQUIRED_BITS_FOR_ENCODING        2
-#define __po_hi_c_Bus_T_REQUIRED_BYTES_FOR_ACN_ENCODING   1 
-#define __po_hi_c_Bus_T_REQUIRED_BITS_FOR_ACN_ENCODING    2
-#define __po_hi_c_Bus_T_REQUIRED_BYTES_FOR_XER_ENCODING   26
+// please use the following macros to avoid breaking code.
+#define __po_hi_c_Bus_T_none __po_hi_c_none
+#define __po_hi_c_Bus_T_bus_a __po_hi_c_bus_a
+#define __po_hi_c_Bus_T_bus_b __po_hi_c_bus_b
+#define __po_hi_c_Bus_T_both __po_hi_c_both
 
 void __po_hi_c_Bus_T_Initialize(__po_hi_c_Bus_T* pVal);
-flag __po_hi_c_Bus_T_IsConstraintValid(const __po_hi_c_Bus_T* val, int* pErrCode);
-#ifndef ERR___po_hi_c_Bus_T_unknown_enumeration_value 
-#define ERR___po_hi_c_Bus_T_unknown_enumeration_value		1007  /**/
-#endif
-#ifndef ERR___po_hi_c_Bus_T 
-#define ERR___po_hi_c_Bus_T		1006  /**/
-#endif
 
+#define ERR_BUS_T		22  /**/
+flag __po_hi_c_Bus_T_IsConstraintValid(const __po_hi_c_Bus_T* pVal, int* pErrCode);
+/*-- __po_hi_c_mil_1553_conf_t --------------------------------------------*/
 typedef char __po_hi_c_mil_1553_conf_t_devname[21];
-
-#define __po_hi_c_mil_1553_conf_t_devname_REQUIRED_BYTES_FOR_ENCODING       19 
-#define __po_hi_c_mil_1553_conf_t_devname_REQUIRED_BITS_FOR_ENCODING        145
-#define __po_hi_c_mil_1553_conf_t_devname_REQUIRED_BYTES_FOR_ACN_ENCODING   19 
-#define __po_hi_c_mil_1553_conf_t_devname_REQUIRED_BITS_FOR_ACN_ENCODING    145
-#define __po_hi_c_mil_1553_conf_t_devname_REQUIRED_BYTES_FOR_XER_ENCODING   71
-
-void __po_hi_c_mil_1553_conf_t_devname_Initialize(__po_hi_c_mil_1553_conf_t_devname pVal);
-flag __po_hi_c_mil_1553_conf_t_devname_IsConstraintValid(const __po_hi_c_mil_1553_conf_t_devname val, int* pErrCode);
-#ifndef ERR___po_hi_c_mil_1553_conf_t_devname 
-#define ERR___po_hi_c_mil_1553_conf_t_devname		1008  /*(SIZE(1 .. 20))*/
-#endif
-
 typedef struct {
     __po_hi_c_mil_1553_conf_t_devname devname;
     __po_hi_c_Standard_T standard;
@@ -111,21 +73,27 @@ typedef struct {
     flag broadcast;
     flag rxblock;
     flag txblock;
+
     struct {
         unsigned int rxblock:1;
         unsigned int txblock:1;
     } exist;
+
 } __po_hi_c_mil_1553_conf_t;
 
-#define __po_hi_c_mil_1553_conf_t_REQUIRED_BYTES_FOR_ENCODING       20 
-#define __po_hi_c_mil_1553_conf_t_REQUIRED_BITS_FOR_ENCODING        160
-#define __po_hi_c_mil_1553_conf_t_REQUIRED_BYTES_FOR_ACN_ENCODING   20 
-#define __po_hi_c_mil_1553_conf_t_REQUIRED_BITS_FOR_ACN_ENCODING    160
-#define __po_hi_c_mil_1553_conf_t_REQUIRED_BYTES_FOR_XER_ENCODING   309
-
+void __po_hi_c_mil_1553_conf_t_devname_Initialize(__po_hi_c_mil_1553_conf_t_devname val);
 void __po_hi_c_mil_1553_conf_t_Initialize(__po_hi_c_mil_1553_conf_t* pVal);
-flag __po_hi_c_mil_1553_conf_t_IsConstraintValid(const __po_hi_c_mil_1553_conf_t* val, int* pErrCode);
 
+#define ERR_MIL_1553_CONF_T		101  /**/
+#define ERR_MIL_1553_CONF_T_DEVNAME		29  /**/
+#define ERR_MIL_1553_CONF_T_STANDARD		36  /**/
+#define ERR_MIL_1553_CONF_T_MODE		47  /**/
+#define ERR_MIL_1553_CONF_T_BUS		58  /**/
+#define ERR_MIL_1553_CONF_T_TERMADDR		69  /**/
+#define ERR_MIL_1553_CONF_T_BROADCAST		80  /**/
+#define ERR_MIL_1553_CONF_T_RXBLOCK		87  /**/
+#define ERR_MIL_1553_CONF_T_TXBLOCK		94  /**/
+flag __po_hi_c_mil_1553_conf_t_IsConstraintValid(const __po_hi_c_mil_1553_conf_t* pVal, int* pErrCode);
 
  
 
@@ -134,25 +102,11 @@ flag __po_hi_c_mil_1553_conf_t_IsConstraintValid(const __po_hi_c_mil_1553_conf_t
  * have been declared first, in case of parameterized ACN encodings
  * ========================================================================= */
 
-
-
-
-
-
  
 
 
 #ifdef  __cplusplus
 }
-#define ENUM___po_hi_c_mil1553a	__po_hi_c_mil1553a
-#define ENUM___po_hi_c_mil1553b	__po_hi_c_mil1553b
-#define ENUM___po_hi_c_controller	__po_hi_c_controller
-#define ENUM___po_hi_c_terminal	__po_hi_c_terminal
-#define ENUM___po_hi_c_monitor	__po_hi_c_monitor
-#define ENUM___po_hi_c_none	__po_hi_c_none
-#define ENUM___po_hi_c_bus_a	__po_hi_c_bus_a
-#define ENUM___po_hi_c_bus_b	__po_hi_c_bus_b
-#define ENUM___po_hi_c_both	__po_hi_c_both
 
 #endif
 

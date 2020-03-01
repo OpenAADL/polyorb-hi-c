@@ -1,20 +1,24 @@
 AUTOMAKE_OPTIONS = no-dependencies
 
 C_FILES =   $(srcdir)/1553.c       \
-            $(srcdir)/ip.c         \
-            $(srcdir)/serial.c     \
-            $(srcdir)/spacewire.c
+	    $(srcdir)/ip.c         \
+	    $(srcdir)/serial.c     \
+	    $(srcdir)/spacewire.c
 
 ASN_FILES = $(srcdir)/1553.asn       \
-            $(srcdir)/ip.asn         \
-            $(srcdir)/serial.asn     \
-            $(srcdir)/spacewire.asn
+	    $(srcdir)/ip.asn         \
+	    $(srcdir)/serial.asn     \
+	    $(srcdir)/spacewire.asn
 
 
 csrc = ${shell $(CYGPATH_U) '$(OCARINA_RUNTIME)/polyorb-hi-c/src/drivers/configuration'}
 
+t:
+	echo $(shell shell which asn1.exe)
+	echo `shell which asn1.exe`
+
 $(srcdir)/1553.c:
-	mono $(which asn1.exe) -c -typePrefix __po_hi_c_ 1553.asn
+	mono $(shell which asn1.exe) -c -typePrefix __po_hi_c_ 1553.asn
 	sed -e 's/Mil\_1553\_Conf\_T/mil\_1553\_conf\_t/g' 1553.h > 1553new.h
 	mv 1553new.h 1553.h
 	echo "#if (defined (__PO_HI_NEED_DRIVER_1553_RASTA))\n" > 1553new.c
@@ -25,7 +29,7 @@ $(srcdir)/1553.c:
 	mv asn1crt.h ../../../include/drivers/configuration/
 
 $(srcdir)/spacewire.c:
-	mono $(which asn1.exe) -c -typePrefix __po_hi_c_ spacewire.asn
+	mono $(shell which asn1.exe) -c -typePrefix __po_hi_c_ spacewire.asn
 	sed -e 's/Spacewire\_Conf\_T/spacewire\_conf\_t/g' spacewire.h > spacewirenew.h
 	mv spacewirenew.h spacewire.h
 	echo "#if (defined (__PO_HI_NEED_DRIVER_SPACEWIRE_RASTA))\n" > spacewirenew.c
@@ -36,7 +40,7 @@ $(srcdir)/spacewire.c:
 	mv asn1crt.h ../../../include/drivers/configuration/
 
 $(srcdir)/ip.c:
-	mono $(which asn1.exe) -c -typePrefix __po_hi_c_ ip.asn
+	mono $(shell which asn1.exe) -c -typePrefix __po_hi_c_ ip.asn
 	mv asn1crt.h ../../../include/drivers/configuration/
 	sed -e 's/IP\_Conf\_T/ip\_conf\_t/g' ip.h > ipnew.h
 	mv ipnew.h ip.h
@@ -47,7 +51,7 @@ $(srcdir)/ip.c:
 	mv ip.h ../../../include/drivers/configuration/
 
 $(srcdir)/serial.c:
-	mono $(which asn1.exe) -c -typePrefix __po_hi_c_ serial.asn
+	mono $(shell which asn1.exe) -c -typePrefix __po_hi_c_ serial.asn
 	sed -e 's/Serial\_Conf\_T/serial\_conf\_t/g' serial.h > serialnew.h
 	mv serialnew.h serial.h
 	echo "#if (defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX) || defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_RECEIVER) || defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_SENDER) || defined (__PO_HI_NEED_DRIVER_SERIAL_RASTA) || defined (__PO_HI_NEED_DRIVER_SERIAL_LEON) || defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_SENDER) || defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_RECEIVER))\n" > serialnew.c
