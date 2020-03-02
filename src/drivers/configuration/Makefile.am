@@ -1,21 +1,12 @@
 AUTOMAKE_OPTIONS = no-dependencies
 
-C_FILES =   $(srcdir)/1553.c       \
-	    $(srcdir)/ip.c         \
-	    $(srcdir)/serial.c     \
-	    $(srcdir)/spacewire.c
+C_FILES = $(srcdir)/1553.c $(srcdir)/ip.c $(srcdir)/serial.c	\
+	    $(srcdir)/spacewire.c $(srcdir)/bluetooth.c
 
-ASN_FILES = $(srcdir)/1553.asn       \
-	    $(srcdir)/ip.asn         \
-	    $(srcdir)/serial.asn     \
-	    $(srcdir)/spacewire.asn
-
+ASN_FILES = $(srcdir)/1553.asn $(srcdir)/ip.asn $(srcdir)/serial.asn	\
+	    $(srcdir)/spacewire.asn $(srcdir)/bluetooth.asn
 
 csrc = ${shell $(CYGPATH_U) '$(OCARINA_RUNTIME)/polyorb-hi-c/src/drivers/configuration'}
-
-t:
-	echo $(shell shell which asn1.exe)
-	echo `shell which asn1.exe`
 
 $(srcdir)/1553.c:
 	mono $(shell which asn1.exe) -c -typePrefix __po_hi_c_ 1553.asn
@@ -59,6 +50,17 @@ $(srcdir)/serial.c:
 	echo "\n#endif" >> serialnew.c
 	mv serialnew.c serial.c
 	mv serial.h ../../../include/drivers/configuration/
+	mv asn1crt.h ../../../include/drivers/configuration/
+
+$(srcdir)/bluetooth.c:
+	mono $$(which asn1.exe) -c -typePrefix __po_hi_c_ bluetooth.asn
+	sed -e 's/Bluetooth\_Conf\_T/bluetooth\_conf\_t/g' bluetooth.h > bluetoothnew.h
+	mv bluetoothnew.h bluetooth.h
+	echo "#if (defined (__PO_HI_NEED_DRIVER_BLUETOOTH))\n" > bluetoothnew.c
+	sed -e 's/Bluetooth\_Conf\_T/bluetooth\_conf\_t/g' bluetooth.c >> bluetoothnew.c
+	echo "\n#endif" >> bluetoothnew.c
+	mv bluetoothnew.c bluetooth.c
+	mv bluetooth.h ../../../include/drivers/configuration/
 	mv asn1crt.h ../../../include/drivers/configuration/
 
 regenerate:
