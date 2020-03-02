@@ -6,19 +6,16 @@
 
 ## This file has been built for a generic RTEMS integration
 
-MANAGERS = sem rtmon msg timer io
-LIBS = #-lrtemsall -lc
-RTEMS_USES_NEWLIB = no
+MANAGERS = all
+LIBS = -lrtemsall -lc
 
-# PolyORB-HI/C specific flags
-POHI_CFLAGS = -DRTEMS_POSIX -DLEON_RTEMS $(GCC_GENERIC_FLAGS)
+# PolyORb-HI/C specific flags
+POHI_CFLAGS = -DRTEMS_POSIX -DLEON_RTEMS $(GCC_GENERIC_FLAGS) -Wl,--wrap=printf -Wl,--wrap=puts -Wl,--wrap=putchar
 
 # RTEMS/AIR specific flags
-POHI_CFLAGS += -DAIR_HYPERVISOR -I$(AIR_ROOT)/pmk/core/include		\
--I$(AIR_ROOT)/pmk/arch/sparc/include					\
--I$(AIR_ROOT)/install/libs/imaspex/include/ -I./ -B./ -I../common/	\
--B../common/ -DRTEMS5 -B$(AIR_LIBS)/imaspex/ -B$(AIR_LIBS)/libprintf/	\
--B$(AIR_LIBS)/libair/
+POHI_CFLAGS += -DAIR_HYPERVISOR -I$(AIR_ROOT)/pmk/core/include	\
+-I$(AIR_ROOT)/pmk/arch/sparc/include				\
+-I$(AIR_ROOT)/install/libs/imaspex/include/
 
 LD_LIBS = $(AIR_LIBS)/libprintf/libprintf.a			\
 $(AIR_LIBS)/libair/libair.a $(AIR_LIBS)/imaspex/imaspex.a
@@ -26,19 +23,12 @@ $(AIR_LIBS)/libair/libair.a $(AIR_LIBS)/imaspex/imaspex.a
 LINK_LIBS += $(AIR_LIBS)/libprintf/libprintf.a \
 $(AIR_LIBS)/libair/libair.a $(AIR_LIBS)/imaspex/imaspex.a
 
-# The RTEMS_MAKEFILE_PATH is defined by the user for the specific CPU and BSP
-RTEMS_MAKEFILE_PATH=$(AIR_POS)/rtems5/rtems5-install/sparc-rtems5/leon3
+include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
+include $(RTEMS_CUSTOM)
+include $(PROJECT_ROOT)/make/leaf.cfg
 
--include $(RTEMS_MAKEFILE_PATH)/Makefile.inc
--include $(RTEMS_CUSTOM)
--include $(PROJECT_ROOT)/make/leaf.cfg
 
-CPPFLAGS += -DAIR_HYPERVISOR./ -I./ -B./ -I../common/ -B../common/	\
--DRTEMS5 -B$(AIR_LIBS)/imaspex/ -B$(AIR_LIBS)/libprintf/		\
--B$(AIR_LIBS)/libair/
-
-TARGET_LDFLAGS += -Wl,--gc-sections -Wl,--wrap=printf -Wl,--wrap=puts	\
--Wl,--wrap=putchar
+CPPFLAGS += -DAIR_HYPERVISOR./ -I./ -B./ -I../common/ -B../common/ -B$(AIR_LIBS)/libprintf/ -B$(AIR_LIBS)/libair/
 
 ##############################################################################
 # RTEMS_API is defined as part of RTEMS BSP Makefile. It reports the
@@ -71,8 +61,8 @@ ifeq ($(RTEMS_API),4.12)
 endif
 
 ifeq ($(RTEMS_API),5)
-   POHI_CFLAGS    +=  -DRTEMS5
-   TARGET_LDFLAGS +=  -lm
+   POHI_CFLAGS    +=  -DRTEMS412
+   TARGET_LDFLAGS += -L$(RUNTIME_PATH)/libs/leon-rtems4.12/ -lm
 endif
 
 ##############################################################################
@@ -101,8 +91,17 @@ ifeq ($(RTEMS_BSP),leon2)
    POHI_CFLAGS   +=  -DGRLEON2
 endif
 
+ifdef USE_GPROF
+TARGET_LDFLAGS+=-Wl,--wrap,Clock_isr -pg
+EXTERNAL_OBJECTS+=po_hi_gprof_rtems_leon.o
+TARGET_INCLUDE+=-I$(RTEMS_MAKEFILE_PATH)/lib/include/
+
+target-objects:
+        $(CC) $(INCLUDE) $(TARGET_INCLUDE) -D__PO_HI_USE_GPROF -Wall -c -o po_hi_gprof_rtems_leon.o $(RUNTIME_PATH)/src/po_hi_gprof_rtems_leon.c
+else
+target-objects:
+endif
+
 LINK_LIBS+=-lm
 
 target-clean:
-
-target-objects:

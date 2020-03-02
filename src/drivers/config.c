@@ -1,3 +1,13 @@
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
+ *
+ * Copyright (C) 2020 ESA & ISAE.
+ */
+
 /* Note, this file is from RCC1.3rc4 sample directory.
  *
  * Any modification there should be carefully weighted.
@@ -20,7 +30,18 @@
 /*#define LEON2_GRLIB*/
 /* Configure Network if enabled */
 #ifdef ENABLE_NETWORK
+
+// Things are always moving around in RTEMS - adapt.
+// The latest RTEMS (2019/07) has restructured Leon/AMBA
+// headers under grlib. Detect this by a combination of checks,
+// that depends on the fact that our custom cross build in TASTE
+// enabled Ada (which Gaisler's RCC doesn't).
+#if ((__RTEMS_ADA__ != 0) && (((__RTEMS_MAJOR__ << 8) | (__RTEMS_MINOR__ << 0)) >= 0x0500))
+#include <grlib/network_interface_add.h>
+#else
 #include <bsp/network_interface_add.h>
+#endif
+
 //#include "networkconfig.h"
 
 //  Gaisler uses this file, user provided. for the moment, config done

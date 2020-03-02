@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2018 ESA & ISAE.
+ * Copyright (C) 2018-2020 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -249,6 +249,7 @@ void __po_hi_c_driver_rtems_drvmgr_serial_init (__po_hi_device_id id)
         __PO_HI_DEBUG_INFO ("[LINUX SERIAL] Unknwon speed for the serial line\n");
         break;
      }
+   cfmakeraw (&newtio);
 
    cfmakeraw (&newtio);
 

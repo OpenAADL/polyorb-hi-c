@@ -1,5 +1,25 @@
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://taste.tuxfamily.org/wiki
+ *
+ * Copyright (C) 2020 ESA & ISAE.
+ */
+
 #include <bsp/gr_leon4_n2x.h>
-#include <drvmgr/ambapp_bus.h>
+
+// Things are always moving around in RTEMS - adapt.
+// The latest RTEMS (2019/07) has restructured Leon/AMBA
+// headers under grlib. Detect this by a combination of checks,
+// that depends on the fact that our custom cross build in TASTE
+// enabled Ada (which Gaisler's RCC doesn't).
+#if ((__RTEMS_ADA__ != 0) && (((__RTEMS_MAJOR__ << 8) | (__RTEMS_MINOR__ << 0)) >= 0x0500))
+   #include <grlib/ambapp_bus.h>
+#else
+   #include <drvmgr/ambapp_bus.h>
+#endif
 
 /* GR-CPCI-LEON4-N2X boards configuration example. Note that this is
  * optional, we only override defaults. If default are ok, nothing
