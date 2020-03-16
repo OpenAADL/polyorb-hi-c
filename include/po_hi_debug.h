@@ -31,32 +31,32 @@
 
 /* Some OS do not define stderr, print directly on stdout */
 #ifdef AIR_HYPERVISOR
-#define __PO_HI_PRINTF (s, args...) printf(s, ##args);
+#define __PO_HI_PRINTF(s, args...) printf(s, ##args)
 #else
-#define __PO_HI_PRINTF (s, args...) fprintf(stderr, s, ##args); fflush(stdout);
+#define __PO_HI_PRINTF(s, args...) fprintf(stderr, s, ##args); fflush(stdout)
 #endif
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_CRITICAL
-   #define __PO_HI_DEBUG_CRITICAL(s, args...) __PO_HI_PRINTF(s, args);
+   #define __PO_HI_DEBUG_CRITICAL(s, args...) __PO_HI_PRINTF(s, ##args)
 #else
    #define __PO_HI_DEBUG_CRITICAL(s, args...)
 #endif
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_WARNING
-   #define __PO_HI_DEBUG_WARNING(s, args...) __PO_HI_PRINTF(s, args);
+   #define __PO_HI_DEBUG_WARNING(s, args...) __PO_HI_PRINTF(s, ##args)
 #else
    #define __PO_HI_DEBUG_WARNING(s, args...)
 #endif
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_DEBUG
-   #define __PO_HI_DEBUG_DEBUG(s, args...) __PO_HI_PRINTF(s, args);
+   #define __PO_HI_DEBUG_DEBUG(s, args...) __PO_HI_PRINTF(s, ##args)
 #else
    #define __PO_HI_DEBUG_DEBUG(s, args...)
 #endif
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_INFO
-   #define __PO_HI_DEBUG_INFO(s, args...) __PO_HI_PRINTF(s, args);
-   #define __DEBUGMSG(s, args...) __PO_HI_PRINTF(s, args);
+   #define __PO_HI_DEBUG_INFO(s, args...) __PO_HI_PRINTF(s, ##args)
+   #define __DEBUGMSG(s, args...) __PO_HI_PRINTF(s, ##args)
 #else
    #define __PO_HI_DEBUG_INFO(s, args...)
    #define __DEBUGMSG(s, args...)
