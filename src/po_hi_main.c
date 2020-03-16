@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2018 ESA & ISAE.
+ * Copyright (C) 2010-2020 ESA & ISAE.
  */
 
 
@@ -351,7 +351,7 @@ int __po_hi_initialize ()
 
         case __PO_HI_IN_DATA_INTER_PROCESS:
           CREATE_SAMPLING_PORT
-            (__po_hi_transport_get_model_name (tmp),
+            (__po_hi_get_port_name (tmp),
              __po_hi_transport_get_data_size (tmp),
              DESTINATION,
              PERIOD,
@@ -366,7 +366,7 @@ int __po_hi_initialize ()
 
         case __PO_HI_OUT_DATA_INTER_PROCESS:
           CREATE_SAMPLING_PORT
-            (__po_hi_transport_get_model_name (tmp),
+            (__po_hi_get_port_name (tmp),
              __po_hi_transport_get_data_size (tmp),
              SOURCE,
              PERIOD,
@@ -380,8 +380,8 @@ int __po_hi_initialize ()
 
         case __PO_HI_IN_EVENT_DATA_INTER_PROCESS:
           CREATE_QUEUING_PORT
-                 (__po_hi_transport_get_model_name (tmp),
-                  1024,
+                 (__po_hi_get_port_name (tmp),
+                  40 + __po_hi_transport_get_data_size (tmp),
                   __po_hi_transport_get_queue_size (tmp),
                   DESTINATION,
                   FIFO,
@@ -389,14 +389,16 @@ int __po_hi_initialize ()
                   &rc);
 
           if (rc != NO_ERROR) {
-            __PO_HI_DEBUG_CRITICAL("CREATE_QUEUING_PORT error %d\n", rc);
+            __PO_HI_DEBUG_CRITICAL("CREATE_QUEUING_PORT (IN) error %d %s size= %d\n",
+                                   rc, __po_hi_get_port_name (tmp),
+                                   40 + __po_hi_transport_get_data_size (tmp));
           }
           break;
 
         case __PO_HI_OUT_EVENT_DATA_INTER_PROCESS:
           CREATE_QUEUING_PORT
-                 (__po_hi_transport_get_model_name (tmp),
-                  1024, //__po_hi_transport_get_data_size (tmp),
+                 (__po_hi_get_port_name (tmp),
+                  40 + __po_hi_transport_get_data_size (tmp),
                   __po_hi_transport_get_queue_size (tmp),
                   SOURCE,
                   FIFO,
@@ -404,7 +406,9 @@ int __po_hi_initialize ()
                   &rc);
 
           if (rc != NO_ERROR) {
-            __PO_HI_DEBUG_CRITICAL("CREATE_QUEUING_PORT error %d\n", rc);
+            __PO_HI_DEBUG_CRITICAL("CREATE_QUEUING_PORT (IN) error %d %s size= %d\n",
+                                   rc, __po_hi_get_port_name (tmp),
+                                   40 + __po_hi_transport_get_data_size (tmp));
           }
           break;
 
@@ -479,7 +483,7 @@ int __po_hi_wait_initialization (void)
 
   pthread_mutex_unlock (&mutex_init);
 
-#if defined(__PO_HI_USE_VCD) && defined(__unix__)  
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
   /* initialize parameters used to save the vcd trace */
   __PO_HI_INITIALIZE_VCD_TRACE
 #endif
