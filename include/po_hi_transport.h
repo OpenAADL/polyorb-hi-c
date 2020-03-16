@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2018 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2020 ESA & ISAE.
  */
 
 #ifndef __PO_HI_TRANSPORT__
@@ -88,7 +88,7 @@ int               __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t por
 #define __po_hi_send_output            __po_hi_transport_send
 
 /*
- * \fn      __po_hi_get_port_name
+ * \fn      __po_hi_get_port_model_name
  * \brief   Return the name of the port similar to the name within the AADL model.
  */
 char* __po_hi_get_port_model_name (const __po_hi_port_t port);
