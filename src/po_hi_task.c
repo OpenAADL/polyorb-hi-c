@@ -418,7 +418,6 @@ int __po_hi_number_of_cpus (void)
   int cores = 1;
 
 #if defined (__linux__)  || defined (__APPLE__) || (defined (RTEMS_POSIX) && defined (RTEMS412))
-
   cores = (int) sysconf (_SC_NPROCESSORS_ONLN);
 #endif
 
