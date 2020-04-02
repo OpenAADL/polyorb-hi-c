@@ -1,0 +1,21 @@
+POHICDRIVER-BLUETOOTH DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+
+Datarate-T ::= ENUMERATED {d250K, d1M, d2M}
+
+Address-T  ::= OCTET STRING (SIZE (5))
+
+Bluetooth-Conf-T ::= SEQUENCE {
+   channel        INTEGER (0..125),
+   datarate       Datarate-T DEFAULT d2M,
+   address        Address-T DEFAULT 'E7E7E7E7E7'H
+}
+
+crazyflie-default Bluetooth-Conf-T ::= {
+   channel     80,
+   datarate    d2M,
+   address     'E7E7E7E7E7'H
+}
+
+
+END
+

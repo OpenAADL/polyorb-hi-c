@@ -62,15 +62,15 @@ int __po_hi_protected_init ()
 
 int __po_hi_protected_lock (__po_hi_protected_t protected_id)
 {
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("1w%d\n", protected_id);
+   //__PO_HI_INSTRUMENTATION_VCD_WRITE("1w%d\n", protected_id);
    if (__po_hi_mutex_lock (&__po_hi_protected_mutexes[protected_id]) != __PO_HI_SUCCESS )
    {
-      __PO_HI_INSTRUMENTATION_VCD_WRITE("0w%d\n", protected_id);
+      //__PO_HI_INSTRUMENTATION_VCD_WRITE("0w%d\n", protected_id);
       __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when lock protected resource %d\n", protected_id);
       return __PO_HI_ERROR_PROTECTED_LOCK;
    }
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("0w%d\n", protected_id);
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("1l%d\n", protected_id);
+   //__PO_HI_INSTRUMENTATION_VCD_WRITE("0w%d\n", protected_id);
+   //__PO_HI_INSTRUMENTATION_VCD_WRITE("1l%d\n", protected_id);
 
    return __PO_HI_SUCCESS;
 }
@@ -78,7 +78,7 @@ int __po_hi_protected_lock (__po_hi_protected_t protected_id)
 int __po_hi_protected_unlock (__po_hi_protected_t protected_id)
 {
 
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("0l%d\n", protected_id);
+  //__PO_HI_INSTRUMENTATION_VCD_WRITE("0l%d\n", protected_id);
   if (__po_hi_mutex_unlock (&__po_hi_protected_mutexes[protected_id]) != __PO_HI_SUCCESS )
     {
       __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when unlock protected resource %d\n", protected_id);
@@ -150,7 +150,7 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
      case __PO_HI_MUTEX_REGULAR:
      //case __PO_HI_PROTECTED_PCP:
      //case __PO_HI_PROTECTED_INVALID:
-	break;
+        break;
 
    }
 

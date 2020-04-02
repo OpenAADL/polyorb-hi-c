@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2018 ESA & ISAE.
+ * Copyright (C) 2011-2020 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -124,7 +124,17 @@ static struct rtems_bsdnet_ifconfig netdriver_config = {
    0           /* Use default driver parameters */
 };
 #elif defined RTEMS412
+
+// Things are always moving around in RTEMS - adapt.
+// The latest RTEMS (2019/07) has restructured Leon/AMBA
+// headers under grlib. Detect this by a combination of checks,
+// that depends on the fact that our custom cross build in TASTE
+// enabled Ada (which Gaisler's RCC doesn't).
+#if ((__RTEMS_ADA__ != 0) && (((__RTEMS_MAJOR__ << 8) | (__RTEMS_MINOR__ << 0)) >= 0x0500))
+#include <grlib/network_interface_add.h>
+#else
 #include <bsp/network_interface_add.h>
+#endif
 
 struct ethernet_config interface_configs[]=
 {

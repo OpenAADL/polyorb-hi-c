@@ -25,6 +25,66 @@ unsigned long __po_hi_swap_byte (unsigned long value);
 
 #include <pthread.h>
 #include <string.h>
+#include <deployment.h>
+
+/* Types used to store the vcd trace */
+typedef struct
+{
+  __po_hi_vcd_event_kind_t vcd_event_kind;
+  uint64_t __po_hi_vcd_trace_timestamp;
+  __po_hi_task_id task_id;
+  __po_hi_local_port_t port_id;
+  __po_hi_port_id_t port_queue_used_size;
+  
+} __po_hi_vcd_trace_element_t;
+
+/* __po_hi_vcd_trace_max_nb_events used to reallocate the array 
+ * of the vcd trace */
+__po_hi_int32_t __po_hi_vcd_trace_max_nb_events;
+
+/* __po_hi_vcd_trace_array an array containing the vcd trace
+ * as elements with type __po_hi_vcd_trace_element_t  */
+__po_hi_vcd_trace_element_t* __po_hi_vcd_trace_array;
+
+/* __po_hi_vcd_trace_array_index is the index of __po_hi_vcd_trace_array
+ * it should be protected as it is shared between tasks used to
+ * save a new element in the array*/
+__po_hi_int32_t __po_hi_vcd_trace_array_index;
+
+/* mutex used to protect the index __po_hi_vcd_trace_array_index */
+pthread_mutex_t __po_hi_vcd_trace_mutex;
+
+/* __po_hi_get_larger_array_for_vcd_trace allows to reallocate a larger
+ * array to save the vcd trace */
+void __po_hi_get_larger_array_for_vcd_trace (void);
+
+/* __po_hi_save_event_in_vcd_trace allows to save an element in
+ * __po_hi_vcd_trace_array */
+void __po_hi_save_event_in_vcd_trace (uint64_t timestamp, __po_hi_vcd_event_kind_t event_kind, __po_hi_task_id task, __po_hi_local_port_t port, __po_hi_port_id_t queue_size);
+
+/* __po_hi_compute_timestamp : returns the actual instant
+ * based on the __po_hi_vcd_start_t instant. The returned
+ * value is in (ms) */
+uint64_t __po_hi_compute_timestamp (void);
+
+/* __po_hi_vcd_start_t is the start time and it is
+ * set in the procedure __po_hi_initialize_vcd_trace */
+__po_hi_time_t  __po_hi_vcd_start_t;
+
+/* __po_hi_signalHandler is a SIGINT signal handler : it is invoked when
+ * Ctrl-c is pressed in the keyboard to interrupt the execution
+ * of the application. This handler allows a normal exit
+ * of the program which enables the invocation
+ * of the atexit function */
+void __po_hi_signalHandler(int signo);
+
+/* __po_hi_signalHandler create the vcd file and fill it
+ * with the vcd trace saved in __po_hi_vcd_trace_array */
+void __po_hi_create_vcd_file(void);
+
+/* __po_hi_initialize_vcd_trace initializes some variables and catches
+ * the SIGINT signal*/
+void __po_hi_initialize_vcd_trace (void);
 
 /* Variable keeping track of whether VCD tracing is enabled or not */
 enum tagVCD {
@@ -35,45 +95,9 @@ enum tagVCD {
 
 void __po_hi_instrumentation_vcd_init (void);
 
-#define __PO_HI_INSTRUMENTATION_VCD_INIT __po_hi_instrumentation_vcd_init ();
-
-#define __PO_HI_INSTRUMENTATION_VCD_WRITE(s, args...)                          \
-   {                                                                           \
-      extern enum tagVCD VCD_state;                                            \
-      if (VCD_state == VCD_ENABLED) {                                          \
-          extern int               __po_hi_vcd_file;                           \
-          extern __po_hi_time_t    __po_hi_vcd_start_time;                     \
-          extern pthread_mutex_t   __po_hi_vcd_mutex;                          \
-          __po_hi_time_t           __po_hi_vcd_current_time;                   \
-          char                    buf[1024];                                   \
-          int                     size_to_write = 0;                           \
-          uint64_t                st,ct,et = 0;                                \
-                                                                               \
-          pthread_mutex_lock (&__po_hi_vcd_mutex);                             \
-                                                                               \
-          if (__po_hi_get_time(&__po_hi_vcd_current_time) != __PO_HI_SUCCESS)  \
-          {                                                                    \
-             __DEBUGMSG("[POHIC-INSTRUMENTATION] Could not retrieve time\n");  \
-          }                                                                    \
-          else                                                                 \
-          {                                                                    \
-             st = __PO_HI_TIME_TO_US(__po_hi_vcd_start_time);                  \
-             ct = __PO_HI_TIME_TO_US(__po_hi_vcd_current_time);                \
-             et = ct - st ;                                                    \
-             memset (buf, '\0', 1024);                                         \
-             size_to_write = sprintf (buf, "#%llu\n", et);                     \
-             write (__po_hi_vcd_file, buf, size_to_write);                     \
-                                                                               \
-             memset (buf, '\0', 1024);                                         \
-             size_to_write = sprintf (buf, s, ##args);                         \
-             write (__po_hi_vcd_file, buf, size_to_write);                     \
-          }                                                                    \
-          pthread_mutex_unlock (&__po_hi_vcd_mutex);                           \
-      }                                                                        \
-   }
+#define __PO_HI_INITIALIZE_VCD_TRACE __po_hi_initialize_vcd_trace ();
 #else
-   #define __PO_HI_INSTRUMENTATION_VCD_WRITE(s, args...)
-   #define __PO_HI_INSTRUMENTATION_VCD_INIT
+   #define __PO_HI_INITIALIZE_VCD_TRACE
 #endif
 
 #endif /* __PO_HI_UTILS_H__ */

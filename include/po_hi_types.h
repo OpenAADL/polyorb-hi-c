@@ -104,6 +104,41 @@ typedef enum
    __PO_HI_INVALID_PORT_KIND                 = 50
 }__po_hi_port_kind_t;
 
+typedef enum
+{
+  __po_hi_initial,
+  __po_hi_initial_complete,
+  __po_hi_initial_complete_final,
+  __po_hi_initial_final,
+  __po_hi_complete,
+  __po_hi_complete_final,
+  __po_hi_final,
+  __po_hi_execution
+} __po_hi_state_kind_t;
+
+typedef struct
+{
+ 
+  __po_hi_int32_t nb_transitions;
+  
+  __po_hi_int32_t* nb_dispatch_triggers_of_each_transition;
+  
+  __po_hi_int32_t* dispatch_triggers_of_all_transitions;
+  
+  __po_hi_int32_t nb_of_all_dispatch_events;
+
+} __po_hi_ba_automata_state_t;
+
+/* __po_hi_vcd_event_kind_t : this type enumerates the different
+ * kinds of events caught in the vcd trace */ 
+typedef enum
+{
+  __po_hi_task_wait_dispatch,
+  __po_hi_task_dispatched,
+  __po_hi_store_in_port_queue,
+  __po_hi_next_value_port_queue,
+} __po_hi_vcd_event_kind_t;
+
 void __po_hi_copy_array (void* dst, void* src, __po_hi_uint32_t size);
 
 #endif /* __PO_HI_TYPES_H_ */
