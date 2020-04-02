@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2020 ESA & ISAE.
  */
 
 #if defined (__linux__) || defined (RTEMS412)
@@ -21,6 +21,7 @@
 #include <sched.h>
 #endif /* __linux__ */
 
+//#include <um_threads.h>
 #if defined (SIMULATOR)
 #include <um_threads.h>
 #undef POSIX
@@ -35,7 +36,6 @@
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
 #if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API)
 #else
-#include <xlocale.h>
 #include <unistd.h>
 #endif
 
@@ -168,12 +168,30 @@ void __po_hi_wait_for_tasks ()
 
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
+
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+  /* the atexit function allows the call of the function
+   * __po_hi_create_vcd_file when the program terminates
+   * normally */
+  atexit(__po_hi_create_vcd_file);
+#endif
+
   int i;
 
   for (i = 0; i < __PO_HI_NB_TASKS; i++)
     {
       pthread_join( tasks[i].tid , NULL );
     }
+
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+  /* initialize the index of the vcd trace array
+  * and its maximum size*/
+  __po_hi_vcd_trace_array_index = 0;
+  __po_hi_vcd_trace_max_nb_events = 0;
+
+  if (__po_hi_vcd_trace_array_index == __po_hi_vcd_trace_max_nb_events)
+           __po_hi_get_larger_array_for_vcd_trace ();
+#endif
 
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
   rtems_task_suspend(RTEMS_SELF);
@@ -192,6 +210,7 @@ void __po_hi_wait_for_tasks ()
       }
   }
 #elif defined (SIMULATOR)
+  configure_fifo_scheduler();
   start_scheduler();
   return (__PO_HI_SUCCESS);
 
@@ -275,7 +294,6 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
 #endif
 }
 
-
 int __po_hi_wait_for_next_period (__po_hi_task_id task)
 {
 
@@ -287,8 +305,20 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
 #endif
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+  uint64_t current_timestamp = __po_hi_compute_timestamp();
+#endif
+
   int ret;
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("0t%d\n", task);
+
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+  if ((tasks[task].task_category) == TASK_PERIODIC || (tasks[task].task_category) == TASK_SPORADIC)
+  {
+        __po_hi_save_event_in_vcd_trace(current_timestamp, __po_hi_task_wait_dispatch, task, invalid_local_port_t, -1);
+  }
+#endif
+
   __po_hi_task_delay_until (&(tasks[task].timer), task);
 
   if ( (ret = __po_hi_compute_next_period (task)) != 1)
@@ -296,7 +326,13 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
       return (__PO_HI_ERROR_CLOCK);
     }
 
-   __PO_HI_INSTRUMENTATION_VCD_WRITE("1t%d\n", task);
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+  current_timestamp = __po_hi_compute_timestamp();
+  if ((tasks[task].task_category) == TASK_PERIODIC)
+  {
+    __po_hi_save_event_in_vcd_trace (current_timestamp, __po_hi_task_dispatched, task, invalid_local_port_t, -1);
+  }
+#endif
 
   return (__PO_HI_SUCCESS);
 
@@ -383,8 +419,7 @@ int __po_hi_number_of_cpus (void)
 {
   int cores = 1;
 
-#if defined (__linux__)  || defined (__APPLE__)
-
+#if defined (__linux__)  || defined (__APPLE__) || (defined (RTEMS_POSIX) && defined (RTEMS412))
   cores = (int) sysconf (_SC_NPROCESSORS_ONLN);
 #endif
 
@@ -419,10 +454,9 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
       return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
     }
 
-#if (defined (POSIX) && defined (__linux__))
+#if (defined (POSIX) && defined (__linux__)) || (defined (RTEMS_POSIX) && defined (RTEMS412))
 
-  /* The following is disabled pending further investigation on affinity support in 4.11.99 */
-  /*|| (defined (RTEMS_POSIX) && defined (RTEMS412))) */
+  /* RTEMS SMP support has been confirmed to work on TASTE */
 
 #ifndef __COMPCERT__
   /* Thread affinity */
@@ -671,7 +705,15 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
       my_task->xeno_id = __po_hi_xenomai_create_thread
         (priority, stack_size, start_routine, arg);
 #elif defined (SIMULATOR)
-      my_task->um_id = um_thread_create (start_routine, stack_size, priority);
+      //my_task->um_id = um_thread_create (start_routine, stack_size, priority);
+      #ifdef __PO_HI_DEBUG
+      __DEBUGMSG ("AVANT um_thread_periodic_create\n");
+      #endif
+      my_task->um_id = um_thread_periodic_create(start_routine, stack_size,
+   priority, *period);
+      #ifdef __PO_HI_DEBUG
+      __DEBUGMSG ("APRES um_thread_periodic_create\n");
+      #endif
 #else
       return (__PO_HI_UNAVAILABLE);
 #endif
@@ -854,6 +896,9 @@ int __po_hi_task_delay_until (__po_hi_time_t* time, __po_hi_task_id task)
       __DEBUGMSG ("[TASK] Error in rt_task_sleep_until, ret=%d\n", ret);
       return (__PO_HI_ERROR_PTHREAD_COND);
   }
+  return (__PO_HI_SUCCESS);
+#elif defined(SIMULATOR)
+  delay_until(task, *time);
   return (__PO_HI_SUCCESS);
 #endif
   return (__PO_HI_UNAVAILABLE);

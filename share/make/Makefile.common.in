@@ -99,7 +99,7 @@ INCLUDE+=-DTARGET=$(TARGET_NAME)
 # Files to be compiled
 
 ifeq ($(NEED_TRANSPORT), yes)
-   PO_HI_OBJS = po_hi_task.o po_hi_time.o po_hi_protected.o		\
+   PO_HI_OBJS += po_hi_task.o po_hi_time.o po_hi_protected.o            \
 	po_hi_main.o po_hi_messages.o po_hi_marshallers.o		\
 	po_hi_giop.o po_hi_utils.o po_hi_types.o po_hi_monitor.o	\
 	po_hi_semaphore.o po_hi_storage.o po_hi_gqueue.o		\
@@ -118,7 +118,7 @@ ifeq ($(NEED_TRANSPORT), yes)
    GENERATED_OBJS = activity.o subprograms.o types.o request.o	\
 	marshallers.o deployment.o naming.o main.o
 else
-   PO_HI_OBJS = po_hi_task.o po_hi_time.o po_hi_utils.o		\
+   PO_HI_OBJS += po_hi_task.o po_hi_time.o po_hi_utils.o	\
 	po_hi_protected.o po_hi_monitor.o po_hi_storage.o	\
 	po_hi_main.o
 
