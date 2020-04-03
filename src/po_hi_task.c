@@ -386,6 +386,36 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
    }
 
    return (__PO_HI_SUCCESS);
+#elif  defined(SIMULATOR)
+   #if defined(__PO_HI_USE_VCD) && defined(__unix__)
+  uint64_t current_timestamp = __po_hi_compute_timestamp();
+#endif
+
+  int ret;
+
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+  if ((tasks[task].task_category) == TASK_PERIODIC || (tasks[task].task_category) == TASK_SPORADIC)
+  {
+        __po_hi_save_event_in_vcd_trace(current_timestamp, __po_hi_task_wait_dispatch, task, invalid_local_port_t, -1);
+  }
+#endif
+
+  __po_hi_task_delay_until (&(tasks[task].period), task);
+
+  if ( (ret = __po_hi_compute_next_period (task)) != 1)
+    {
+      return (__PO_HI_ERROR_CLOCK);
+    }
+
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+  current_timestamp = __po_hi_compute_timestamp();
+  if ((tasks[task].task_category) == TASK_PERIODIC)
+  {
+    __po_hi_save_event_in_vcd_trace (current_timestamp, __po_hi_task_dispatched, task, invalid_local_port_t, -1);
+  }
+#endif
+
+  return (__PO_HI_SUCCESS);
 #else
   return (__PO_HI_UNAVAILABLE);
 #endif
@@ -898,7 +928,7 @@ int __po_hi_task_delay_until (__po_hi_time_t* time, __po_hi_task_id task)
   }
   return (__PO_HI_SUCCESS);
 #elif defined(SIMULATOR)
-  delay_until(task, *time);
+  delay_until(tasks[task].um_id, shift(time->sec,time->nsec));
   return (__PO_HI_SUCCESS);
 #endif
   return (__PO_HI_UNAVAILABLE);

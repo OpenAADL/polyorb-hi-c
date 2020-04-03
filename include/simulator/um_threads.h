@@ -96,7 +96,7 @@ __po_hi_time_t get_thread_period (um_thread_id tid);
 /******************************************************************************/
 void set_next_activation (um_thread_id tid, __po_hi_time_t next_activation);
 
-__po_hi_time_t shift(int second, long nanosecond); 
+__po_hi_time_t shift(__po_hi_uint32_t second, __po_hi_uint32_t nanosecond); 
 
 __po_hi_time_t add_times (__po_hi_time_t left, __po_hi_time_t right);
 

@@ -14,7 +14,7 @@
 void print_timestamp (void) {
   // struct timespec tp;
   __po_hi_time_t tp;
-  clock_gettime (CLOCK_MONOTONIC, &tp);
+  __po_hi_get_time(&tp);
 
   debug_printf ("[%d.%d] ", (int) tp.sec % 1000, tp.nsec/CLOCKS_PER_SEC);
 }
@@ -166,7 +166,7 @@ void scheduler(void) {
     {
       while (get_nb_waiting_threads() == um_thread_index - 1)
          do_awake_list();
-      threads[0].state = READY;
+      threads[um_thread_index-1].state = READY;
     }
     else
       /* (get_nb_waiting_threads() == um_thread_index) ==>> control_scheduler
@@ -203,7 +203,7 @@ void scheduler(void) {
 }
 
 void start_scheduler (void) {
-  sched_current_context_id = 0;
+  sched_current_context_id = um_thread_index-1;
   sched_context = get_context(sched_current_context_id);
   debug_printf("Starting scheduler @ %p\n", sched_context);
   /* Call the scheduler */
@@ -214,9 +214,11 @@ void configure_scheduler (scheduler_function s) {
 
   /* Allocate memory for the um_yield() context switch */
   yield_stack = malloc(STACKSIZE);
-
-  um_thread_create(control_scheduler, STACKSIZE, 65535); /* XXX stupid value */
-
+  um_thread_id tid;
+  tid = um_thread_create(control_scheduler, STACKSIZE, 65535); /* XXX stupid value */
+  debug_printf("control_scheduler is created, tid = %d \n", tid);
+  debug_printf("control_scheduler um_thread_index-1 = %d \n", um_thread_index-1);
+  sched_current_context_id = tid;
   /* Register scheduler */
   the_scheduler = s;
 }
@@ -261,7 +263,7 @@ void do_awake_list(void) {
 
   if (w_list != NULL) {
 
-    clock_gettime(CLOCK_MONOTONIC, &c_time);
+    __po_hi_get_time(&c_time);
     stop_timer();
     /* awake all threads which needed and take them out of the waiting_list
      * Rq : the timer resolution is 1ms so we check within this resolution
@@ -343,11 +345,11 @@ void setup_SIGUSR1_handler(void)
 }
 
 /*****************************************************************************/
-__po_hi_time_t shift(int second, long nanosecond) {
+__po_hi_time_t shift(__po_hi_uint32_t second, __po_hi_uint32_t nanosecond) {
   __po_hi_time_t c_time;
-  clock_gettime(CLOCK_MONOTONIC, &c_time);
+  __po_hi_get_time(&c_time);
 
-  long aux = c_time.nsec + nanosecond;
+  __po_hi_uint32_t aux = c_time.nsec + nanosecond;
 
   c_time.sec += second + aux/1000000000L;
   c_time.nsec = aux % 1000000000L;
@@ -401,7 +403,8 @@ void control_scheduler (void) {
   /* First, we stop the simulated clock */
   stop_timer();
 
-  clock_gettime(CLOCK_MONOTONIC, &suspend_execution_time);
+  __po_hi_get_time(&suspend_execution_time);
+
   debug_printf ("control_scheduler :: suspend_execution_time = %d.%d \n",
                 (int) suspend_execution_time.sec % 1000,
                 suspend_execution_time.nsec / CLOCKS_PER_SEC);
@@ -414,7 +417,7 @@ void control_scheduler (void) {
   suspension_duration.sec = suspension_d;
   suspension_duration.nsec = 0;
 
-  clock_gettime(CLOCK_MONOTONIC, &c_time);
+  __po_hi_get_time(&c_time);
   debug_printf ("control_scheduler :: current_time = %d.%d \n",
                 (int) c_time.sec % 1000,
                 c_time.nsec / CLOCKS_PER_SEC);
@@ -462,14 +465,14 @@ void control_scheduler (void) {
   }
 
   /* We assign the control_scheduler task with the lowset priority */
-  threads[0].priority = 1;
+  threads[um_thread_index-1].priority = 1;
 
   /* The update of the next activation of threads is only made
    * when the suspension is triggered by a SIGUSR1 signal */
   if (!first_execution_of_control_scheduler)
   {
     __po_hi_time_t offset;
-    for(int i=1; i< um_thread_index; i++)
+    for(int i=0; i< um_thread_index-1; i++)
     {
       offset = subtract_times (threads[i].next_activation, suspend_execution_time);
       //debug_printf ("threads[%d].offset = %d.%d \n", i, (int) offset.sec % 1000, offset.nsec/CLOCKS_PER_SEC);
@@ -489,19 +492,20 @@ void control_scheduler (void) {
       aux = aux->next;
     }
 
-    clock_gettime(CLOCK_MONOTONIC, &c_time);
+    __po_hi_get_time(&c_time);
     debug_printf ("control_scheduler :: current_time = %d.%d \n",
                   (int) c_time.sec % 1000, c_time.nsec/CLOCKS_PER_SEC);
 
     /* in the case when user opts for the absolute date dispatch choice */
     if (!control_scheduler_dispatch_when_idle)
     {
-      threads[0].next_activation.sec = atoi(c) + floor(c_time.sec/1000) * 1000;
-      threads[0].next_activation.nsec = 0;
-      debug_printf ("threads[0].next_activation = %d.%d \n",
-        (int) threads[0].next_activation.sec % 1000,
-        threads[0].next_activation.nsec/CLOCKS_PER_SEC);
-      delay_until_for_a_given_thread(0, threads[0].next_activation);
+      threads[um_thread_index-1].next_activation.sec = atoi(c) + floor(c_time.sec/1000) * 1000;
+      threads[um_thread_index-1].next_activation.nsec = 0;
+      debug_printf ("threads[%d].next_activation = %d.%d \n",
+        um_thread_index-1,
+        (int) threads[um_thread_index-1].next_activation.sec % 1000,
+        threads[um_thread_index-1].next_activation.nsec/CLOCKS_PER_SEC);
+      delay_until_for_a_given_thread(um_thread_index-1, threads[um_thread_index-1].next_activation);
     }
 
     set_timer_after_resuming_execution(resume_execution_time);
@@ -512,24 +516,25 @@ void control_scheduler (void) {
    * control_scheduler task is the first task to be executed
    */
     first_execution_of_control_scheduler = false;
-	threads[0].state = WAITING;
+	threads[um_thread_index-1].state = WAITING;
     /* set timer for the resume_execution */
-    clock_gettime(CLOCK_MONOTONIC, &c_time);
+    __po_hi_get_time(&c_time);
     debug_printf ("*** control_scheduler :: current_time = %d.%d ***\n",
                   (int) c_time.sec % 1000, c_time.nsec/CLOCKS_PER_SEC);
 
-    for (int i=1; i< um_thread_index; i++)
+    for (int i=0; i< um_thread_index-1; i++)
        delay_until_for_a_given_thread(i, resume_execution_time);
 
     /* in the case when user opts for the absolute date dispatch choice */
     if (!control_scheduler_dispatch_when_idle)
     {
-      threads[0].next_activation.sec = atoi(c) + floor(resume_execution_time.sec/1000) * 1000;
-      threads[0].next_activation.nsec = 0;
-      debug_printf ("threads[0].next_activation = %d.%d \n",
-        (int) threads[0].next_activation.sec % 1000,
-        threads[0].next_activation.nsec/CLOCKS_PER_SEC);
-      delay_until_for_a_given_thread(0, threads[0].next_activation);
+      threads[um_thread_index-1].next_activation.sec = atoi(c) + floor(resume_execution_time.sec/1000) * 1000;
+      threads[um_thread_index-1].next_activation.nsec = 0;
+      debug_printf ("threads[%d].next_activation = %d.%d \n",
+        um_thread_index-1,
+        (int) threads[um_thread_index-1].next_activation.sec % 1000,
+        threads[um_thread_index-1].next_activation.nsec/CLOCKS_PER_SEC);
+      delay_until_for_a_given_thread(um_thread_index-1, threads[um_thread_index-1].next_activation);
     }
 
     set_timer_next();
@@ -578,8 +583,7 @@ void insert_into_waiting_list(um_thread_id tid, __po_hi_time_t n_time) {
 void delay_until(um_thread_id tid, __po_hi_time_t n_time) {
 
   __po_hi_time_t c_time;
-  clock_gettime(CLOCK_MONOTONIC, &c_time);
-
+  __po_hi_get_time(&c_time);
   /* Check if the n_time is positive and at least 1ms */
   if (n_time.sec < c_time.sec || (n_time.sec == c_time.sec && n_time.nsec < c_time.nsec + 1000000L))
     return;
@@ -596,8 +600,7 @@ void delay_until(um_thread_id tid, __po_hi_time_t n_time) {
 void delay_until_for_a_given_thread(um_thread_id tid, __po_hi_time_t n_time) {
 
   __po_hi_time_t c_time;
-  clock_gettime(CLOCK_MONOTONIC, &c_time);
-
+  __po_hi_get_time(&c_time);
   /* Check if the n_time is positive and at least 1ms */
   if (n_time.sec < c_time.sec || (n_time.sec == c_time.sec && n_time.nsec < c_time.nsec + 1000000L))
     return;
@@ -681,7 +684,7 @@ void set_timer_next() {
   __po_hi_time_t c_time;
 
   if (w_list != NULL) {
-    clock_gettime(CLOCK_MONOTONIC, &c_time);
+    __po_hi_get_time(&c_time);
     setup_timer((int) (((w_list->t).sec - c_time.sec) * 1000 + ((w_list->t).nsec - c_time.nsec)/1000000), false);
   }
 }
