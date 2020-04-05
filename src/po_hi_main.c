@@ -8,6 +8,7 @@
  * Copyright (C) 2010-2020 ESA & ISAE.
  */
 
+#include <string.h>
 
 #include <deployment.h>
 /* included files from the generated code */
@@ -310,7 +311,7 @@ int __po_hi_initialize ()
    #include <imaspex.h>
 
    __po_hi_port_kind_t        pkind;
-   __po_hi_port_t             tmp;
+   __po_hi_port_t             tmp, tmp2;
    __po_hi_node_t             tmpnode;
    __po_hi_node_t             mynode;
    long int                   portno;
@@ -422,6 +423,20 @@ int __po_hi_initialize ()
           __PO_HI_DEBUG_CRITICAL
             ("[MAIN] Cannot open port %d, name=%s, return=%ld\n",
              tmp, __po_hi_transport_get_model_name (tmp), portno);
+
+          // In the case of duplicate AIR port, we iterate on the
+          // list of ports already initialized
+          for (tmp2 = 0; tmp2 < tmp; tmp2++) {
+            __PO_HI_DEBUG_CRITICAL ("Testing %d\n", tmp2);
+            if (!strcmp (__po_hi_transport_get_model_name (tmp2),
+                        __po_hi_transport_get_model_name (tmp))) {
+              __PO_HI_DEBUG_CRITICAL ("[MAIN] Reuse port %d, from name=%s\n",
+                           tmp2, __po_hi_transport_get_model_name (tmp2), portno);
+
+              __po_hi_transport_air_port_init (tmp, __po_hi_transport_air_get_port(tmp2));
+              break;
+            }
+          }
         } else {
           __po_hi_transport_air_port_init (tmp, portno);
           __DEBUGMSG ("[MAIN] Port %d (name=%s) created, identifier = %ld\n",
