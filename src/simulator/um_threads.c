@@ -199,7 +199,7 @@ void scheduler(void) {
                    sched_previous_thread_id, sched_current_context_id);
 
       setcontext(sched_context);
-  }
+    }
 }
 
 void start_scheduler (void) {
@@ -376,12 +376,22 @@ __po_hi_time_t subtract_times (__po_hi_time_t left, __po_hi_time_t right)
 {
    __po_hi_time_t result;
    result.sec    = left.sec - right.sec;
-   result.nsec   = left.nsec - right.nsec;
-   while (result.nsec > 1000000000)
+
+   if (left.nsec < right.nsec)
    {
-      result.sec = result.sec + 1;
-      result.nsec = result.nsec - 1000000000;
+	   result.sec = result.sec - 1;
+	   result.nsec = 1000000000 - (right.nsec - left.nsec);
    }
+   else
+   {
+	   result.nsec = left.nsec - right.nsec;
+       while (result.nsec > 1000000000)
+       {
+          result.sec = result.sec + 1;
+          result.nsec = result.nsec - 1000000000;
+       }
+    }
+
    return result;
 }
 
