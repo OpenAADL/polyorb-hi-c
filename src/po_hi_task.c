@@ -387,7 +387,7 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
 
    return (__PO_HI_SUCCESS);
 #elif  defined(SIMULATOR)
-   #if defined(__PO_HI_USE_VCD) && defined(__unix__)
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
   uint64_t current_timestamp = __po_hi_compute_timestamp();
 #endif
 
@@ -400,12 +400,9 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
   }
 #endif
 
-  __po_hi_task_delay_until (&(tasks[task].period), task);
+  set_next_activation(tasks[task].um_id, shift(threads[tasks[task].um_id].period.sec, threads[tasks[task].um_id].period.nsec));
 
-  if ( (ret = __po_hi_compute_next_period (task)) != 1)
-    {
-      return (__PO_HI_ERROR_CLOCK);
-    }
+  __po_hi_task_delay_until (&(tasks[task].period), task);
 
 #if defined(__PO_HI_USE_VCD) && defined(__unix__)
   current_timestamp = __po_hi_compute_timestamp();
