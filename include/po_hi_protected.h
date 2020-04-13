@@ -70,6 +70,9 @@ typedef struct
 #if defined (_WIN32)
    HANDLE               win32_mutex;
 #endif
+#if defined (SIMULATOR)
+   int previous_priority;
+#endif
 }__po_hi_mutex_t;
 
 typedef uint8_t __po_hi_protected_t;

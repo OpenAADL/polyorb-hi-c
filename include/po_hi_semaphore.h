@@ -31,6 +31,9 @@
 
 #elif defined (_WIN32)
 #include <windows.h>
+
+#elif defined (SIMULATOR)
+   #include <um_threads.h>
 #endif
 
 /**
@@ -53,6 +56,11 @@ struct __po_hi_sem_t
 #elif defined (_WIN32)
    HANDLE               win32_event;
    CRITICAL_SECTION     win32_criticalsection;
+#elif defined (SIMULATOR)
+   int value;
+   wait_list *h_list;
+   wait_list *t_list;
+   int name;
 #endif
 };
 
