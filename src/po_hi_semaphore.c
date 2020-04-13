@@ -103,6 +103,8 @@ int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol
     }
     InitializeCriticalSection(&sem->win32_criticalsection);
 
+//#elif defined (SIMULATOR)
+//  semaphore_init(sem, value, name);
 #else
 #error Unsupported platform
 #endif
