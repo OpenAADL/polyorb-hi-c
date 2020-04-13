@@ -732,15 +732,8 @@ int __po_hi_create_generic_task (const __po_hi_task_id      id,
       my_task->xeno_id = __po_hi_xenomai_create_thread
         (priority, stack_size, start_routine, arg);
 #elif defined (SIMULATOR)
-      //my_task->um_id = um_thread_create (start_routine, stack_size, priority);
-      #ifdef __PO_HI_DEBUG
-      __DEBUGMSG ("AVANT um_thread_periodic_create\n");
-      #endif
       my_task->um_id = um_thread_periodic_create(start_routine, stack_size,
    priority, *period);
-      #ifdef __PO_HI_DEBUG
-      __DEBUGMSG ("APRES um_thread_periodic_create\n");
-      #endif
 #else
       return (__PO_HI_UNAVAILABLE);
 #endif
