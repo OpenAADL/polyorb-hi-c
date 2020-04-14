@@ -9,6 +9,8 @@
 
 #include "um_threads.h"
 
+#include<po_hi_task.h>
+
 /******************************************************************************/
 /* PRINT DEBUG*/
 void print_timestamp (void) {
@@ -215,7 +217,7 @@ void configure_scheduler (scheduler_function s) {
   /* Allocate memory for the um_yield() context switch */
   yield_stack = malloc(STACKSIZE);
   um_thread_id tid;
-  tid = um_thread_create(control_scheduler, STACKSIZE, 65535); /* XXX stupid value */
+  tid = um_thread_create(control_scheduler, STACKSIZE, __PO_HI_MAX_PRIORITY); // 65535); /* XXX stupid value */
   debug_printf("control_scheduler is created, tid = %d \n", tid);
   debug_printf("control_scheduler um_thread_index-1 = %d \n", um_thread_index-1);
   sched_current_context_id = tid;
@@ -768,11 +770,11 @@ void semaphore_post(semaphore *s) {
 
 /* Mutex */
 
-void mutex_init(mutex *m, int priority_) {
+void mutex_init(__po_hi_mutex_t *m, int priority_) {
 	m->priority = priority_;
 }
 
-void mutex_lock(mutex *m) {	
+void mutex_lock(__po_hi_mutex_t *m) {	
 	/* Deactivate the timer */
 	stop_timer();
 
@@ -783,7 +785,7 @@ void mutex_lock(mutex *m) {
 	set_timer_next();
 }
 
-void mutex_unlock(mutex *m) {	
+void mutex_unlock(__po_hi_mutex_t *m) {	
 	/* Disactivate the timer */
 	stop_timer();
 

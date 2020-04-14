@@ -34,6 +34,7 @@
 
 #elif defined (SIMULATOR)
    #include <um_threads.h>
+   int _name;
 #endif
 
 /**
@@ -57,10 +58,7 @@ struct __po_hi_sem_t
    HANDLE               win32_event;
    CRITICAL_SECTION     win32_criticalsection;
 #elif defined (SIMULATOR)
-   int value;
-   wait_list *h_list;
-   wait_list *t_list;
-   int name;
+   semaphore* um_sem;
 #endif
 };
 

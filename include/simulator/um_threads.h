@@ -14,6 +14,7 @@
 #include<stdbool.h>
 
 #include<po_hi_time.h>
+#include<po_hi_protected.h>
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
@@ -181,10 +182,10 @@ typedef struct _mutex {
 	int previous_priority;
 } mutex;
 
-void mutex_init(mutex* m, int priority);
+void mutex_init(__po_hi_mutex_t* m, int priority);
 
-void mutex_lock(mutex* m);
+void mutex_lock(__po_hi_mutex_t* m);
 
-void mutex_unlock(mutex* m);
+void mutex_unlock(__po_hi_mutex_t* m);
 /******************************************************************************/
 #endif /* __UM_THREADS_H__ */

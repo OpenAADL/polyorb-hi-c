@@ -60,6 +60,15 @@ int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol
       return __PO_HI_ERROR_SEM_CREATE;
    }
 
+#elif defined (SIMULATOR)
+/*
+   if (__po_hi_mutex_init (&sem->mutex, protocol, priority) != __PO_HI_SUCCESS)
+   {
+      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when initializing the mutex \n");
+      return __PO_HI_ERROR_SEM_CREATE;
+   } */
+  semaphore_init(sem->um_sem, 1, ++_name);
+
 #elif defined (XENO_NATIVE)
     /* Mutex initialization */
     /* The protocol and priority are unused here */
@@ -102,9 +111,6 @@ int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol
       return __PO_HI_ERROR_SEM_CREATE;
     }
     InitializeCriticalSection(&sem->win32_criticalsection);
-
-//#elif defined (SIMULATOR)
-//  semaphore_init(sem, value, name);
 #else
 #error Unsupported platform
 #endif
@@ -167,7 +173,8 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
   }
   /* Waiting for ownership of the specified critical section object */
   EnterCriticalSection(&sem->win32_criticalsection);
-
+#elif defined (SIMULATOR)
+  semaphore_wait(sem->um_sem);
 #endif
   
    return __PO_HI_SUCCESS;
@@ -183,6 +190,10 @@ int __po_hi_sem_mutex_wait(__po_hi_sem_t* sem){
      return __PO_HI_ERROR_SEM_WAIT;
   }
 
+/* #elif defined (SIMULATOR) 
+ * Indeed, semaphore with simulator platform don't has mutex attribute
+ * */
+  
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
   if (rtems_semaphore_obtain (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
    {
@@ -242,6 +253,8 @@ int __po_hi_sem_release(__po_hi_sem_t* sem)
       __DEBUGMSG("SetEvent failed (%d)\n", GetLastError());
       return __PO_HI_ERROR_SEM_RELEASE;
   }
+#elif defined (SIMULATOR)
+  semaphore_post(sem->um_sem);
 #endif
   return __PO_HI_SUCCESS;
 }
