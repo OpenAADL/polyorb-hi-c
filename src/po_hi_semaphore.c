@@ -133,6 +133,9 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
       __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to block the thread\n");
       return __PO_HI_ERROR_SEM_WAIT;
    }
+   
+#elif defined (SIMULATOR)
+  semaphore_wait(sem->um_sem);
 
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
    if (rtems_semaphore_release (sem->rtems_sem) != RTEMS_SUCCESSFUL)
@@ -173,8 +176,6 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
   }
   /* Waiting for ownership of the specified critical section object */
   EnterCriticalSection(&sem->win32_criticalsection);
-#elif defined (SIMULATOR)
-  semaphore_wait(sem->um_sem);
 #endif
   
    return __PO_HI_SUCCESS;
@@ -189,11 +190,8 @@ int __po_hi_sem_mutex_wait(__po_hi_sem_t* sem){
      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to acquire/lock mutex\n");
      return __PO_HI_ERROR_SEM_WAIT;
   }
-
-/* #elif defined (SIMULATOR) 
- * Indeed, semaphore with simulator platform don't has mutex attribute
- * */
-  
+#elif defined (SIMULATOR)
+  semaphore_wait(sem->um_sem);  
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
   if (rtems_semaphore_obtain (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
    {
@@ -267,6 +265,8 @@ int __po_hi_sem_mutex_release(__po_hi_sem_t* sem){
      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to unlock the mutex\n");
      return __PO_HI_ERROR_SEM_RELEASE;
   }
+#elif defined (SIMULATOR)
+  semaphore_post(sem->um_sem);  
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
 if (rtems_semaphore_release (sem->rtems_sem) != RTEMS_SUCCESSFUL)
    {

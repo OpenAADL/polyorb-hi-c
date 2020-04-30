@@ -68,12 +68,12 @@ public
   process implementation singleProcess.Impl
   subcomponents
     ProducerA        : thread Software::P.Impl;
-    Result_ConsumerA : thread Software::Q.Impl;
+    --Result_ConsumerA : thread Software::Q.Impl;
     ConsumerB        : thread Software::Q.Impl;
-    Result_ProducerB : thread Software::P.Impl;
+    --Result_ProducerB : thread Software::P.Impl;
   connections
     port ProducerA.Data_Source -> ConsumerB.Data_Sink;
-    port Result_ProducerB.Data_Source -> Result_ConsumerA.Data_Sink;
+    --port Result_ProducerB.Data_Source -> Result_ConsumerA.Data_Sink;
   end singleProcess.Impl;
 
   ------------

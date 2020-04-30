@@ -1,3 +1,5 @@
+USER_CFLAGS=-DSIMULATOR -UPOSIX
+PO_HI_OBJS += um_threads.o
 # The following is specific to ISAE setting, to use SpaceWire
 # API. Adapt to your own setting
 
