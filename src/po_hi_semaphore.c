@@ -67,6 +67,7 @@ int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol
       __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when initializing the mutex \n");
       return __PO_HI_ERROR_SEM_CREATE;
    } */
+  sem->um_sem = (semaphore *) malloc (sizeof (semaphore));
   semaphore_init(sem->um_sem, 1, ++_name);
 
 #elif defined (XENO_NATIVE)
