@@ -304,7 +304,10 @@ int __po_hi_transport_xtratum_get_port (const __po_hi_port_t portno);
 #endif
 
 #ifdef AIR_HYPERVISOR
+void __po_hi_transport_air_init (void);
+
 void __po_hi_transport_air_port_init (const __po_hi_port_t portno, long int val);
+
 long int __po_hi_transport_air_get_port (const __po_hi_port_t portno);
 #endif
 

@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2018 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2020 ESA & ISAE.
  */
 
 #include<stddef.h>
@@ -68,6 +68,12 @@ extern __po_hi_protocol_t        __po_hi_ports_protocols[__PO_HI_NB_PORTS][__PO_
 
 long int  __po_hi_air_port[__PO_HI_NB_PORTS];
 /* Store either SAMPLING_PORT_ID_TYPE or QUEUING_PORT_ID_TYPE */
+
+__po_hi_msg_t        __po_hi_c_send_msg;
+/* Message, heap allocated */
+
+__po_hi_mutex_t      __po_hi_c_send_mutex;
+
 #endif
 
 #ifdef XM3_RTEMS_MODE
@@ -83,7 +89,7 @@ int      __po_hi_xtratum_port[__PO_HI_NB_PORTS];
 
 int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 {
-   
+
    __po_hi_request_t*    request;
    __po_hi_uint8_t       ndest;
    __po_hi_uint8_t       i;
@@ -133,7 +139,7 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
         /* The gqueue on the destination port is full, error message transmitted */
         __PO_HI_DEBUG_CRITICAL("[TRANSPORT] QUEUE FULL ON THE DESTINATION PORT, NOT TRANSMITTED, task-id=%d, port=%d", id, destination_port_local);
         return __PO_HI_ERROR_QUEUE_FULL;
-      } 
+      }
 
       request->port = destination_port;
 
@@ -175,8 +181,9 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 
          if (ret < 0) {
            __PO_HI_DEBUG_CRITICAL
-             ("[GQUEUE] Error delivering using inter-partitions ports, %d\n",
-              ret);
+             ("[GQUEUE] Error delivering using inter-partitions ports, port=%d, ret=%d\n",
+              port, ret);
+
          } else {
            __PO_HI_DEBUG_DEBUG
              ("[GQUEUE] Data delivered using inter-partitions ports, %d\n",
@@ -189,26 +196,34 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
         __po_hi_port_kind_t pkind = __po_hi_transport_get_port_kind (port);
         RETURN_CODE_TYPE ret;
 
+        __po_hi_mutex_lock (&__po_hi_c_send_mutex);
+
+        __po_hi_msg_reallocate (&__po_hi_c_send_msg);
+        __po_hi_marshall_request (request, &__po_hi_c_send_msg);
+
+        int size_to_write = __po_hi_msg_length ( &__po_hi_c_send_msg);
+
         if (pkind == __PO_HI_OUT_DATA_INTER_PROCESS) {
           WRITE_SAMPLING_MESSAGE
             (__po_hi_air_port[port],
-             request, sizeof (__po_hi_request_t),
+             &__po_hi_c_send_msg, size_to_write,
              &ret);
+        } else {
+          if (pkind == __PO_HI_OUT_EVENT_DATA_INTER_PROCESS) {
+            SEND_QUEUING_MESSAGE
+              (__po_hi_air_port[port],
+               &__po_hi_c_send_msg, size_to_write,
+               INFINITE_TIME_VALUE, &ret);
+          }
         }
+        __po_hi_mutex_unlock (&__po_hi_c_send_mutex);
 
-        if (pkind == __PO_HI_OUT_EVENT_DATA_INTER_PROCESS) {
-          SEND_QUEUING_MESSAGE
-            (__po_hi_air_port[port],
-             request, sizeof (__po_hi_request_t),
-             INFINITE_TIME_VALUE, &ret);
-         }
-
-         if (ret != NO_ERROR) {
+        if (ret != NO_ERROR) {
            __PO_HI_DEBUG_CRITICAL
-             ("[GQUEUE] Error delivering using inter-partitions ports, %d\n",
-              ret);
+             ("[GQUEUE] Error delivering using inter-partitions ports, air port=%d, ret=%d, size=%d\n",
+              __po_hi_air_port[port], ret, size_to_write);
          } else {
-           __PO_HI_DEBUG_DEBUG
+          __PO_HI_DEBUG_DEBUG
              ("[GQUEUE] Data delivered using inter-partitions ports, %d\n",
               ret);
          }
@@ -229,7 +244,7 @@ int __po_hi_transport_send (__po_hi_task_id id, __po_hi_port_t port)
 #endif
    }
 
-   request->port = __PO_HI_GQUEUE_INVALID_PORT;
+   request->port = __PO_HI_GQUEUE_INVALID_PORT; // XXX questionnable
 
 #ifdef __PO_HI_DEBUG
    __PO_HI_DEBUG_DEBUG ("\n");
@@ -565,6 +580,12 @@ int __po_hi_transport_xtratum_get_port (const __po_hi_port_t portno)
 #endif
 
 #if defined(AIR_HYPERVISOR)
+void __po_hi_transport_air_init (void)
+{
+   __po_hi_mutex_init (&__po_hi_c_send_mutex, __PO_HI_MUTEX_REGULAR, 0);
+}
+
+
 void __po_hi_transport_air_port_init (const __po_hi_port_t portno, long int val)
 {
    __po_hi_air_port[portno] = val;

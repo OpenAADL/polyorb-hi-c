@@ -330,6 +330,8 @@ int __po_hi_initialize ()
 
    __DEBUGMSG("Initializing partition %ld...\n", self_id);
 
+   __po_hi_transport_air_init ();
+
    mynode = __po_hi_transport_get_mynode ();
 
    for (tmp = 0 ; tmp < __PO_HI_NB_PORTS ; tmp++)
@@ -424,8 +426,9 @@ int __po_hi_initialize ()
             ("[MAIN] Cannot open port %d, name=%s, return=%ld\n",
              tmp, __po_hi_transport_get_model_name (tmp), portno);
 
-          // In the case of duplicate AIR port, we iterate on the
-          // list of ports already initialized
+          // In the case of duplicate AIR port, we iterate on the list
+          // of ports already initialized and attach this existing
+          // port to this port.
           for (tmp2 = 0; tmp2 < tmp; tmp2++) {
             __PO_HI_DEBUG_CRITICAL ("Testing %d\n", tmp2);
             if (!strcmp (__po_hi_transport_get_model_name (tmp2),
