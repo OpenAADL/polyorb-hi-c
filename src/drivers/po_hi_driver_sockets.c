@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2010-2018 ESA & ISAE.
+ * Copyright (C) 2010-2020 ESA & ISAE.
  */
 
 #include <deployment.h>
@@ -93,7 +93,7 @@ int                  __po_hi_c_sockets_write_sockets[__PO_HI_NB_DEVICES];
 /* Sockets we write to, used by the __po_hi_drivers_socket_send() function */
 
 __po_hi_msg_t        __po_hi_c_sockets_send_msg;
-/* Message, heap allocated, used by the __po_hi_sockets_send() funtion */
+/* Message, heap allocated, used by the __po_hi_sockets_send() function */
 
 __po_hi_mutex_t      __po_hi_c_sockets_send_mutex;
 
