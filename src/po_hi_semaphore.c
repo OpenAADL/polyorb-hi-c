@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2018 ESA & ISAE.
+ * Copyright (C) 2018-2020 ESA & ISAE.
  */
 
 #include <po_hi_returns.h>
@@ -38,7 +38,7 @@
 /* TO INITIALIZE THE STRUCTURES */
 int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol, const int priority, int id)
 {
-   __PO_HI_DEBUG_INFO ("[SEM] Sem Task %d is initialized", id);
+   __PO_HI_DEBUG_INFO ("[SEM] Sem Task %d is initialized\n", id);
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
    /* Attribute and mutex initialization */
@@ -59,6 +59,15 @@ int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol
       __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error while creating the cond_var\n");
       return __PO_HI_ERROR_SEM_CREATE;
    }
+
+#elif defined (SIMULATOR)
+   static int _name = 0;
+   sem->um_barrier = (semaphore *) malloc (sizeof (semaphore));
+   sem->um_mutex = (semaphore *) malloc (sizeof (semaphore));
+   semaphore_init(sem->um_barrier, 0, ++_name);
+   __PO_HI_DEBUG_INFO ("[SEM] Task %d barrier is: %d\n", id, _name);
+   semaphore_init(sem->um_mutex, 1, ++_name);
+   __PO_HI_DEBUG_INFO ("[SEM] Task %d mutex: %d\n", id, _name);
 
 #elif defined (XENO_NATIVE)
     /* Mutex initialization */
@@ -105,6 +114,7 @@ int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol
 
 #else
 #error Unsupported platform
+
 #endif
    return (__PO_HI_SUCCESS);
 }
@@ -118,13 +128,21 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
    if (pthread_mutex_trylock(&sem->mutex.posix_mutex) == 0 ) {
      pthread_mutex_lock(&sem->mutex.posix_mutex);
    }
-   
+
    /* Waiting on a condition and unlocking the mutex while doing so */
    if (pthread_cond_wait(&sem->posix_condvar, &sem->mutex.posix_mutex) != 0 )
    {
       __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE] Error when trying to block the thread\n");
       return __PO_HI_ERROR_SEM_WAIT;
    }
+
+#elif defined (SIMULATOR)
+   if ((sem->um_mutex)->value == 0) {
+     semaphore_post (sem->um_mutex);///
+   }
+   //assert((sem->um_barrier)->value !=0);
+
+   semaphore_wait(sem->um_barrier);
 
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
    if (rtems_semaphore_release (sem->rtems_sem) != RTEMS_SUCCESSFUL)
@@ -165,9 +183,8 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem)
   }
   /* Waiting for ownership of the specified critical section object */
   EnterCriticalSection(&sem->win32_criticalsection);
-
 #endif
-  
+
    return __PO_HI_SUCCESS;
 }
 
@@ -180,6 +197,9 @@ int __po_hi_sem_mutex_wait(__po_hi_sem_t* sem){
      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to acquire/lock mutex\n");
      return __PO_HI_ERROR_SEM_WAIT;
   }
+
+#elif defined (SIMULATOR)
+  semaphore_wait(sem->um_mutex);
 
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
   if (rtems_semaphore_obtain (sem->rtems_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
@@ -211,6 +231,10 @@ int __po_hi_sem_release(__po_hi_sem_t* sem)
       return __PO_HI_ERROR_SEM_RELEASE;
    }
 
+#elif defined (SIMULATOR)
+  semaphore_post(sem->um_barrier);
+  semaphore_post(sem->um_mutex); //
+
 #elif defined(__PO_HI_RTEMS_CLASSIC_API)
    if (rtems_semaphore_release (sem->rtems_sem) != RTEMS_SUCCESSFUL)
    {
@@ -240,6 +264,7 @@ int __po_hi_sem_release(__po_hi_sem_t* sem)
       __DEBUGMSG("SetEvent failed (%d)\n", GetLastError());
       return __PO_HI_ERROR_SEM_RELEASE;
   }
+
 #endif
   return __PO_HI_SUCCESS;
 }
@@ -252,6 +277,9 @@ int __po_hi_sem_mutex_release(__po_hi_sem_t* sem){
      __PO_HI_DEBUG_CRITICAL ("[SEMAPHORE MUTEX] Error when trying to unlock the mutex\n");
      return __PO_HI_ERROR_SEM_RELEASE;
   }
+#elif defined (SIMULATOR)
+  semaphore_post(sem->um_mutex);
+
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
 if (rtems_semaphore_release (sem->rtems_sem) != RTEMS_SUCCESSFUL)
    {

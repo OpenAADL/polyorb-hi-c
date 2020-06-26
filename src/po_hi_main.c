@@ -45,6 +45,12 @@ pthread_mutex_t mutex_init;
 rtems_id __po_hi_main_initialization_barrier;
 #endif
 
+#if defined (SIMULATOR)
+#include <um_threads.h>
+#include <po_hi_semaphore.h>
+#endif
+
+
 #ifdef _WIN32
 CRITICAL_SECTION __po_hi_main_initialization_critical_section;
 HANDLE           __po_hi_main_initialization_event;
@@ -525,6 +531,9 @@ int __po_hi_wait_initialization (void)
   SetEvent (__po_hi_main_initialization_event);
   LeaveCriticalSection (&__po_hi_main_initialization_critical_section);
   return (__PO_HI_SUCCESS);
+
+#elif defined (SIMULATOR)
+  um_wait_all();
 
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
   rtems_status_code ret;

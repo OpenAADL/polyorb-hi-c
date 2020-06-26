@@ -318,8 +318,11 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
       __DEBUGMSG ("__po_hi_gqueue_store_in : NULL POINTER\n");
     }
 #endif
+
   /* Locking only a mutex */
-  __PO_HI_DEBUG_DEBUG ("\nWaiting on Store_in on task %d, port = %d, size of port = %d\n", id, port,__po_hi_gqueue_get_port_size(id, port));
+  __PO_HI_DEBUG_DEBUG ("\nWaiting on Store_in on task %d, port = %d, size of port = %d\n",
+                       id, port,__po_hi_gqueue_get_port_size(id, port));
+
   int result = __po_hi_sem_mutex_wait_gqueue(__po_hi_gqueues_semaphores,id);
   __DEBUGMSG("GQUEUE_SEM_MUTEX_WAIT on task %d result = %d\n", id, result);
   assert(result == __PO_HI_SUCCESS);
@@ -367,10 +370,10 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
       __PO_HI_DEBUG_DEBUG ("\nBefore used_size ++, Store_in for task = %d, __po_hi_gqueues_used_size[id][port] = %d\n", id, __po_hi_gqueues_used_size[id][port]);
       __po_hi_gqueues_used_size[id][port]++;
       __PO_HI_DEBUG_DEBUG ("\nAfter used_size ++ , Store_in for task = %d, __po_hi_gqueues_used_size[id][port] = %d\n",id,  __po_hi_gqueues_used_size[id][port]);
-      
+
 #if defined(__PO_HI_USE_VCD) && defined(__unix__)
       __po_hi_save_event_in_vcd_trace(__po_hi_compute_timestamp(), __po_hi_store_in_port_queue, id, port, __po_hi_gqueue_used_size(id,port));
-#endif      
+#endif
       /* The port where information has been written is stored */
       __po_hi_gqueues_global_history[id][__po_hi_gqueues_global_history_woffset[id]] = port;
       __po_hi_gqueues_global_history_woffset[id] = (__po_hi_gqueues_global_history_woffset[id] + 1 ) % __po_hi_gqueues_total_fifo_size[id];
@@ -425,36 +428,36 @@ __po_hi_bool_t __po_hi_gqueue_compute_index_transition_to_execute (__po_hi_task_
                                                                    int* initial_sizes_of_dispatch_triggers_of_all_transitions,
                                                                    __po_hi_int32_t* index_transition_to_execute)
 {
-	__po_hi_int32_t i = 0;
-	__po_hi_bool_t dispatch_condition_of_any_transition_is_verified = 0;
-	__po_hi_int32_t tmp = 0;
-	
-	__po_hi_int32_t j = 0;
-	__po_hi_bool_t dispatch_condition;
+        __po_hi_int32_t i = 0;
+        __po_hi_bool_t dispatch_condition_of_any_transition_is_verified = 0;
+        __po_hi_int32_t tmp = 0;
 
-	while (i < next_complete_state->nb_transitions && ! dispatch_condition_of_any_transition_is_verified)
-	{
-		dispatch_condition = 1;
-		while (j < (tmp + next_complete_state->nb_dispatch_triggers_of_each_transition[i]) && dispatch_condition)
-		{
-			dispatch_condition = (initial_sizes_of_dispatch_triggers_of_all_transitions[j] < __po_hi_gqueue_get_count (id, next_complete_state->dispatch_triggers_of_all_transitions[j]));
-			j++;
-		}
-		
-		if (dispatch_condition)
-		{ 
-			*index_transition_to_execute = i + 1;
-		}
-			
+        __po_hi_int32_t j = 0;
+        __po_hi_bool_t dispatch_condition;
 
-		tmp = tmp + next_complete_state->nb_dispatch_triggers_of_each_transition[i];
-		j = tmp;
+        while (i < next_complete_state->nb_transitions && ! dispatch_condition_of_any_transition_is_verified)
+        {
+                dispatch_condition = 1;
+                while (j < (tmp + next_complete_state->nb_dispatch_triggers_of_each_transition[i]) && dispatch_condition)
+                {
+                        dispatch_condition = (initial_sizes_of_dispatch_triggers_of_all_transitions[j] < __po_hi_gqueue_get_count (id, next_complete_state->dispatch_triggers_of_all_transitions[j]));
+                        j++;
+                }
 
-		dispatch_condition_of_any_transition_is_verified = dispatch_condition;
-		i++;
+                if (dispatch_condition)
+                {
+                        *index_transition_to_execute = i + 1;
+                }
+
+
+                tmp = tmp + next_complete_state->nb_dispatch_triggers_of_each_transition[i];
+                j = tmp;
+
+                dispatch_condition_of_any_transition_is_verified = dispatch_condition;
+                i++;
     }
 
-	return dispatch_condition;
+        return dispatch_condition;
 }
 
 /******************************************************************************/
@@ -466,17 +469,21 @@ void __po_hi_gqueue_wait_for_specific_incoming_events (__po_hi_task_id id,
   int result = __po_hi_sem_mutex_wait_gqueue(__po_hi_gqueues_semaphores,id);
   __DEBUGMSG("GQUEUE_SEM_MUTEX_WAIT %d %d\n", id, result);
   assert(result == __PO_HI_SUCCESS);
-  
+
   int initial_sizes_of_dispatch_triggers_of_all_transitions[next_complete_state->nb_of_all_dispatch_events];
 
   for(int i=0;i<(next_complete_state->nb_of_all_dispatch_events);i++)
   {
-	  initial_sizes_of_dispatch_triggers_of_all_transitions[i] = __po_hi_gqueue_get_count (id, next_complete_state->dispatch_triggers_of_all_transitions[i]);
+          initial_sizes_of_dispatch_triggers_of_all_transitions[i] = __po_hi_gqueue_get_count (id, next_complete_state->dispatch_triggers_of_all_transitions[i]);
   }
-  
+
   *index_transition_to_execute = -1;
-  
-  while (! __po_hi_gqueue_compute_index_transition_to_execute(id, next_complete_state, initial_sizes_of_dispatch_triggers_of_all_transitions, index_transition_to_execute))
+
+  while (! __po_hi_gqueue_compute_index_transition_to_execute
+         (id,
+          next_complete_state,
+          initial_sizes_of_dispatch_triggers_of_all_transitions,
+          index_transition_to_execute))
     {
       /* Telling the semaphore to wait with putting its condvar on wait mode */
       int res_sem =  __po_hi_sem_wait_gqueue(__po_hi_gqueues_semaphores,id);
@@ -490,9 +497,9 @@ void __po_hi_gqueue_wait_for_specific_incoming_events (__po_hi_task_id id,
 
 #if defined(__PO_HI_USE_VCD) && defined(__unix__)
     __po_hi_save_event_in_vcd_trace (__po_hi_compute_timestamp(), __po_hi_task_dispatched, id, invalid_local_port_t, -1);
-#endif      
+#endif
   /** Releasing only the mutex of the semaphore*/
-  
+
   int res = __po_hi_sem_mutex_release_gqueue(__po_hi_gqueues_semaphores,id);
   __DEBUGMSG("GQUEUE_SEM_MTUEX_RELEASE %d %d\n", id, res);
   assert(res == __PO_HI_SUCCESS);
@@ -532,7 +539,7 @@ void __po_hi_gqueue_wait_for_incoming_event (__po_hi_task_id id,
   __po_hi_save_event_in_vcd_trace (__po_hi_compute_timestamp(), __po_hi_task_dispatched, id, invalid_local_port_t, -1);
 #endif
   /** Releasing only the mutex of the semaphore*/
-  
+
   int res = __po_hi_sem_mutex_release_gqueue(__po_hi_gqueues_semaphores,id);
   __DEBUGMSG("GQUEUE_SEM_MTUEX_RELEASE %d %d\n", id, res);
   assert(res == __PO_HI_SUCCESS);

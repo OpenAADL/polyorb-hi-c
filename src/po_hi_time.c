@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2020 ESA & ISAE.
  */
 
 #include <time.h>
@@ -93,7 +93,7 @@ LARGE_INTEGER __po_hi_unix_seconds_to_windows_tick(unsigned sec, unsigned nsec)
 
 int __po_hi_get_time (__po_hi_time_t* mytime)
 {
-#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
+#if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX) || defined (SIMULATOR)
    struct timespec ts;
 
    if (clock_gettime (CLOCK_REALTIME, &ts)!=0)
@@ -105,6 +105,7 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
    mytime->nsec   = ts.tv_nsec;
 
    return (__PO_HI_SUCCESS);
+
 #elif defined (_WIN32)
    SYSTEMTIME st;
    FILETIME ft;
@@ -120,6 +121,7 @@ int __po_hi_get_time (__po_hi_time_t* mytime)
    mytime->nsec *= 100;
 
    return (__PO_HI_SUCCESS);
+
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
    rtems_time_of_day    current_time;
 

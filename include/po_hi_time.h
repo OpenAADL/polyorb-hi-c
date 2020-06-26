@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2020 ESA & ISAE.
  */
 
 #ifndef __PO_HI_TIME_H__
@@ -38,8 +38,8 @@ LARGE_INTEGER __po_hi_unix_seconds_to_windows_tick(unsigned sec, unsigned nsec);
 
 typedef struct
 {
-   __po_hi_uint32_t     sec;     /* amount of second     */
-   __po_hi_uint32_t     nsec;    /* amount of nanosecond */
+   __po_hi_int32_t     sec;     /* amount of second     */
+   __po_hi_int32_t     nsec;    /* amount of nanosecond */
 }__po_hi_time_t;
 /*
  * Represent the time in PolyORB-HI.

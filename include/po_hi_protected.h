@@ -5,12 +5,11 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2018 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2020 ESA & ISAE.
  */
 
 #ifndef __PO_HI_PROTECTED_H__
 #define __PO_HI_PROTECTED_H__
-
 
 #include <stdint.h>
 #include <deployment.h>
@@ -69,6 +68,9 @@ typedef struct
 #endif
 #if defined (_WIN32)
    HANDLE               win32_mutex;
+#endif
+#if defined (SIMULATOR)
+   int previous_priority;
 #endif
 }__po_hi_mutex_t;
 

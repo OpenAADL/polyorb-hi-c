@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2018 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2020 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -33,6 +33,10 @@
 
 #ifdef __PO_HI_RTEMS_CLASSIC_API
 #include <rtems.h>
+#endif
+
+#ifdef SIMULATOR
+#include <um_threads.h>
 #endif
 
 #if __PO_HI_NB_PROTECTED > 0
@@ -160,6 +164,12 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
         return __PO_HI_ERROR_UNKNOWN;
      }
 #endif
+#if defined (SIMULATOR)
+  if (priority == 0)
+     mutex->priority = __PO_HI_MAX_PRIORITY - 1;
+  else
+     mutex->priority = priority;
+#endif
 #if defined (XENO_NATIVE)
     if (rt_mutex_create (&mutex->xeno_mutex, NULL) != 0)
     {
@@ -194,6 +204,9 @@ int __po_hi_mutex_lock (__po_hi_mutex_t* mutex)
       __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to lock mutex\n");
       return __PO_HI_ERROR_MUTEX_LOCK;
    }
+#endif
+#if defined (SIMULATOR)
+   mutex_lock(mutex);
 #endif
 #ifdef __PO_HI_RTEMS_CLASSIC_API
    if (rtems_semaphore_obtain (mutex->rtems_mutex, RTEMS_WAIT, RTEMS_NO_TIMEOUT) != RTEMS_SUCCESSFUL)
@@ -236,6 +249,9 @@ int __po_hi_mutex_unlock (__po_hi_mutex_t* mutex)
       __PO_HI_DEBUG_CRITICAL ("[PROTECTED] Error when trying to unlock mutex\n");
       return __PO_HI_ERROR_MUTEX_UNLOCK;
     }
+#endif
+#if defined (SIMULATOR)
+   mutex_unlock(mutex);
 #endif
 #ifdef __PO_HI_RTEMS_CLASSIC_API
    if (rtems_semaphore_release (mutex->rtems_mutex) != RTEMS_SUCCESSFUL)

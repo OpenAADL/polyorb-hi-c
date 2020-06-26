@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2018 ESA & ISAE.
+ * Copyright (C) 2018-2020 ESA & ISAE.
  */
 
 #ifndef __PO_HI_SEMAPHORE_H__
@@ -31,6 +31,9 @@
 
 #elif defined (_WIN32)
 #include <windows.h>
+
+#elif defined (SIMULATOR)
+   #include <um_threads.h>
 #endif
 
 /**
@@ -38,21 +41,23 @@
  * \brief Structure defining a semaphore.
  */
 typedef struct __po_hi_sem_t __po_hi_sem_t;
-struct __po_hi_sem_t
-{
+struct __po_hi_sem_t {
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   __po_hi_mutex_t      mutex;
-   pthread_cond_t       posix_condvar;
-   pthread_condattr_t   posix_condattr;
+  __po_hi_mutex_t      mutex;
+  pthread_cond_t       posix_condvar;
+  pthread_condattr_t   posix_condattr;
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
-   rtems_id             rtems_sem;
-   rtems_id		rtems_barrier;
+  rtems_id             rtems_sem;
+  rtems_id             rtems_barrier;
 #elif defined (XENO_NATIVE)
-   __po_hi_mutex_t      mutex;
-   RT_COND              xeno_condvar;
+  __po_hi_mutex_t      mutex;
+  RT_COND              xeno_condvar;
 #elif defined (_WIN32)
-   HANDLE               win32_event;
-   CRITICAL_SECTION     win32_criticalsection;
+  HANDLE               win32_event;
+  CRITICAL_SECTION     win32_criticalsection;
+#elif defined (SIMULATOR)
+  semaphore* um_mutex;
+  semaphore* um_barrier;
 #endif
 };
 
@@ -102,7 +107,7 @@ int __po_hi_sem_mutex_wait(__po_hi_sem_t* sem);
 
 /**
  * \brief The semaphore is released.
- * 
+ *
  * The semaphore is COMPLETELY RELEASED. (both condvar and mutex).
  * \param sem Semaphore structure to be worked on.
  * \return __PO_HI_SUCCESS if successful.
@@ -112,7 +117,7 @@ int __po_hi_sem_release(__po_hi_sem_t* sem);
 
 /**
  * \brief The mutex attribute of a semaphore is released.
- * 
+ *
  * This function is used when you don't want to do a condvar_signal, and
  * want to let it stay on a wait mode.
  * This function is also used when only a mutex is needed in the gqueue.
@@ -127,7 +132,7 @@ int __po_hi_sem_mutex_release(__po_hi_sem_t* sem);
 
 /**
  * \brief Used to do the po_hi_sem_init function on a semaphore contained in the semaphore array.
- * 
+ *
  * \param array The array of semaphores used in the gqueue.
  * \param id Identifier of the task.
  * \return __PO_HI_SUCCESS if successful.
@@ -137,7 +142,7 @@ int __po_hi_sem_init_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_
 
 /**
  * \brief Used to do the po_hi_sem_wait function on a semaphore contained in the semaphore array.
- * 
+ *
  * \param array The array of semaphores used in the gqueue.
  * \param id Identifier of the task.
  * \return __PO_HI_SUCCESS if successful.
@@ -147,7 +152,7 @@ int __po_hi_sem_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_
 
 /**
  * \brief Used to do the po_hi_sem_mutex_wait function on a semaphore contained in the semaphore array.
- * 
+ *
  * \param array The array of semaphores used in the gqueue.
  * \param id Identifier of the task.
  * \return __PO_HI_SUCCESS if successful.
@@ -157,7 +162,7 @@ int __po_hi_sem_mutex_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi
 
 /**
  * \brief Used to do the po_hi_sem_release function on a semaphore contained in the semaphore array.
- * 
+ *
  * \param array The array of semaphores used in the gqueue.
  * \param id Identifier of the task.
  * \return __PO_HI_SUCCESS if successful.
@@ -167,7 +172,7 @@ int __po_hi_sem_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_ta
 
 /**
  * \brief Used to do the po_hi_sem_mutex_release function on a semaphore contained in the semaphore array.
- * 
+ *
  * \param array The array of semaphores used in the gqueue.
  * \param id Identifier of the task.
  * \return __PO_HI_SUCCESS if successful.
