@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2017 ESA & ISAE.
+ * Copyright (C) 2011-2020 ESA & ISAE.
  */
 
 /*
@@ -62,7 +62,12 @@ int __po_hi_monitor_get_status_port (const __po_hi_port_t port, __po_hi_monitor_
    __po_hi_device_id associated_device;
    __PO_HI_DEBUG_DEBUG ("[MONITOR] call __po_hi_monitor_get_status_port with argument %d (port) and 0x%p (status pointer)\n", port, status);
 
+#if __PO_HI_NB_DEVICES != 0
    associated_device = __po_hi_get_device_from_port (port);
+#else
+   associated_device = invalid_device_id;
+#endif
+
    if (associated_device == invalid_device_id)
    {
       __PO_HI_DEBUG_CRITICAL ("[MONITOR] This port is not associated to a valid device (device-id=%d)\n", associated_device);
@@ -89,6 +94,7 @@ int __po_hi_monitor_get_status_device (const __po_hi_device_id device,
 
    n_failure = __po_hi_monitor_n_failures_devices[device];
 
+#if __PO_HI_NB_DEVICES != 0
    n_buses = __po_hi_transport_get_n_accessed_buses (device);
    buses   = __po_hi_transport_get_accessed_buses (device);
    for (i = 0 ; i < n_buses ; i++)
@@ -103,6 +109,7 @@ int __po_hi_monitor_get_status_device (const __po_hi_device_id device,
          }
       }
    }
+#endif
 
    if (n_failure == 0)
    {
@@ -211,7 +218,12 @@ int __po_hi_monitor_report_failure_port (const __po_hi_port_t port,
    __po_hi_device_id associated_device;
    __PO_HI_DEBUG_DEBUG ("[MONITOR] call __po_hi_monitor_report_failure_port with argument %d (port) and %d (failure)\n", port, failure);
 
+#if __PO_HI_NB_DEVICES != 0
    associated_device = __po_hi_get_device_from_port (port);
+#else
+   associated_device = invalid_device_id;
+#endif
+
    if (associated_device == invalid_device_id)
    {
       __PO_HI_DEBUG_CRITICAL ("[MONITOR] This port is not associated to a valid device (device-id=%d)\n", associated_device);
@@ -253,7 +265,12 @@ int __po_hi_monitor_recover_port (const __po_hi_port_t port)
    __po_hi_device_id associated_device;
    __PO_HI_DEBUG_DEBUG ("[MONITOR] call __po_hi_monitor_recover_port with argument %d\n", port);
 
+#if __PO_HI_NB_DEVICES != 0
    associated_device = __po_hi_get_device_from_port (port);
+#else
+   associated_device = invalid_device_id;
+#endif
+
    if (associated_device == invalid_device_id)
    {
       __PO_HI_DEBUG_CRITICAL ("[MONITOR] This port is not associated to a valid device (device-id=%d)\n", associated_device);
