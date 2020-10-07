@@ -467,12 +467,18 @@ int __po_hi_initialize ()
    trace_initialize ();
 #endif
 
+   /*!
+    * Initialize all threads internal structures
+    */
+
+   __po_hi_main_initialize ();
+   __DEBUGMSG ("[MAIN] All threads gqueues have been initialized\n");
+
    return (__PO_HI_SUCCESS);
 }
 
 int __po_hi_wait_initialization (void)
 {
-
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
    int cstate;
    if (pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, &cstate) != 0)
@@ -501,6 +507,7 @@ int __po_hi_wait_initialization (void)
     }
   }
   else {
+    __DEBUGMSG ("[MAIN] All threads initialized. Application starts\n");
     pthread_cond_broadcast (&cond_init);
     set_epoch();
   }
@@ -515,7 +522,7 @@ int __po_hi_wait_initialization (void)
   return (__PO_HI_SUCCESS);
 
 #elif defined (_WIN32)
-   EnterCriticalSection (&__po_hi_main_initialization_critical_section);
+  EnterCriticalSection (&__po_hi_main_initialization_critical_section);
 
   __po_hi_initialized_tasks++;
 
