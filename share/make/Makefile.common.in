@@ -6,10 +6,10 @@ CYGPATH_U = @CYGPATH_U@
 CYGPATH_W = @CYGPATH_U@
 
 # Regarding compilation warning flags:
-# - -Wswitch-enum silent this flag, too verbose
+# - -Wextra brings -Wcast-function-type which is a nuisance; we disable it
 
 GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align \
-		    -Wswitch
+		    -Wswitch -Wno-cast-function-type
 
 all: build-node
 
