@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2011-2018 ESA & ISAE.
+ * Copyright (C) 2011-2020 ESA & ISAE.
  */
 
 
@@ -53,6 +53,6 @@ int __po_hi_c_driver_serial_common_get_speed (const __po_hi_device_id id)
          break;
    }
 #endif
-
+   (void)id;
    return __PO_HI_DRIVER_SERIAL_COMMON_SPEED_DEFAULT;
 }

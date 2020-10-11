@@ -38,6 +38,7 @@
 /* TO INITIALIZE THE STRUCTURES */
 int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol, const int priority, int id)
 {
+   (void)id;
    __PO_HI_DEBUG_INFO ("[SEM] Sem Task %d is initialized\n", id);
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)

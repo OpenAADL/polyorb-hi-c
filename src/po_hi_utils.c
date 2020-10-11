@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2020 ESA & ISAE.
  */
 
 #include <po_hi_config.h>
@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 /* Header files in PolyORB-HI */
 
@@ -136,16 +137,18 @@ void __po_hi_initialize_vcd_trace ()
    if (VCD_state != VCD_ENABLED) {
      return;
    }
-   
+
   /* capture the start time of execution */
   __po_hi_get_time(&__po_hi_vcd_start_t);
-  
+
   /* initialize mutex to protect the index of the array
    * in which the vcd trace is saved */
   pthread_mutex_init (&__po_hi_vcd_trace_mutex, NULL);
-  
+
   /* Catch the SIGINT signal */
   signal(SIGINT, __po_hi_signalHandler);
+  /* Catch the SIGUSR1 signal to store the vcd file at any time */
+  signal(SIGUSR1, __po_hi_create_vcd_file);
 }
 
 void __po_hi_instrumentation_vcd_init ()
@@ -266,17 +269,18 @@ void __po_hi_instrumentation_vcd_init ()
   }
 }
 
-void __po_hi_create_vcd_file(void)
+void __po_hi_create_vcd_file(int signo)
 {
    char        buf[1024];
    int         size_to_write = 0;
-          
+
+   (void)signo;
    __po_hi_instrumentation_vcd_init ();
    printf ("__po_hi_vcd_trace_array_index = %d \n", __po_hi_vcd_trace_array_index); 
    for (int i=0;i<__po_hi_vcd_trace_array_index;i++)
    {
 	   memset (buf, '\0', 1024);
-       size_to_write = sprintf (buf, "#%llu\n", __po_hi_vcd_trace_array[i].__po_hi_vcd_trace_timestamp);
+       size_to_write = sprintf (buf, "#%"PRIu64"\n", __po_hi_vcd_trace_array[i].__po_hi_vcd_trace_timestamp);
        write (__po_hi_vcd_file, buf, size_to_write);
        
        memset (buf, '\0', 1024);                                                                        

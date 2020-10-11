@@ -471,6 +471,8 @@ __po_hi_node_t    __po_hi_transport_get_node_from_device (const __po_hi_device_i
 #else
 int __po_hi_transport_call_sending_func_by_port (__po_hi_task_id task_id, __po_hi_port_t port)
 {
+   (void)task_id;
+   (void)port;
    __DEBUGMSG ("[TRANSPORT] task id %d port %d, nb protocols is less than or equal to zero\n", task_id,port);
    return __PO_HI_UNAVAILABLE;
 }
@@ -542,6 +544,8 @@ __po_hi_protocol_t __po_hi_transport_get_protocol (const __po_hi_port_t src, con
 {
 __po_hi_protocol_t protocol;
 
+   (void)src;
+   (void)dst;
 #if __PO_HI_NB_PROTOCOLS > 0
    protocol= (__po_hi_ports_protocols[src][dst]);
 #else
@@ -553,6 +557,7 @@ return protocol;
 
 __po_hi_protocol_conf_t*    __po_hi_transport_get_protocol_configuration (const __po_hi_protocol_t p)
 {
+    (void)p;
 
 #if __PO_HI_NB_PROTOCOLS > 0
    if (p == invalid_protocol)

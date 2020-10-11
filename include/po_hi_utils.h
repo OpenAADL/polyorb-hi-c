@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://taste.tuxfamily.org/wiki
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2017 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2020 ESA & ISAE.
  */
 
 #ifndef __PO_HI_UTILS_H__
@@ -80,11 +80,11 @@ void __po_hi_signalHandler(int signo);
 
 /* __po_hi_signalHandler create the vcd file and fill it
  * with the vcd trace saved in __po_hi_vcd_trace_array */
-void __po_hi_create_vcd_file(void);
+void __po_hi_create_vcd_file(int);
 
 /* __po_hi_initialize_vcd_trace initializes some variables and catches
  * the SIGINT signal*/
-void __po_hi_initialize_vcd_trace (void);
+void __po_hi_initialize_vcd_trace(void);
 
 /* Variable keeping track of whether VCD tracing is enabled or not */
 enum tagVCD {

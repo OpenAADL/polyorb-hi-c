@@ -471,6 +471,7 @@ int __po_hi_initialize ()
     * Initialize all threads internal structures
     */
 #if __PO_HI_NB_PORTS > 0
+   extern void __po_hi_main_initialize (void);
    __po_hi_main_initialize ();
    __DEBUGMSG ("[MAIN] All threads gqueues have been initialized\n");
 #endif

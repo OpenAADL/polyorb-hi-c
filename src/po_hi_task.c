@@ -169,13 +169,6 @@ void __po_hi_wait_for_tasks ()
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
 
-#if defined(__PO_HI_USE_VCD) && defined(__unix__)
-  /* the atexit function allows the call of the function
-   * __po_hi_create_vcd_file when the program terminates
-   * normally */
-  atexit(__po_hi_create_vcd_file);
-#endif
-
   int i;
 
   for (i = 0; i < __PO_HI_NB_TASKS; i++)
