@@ -115,7 +115,6 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    __po_hi_request_t*         request;
    __po_hi_port_t             destination_port;
    __po_hi_protocol_t         protocol_id;
-   __po_hi_protocol_conf_t*   protocol_conf;
    __po_hi_monitor_status_t   device_status;
 
    local_port              = __po_hi_get_local_port_from_global_port (port);
@@ -124,7 +123,6 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    local_device            = __po_hi_get_device_from_port (port);
    remote_device           = __po_hi_get_device_from_port (destination_port);
    protocol_id             = __po_hi_transport_get_protocol (port, destination_port);
-   protocol_conf           = __po_hi_transport_get_protocol_configuration (protocol_id);
 
    __DEBUGMSG ("[DRIVER SOCKETS] Try to write from task=%d, port=%d, local_device=%d, remote device=%d, socket=%d\n",
                task_id, port, local_device, remote_device, __po_hi_c_sockets_write_sockets[remote_device]);
@@ -201,6 +199,9 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
         int  len;
         size_to_write = sizeof (int);
         int datawritten;
+        __po_hi_protocol_conf_t*   protocol_conf;
+        protocol_conf           = __po_hi_transport_get_protocol_configuration (protocol_id);
+
         protocol_conf->marshaller(request, &datawritten, &size_to_write);
 #ifdef _WIN32
         len = send (__po_hi_c_sockets_write_sockets[remote_device], &datawritten, size_to_write, 0);
@@ -277,11 +278,10 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
 }
 
 /******************************************************************************/
-/*pragma is for unused parameter "dev_id_addr"*/
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 {
+  (void) dev_id_addr;
+
 #ifdef _WIN32
    int                        socklen;
 #else

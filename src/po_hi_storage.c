@@ -316,30 +316,27 @@ int __po_hi_storage_file_append (const __po_hi_storage_file_t* file, char* buf, 
 #endif
    return __PO_HI_NOTIMPLEMENTED;
 }
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 int __po_hi_storage_file_replace (const __po_hi_storage_file_t* oldfile, const __po_hi_storage_file_t* newfile)
 {
-   return __PO_HI_NOTIMPLEMENTED;
+  (void) oldfile;
+  (void) newfile;
+  return __PO_HI_NOTIMPLEMENTED;
 }
-#pragma GCC diagnostic pop
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 int __po_hi_storage_file_lock (const __po_hi_storage_file_t* file)
 {
+  (void) file;
 
    return __PO_HI_NOTIMPLEMENTED;
 }
-#pragma GCC diagnostic pop
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __po_hi_storage_file_unlock (const __po_hi_storage_file_t* file)
 {
-   return __PO_HI_NOTIMPLEMENTED;
+  (void) file;
+  return __PO_HI_NOTIMPLEMENTED;
 }
-#pragma GCC diagnostic pop
 
 /*
  * Directory operations
@@ -527,21 +524,18 @@ int __po_hi_storage_directory_list (__po_hi_storage_dir_t* dir)
 
    return __PO_HI_NOTIMPLEMENTED;
 }
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 int __po_hi_storage_directory_lock (const __po_hi_storage_dir_t* dir)
 {
-   return __PO_HI_NOTIMPLEMENTED;
+  (void) dir;
+  return __PO_HI_NOTIMPLEMENTED;
 }
-#pragma GCC diagnostic pop
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __po_hi_storage_directory_unlock (const __po_hi_storage_dir_t* dir)
 {
-   return __PO_HI_NOTIMPLEMENTED;
+  (void) dir;
+  return __PO_HI_NOTIMPLEMENTED;
 }
-#pragma GCC diagnostic pop
 
 int __po_hi_storage_change_cdir (__po_hi_storage_dir_t* new_current_directory)
 {
@@ -595,21 +589,20 @@ int __po_hi_storage_packet_store_new (__po_hi_storage_packet_store_t* store)
    store->write_off  = 0;
    return __PO_HI_SUCCESS;
 }
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 int __po_hi_storage_packet_store_new_from_file (__po_hi_storage_packet_store_t* store, __po_hi_storage_file_t* file)
 {
-   return __PO_HI_NOTIMPLEMENTED;
+  (void) store;
+  (void) file;
+  return __PO_HI_NOTIMPLEMENTED;
 }
-#pragma GCC diagnostic pop
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __po_hi_storage_packet_store_write_to_file (__po_hi_storage_packet_store_t* store, __po_hi_storage_file_t* file)
 {
-   return __PO_HI_NOTIMPLEMENTED;
+  (void) store;
+  (void) file;
+  return __PO_HI_NOTIMPLEMENTED;
 }
-#pragma GCC diagnostic pop
 
 int __po_hi_storage_packet_store_read (__po_hi_storage_packet_store_t* store, __po_hi_storage_packet_t* packet)
 {
