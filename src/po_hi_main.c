@@ -12,6 +12,8 @@
 
 #include <deployment.h>
 /* included files from the generated code */
+
+#include <po_hi_main.h>
 #include <po_hi_time.h>
 #include <po_hi_config.h>
 #include <po_hi_common.h>

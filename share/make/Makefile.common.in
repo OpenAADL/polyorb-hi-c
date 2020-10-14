@@ -9,7 +9,7 @@ CYGPATH_W = @CYGPATH_U@
 # - -Wextra brings -Wcast-function-type which is a nuisance; we disable it
 
 GCC_GENERIC_CFLAGS= -g -Wall -Wextra -fdiagnostics-show-option -Wcast-align \
-		    -Wswitch -Wno-cast-function-type
+		    -Wswitch -Wno-cast-function-type -Wmissing-prototypes
 
 all: build-node
 

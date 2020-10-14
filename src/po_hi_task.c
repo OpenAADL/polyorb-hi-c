@@ -434,6 +434,8 @@ int __po_hi_initialize_tasking( )
  */
 
 #if defined (POSIX) || defined (RTEMS_POSIX)
+int __po_hi_number_of_cpus (void);
+
 int __po_hi_number_of_cpus (void)
 {
   int cores = 1;
@@ -454,11 +456,19 @@ int __po_hi_number_of_cpus (void)
  */
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
-                                       __po_hi_stack_t    stack_size,
-                                       const __po_hi_int8_t       core_id,
-                                       void*              (*start_routine)(void),
-                                       void*              arg)
+pthread_t __po_hi_posix_create_thread
+(__po_hi_priority_t priority,
+ __po_hi_stack_t    stack_size,
+ const __po_hi_int8_t       core_id,
+ void*              (*start_routine)(void),
+ void*              arg);
+
+pthread_t __po_hi_posix_create_thread
+(__po_hi_priority_t priority,
+ __po_hi_stack_t    stack_size,
+ const __po_hi_int8_t       core_id,
+ void*              (*start_routine)(void),
+ void*              arg)
 {
   int                policy;
   pthread_t          tid;
@@ -568,6 +578,7 @@ pthread_t __po_hi_posix_create_thread (__po_hi_priority_t priority,
   return tid;
 }
 
+int __po_hi_posix_initialize_task (__po_hi_task_t* task);
 
 int __po_hi_posix_initialize_task (__po_hi_task_t* task)
 {

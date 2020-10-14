@@ -2,6 +2,9 @@
 #include <time.h>
 #include <po_hi_time.h>
 
+void user_produce_spg (int* data);
+void user_consume_spg (int data);
+
 void user_produce_spg (int* data)
 {
   static int produce_data = 42;
