@@ -6,7 +6,8 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---    Copyright (C) 2006-2009 Telecom ParisTech, 2010-2015 ESA & ISAE.      --
+--               Copyright (C) 2006-2009 Telecom ParisTech,                 --
+--                 2010-2019 ESA & ISAE, 2019-2020 OpenAADL                 --
 --                                                                          --
 -- PolyORB-HI is free software; you can redistribute it and/or modify under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -24,8 +25,8 @@
 -- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
 -- <http://www.gnu.org/licenses/>.                                          --
 --                                                                          --
---              PolyORB-HI/Ada is maintained by the TASTE project           --
---                      (taste-users@lists.tuxfamily.org)                   --
+--               PolyORB-HI/C is maintained by the OpenAADL team            --
+--                             (info@openaadl.org)                          --
 --                                                                          --
 ------------------------------------------------------------------------------
 
@@ -54,7 +55,7 @@ procedure Headers_PO_HI is
      " * middleware written for generated code from AADL models." & ASCII.LF &
      " * You should use it with the Ocarina toolsuite." & ASCII.LF &
      " *" & ASCII.LF &
-     " * For more informations, please visit http://taste.tuxfamily.org/wiki"
+     " * For more informations, please visit http://www.openaadl.org"
      & ASCII.LF & " *" & ASCII.LF & "@COPYRIGHT@" & " */" & ASCII.LF;
 
    -------------------------
@@ -91,18 +92,27 @@ procedure Headers_PO_HI is
       if First_Year = Last_Year then
          Last := Range_Image'First + 3;
       end if;
+
+
       if First_Year < 2009 then
          return "Copyright (C) " &
            Image (First_Year) & "-2009 Telecom ParisTech, "
-           & "2010-" & Image (last_year) & " ESA & ISAE.";
+           & "2010-2019 ESA & ISAE, "
+           & "2019-" & Image (Last_Year) & " OpenAADL";
+
       elsif First_Year = 2009 then
          return "Copyright (C) " &
            Image (First_Year) & " Telecom ParisTech, "
-           & "2010-" & Image (last_year) & " ESA & ISAE.";
+           & "2010-2019 ESA & ISAE, "
+           & "2019-" & Image (Last_Year) & " OpenAADL";
+      elsif First_Year < 2019 then
+         return "Copyright (C) " &
+           Image (First_Year) & "-2019 ESA & ISAE, "
+           & "2019-" & Image (Last_Year) & " OpenAADL";
 
       else
          return "Copyright (C) " & Range_Image (Range_Image'First .. Last)
-           & " ESA & ISAE.";
+           & " OpenAADL";
       end if;
    end Copyright_Line;
 
