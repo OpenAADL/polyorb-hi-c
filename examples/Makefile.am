@@ -1,4 +1,4 @@
-SUBDIRS = aadlv1 aadlv2
+SUBDIRS = aadlv2
 EXTRA_DIST = Makefile.common
 
 SAMPLE_DIR = ${shell $(CYGPATH_U) '$(OCARINA_PREFIX)/examples/ocarina/polyorb-hi-c'}
@@ -16,5 +16,5 @@ build-all:
 
 check-all:
 	for dir in $(SUBDIRS); do \
-                ($(MAKE) -C $${dir} check-all) || exit 1;  \
-        done
+		($(MAKE) -C $${dir} check-all) || exit 1;  \
+	done

@@ -201,12 +201,6 @@ AC_OUTPUT([
         include/monitoring/Makefile
         include/simulator/Makefile
         examples/Makefile
-        examples/aadlv1/Makefile
-        examples/aadlv1/d3.1.3-1/Makefile
-        examples/aadlv1/ping/Makefile
-        examples/aadlv1/flight-mgmt/Makefile
-        examples/aadlv1/rma/Makefile
-        examples/aadlv1/sunseeker/Makefile
         examples/aadlv2/Makefile
         examples/aadlv2/code_coverage/Makefile
         examples/aadlv2/cpp/Makefile
