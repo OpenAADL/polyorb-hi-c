@@ -3,9 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://taste.tuxfamily.org/wiki
+ * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2020 ESA & ISAE.
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
  */
 
 #ifndef __PO_HI_TRANSPORT__

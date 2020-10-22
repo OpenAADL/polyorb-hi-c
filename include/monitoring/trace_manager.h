@@ -1,3 +1,13 @@
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://www.openaadl.org
+ *
+ * Copyright (C) 2020 OpenAADL
+ */
+
 #include <deployment.h>
 #include <request.h>
 #include <po_hi_time.h>

@@ -1,3 +1,13 @@
+/*
+ * This is a part of PolyORB-HI-C distribution, a minimal
+ * middleware written for generated code from AADL models.
+ * You should use it with the Ocarina toolsuite.
+ *
+ * For more informations, please visit http://www.openaadl.org
+ *
+ * Copyright (C) 2020 OpenAADL
+ */
+
 #include <string.h>
 #include <assert.h>
 #include <math.h>
@@ -130,7 +140,6 @@ flag ObjectIdentifier_equal(const Asn1ObjectIdentifier *pVal1, const Asn1ObjectI
 		return FALSE;
 	}
 }
-
 
 
 

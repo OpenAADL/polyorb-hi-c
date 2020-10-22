@@ -3,9 +3,9 @@
  * middleware written for generated code from AADL models.
  * You should use it with the Ocarina toolsuite.
  *
- * For more informations, please visit http://taste.tuxfamily.org/wiki
+ * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2010-2018 ESA & ISAE.
+ * Copyright (C) 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
  */
 
 /*! \file po_hi_driver_rasta_serial.c
