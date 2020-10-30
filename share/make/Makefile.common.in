@@ -2,6 +2,9 @@
 # middleware written for generated code from AADL models.
 # You should use it with the Ocarina toolsuite.
 
+# Force SHELL to bash
+SHELL = /bin/bash
+
 CYGPATH_U = @CYGPATH_U@
 CYGPATH_W = @CYGPATH_U@
 
