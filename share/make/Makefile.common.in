@@ -439,16 +439,16 @@ sonar_run: clean
 	   make coverage
 	   sonar-scanner
 
-export SONAR_PROJECT_DIR=$(PWD)/..
-export SONAR_RESULTS_RELATIVE_PATH=$(shell echo "$(PWD)" | sed  's:$(SONAR_PROJECT_DIR)/::g')
-export TEMPLATE_PATH=$(shell sed -e 's:polyorb-hi-c/.*:polyorb-hi-c:' <<< $(PWD))
+#export SONAR_PROJECT_DIR=$(PWD)/..
+#export SONAR_RESULTS_RELATIVE_PATH=$(shell echo "$(PWD)" | sed  's:$(SONAR_PROJECT_DIR)/::g')
+#export TEMPLATE_PATH=$(shell sed -e 's:polyorb-hi-c/.*:polyorb-hi-c:' <<< $(PWD))
 
 ################################################################################
 # sonarproperties: generation of configuration file for sonarqube
 #
 
-export SONAR_PROJECT_DIR=$(PWD)/..
-export SONAR_RESULTS_RELATIVE_PATH=$(shell echo "$(PWD)" | sed  's:$(SONAR_PROJECT_DIR)/::g')
+#export SONAR_PROJECT_DIR=$(PWD)/..
+#export SONAR_RESULTS_RELATIVE_PATH=$(shell echo "$(PWD)" | sed  's:$(SONAR_PROJECT_DIR)/::g')
 
 sonarproperties:
 	cp $(RUNTIME_PATH)/utils/template_sonar-project.properties tmpsonar-project.properties
