@@ -342,8 +342,14 @@ endif
 
 ifeq ($(TARGET), $(filter $(TARGET), native bench linux32 linux64 linux_dll))
 EXE=$(BINARY)$(EXEEXT)
-$(BINARY): generate-asn1-deployment target-objects compile-c-files compile-cpp-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS)
-	$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(PO_HI_CPPOBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS)
+$(BINARY):
+	if [ x"$(shell uname -s)" = x"Linux" ] || [ x"$(shell uname -s)" = x"Darwin"  ]; then \
+		$(MAKE) generate-asn1-deployment target-objects compile-c-files compile-cpp-files compile-ada-files compile-po-hi $(USER_OBJS) $(GENERATED_OBJS) $(TARGET_OBJECTS); \
+		$(LD) -o $(EXE) $(EXTERNAL_OBJECTS) $(PO_HI_OBJS) $(PO_HI_CPPOBJS) $(GENERATED_OBJS) $(USER_OBJS) $(LDFLAGS) ; \
+	else \
+		echo "Platform $(shell uname -s) not supported, exiting" ; \
+	fi
+
 endif
 
 ifeq ($(TARGET), $(filter $(TARGET), win32))
