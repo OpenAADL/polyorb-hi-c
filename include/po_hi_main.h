@@ -5,13 +5,15 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #ifndef __PO_HI_MAIN__
 #define __PO_HI_MAIN__
 
-int __po_hi_initialize (void);
+int __po_hi_initialize(
+  void);
+
 /*
  * Invoke all functions to initialize tasks
  * and network. Return __PO_HI_SUCCESS if there
@@ -19,12 +21,16 @@ int __po_hi_initialize (void);
  * __PO_HI_ERROR_PTHREAD_BARRIER.
  */
 
-void __po_hi_initialize_add_task (void);
+void __po_hi_initialize_add_task(
+  void);
+
 /*
  * Declare that another task has to be initialized
  */
 
-int __po_hi_wait_initialization (void);
+int __po_hi_wait_initialization(
+  void);
+
 /*
  * Invoked by each node to wait initialization
  * of other node. It is used by synchronize all
@@ -35,18 +41,21 @@ int __po_hi_wait_initialization (void);
  */
 
 #ifdef __PO_HI_USE_GPROF
-void __po_hi_wait_end_of_instrumentation (void);
+void __po_hi_wait_end_of_instrumentation(
+  void);
+
 /*
  * Wait a certain amount of time to finish the
  * execution of the system.
  */
 #endif
 
-int __po_hi_initialize_early (void);
+int __po_hi_initialize_early(
+  void);
+
 /*
  * __po_hi_initialize_earlier() is used to perform
  * some early initialization, before device
  * init functions are invoked.
  */
-
 #endif /* __PO_HI_MAIN__ */

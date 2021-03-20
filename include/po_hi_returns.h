@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #ifndef __PO_HI_RETURNS_H__
@@ -60,5 +60,4 @@
 
 #define __PO_HI_ERROR_EXISTS              -80
 #define __PO_HI_ERROR_NOEXISTS            -81
-
 #endif /* __RETURNS_H__ */

@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2018-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2018-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 /**
@@ -25,7 +25,7 @@
  * therefore limited to the identifier of a task.
  */
 
-typedef __po_hi_task_id  __aadl_context;
+typedef __po_hi_task_id __aadl_context;
 
 /**
  * Helper macros to access AADL entities

@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2018-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2018-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #ifndef __PO_HI_SEMAPHORE_H__
@@ -17,23 +17,23 @@
 #include <po_hi_gqueue.h>
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   #include <stdlib.h>
-   #include <stdint.h>
-   #include <time.h>
-   #include <pthread.h>
-   #include <semaphore.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <time.h>
+#include <pthread.h>
+#include <semaphore.h>
 
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
-   #include <rtems.h>
+#include <rtems.h>
 
 #elif defined (XENO_NATIVE)
-   #include <native/mutex.h>
+#include <native/mutex.h>
 
 #elif defined (_WIN32)
 #include <windows.h>
 
 #elif defined (SIMULATOR)
-   #include <um_threads.h>
+#include <um_threads.h>
 #endif
 
 /**
@@ -42,22 +42,23 @@
  */
 typedef struct __po_hi_sem_t __po_hi_sem_t;
 struct __po_hi_sem_t {
+
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-  __po_hi_mutex_t      mutex;
-  pthread_cond_t       posix_condvar;
-  pthread_condattr_t   posix_condattr;
+  __po_hi_mutex_t mutex;
+  pthread_cond_t posix_condvar;
+  pthread_condattr_t posix_condattr;
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
-  rtems_id             rtems_sem;
-  rtems_id             rtems_barrier;
+  rtems_id rtems_sem;
+  rtems_id rtems_barrier;
 #elif defined (XENO_NATIVE)
-  __po_hi_mutex_t      mutex;
-  RT_COND              xeno_condvar;
+  __po_hi_mutex_t mutex;
+  RT_COND xeno_condvar;
 #elif defined (_WIN32)
-  HANDLE               win32_event;
-  CRITICAL_SECTION     win32_criticalsection;
+  HANDLE win32_event;
+  CRITICAL_SECTION win32_criticalsection;
 #elif defined (SIMULATOR)
-  semaphore* um_mutex;
-  semaphore* um_barrier;
+  semaphore *um_mutex;
+  semaphore *um_barrier;
 #endif
 };
 
@@ -73,7 +74,11 @@ struct __po_hi_sem_t {
  * \return __PO_HI_SUCCESS if successful.
  * \return __PO_HI_ERROR_SEM_CREATE if there is an error.
  */
-int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol, const int priority, int nb);
+int __po_hi_sem_init(
+  __po_hi_sem_t * sem,
+  const __po_hi_mutex_protocol_t protocol,
+  const int priority,
+  int nb);
 
 
 /**
@@ -89,7 +94,8 @@ int __po_hi_sem_init(__po_hi_sem_t* sem, const __po_hi_mutex_protocol_t protocol
  * \return __PO_HI_SUCCESS if successful.
  * \return __PO_HI_ERROR_SEM_WAIT if there is an error.
  */
-int __po_hi_sem_wait(__po_hi_sem_t* sem);
+int __po_hi_sem_wait(
+  __po_hi_sem_t * sem);
 
 /**
  * \brief The mutex attribute of a semaphore is locked.
@@ -103,7 +109,8 @@ int __po_hi_sem_wait(__po_hi_sem_t* sem);
  * \return __PO_HI_SUCCESS if successful.
  * \return __PO_HI_ERROR_SEM_WAIT if there is an error.
  */
-int __po_hi_sem_mutex_wait(__po_hi_sem_t* sem);
+int __po_hi_sem_mutex_wait(
+  __po_hi_sem_t * sem);
 
 /**
  * \brief The semaphore is released.
@@ -113,7 +120,8 @@ int __po_hi_sem_mutex_wait(__po_hi_sem_t* sem);
  * \return __PO_HI_SUCCESS if successful.
  * \return __PO_HI_ERROR_SEM_RELEASE if there is an error.
  */
-int __po_hi_sem_release(__po_hi_sem_t* sem);
+int __po_hi_sem_release(
+  __po_hi_sem_t * sem);
 
 /**
  * \brief The mutex attribute of a semaphore is released.
@@ -125,7 +133,8 @@ int __po_hi_sem_release(__po_hi_sem_t* sem);
  * \return __PO_HI_SUCCESS if successful.
  * \return __PO_HI_ERROR_SEM_RELEASE if there is an error.
  */
-int __po_hi_sem_mutex_release(__po_hi_sem_t* sem);
+int __po_hi_sem_mutex_release(
+  __po_hi_sem_t * sem);
 
 
 /* USED TO WORK ON THE GQUEUE SEM ARRAY */
@@ -138,7 +147,9 @@ int __po_hi_sem_mutex_release(__po_hi_sem_t* sem);
  * \return __PO_HI_SUCCESS if successful.
  * \return the result of that function applied to the specified semaphore if there is an error.
  */
-int __po_hi_sem_init_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+int __po_hi_sem_init_gqueue(
+  __po_hi_sem_t array[__PO_HI_NB_TASKS],
+  __po_hi_task_id id);
 
 /**
  * \brief Used to do the po_hi_sem_wait function on a semaphore contained in the semaphore array.
@@ -148,7 +159,9 @@ int __po_hi_sem_init_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_
  * \return __PO_HI_SUCCESS if successful.
  * \return the result of that function applied to the specified semaphore if there is an error.
  */
-int __po_hi_sem_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+int __po_hi_sem_wait_gqueue(
+  __po_hi_sem_t array[__PO_HI_NB_TASKS],
+  __po_hi_task_id id);
 
 /**
  * \brief Used to do the po_hi_sem_mutex_wait function on a semaphore contained in the semaphore array.
@@ -158,7 +171,9 @@ int __po_hi_sem_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_
  * \return __PO_HI_SUCCESS if successful.
  * \return the result of that function applied to the specified semaphore if there is an error.
  */
-int __po_hi_sem_mutex_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+int __po_hi_sem_mutex_wait_gqueue(
+  __po_hi_sem_t array[__PO_HI_NB_TASKS],
+  __po_hi_task_id id);
 
 /**
  * \brief Used to do the po_hi_sem_release function on a semaphore contained in the semaphore array.
@@ -168,7 +183,9 @@ int __po_hi_sem_mutex_wait_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi
  * \return __PO_HI_SUCCESS if successful.
  * \return the result of that function applied to the specified semaphore if there is an error.
  */
-int __po_hi_sem_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
+int __po_hi_sem_release_gqueue(
+  __po_hi_sem_t array[__PO_HI_NB_TASKS],
+  __po_hi_task_id id);
 
 /**
  * \brief Used to do the po_hi_sem_mutex_release function on a semaphore contained in the semaphore array.
@@ -178,6 +195,7 @@ int __po_hi_sem_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_ta
  * \return __PO_HI_SUCCESS if successful.
  * \return the result of that function applied to the specified semaphore if there is an error.
  */
-int __po_hi_sem_mutex_release_gqueue(__po_hi_sem_t array[__PO_HI_NB_TASKS], __po_hi_task_id id);
-
+int __po_hi_sem_mutex_release_gqueue(
+  __po_hi_sem_t array[__PO_HI_NB_TASKS],
+  __po_hi_task_id id);
 #endif /*  __PO_HI_SEMAPHORE_H__ */

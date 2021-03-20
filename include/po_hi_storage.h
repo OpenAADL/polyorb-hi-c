@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2011-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2011-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #ifndef __PO_HI_STORAGE_H__
@@ -57,21 +57,22 @@
 #include <unistd.h>
 #endif
 
-typedef struct
-{
-   int         file_id;
-   char        filename[__PO_HI_STORAGE_FILENAME_MAXLENGTH];
+typedef struct {
+  int file_id;
+  char filename[__PO_HI_STORAGE_FILENAME_MAXLENGTH];
+
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   int         fd;
+  int fd;
 #endif
 } __po_hi_storage_file_t;
 
-typedef struct
-{
-   int         dir_id;
-   int         nb_files;
-   char        dirname[__PO_HI_STORAGE_FILENAME_MAXLENGTH];
-   char        filename[__PO_HI_STORAGE_DIRECTORY_MAXFILES][__PO_HI_STORAGE_FILENAME_MAXLENGTH];
+typedef struct {
+  int dir_id;
+  int nb_files;
+  char dirname[__PO_HI_STORAGE_FILENAME_MAXLENGTH];
+  char
+    filename[__PO_HI_STORAGE_DIRECTORY_MAXFILES]
+    [__PO_HI_STORAGE_FILENAME_MAXLENGTH];
 } __po_hi_storage_dir_t;
 
 #ifndef __PO_HI_STORAGE_PACKET_SIZE
@@ -80,23 +81,21 @@ typedef struct
 
 typedef __po_hi_uint8_t __po_hi_storage_packet_t;
 
-typedef struct
-{
-   __po_hi_uint8_t            packets[__PO_HI_STORAGE_PACKET_SIZE * __PO_HI_STORAGE_MAX_PACKETS];    /*< packets contained int he store (structured bytes)  >*/
-   int                        n_packets;                               /*< amount of packets stored in the store                                            >*/
-   int                        capacity;                                /*< actual size of the store, meaning the number of packets it can store             >*/
-   int                        read_off;                                /*< read offset in the buffer in terms of number of packets                          >*/
-   int                        write_off;                               /*< write offset in the buffer in terns of number of packets                         >*/
-   __po_hi_mutex_t            mutex;                                   /*< ensure buffer protection from concurrent accesses                                >*/
+typedef struct {
+  __po_hi_uint8_t packets[__PO_HI_STORAGE_PACKET_SIZE * __PO_HI_STORAGE_MAX_PACKETS];   /*< packets contained int he store (structured bytes)  > */
+  int n_packets;                /*< amount of packets stored in the store                                            > */
+  int capacity;                 /*< actual size of the store, meaning the number of packets it can store             > */
+  int read_off;                 /*< read offset in the buffer in terms of number of packets                          > */
+  int write_off;                /*< write offset in the buffer in terns of number of packets                         > */
+  __po_hi_mutex_t mutex;        /*< ensure buffer protection from concurrent accesses                                > */
 } __po_hi_storage_packet_store_t;
 
 
-typedef struct
-{
-   __po_hi_uint32_t    n_packets;   /*< number of packets in the store >   */
-   __po_hi_uint32_t    n_avail;     /*< available packets size >           */
-   __po_hi_uint8_t     full;        /*< is the store full ?>               */
-}__po_hi_storage_packet_store_status_t;
+typedef struct {
+  __po_hi_uint32_t n_packets;   /*< number of packets in the store >   */
+  __po_hi_uint32_t n_avail;     /*< available packets size >           */
+  __po_hi_uint8_t full;         /*< is the store full ?>               */
+} __po_hi_storage_packet_store_status_t;
 
 /*
  * Files operations
@@ -118,7 +117,9 @@ typedef struct
  *  - __PO_HI_TOOMANY: too may files are open at this time, cannot open more.
  *  - __PO_HI_INVALID: supplied filename is invalid (invalid characters or too long)
  */
-int __po_hi_storage_file_open (const char* filename, __po_hi_storage_file_t*);
+int __po_hi_storage_file_open(
+  const char *filename,
+  __po_hi_storage_file_t *);
 
 /**
  * \fn __po_hi_storage_file_create
@@ -133,7 +134,8 @@ int __po_hi_storage_file_open (const char* filename, __po_hi_storage_file_t*);
  * - __PO_HI_ERROR_EXISTS     : File already exists
  * - __PO_HI_INVALID          : Invalid file
  */
-int __po_hi_storage_file_create (__po_hi_storage_file_t* file);
+int __po_hi_storage_file_create(
+  __po_hi_storage_file_t * file);
 
 /**
  * \fn __po_hi_storage_file_read
@@ -149,7 +151,10 @@ int __po_hi_storage_file_create (__po_hi_storage_file_t* file);
  * - __PO_HI_ERROR_UNKNOWN    : Unknown error
  * - __PO_HI_INVALID          : Invalid file
  */
-int __po_hi_storage_file_read (const __po_hi_storage_file_t* file, char* buf, int bufsize);
+int __po_hi_storage_file_read(
+  const __po_hi_storage_file_t * file,
+  char *buf,
+  int bufsize);
 
 /**
  * \fn __po_hi_storage_file_write
@@ -165,7 +170,10 @@ int __po_hi_storage_file_read (const __po_hi_storage_file_t* file, char* buf, in
  * - __PO_HI_ERROR_UNKNOWN    : Unknown error
  * - __PO_HI_INVALID          : Invalid file
  */
-int __po_hi_storage_file_write (const __po_hi_storage_file_t* file, char* buf, int bufsize);
+int __po_hi_storage_file_write(
+  const __po_hi_storage_file_t * file,
+  char *buf,
+  int bufsize);
 
 /**
  * \fn __po_hi_storage_file_delete
@@ -180,7 +188,8 @@ int __po_hi_storage_file_write (const __po_hi_storage_file_t* file, char* buf, i
  * - __PO_HI_INVALID          : Invalid file
  * - __PO_HI_ERROR_NOEXISTS   : The file does not exists
  */
-int __po_hi_storage_file_delete (const __po_hi_storage_file_t* file);
+int __po_hi_storage_file_delete(
+  const __po_hi_storage_file_t * file);
 
 /**
  * \fn __po_hi_storage_file_rename
@@ -201,7 +210,9 @@ int __po_hi_storage_file_delete (const __po_hi_storage_file_t* file);
  * - __PO_HI_ERROR_EXISTS     : The destination file (second argument) already
  *                              exists.
  */
-int __po_hi_storage_file_rename (const __po_hi_storage_file_t* oldfile, const __po_hi_storage_file_t* newfile);
+int __po_hi_storage_file_rename(
+  const __po_hi_storage_file_t * oldfile,
+  const __po_hi_storage_file_t * newfile);
 
 /**
  * \fn __po_hi_storage_file_append
@@ -218,7 +229,10 @@ int __po_hi_storage_file_rename (const __po_hi_storage_file_t* oldfile, const __
  * - __PO_HI_ERROR_UNKNOWN    : Unknown error
  * - __PO_HI_INVALID          : Invalid file
  */
-int __po_hi_storage_file_append (const __po_hi_storage_file_t* file, char* buf, int bufsize);
+int __po_hi_storage_file_append(
+  const __po_hi_storage_file_t * file,
+  char *buf,
+  int bufsize);
 
 /**
  * \fn __po_hi_storage_file_replace
@@ -237,7 +251,9 @@ int __po_hi_storage_file_append (const __po_hi_storage_file_t* file, char* buf, 
  * - __PO_HI_INVALID          : Invalid file (either source or destination)
  * - __PO_HI_ERROR_NOEXISTS   : The source or destination file does not exists
  */
-int __po_hi_storage_file_replace (const __po_hi_storage_file_t* oldfile, const __po_hi_storage_file_t* newfile);
+int __po_hi_storage_file_replace(
+  const __po_hi_storage_file_t * oldfile,
+  const __po_hi_storage_file_t * newfile);
 
 
 /**
@@ -255,7 +271,8 @@ int __po_hi_storage_file_replace (const __po_hi_storage_file_t* oldfile, const _
  * - __PO_HI_SUCCESS          : Successful operation
  * - __PO_HI_INVALID          : Invalid file
  */
-int __po_hi_storage_file_lock (const __po_hi_storage_file_t* file);
+int __po_hi_storage_file_lock(
+  const __po_hi_storage_file_t * file);
 
 /**
  * \fn __po_hi_storage_file_unlock
@@ -273,7 +290,8 @@ int __po_hi_storage_file_lock (const __po_hi_storage_file_t* file);
  * - __PO_HI_UNAVAILABLE      : The file was not locked.
  */
 
-int __po_hi_storage_file_unlock (const __po_hi_storage_file_t* file);
+int __po_hi_storage_file_unlock(
+  const __po_hi_storage_file_t * file);
 
 
 /*
@@ -298,7 +316,9 @@ int __po_hi_storage_file_unlock (const __po_hi_storage_file_t* file);
  *  - __PO_HI_TOOMANY: too may directories are open at this time, cannot open more.
  *  - __PO_HI_INVALID: supplied directory name is invalid
  */
-int __po_hi_storage_directory_open (const char*, __po_hi_storage_dir_t*);
+int __po_hi_storage_directory_open(
+  const char *,
+  __po_hi_storage_dir_t *);
 
 /**
  * \fn __po_hi_storage_directory_create
@@ -314,7 +334,8 @@ int __po_hi_storage_directory_open (const char*, __po_hi_storage_dir_t*);
  *  - __PO_HI_INVALID            : invalid directory structure
  *  - __PO_HI_ERROR_EXISTS       : directory already exists
  */
-int __po_hi_storage_directory_create (const __po_hi_storage_dir_t*);
+int __po_hi_storage_directory_create(
+  const __po_hi_storage_dir_t *);
 
 /**
  * \fn __po_hi_storage_directory_delete
@@ -330,7 +351,8 @@ int __po_hi_storage_directory_create (const __po_hi_storage_dir_t*);
  *  - __PO_HI_INVALID            : invalid directory structure
  *  - __PO_HI_ERROR_NOEXISTS     : directory does not exist
  */
-int __po_hi_storage_directory_delete (const __po_hi_storage_dir_t*);
+int __po_hi_storage_directory_delete(
+  const __po_hi_storage_dir_t *);
 
 /**
  * \fn __po_hi_storage_directory_rename
@@ -353,7 +375,9 @@ int __po_hi_storage_directory_delete (const __po_hi_storage_dir_t*);
  *  - __PO_HI_ERROR_EXISTS       : directory of the second parameter already
  *                                 exist
  */
-int __po_hi_storage_directory_rename (const __po_hi_storage_dir_t* olddir, const __po_hi_storage_dir_t* newdir);
+int __po_hi_storage_directory_rename(
+  const __po_hi_storage_dir_t * olddir,
+  const __po_hi_storage_dir_t * newdir);
 
 /**
  * \fn __po_hi_storage_directory_list
@@ -370,7 +394,8 @@ int __po_hi_storage_directory_rename (const __po_hi_storage_dir_t* olddir, const
  *  - __PO_HI_INVALID            : invalid directory structure
  *  - __PO_HI_ERROR_NOEXISTS     : the directory does not exist.
  */
-int __po_hi_storage_directory_list (__po_hi_storage_dir_t* dir);
+int __po_hi_storage_directory_list(
+  __po_hi_storage_dir_t * dir);
 
 /**
  * \fn __po_hi_storage_directory_lock
@@ -387,7 +412,8 @@ int __po_hi_storage_directory_list (__po_hi_storage_dir_t* dir);
  *  - __PO_HI_SUCCESS            : successful operation
  *  - __PO_HI_INVALID            : invalid directory structure
  */
-int __po_hi_storage_directory_lock (const __po_hi_storage_dir_t* dir);
+int __po_hi_storage_directory_lock(
+  const __po_hi_storage_dir_t * dir);
 
 /*
  * \fn __po_hi_storage_file_close
@@ -402,7 +428,8 @@ int __po_hi_storage_directory_lock (const __po_hi_storage_dir_t* dir);
  *  - __PO_HI_INVALID            : invalid directory structure
  */
 
-int __po_hi_storage_file_close (__po_hi_storage_file_t* file);
+int __po_hi_storage_file_close(
+  __po_hi_storage_file_t * file);
 
 /**
  * \fn __po_hi_storage_directory_unlock
@@ -418,7 +445,8 @@ int __po_hi_storage_file_close (__po_hi_storage_file_t* file);
  *  - __PO_HI_INVALID            : invalid directory structure
  *  - __PO_HI_UNAVAILABLE        : the directory was not locked.
  */
-int __po_hi_storage_directory_unlock (const __po_hi_storage_dir_t* dir);
+int __po_hi_storage_directory_unlock(
+  const __po_hi_storage_dir_t * dir);
 
 /**
  * \fn __po_hi_storage_change_cdir
@@ -434,7 +462,8 @@ int __po_hi_storage_directory_unlock (const __po_hi_storage_dir_t* dir);
  *  - __PO_HI_INVALID            : invalid directory structure
  *  - __PO_HI_NOEXISTS           : the directory does not exists
  */
-int __po_hi_storage_change_cdir (__po_hi_storage_dir_t* new_current_directory);
+int __po_hi_storage_change_cdir(
+  __po_hi_storage_dir_t * new_current_directory);
 
 /**
  * \fn __po_hi_storage_get_cdir
@@ -448,7 +477,8 @@ int __po_hi_storage_change_cdir (__po_hi_storage_dir_t* new_current_directory);
  * It returns the following potential values:
  *  - __PO_HI_SUCCESS            : successful operation
  */
-int __po_hi_storage_get_cdir (__po_hi_storage_dir_t* current_directory);
+int __po_hi_storage_get_cdir(
+  __po_hi_storage_dir_t * current_directory);
 
 
 /*
@@ -466,7 +496,8 @@ int __po_hi_storage_get_cdir (__po_hi_storage_dir_t* current_directory);
  *  - __PO_HI_ERROR_MUTEX_INIT   : error when trying to instantiate locking-related resources
  *  - __PO_HI_TOOMANY            : too many store already created
  */
-int __po_hi_storage_packet_store_new (__po_hi_storage_packet_store_t* store);
+int __po_hi_storage_packet_store_new(
+  __po_hi_storage_packet_store_t * store);
 
 /**
  * \fn __po_hi_storage_packet_store_new_from_file
@@ -484,7 +515,9 @@ int __po_hi_storage_packet_store_new (__po_hi_storage_packet_store_t* store);
  *  - __PO_HI_TOOMANY            : too many store already created
  *  - __PO_HI_NOEXISTS           : file does not exists (second argument)
  */
-int __po_hi_storage_packet_store_new_from_file (__po_hi_storage_packet_store_t* store, __po_hi_storage_file_t* file);
+int __po_hi_storage_packet_store_new_from_file(
+  __po_hi_storage_packet_store_t * store,
+  __po_hi_storage_file_t * file);
 
 /**
  * \fn __po_hi_storage_packet_store_write_to_file
@@ -501,7 +534,9 @@ int __po_hi_storage_packet_store_new_from_file (__po_hi_storage_packet_store_t* 
  *  - __PO_HI_TOOMANY            : too many store already created
  *  - __PO_HI_EXISTS             : file already exists (second argument)
  */
-int __po_hi_storage_packet_store_write_to_file (__po_hi_storage_packet_store_t* store, __po_hi_storage_file_t* file);
+int __po_hi_storage_packet_store_write_to_file(
+  __po_hi_storage_packet_store_t * store,
+  __po_hi_storage_file_t * file);
 
 /**
  * \fn __po_hi_storage_packet_store_read
@@ -520,7 +555,9 @@ int __po_hi_storage_packet_store_write_to_file (__po_hi_storage_packet_store_t* 
  *  - __PO_HI_INVALID            : invalid packet store or packet to write
  *                                 (invalid address)
  */
-int __po_hi_storage_packet_store_read (__po_hi_storage_packet_store_t* store, __po_hi_storage_packet_t*);
+int __po_hi_storage_packet_store_read(
+  __po_hi_storage_packet_store_t * store,
+  __po_hi_storage_packet_t *);
 
 /**
  * \fn __po_hi_storage_packet_store_write
@@ -543,7 +580,9 @@ int __po_hi_storage_packet_store_read (__po_hi_storage_packet_store_t* store, __
  *  - __PO_HI_INVALID            : invalid packet store or packet to write
  *                                 (invalid address)
  */
-int __po_hi_storage_packet_store_write (__po_hi_storage_packet_store_t* store, __po_hi_storage_packet_t*);
+int __po_hi_storage_packet_store_write(
+  __po_hi_storage_packet_store_t * store,
+  __po_hi_storage_packet_t *);
 
 /**
  * \fn __po_hi_storage_packet_store_free
@@ -563,7 +602,9 @@ int __po_hi_storage_packet_store_write (__po_hi_storage_packet_store_t* store, _
  *  - __PO_HI_INVALID            : invalid packet store or packet to write
  *                                 (invalid address)
  */
-int __po_hi_storage_packet_store_free (__po_hi_storage_packet_store_t* store, int n_free);
+int __po_hi_storage_packet_store_free(
+  __po_hi_storage_packet_store_t * store,
+  int n_free);
 
 /**
  * \fn __po_hi_storage_packet_store_status
@@ -579,6 +620,7 @@ int __po_hi_storage_packet_store_free (__po_hi_storage_packet_store_t* store, in
  *  - __PO_HI_INVALID            : invalid packet store or invalid structure
  *                                 (invalid address)
  */
-int __po_hi_storage_packet_store_status (__po_hi_storage_packet_store_t* store, __po_hi_storage_packet_store_status_t* status);
-
+int __po_hi_storage_packet_store_status(
+  __po_hi_storage_packet_store_t * store,
+  __po_hi_storage_packet_store_status_t * status);
 #endif /* __PO_HI_STORAGE_H__ */

@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #ifndef __PO_HI_GQUEUE_H__
@@ -46,20 +46,21 @@
  * \param empties  XXX.
  * \param total_fifo_sizes XXX.
  */
-void __po_hi_gqueue_init (__po_hi_task_id       id,
-			  __po_hi_port_id_t     nb_ports,
-			  __po_hi_request_t     queue[],
-			  __po_hi_port_id_t     sizes[],
-			  __po_hi_port_id_t     first[],
-			  __po_hi_port_id_t     offsets[],
-			  __po_hi_port_id_t     woffsets[],
-			  __po_hi_port_id_t     n_dest[],
-			  __po_hi_port_t*       destinations[],
-			  __po_hi_port_id_t     used_size[],
-			  __po_hi_local_port_t  history[],
-			  __po_hi_request_t     recent[],
-			  __po_hi_port_id_t     empties[],
-			  __po_hi_uint32_t      total_fifo_size);
+void __po_hi_gqueue_init(
+  __po_hi_task_id id,
+  __po_hi_port_id_t nb_ports,
+  __po_hi_request_t queue[],
+  __po_hi_port_id_t sizes[],
+  __po_hi_port_id_t first[],
+  __po_hi_port_id_t offsets[],
+  __po_hi_port_id_t woffsets[],
+  __po_hi_port_id_t n_dest[],
+  __po_hi_port_t * destinations[],
+  __po_hi_port_id_t used_size[],
+  __po_hi_local_port_t history[],
+  __po_hi_request_t recent[],
+  __po_hi_port_id_t empties[],
+  __po_hi_uint32_t total_fifo_size);
 
 
 
@@ -70,9 +71,10 @@ void __po_hi_gqueue_init (__po_hi_task_id       id,
  * \param port port that store the value (local).
  * \param request pointer towards the request to store in the queue.
  */
-void __po_hi_gqueue_store_out (__po_hi_task_id id,
-                               __po_hi_local_port_t port,
-                               __po_hi_request_t* request);
+void __po_hi_gqueue_store_out(
+  __po_hi_task_id id,
+  __po_hi_local_port_t port,
+  __po_hi_request_t * request);
 
 
 
@@ -103,9 +105,10 @@ int __po_hi_gqueue_send_output (__po_hi_task_id id,
  * \param request pointer to store the received data.
  * \return 0 if there is no error in the assert.
  */
-int __po_hi_gqueue_get_value(__po_hi_task_id id,
-			     __po_hi_local_port_t port,
-			     __po_hi_request_t* request);
+int __po_hi_gqueue_get_value(
+  __po_hi_task_id id,
+  __po_hi_local_port_t port,
+  __po_hi_request_t * request);
 
 /**
  * \brief Dequeue the value on a port.
@@ -117,8 +120,9 @@ int __po_hi_gqueue_get_value(__po_hi_task_id id,
  * \param port port number.
  * \return __PO_HI_SUCCESS if there is no error in the assert.
  */
-int __po_hi_gqueue_next_value(__po_hi_task_id id,
-			      __po_hi_local_port_t port);
+int __po_hi_gqueue_next_value(
+  __po_hi_task_id id,
+  __po_hi_local_port_t port);
 
 /**
  * \brief Return the number of events that are pending of a port.
@@ -127,8 +131,9 @@ int __po_hi_gqueue_next_value(__po_hi_task_id id,
  * \param port port identifier (or port number) for the thread.
  * \return the number of events that are pending of a port.
  */
-int __po_hi_gqueue_get_count(__po_hi_task_id id,
-			     __po_hi_local_port_t port);
+int __po_hi_gqueue_get_count(
+  __po_hi_task_id id,
+  __po_hi_local_port_t port);
 
 /**
  * \brief Compute dispatch condition :
@@ -146,10 +151,11 @@ int __po_hi_gqueue_get_count(__po_hi_task_id id,
  * \param index_transition_to_execute the index of transition to execute,
  * this parameter will be set according to the transition whose condition is verified.
  */
-__po_hi_bool_t __po_hi_gqueue_compute_index_transition_to_execute  (__po_hi_task_id id,
-                                                                    __po_hi_ba_automata_state_t* next_complete_state,
-                                                                    int* initial_sizes_of_dispatch_triggers_of_all_transitions,
-                                                                    __po_hi_int32_t* index_transition_to_execute);
+__po_hi_bool_t __po_hi_gqueue_compute_index_transition_to_execute(
+  __po_hi_task_id id,
+  __po_hi_ba_automata_state_t * next_complete_state,
+  int *initial_sizes_of_dispatch_triggers_of_all_transitions,
+  __po_hi_int32_t * index_transition_to_execute);
 
 /**
  * \brief Wait until all the specified dispatch events (according to the next complete state) 
@@ -161,9 +167,10 @@ __po_hi_bool_t __po_hi_gqueue_compute_index_transition_to_execute  (__po_hi_task
  * \param index_transition_to_execute the index of transition to execute,
  * this parameter will be set according to the transition whose condition is verified.
  */
- void __po_hi_gqueue_wait_for_specific_incoming_events (__po_hi_task_id id,
-                                                       __po_hi_ba_automata_state_t* next_complete_state,
-                                                       __po_hi_int32_t* index_transition_to_execute);
+void __po_hi_gqueue_wait_for_specific_incoming_events(
+  __po_hi_task_id id,
+  __po_hi_ba_automata_state_t * next_complete_state,
+  __po_hi_int32_t * index_transition_to_execute);
 
 
 /**
@@ -174,8 +181,9 @@ __po_hi_bool_t __po_hi_gqueue_compute_index_transition_to_execute  (__po_hi_task
  * \param id thread identifier in the local process.
  * \param port pointer to a port value.
  */
-void __po_hi_gqueue_wait_for_incoming_event(__po_hi_task_id id,
-					    __po_hi_local_port_t* port);
+void __po_hi_gqueue_wait_for_incoming_event(
+  __po_hi_task_id id,
+  __po_hi_local_port_t * port);
 
 /**
  * \brief Store a value in a IN port.
@@ -187,9 +195,10 @@ void __po_hi_gqueue_wait_for_incoming_event(__po_hi_task_id id,
  * \param request pointer towards what will be stored in the queue.
  * \return the number of events that are pending of a port.
  */
-__po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
-					 __po_hi_local_port_t port,
-					 __po_hi_request_t* request);
+__po_hi_port_id_t __po_hi_gqueue_store_in(
+  __po_hi_task_id id,
+  __po_hi_local_port_t port,
+  __po_hi_request_t * request);
 
 /**
  * \brief Access the most recent value queued.
@@ -203,9 +212,9 @@ __po_hi_port_id_t __po_hi_gqueue_store_in (__po_hi_task_id id,
  * \param local_port port identifier for the local thread.
  * \return the request.
  */
-__po_hi_request_t*  __po_hi_gqueue_get_most_recent_value
-         (const __po_hi_task_id task_id,
-          const __po_hi_local_port_t local_port);
+__po_hi_request_t *__po_hi_gqueue_get_most_recent_value(
+  const __po_hi_task_id task_id,
+  const __po_hi_local_port_t local_port);
 
 /**
  * \brief Access the destination port thanks to the destination number.
@@ -216,9 +225,10 @@ __po_hi_request_t*  __po_hi_gqueue_get_most_recent_value
  * \param destination_number the number of the destination (__po_hi_gqueue_get_destinations_number function).
  * \return the port.
  */
-__po_hi_port_t __po_hi_gqueue_get_destination (const __po_hi_task_id task_id,
-                                               const __po_hi_local_port_t local_port,
-                                               const uint8_t destination_number);
+__po_hi_port_t __po_hi_gqueue_get_destination(
+  const __po_hi_task_id task_id,
+  const __po_hi_local_port_t local_port,
+  const uint8_t destination_number);
 
 /**
  * \brief Access the destination number (for a specified port).
@@ -231,8 +241,9 @@ __po_hi_port_t __po_hi_gqueue_get_destination (const __po_hi_task_id task_id,
  * \param local_port port identifier for the local thread.
  * \return the number.
  */
-__po_hi_port_id_t __po_hi_gqueue_get_destinations_number (const __po_hi_task_id task_id,
-                                                const __po_hi_local_port_t local_port);
+__po_hi_port_id_t __po_hi_gqueue_get_destinations_number(
+  const __po_hi_task_id task_id,
+  const __po_hi_local_port_t local_port);
 
 
 /**
@@ -242,8 +253,9 @@ __po_hi_port_id_t __po_hi_gqueue_get_destinations_number (const __po_hi_task_id 
  * \param port port identifier for the local thread.
  * \return size of port.
  */
-__po_hi_port_id_t __po_hi_gqueue_get_port_size(const __po_hi_task_id id,
-                                            const __po_hi_local_port_t port);
+__po_hi_port_id_t __po_hi_gqueue_get_port_size(
+  const __po_hi_task_id id,
+  const __po_hi_local_port_t port);
 
 /**
  * \brief Access the used size of a port. 
@@ -252,7 +264,9 @@ __po_hi_port_id_t __po_hi_gqueue_get_port_size(const __po_hi_task_id id,
  * \param port port identifier for the local thread.
  * \return size of port.
  */
-__po_hi_port_id_t __po_hi_gqueue_used_size( __po_hi_task_id id, __po_hi_local_port_t port);
+__po_hi_port_id_t __po_hi_gqueue_used_size(
+  __po_hi_task_id id,
+  __po_hi_local_port_t port);
 
 /**
  * \brief Check whether the queue belonging to the id task is empty.
@@ -262,6 +276,6 @@ __po_hi_port_id_t __po_hi_gqueue_used_size( __po_hi_task_id id, __po_hi_local_po
  * \return the value in the array.
  * \return 0 and 1 if the queue is not empty because of array construction.
  */
-__po_hi_port_id_t  po_hi_gqueues_queue_is_empty(__po_hi_task_id id);
-
+__po_hi_port_id_t po_hi_gqueues_queue_is_empty(
+  __po_hi_task_id id);
 #endif /* __PO_HI_GQUEUE_H__ */

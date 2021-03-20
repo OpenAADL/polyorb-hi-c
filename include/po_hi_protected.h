@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #ifndef __PO_HI_PROTECTED_H__
@@ -19,60 +19,63 @@
 #define __PO_HI_PROTECTED_TYPE_PCP        2
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   #include <stdlib.h>
-   #include <stdint.h>
-   #include <time.h>
-   #include <pthread.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <time.h>
+#include <pthread.h>
 #endif
 
 #if defined (__PO_HI_RTEMS_CLASSIC_API)
-   #include <rtems.h>
+#include <rtems.h>
 #endif
 
 #if defined (XENO_NATIVE)
-   #include <native/mutex.h>
+#include <native/mutex.h>
 #endif
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-typedef enum
-{
-   __PO_HI_PROTECTED_REGULAR     = 1,
-   __PO_HI_MUTEX_REGULAR         = 1,
-   __PO_HI_PROTECTED_PIP         = 2,
-   __PO_HI_MUTEX_PIP             = 2,
-   __PO_HI_PROTECTED_PCP         = 3,
-   __PO_HI_MUTEX_PCP             = 3,
-   __PO_HI_PROTECTED_IPCP        = 4,
-   __PO_HI_MUTEX_IPCP            = 4,
-   __PO_HI_PROTECTED_INVALID     = 1
-}__po_hi_protected_protocol_t;
+typedef enum {
+  __PO_HI_PROTECTED_REGULAR = 1,
+  __PO_HI_MUTEX_REGULAR = 1,
+  __PO_HI_PROTECTED_PIP = 2,
+  __PO_HI_MUTEX_PIP = 2,
+  __PO_HI_PROTECTED_PCP = 3,
+  __PO_HI_MUTEX_PCP = 3,
+  __PO_HI_PROTECTED_IPCP = 4,
+  __PO_HI_MUTEX_IPCP = 4,
+  __PO_HI_PROTECTED_INVALID = 1
+} __po_hi_protected_protocol_t;
 
 typedef __po_hi_protected_protocol_t __po_hi_mutex_protocol_t;
 
-typedef struct
-{
-   __po_hi_mutex_protocol_t   protocol;
-   int                        priority;
+typedef struct {
+  __po_hi_mutex_protocol_t protocol;
+  int priority;
+
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   pthread_mutex_t      posix_mutex;
-   pthread_mutexattr_t  posix_mutexattr;
+  pthread_mutex_t posix_mutex;
+  pthread_mutexattr_t posix_mutexattr;
 #endif
+
 #if defined (__PO_HI_RTEMS_CLASSIC_API)
-   rtems_id             rtems_mutex;
+  rtems_id rtems_mutex;
 #endif
+
 #if defined (XENO_NATIVE)
-   RT_MUTEX             xeno_mutex;
+  RT_MUTEX xeno_mutex;
 #endif
+
 #if defined (_WIN32)
-   HANDLE               win32_mutex;
+  HANDLE win32_mutex;
 #endif
+
 #if defined (SIMULATOR)
-   int previous_priority;
+  int previous_priority;
 #endif
-}__po_hi_mutex_t;
+} __po_hi_mutex_t;
 
 typedef uint8_t __po_hi_protected_t;
 
@@ -84,7 +87,8 @@ typedef uint8_t __po_hi_protected_t;
  * Return __PO_HI_SUCCESS if it is successfull.  If there is an error,
  * it can return __PO_HI_ERROR_PTHREAD_MUTEX value
  */
-int __po_hi_protected_lock (__po_hi_protected_t protected_id);
+int __po_hi_protected_lock(
+  __po_hi_protected_t protected_id);
 
 /**
  * \fn __po_hi_protected_lock
@@ -95,14 +99,16 @@ int __po_hi_protected_lock (__po_hi_protected_t protected_id);
  * If there is an error, it can return
  * __PO_HI_ERROR_PTHREAD_MUTEX value
  */
-int __po_hi_protected_unlock (__po_hi_protected_t protected_id);
+int __po_hi_protected_unlock(
+  __po_hi_protected_t protected_id);
 
 /**
  * \fn __po_hi_protected_init
  *
  * \brief Initialize all variables to handle protected objects in PolyORB-HI-C
  */
-int __po_hi_protected_init (void);
+int __po_hi_protected_init(
+  void);
 
 
 /**
@@ -123,7 +129,10 @@ int __po_hi_protected_init (void);
  *  - __PO_HI_TOOMANY: too many resources allocated at this time
  *  - __PO_HI_INVALID: supplied argument value (memory error)
  */
-int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t protocol, const int priority);
+int __po_hi_mutex_init(
+  __po_hi_mutex_t * mutex,
+  const __po_hi_mutex_protocol_t protocol,
+  const int priority);
 
 /**
  * \fn __po_hi_mutex_lock
@@ -140,7 +149,8 @@ int __po_hi_mutex_init (__po_hi_mutex_t* mutex, const __po_hi_mutex_protocol_t p
  *  - __PO_HI_INVALID: supplied argument value (memory error)
  *  - __PO_HI_NOTINITALIZED: supplied resources was not initialized
  */
-int __po_hi_mutex_lock (__po_hi_mutex_t* mutex);
+int __po_hi_mutex_lock(
+  __po_hi_mutex_t * mutex);
 
 /**
  * \fn __po_hi_mutex_unlock
@@ -157,7 +167,6 @@ int __po_hi_mutex_lock (__po_hi_mutex_t* mutex);
  *  - __PO_HI_NOTINITALIZED: supplied resources was not initialized
  */
 
-int __po_hi_mutex_unlock (__po_hi_mutex_t* mutex);
-
-
+int __po_hi_mutex_unlock(
+  __po_hi_mutex_t * mutex);
 #endif /*  __PO_HI_PROTECTED_H__ */

@@ -5,13 +5,14 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #if defined (__linux__) || defined (RTEMS412)
 /*  We need GNU extensions to support thread affinify.
     These are Linux or RTEMS specific
  */
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
 #endif /* _GNU_SOURCE */
@@ -22,18 +23,21 @@
 #endif /* __linux__ */
 
 //#include <um_threads.h>
+
 #if defined (SIMULATOR)
 #include <um_threads.h>
 #undef POSIX
 #endif
 
 #if defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API)
+
 #ifdef RTEMS412
 #include <sys/cpuset.h>
 #endif
 #endif
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
+
 #if defined (__CYGWIN__) || defined (__MINGW32__) || defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API)
 #else
 #include <unistd.h>
@@ -63,58 +67,64 @@
 #if defined (MONITORING)
 #include <trace_manager.h>
 #endif
+
 /* Headers from run-time verification */
 
 #include <deployment.h>
 /* Header files from generated code */
 
-typedef enum __po_hi_task_category_t { TASK_PERIODIC, TASK_SPORADIC, TASK_BACKGROUND }
-    __po_hi_task_category;
+typedef enum __po_hi_task_category_t { TASK_PERIODIC, TASK_SPORADIC,
+    TASK_BACKGROUND }
+__po_hi_task_category;
 
 
-int nb_tasks; /* number of created tasks */
+int nb_tasks;                   /* number of created tasks */
 
-typedef struct
-{
-  __po_hi_task_id     id;       /* Identifier of the task in the system */
+typedef struct {
+  __po_hi_task_id id;           /* Identifier of the task in the system */
   __po_hi_task_category task_category;
-  __po_hi_time_t      period;
-  __po_hi_time_t      offset;
+  __po_hi_time_t period;
+  __po_hi_time_t offset;
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
-  __po_hi_time_t      timer;
+  __po_hi_time_t timer;
+
 #if defined (_WIN32)
   DWORD tid;
 #else
-  pthread_t           tid;              /* The pthread_t type used by the
-                                           POSIX library */
+  pthread_t tid;                /* The pthread_t type used by the
+                                   POSIX library */
 #endif
-  pthread_mutex_t     mutex;
-  pthread_cond_t      cond;
+
+  pthread_mutex_t mutex;
+  pthread_cond_t cond;
 #elif defined (_WIN32)
-  __po_hi_time_t      timer;
-  DWORD               tid;
+  __po_hi_time_t timer;
+  DWORD tid;
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
-  rtems_id            ratemon_period;
-  rtems_id            rtems_id;
+  rtems_id ratemon_period;
+  rtems_id rtems_id;
 #elif defined(XENO_NATIVE)
-  RT_TASK             xeno_id;
+  RT_TASK xeno_id;
 #elif defined(SIMULATOR)
-  um_thread_id        um_id;
+  um_thread_id um_id;
 #endif
 } __po_hi_task_t;
+
 /*
  * Structure of a task, contains platform-dependent members
  */
 
 __po_hi_task_t tasks[__PO_HI_NB_TASKS];
+
 /* Array which contains all tasks informations */
 
 #if defined (_WIN32)
-HANDLE  __po_hi_tasks_array[__PO_HI_NB_TASKS];
+HANDLE __po_hi_tasks_array[__PO_HI_NB_TASKS];
 #endif
 
-__po_hi_task_id __po_hi_get_task_id (void) {
+__po_hi_task_id __po_hi_get_task_id(
+  void) {
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
   pthread_t pthread_id = pthread_self();
@@ -132,87 +142,89 @@ __po_hi_task_id __po_hi_get_task_id (void) {
 }
 
 #ifdef __PO_HI_USE_GPROF
-void __po_hi_wait_end_of_instrumentation ()
-{
+void __po_hi_wait_end_of_instrumentation(
+  ) {
+
 #ifdef __PO_HI_RTEMS_CLASSIC_API
-   rtems_task_wake_after (10000000 / _TOD_Microseconds_per_tick);
+  rtems_task_wake_after(10000000 / _TOD_Microseconds_per_tick);
 #else
-   #include <po_hi_time.h>
-   #include <unistd.h>
+#include <po_hi_time.h>
+#include <unistd.h>
 
-   __po_hi_time_t now;
-   __po_hi_time_t ten_secs;
-   __po_hi_time_t time_to_wait;
-   __po_hi_get_time (&now);
-   __po_hi_seconds (&ten_secs, 10);
-   __po_hi_add_times (&time_to_wait, &ten_secs, &now);
-   __po_hi_delay_until (&time_to_wait);
+  __po_hi_time_t now;
+  __po_hi_time_t ten_secs;
+  __po_hi_time_t time_to_wait;
+
+  __po_hi_get_time(&now);
+  __po_hi_seconds(&ten_secs, 10);
+  __po_hi_add_times(&time_to_wait, &ten_secs, &now);
+  __po_hi_delay_until(&time_to_wait);
 #endif
-  __DEBUGMSG ("Call exit()\n");
-  __po_hi_tasks_killall ();
-   exit (1);
 
-  __DEBUGMSG ("exit() called\n");
+  __DEBUGMSG("Call exit()\n");
+  __po_hi_tasks_killall();
+  exit(1);
+
+  __DEBUGMSG("exit() called\n");
+
 #ifdef __PO_HI_RTEMS_CLASSIC_API
-  rtems_task_delete (rtems_self ());
+  rtems_task_delete(rtems_self());
 #endif
 }
 #endif
 
-void __po_hi_wait_for_tasks ()
-{
+void __po_hi_wait_for_tasks(
+  ) {
 
 #ifdef __PO_HI_USE_GPROF
-   __po_hi_wait_end_of_instrumentation ();
+  __po_hi_wait_end_of_instrumentation();
 #endif
 
 
 #if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
-
   int i;
 
-  for (i = 0; i < __PO_HI_NB_TASKS; i++)
-    {
-      pthread_join( tasks[i].tid , NULL );
-    }
+  for (i = 0; i < __PO_HI_NB_TASKS; i++) {
+    pthread_join(tasks[i].tid, NULL);
+  }
 
 #if defined(__PO_HI_USE_VCD) && defined(__unix__)
   /* initialize the index of the vcd trace array
-  * and its maximum size*/
+   * and its maximum size*/
   __po_hi_vcd_trace_array_index = 0;
   __po_hi_vcd_trace_max_nb_events = 0;
 
   if (__po_hi_vcd_trace_array_index == __po_hi_vcd_trace_max_nb_events)
-           __po_hi_get_larger_array_for_vcd_trace ();
+    __po_hi_get_larger_array_for_vcd_trace();
 #endif
 
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
   rtems_task_suspend(RTEMS_SELF);
 
 #elif defined (_WIN32)
-  WaitForMultipleObjects (__PO_HI_NB_TASKS, __po_hi_tasks_array, TRUE, INFINITE);
+  WaitForMultipleObjects(__PO_HI_NB_TASKS, __po_hi_tasks_array, TRUE,
+                         INFINITE);
 
 #elif defined (XENO_NATIVE)
   int ret;
-  while (1)
-  {
-    ret = rt_task_join (&(tasks[0].xeno_id));
-    if (ret != 0)
-      {
-        __PO_HI_DEBUG_CRITICAL ("Error while calling rt_task_suspend in __po_hi_wait_for_tasks (ret=%d)\n", ret);
-      }
+
+  while (1) {
+    ret = rt_task_join(&(tasks[0].xeno_id));
+    if (ret != 0) {
+      __PO_HI_DEBUG_CRITICAL
+        ("Error while calling rt_task_suspend in __po_hi_wait_for_tasks (ret=%d)\n",
+         ret);
+    }
   }
 #elif defined (SIMULATOR)
   configure_fifo_scheduler();
   start_scheduler();
-
 #endif
 
 #ifdef __PO_HI_DEBUG
-   while (1)
-   {
-      __DEBUGMSG ("Should NEVER be called !!!\n");
-   }
+  while (1) {
+    __DEBUGMSG("Should NEVER be called !!!\n");
+  }
 #endif
 }
 
@@ -221,15 +233,16 @@ void __po_hi_wait_for_tasks ()
  * The argument is the task-id
  * The task must be a cyclic task (periodic or sporadic)
  */
-int __po_hi_compute_next_period (__po_hi_task_id task)
-{
-#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX) || defined (_WIN32)
+int __po_hi_compute_next_period(
+  __po_hi_task_id task) {
 
-    /* If we call this function for the first time, we need to configure
-       the initial timer to epoch */
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX) || defined (_WIN32)
+  /* If we call this function for the first time, we need to configure
+     the initial timer to epoch */
   if (tasks[task].timer.sec == 0 && tasks[task].timer.nsec == 0) {
     tasks[task].timer = get_epoch();
-    __po_hi_add_times(&(tasks[task].timer), &(tasks[task].timer), &tasks[task].offset);
+    __po_hi_add_times(&(tasks[task].timer), &(tasks[task].timer),
+                      &tasks[task].offset);
     return (__PO_HI_SUCCESS);
   }
 
@@ -237,41 +250,42 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
      (periodic), or relative to the latest dispatch time (sporadic task) */
 
   switch (tasks[task].task_category) {
-  case TASK_PERIODIC:
-    __po_hi_add_times(&(tasks[task].timer), &(tasks[task].timer), &tasks[task].period );
-    break;
-
-  case TASK_SPORADIC: {
-      __po_hi_time_t mytime;
-
-      if (__po_hi_get_time (&mytime) != __PO_HI_SUCCESS) {
-        return (__PO_HI_ERROR_CLOCK);
-      }
-
-      __po_hi_add_times(&(tasks[task].timer), &mytime, &tasks[task].period );
+    case TASK_PERIODIC:
+      __po_hi_add_times(&(tasks[task].timer), &(tasks[task].timer),
+                        &tasks[task].period);
       break;
-   }
-  case TASK_BACKGROUND:
-    break;
+
+    case TASK_SPORADIC:{
+        __po_hi_time_t mytime;
+
+        if (__po_hi_get_time(&mytime) != __PO_HI_SUCCESS) {
+          return (__PO_HI_ERROR_CLOCK);
+        }
+
+        __po_hi_add_times(&(tasks[task].timer), &mytime, &tasks[task].period);
+        break;
+      }
+    case TASK_BACKGROUND:
+      break;
   }
 
   return (__PO_HI_SUCCESS);
 
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
-   rtems_status_code ret;
-   rtems_name name;
+  rtems_status_code ret;
+  rtems_name name;
 
-   if (tasks[task].ratemon_period == RTEMS_INVALID_ID)
-   {
-      name = rtems_build_name ('P', 'R', 'D' + (char)task, ' ');
+  if (tasks[task].ratemon_period == RTEMS_INVALID_ID) {
+    name = rtems_build_name('P', 'R', 'D' + (char) task, ' ');
 
-      __DEBUGMSG ("Create monotonic server for task %d\n", task);
-      ret = rtems_rate_monotonic_create (name, &(tasks[task].ratemon_period));
-      if (ret != RTEMS_SUCCESSFUL)
-      {
-         __DEBUGMSG ("Error while creating the monotonic server, task=%d, status=%d\n", task, ret);
-      }
-   }
+    __DEBUGMSG("Create monotonic server for task %d\n", task);
+    ret = rtems_rate_monotonic_create(name, &(tasks[task].ratemon_period));
+    if (ret != RTEMS_SUCCESSFUL) {
+      __DEBUGMSG
+        ("Error while creating the monotonic server, task=%d, status=%d\n",
+         task, ret);
+    }
+  }
   return (__PO_HI_SUCCESS);
 #elif defined (XENO_NATIVE)
 
@@ -282,18 +296,20 @@ int __po_hi_compute_next_period (__po_hi_task_id task)
 
   return (__PO_HI_SUCCESS);
 #else
-   return (__PO_HI_UNAVAILABLE);
+  return (__PO_HI_UNAVAILABLE);
 #endif
 }
 
-int __po_hi_wait_for_next_period (__po_hi_task_id task)
-{
+int __po_hi_wait_for_next_period(
+  __po_hi_task_id task) {
 
 /*!
  * Entry ports monitoring at dispatch if MONITORING is defined
  */
+
 #if defined (MONITORING)
-  record_event(PERIODIC, WAIT_FOR, task, invalid_port_t, invalid_port_t, invalid_local_port_t, invalid_local_port_t, NULL);
+  record_event(PERIODIC, WAIT_FOR, task, invalid_port_t, invalid_port_t,
+               invalid_local_port_t, invalid_local_port_t, NULL);
 #endif
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
@@ -305,24 +321,26 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
   int ret;
 
 #if defined(__PO_HI_USE_VCD) && defined(__unix__)
-  if ((tasks[task].task_category) == TASK_PERIODIC || (tasks[task].task_category) == TASK_SPORADIC)
-  {
-        __po_hi_save_event_in_vcd_trace(current_timestamp, __po_hi_task_wait_dispatch, task, invalid_local_port_t, -1);
+  if ((tasks[task].task_category) == TASK_PERIODIC
+      || (tasks[task].task_category) == TASK_SPORADIC) {
+    __po_hi_save_event_in_vcd_trace(current_timestamp,
+                                    __po_hi_task_wait_dispatch, task,
+                                    invalid_local_port_t, -1);
   }
 #endif
 
-  __po_hi_task_delay_until (&(tasks[task].timer), task);
+  __po_hi_task_delay_until(&(tasks[task].timer), task);
 
-  if ( (ret = __po_hi_compute_next_period (task)) != 1)
-    {
-      return (__PO_HI_ERROR_CLOCK);
-    }
+  if ((ret = __po_hi_compute_next_period(task)) != 1) {
+    return (__PO_HI_ERROR_CLOCK);
+  }
 
 #if defined(__PO_HI_USE_VCD) && defined(__unix__)
   current_timestamp = __po_hi_compute_timestamp();
-  if ((tasks[task].task_category) == TASK_PERIODIC)
-  {
-    __po_hi_save_event_in_vcd_trace (current_timestamp, __po_hi_task_dispatched, task, invalid_local_port_t, -1);
+  if ((tasks[task].task_category) == TASK_PERIODIC) {
+    __po_hi_save_event_in_vcd_trace(current_timestamp,
+                                    __po_hi_task_dispatched, task,
+                                    invalid_local_port_t, -1);
   }
 #endif
 
@@ -330,55 +348,64 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
 
 #elif defined (_WIN32)
   int ret;
-  __po_hi_task_delay_until (&(tasks[task].timer), task);
-  if ( (ret = __po_hi_compute_next_period (task)) != 1)
-    {
-      return (__PO_HI_ERROR_CLOCK);
-    }
+
+  __po_hi_task_delay_until(&(tasks[task].timer), task);
+  if ((ret = __po_hi_compute_next_period(task)) != 1) {
+    return (__PO_HI_ERROR_CLOCK);
+  }
 
   return (__PO_HI_SUCCESS);
 
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
-   rtems_status_code ret;
-   ret = rtems_rate_monotonic_period (tasks[task].ratemon_period, (rtems_interval)__PO_HI_TIME_TO_US(tasks[task].period) / rtems_configuration_get_microseconds_per_tick());
-   /*
-   ret = rtems_rate_monotonic_period (tasks[task].ratemon_period, tasks[task].period / _TOD_Microseconds_per_tick);
+  rtems_status_code ret;
+
+  ret =
+    rtems_rate_monotonic_period(tasks[task].ratemon_period,
+                                (rtems_interval)
+                                __PO_HI_TIME_TO_US(tasks[task].period) /
+                                rtems_configuration_get_microseconds_per_tick
+                                ());
+  /*
+     ret = rtems_rate_monotonic_period (tasks[task].ratemon_period, tasks[task].period / _TOD_Microseconds_per_tick);
    */
 
-   switch (ret)
-   {
-      case RTEMS_SUCCESSFUL:
-         return (__PO_HI_SUCCESS);
-         break;
-      case RTEMS_TIMEOUT:
-         __DEBUGMSG ("Error in rtems_rate_monotonic_period (TIMEOUT, task = %d)\n", task);
-         return (__PO_HI_ERROR_TASK_PERIOD);
-         break;
-      default:
-         __DEBUGMSG ("Error in rtems_rate_monotonic_period (unknown, error code=%d, task=%d)\n", ret, task);
-         return (__PO_HI_ERROR_UNKNOWN);
-         break;
-   }
+  switch (ret) {
+    case RTEMS_SUCCESSFUL:
+      return (__PO_HI_SUCCESS);
+      break;
+    case RTEMS_TIMEOUT:
+      __DEBUGMSG
+        ("Error in rtems_rate_monotonic_period (TIMEOUT, task = %d)\n", task);
+      return (__PO_HI_ERROR_TASK_PERIOD);
+      break;
+    default:
+      __DEBUGMSG
+        ("Error in rtems_rate_monotonic_period (unknown, error code=%d, task=%d)\n",
+         ret, task);
+      return (__PO_HI_ERROR_UNKNOWN);
+      break;
+  }
 
-   return (__PO_HI_UNAVAILABLE);
+  return (__PO_HI_UNAVAILABLE);
 
 #elif defined (XENO_NATIVE)
-   unsigned long overrun;
-   int ret;
-   ret = rt_task_wait_period (&overrun);
-   if ( ret != 0)
-   {
-         __DEBUGMSG ("Error in rt_task_period (task=%d;ret=%d,overrun=%lu)\n", task, ret, overrun);
-         return (__PO_HI_ERROR_TASK_PERIOD);
-   }
+  unsigned long overrun;
+  int ret;
 
-   if (overrun != 0)
-   {
-      return (__PO_HI_ERROR_TASK_PERIOD);
-   }
+  ret = rt_task_wait_period(&overrun);
+  if (ret != 0) {
+    __DEBUGMSG("Error in rt_task_period (task=%d;ret=%d,overrun=%lu)\n", task,
+               ret, overrun);
+    return (__PO_HI_ERROR_TASK_PERIOD);
+  }
 
-   return (__PO_HI_SUCCESS);
+  if (overrun != 0) {
+    return (__PO_HI_ERROR_TASK_PERIOD);
+  }
+
+  return (__PO_HI_SUCCESS);
 #elif  defined(SIMULATOR)
+
 #if defined(__PO_HI_USE_VCD) && defined(__unix__)
   uint64_t current_timestamp = __po_hi_compute_timestamp();
 #endif
@@ -386,21 +413,26 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
   int ret;
 
 #if defined(__PO_HI_USE_VCD) && defined(__unix__)
-  if ((tasks[task].task_category) == TASK_PERIODIC || (tasks[task].task_category) == TASK_SPORADIC)
-  {
-        __po_hi_save_event_in_vcd_trace(current_timestamp, __po_hi_task_wait_dispatch, task, invalid_local_port_t, -1);
+  if ((tasks[task].task_category) == TASK_PERIODIC
+      || (tasks[task].task_category) == TASK_SPORADIC) {
+    __po_hi_save_event_in_vcd_trace(current_timestamp,
+                                    __po_hi_task_wait_dispatch, task,
+                                    invalid_local_port_t, -1);
   }
 #endif
 
-  set_next_activation(tasks[task].um_id, shift(threads[tasks[task].um_id].period.sec, threads[tasks[task].um_id].period.nsec));
+  set_next_activation(tasks[task].um_id,
+                      shift(threads[tasks[task].um_id].period.sec,
+                            threads[tasks[task].um_id].period.nsec));
 
-  __po_hi_task_delay_until (&(tasks[task].period), task);
+  __po_hi_task_delay_until(&(tasks[task].period), task);
 
 #if defined(__PO_HI_USE_VCD) && defined(__unix__)
   current_timestamp = __po_hi_compute_timestamp();
-  if ((tasks[task].task_category) == TASK_PERIODIC)
-  {
-    __po_hi_save_event_in_vcd_trace (current_timestamp, __po_hi_task_dispatched, task, invalid_local_port_t, -1);
+  if ((tasks[task].task_category) == TASK_PERIODIC) {
+    __po_hi_save_event_in_vcd_trace(current_timestamp,
+                                    __po_hi_task_dispatched, task,
+                                    invalid_local_port_t, -1);
   }
 #endif
 
@@ -410,16 +442,16 @@ int __po_hi_wait_for_next_period (__po_hi_task_id task)
 #endif
 }
 
-int __po_hi_initialize_tasking( )
-{
+int __po_hi_initialize_tasking(
+  ) {
   int i;
 
-  for (i = 0; i < __PO_HI_NB_TASKS; i++)
-  {
-     __po_hi_seconds (&(tasks[i].period), 0);
-     tasks[i].id     = invalid_task_id;
+  for (i = 0; i < __PO_HI_NB_TASKS; i++) {
+    __po_hi_seconds(&(tasks[i].period), 0);
+    tasks[i].id = invalid_task_id;
+
 #ifdef __PO_HI_RTEMS_CLASSIC_API
-      tasks[i].ratemon_period = RTEMS_INVALID_ID;
+    tasks[i].ratemon_period = RTEMS_INVALID_ID;
 #endif
   }
 
@@ -434,19 +466,19 @@ int __po_hi_initialize_tasking( )
  */
 
 #if defined (POSIX) || defined (RTEMS_POSIX)
-int __po_hi_number_of_cpus (void);
+int __po_hi_number_of_cpus(
+  void);
 
-int __po_hi_number_of_cpus (void)
-{
+int __po_hi_number_of_cpus(
+  void) {
   int cores = 1;
 
 #if defined (__linux__)  || defined (__APPLE__) || (defined (RTEMS_POSIX) && defined (RTEMS412))
-  cores = (int) sysconf (_SC_NPROCESSORS_ONLN);
+  cores = (int) sysconf(_SC_NPROCESSORS_ONLN);
 #endif
 
   return cores;
 }
-
 #endif
 
 /*
@@ -456,107 +488,95 @@ int __po_hi_number_of_cpus (void)
  */
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-pthread_t __po_hi_posix_create_thread
-(__po_hi_priority_t priority,
- __po_hi_stack_t    stack_size,
- const __po_hi_int8_t       core_id,
- void*              (*start_routine)(void),
- void*              arg);
+pthread_t __po_hi_posix_create_thread(
+  __po_hi_priority_t priority,
+  __po_hi_stack_t stack_size,
+  const __po_hi_int8_t core_id,
+  void *(*start_routine)(void),
+  void *arg);
 
-pthread_t __po_hi_posix_create_thread
-(__po_hi_priority_t priority,
- __po_hi_stack_t    stack_size,
- const __po_hi_int8_t       core_id,
- void*              (*start_routine)(void),
- void*              arg)
-{
-  int                policy;
-  pthread_t          tid;
-  pthread_attr_t     attr;
+pthread_t __po_hi_posix_create_thread(
+  __po_hi_priority_t priority,
+  __po_hi_stack_t stack_size,
+  const __po_hi_int8_t core_id,
+  void *(*start_routine)(void),
+  void *arg) {
+  int policy;
+  pthread_t tid;
+  pthread_attr_t attr;
   struct sched_param param;
   int err;
 
   /* Create attributes to store all configuration parameters */
 
-  if (pthread_attr_init (&attr) != 0)
-    {
-      return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
-    }
+  if (pthread_attr_init(&attr) != 0) {
+    return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
+  }
 
 #if (defined (POSIX) && defined (__linux__)) || (defined (RTEMS_POSIX) && defined (RTEMS412))
-
   /* RTEMS SMP support has been confirmed to work on TASTE */
 
 #ifndef __COMPCERT__
   /* Thread affinity */
   cpu_set_t cpuset;
 
-  if ( core_id > __po_hi_number_of_cpus() )
-    {
-      __PO_HI_DEBUG_CRITICAL("Invalid CPU core id\n");
-      return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
-    }
+  if (core_id > __po_hi_number_of_cpus()) {
+    __PO_HI_DEBUG_CRITICAL("Invalid CPU core id\n");
+    return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
+  }
 
   CPU_ZERO(&cpuset);
   CPU_SET(core_id, &cpuset);
 
-  if (pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) != 0)
-    {
-      __DEBUGMSG("CANNOT SET AFFINTY\n");
-      return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
-    }
+  if (pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) != 0) {
+    __DEBUGMSG("CANNOT SET AFFINTY\n");
+    return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
+  }
 #else
 #warning pthread_affinity managmeent disabled for Compcert
 #endif
 
 #else
-  if ( core_id != 0 )
-    {
-      __PO_HI_DEBUG_CRITICAL("This platform does not support CPU affinity setting\n");
-      return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
-    }
-
-#endif
-
-#if defined (POSIX) || defined (XENO_POSIX)
-  if (pthread_attr_setscope (&attr, PTHREAD_SCOPE_SYSTEM) != 0)
-    {
-      return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
-    }
-#elif defined (RTEMS_POSIX)
-  if (pthread_attr_setscope (&attr, PTHREAD_SCOPE_PROCESS) != 0)
-  {
-    return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
+  if (core_id != 0) {
+    __PO_HI_DEBUG_CRITICAL
+      ("This platform does not support CPU affinity setting\n");
+    return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
   }
 #endif
 
-  if (stack_size != 0)
-    {
-      if (pthread_attr_setstacksize (&attr, stack_size) != 0)
-        {
-          return ((pthread_t)__PO_HI_ERROR_PTHREAD_ATTR);
-        }
-    }
+#if defined (POSIX) || defined (XENO_POSIX)
+  if (pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM) != 0) {
+    return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
+  }
+#elif defined (RTEMS_POSIX)
+  if (pthread_attr_setscope(&attr, PTHREAD_SCOPE_PROCESS) != 0) {
+    return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
+  }
+#endif
 
-    err = pthread_create (&tid, &attr, (void* (*)(void*))start_routine, arg);
-    if (err != 0)
-    {
-      __PO_HI_DEBUG_CRITICAL ("Thread creation failed - pthread_create returned %d\n", err);
-      return ((pthread_t)__PO_HI_ERROR_PTHREAD_CREATE);
+  if (stack_size != 0) {
+    if (pthread_attr_setstacksize(&attr, stack_size) != 0) {
+      return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
     }
+  }
+
+  err = pthread_create(&tid, &attr, (void *(*)(void *)) start_routine, arg);
+  if (err != 0) {
+    __PO_HI_DEBUG_CRITICAL
+      ("Thread creation failed - pthread_create returned %d\n", err);
+    return ((pthread_t) __PO_HI_ERROR_PTHREAD_CREATE);
+  }
 
   policy = SCHED_FIFO;
   param.sched_priority = priority;
 
 #ifdef __PO_HI_DEBUG
-  if (priority < sched_get_priority_min (policy))
-  {
-      __DEBUGMSG("PRIORITY IS TOO LOW\n");
+  if (priority < sched_get_priority_min(policy)) {
+    __DEBUGMSG("PRIORITY IS TOO LOW\n");
   }
 
-  if (priority > sched_get_priority_max (policy))
-  {
-      __DEBUGMSG("PRIORITY IS TOO HIGH\n");
+  if (priority > sched_get_priority_max(policy)) {
+    __DEBUGMSG("PRIORITY IS TOO HIGH\n");
   }
 #endif
 
@@ -567,232 +587,237 @@ pthread_t __po_hi_posix_create_thread
    * the user is not root. On many systems, only root
    * can change the priority of the threads.
    */
-  __DEBUGMSG("ABOUT TO SET PRIORITY FOR TASK %d\n" , nb_tasks );
-  if (pthread_setschedparam (tid, policy, &param)!=0)
-    {
-      __DEBUGMSG("CANNOT SET PRIORITY FOR TASK %d\n" , nb_tasks );
-      __DEBUGMSG("IF YOU ARE USING POSIX IMPLEMENTATION\n");
-      __DEBUGMSG("BE SURE TO BE LOGGED AS ROOT\n");
-    }
+  __DEBUGMSG("ABOUT TO SET PRIORITY FOR TASK %d\n", nb_tasks);
+  if (pthread_setschedparam(tid, policy, &param) != 0) {
+    __DEBUGMSG("CANNOT SET PRIORITY FOR TASK %d\n", nb_tasks);
+    __DEBUGMSG("IF YOU ARE USING POSIX IMPLEMENTATION\n");
+    __DEBUGMSG("BE SURE TO BE LOGGED AS ROOT\n");
+  }
 
   return tid;
 }
 
-int __po_hi_posix_initialize_task (__po_hi_task_t* task);
+int __po_hi_posix_initialize_task(
+  __po_hi_task_t * task);
 
-int __po_hi_posix_initialize_task (__po_hi_task_t* task)
-{
-  if (pthread_mutex_init (&(task->mutex), NULL) != 0)
-    {
-      return (__PO_HI_ERROR_PTHREAD_MUTEX);
-    }
+int __po_hi_posix_initialize_task(
+  __po_hi_task_t * task) {
+  if (pthread_mutex_init(&(task->mutex), NULL) != 0) {
+    return (__PO_HI_ERROR_PTHREAD_MUTEX);
+  }
 
-  if (pthread_cond_init (&(task->cond), NULL) != 0)
-    {
-      return (__PO_HI_ERROR_PTHREAD_COND);
-    }
+  if (pthread_cond_init(&(task->cond), NULL) != 0) {
+    return (__PO_HI_ERROR_PTHREAD_COND);
+  }
 
   return (__PO_HI_SUCCESS);
 }
-
 #endif /* POSIX || RTEMS_POSIX */
 
 #if defined (_WIN32)
-DWORD __po_hi_win32_create_thread (__po_hi_task_id    id,
-                                   __po_hi_priority_t priority,
-                                   __po_hi_stack_t    stack_size,
-                                   void*              (*start_routine)(void),
-                                   void*              arg)
-{
-   DWORD tid;
-   HANDLE h;
-   h = CreateThread (NULL, 0, (LPTHREAD_START_ROUTINE) start_routine, NULL, 0, &tid);
-   __po_hi_tasks_array[id] = h;
-   return tid;
+DWORD __po_hi_win32_create_thread(
+  __po_hi_task_id id,
+  __po_hi_priority_t priority,
+  __po_hi_stack_t stack_size,
+  void *(*start_routine)(void),
+  void *arg) {
+  DWORD tid;
+  HANDLE h;
+
+  h =
+    CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) start_routine, NULL, 0,
+                 &tid);
+  __po_hi_tasks_array[id] = h;
+  return tid;
 }
 #endif
 
 #ifdef __PO_HI_RTEMS_CLASSIC_API
-rtems_id __po_hi_rtems_create_thread (__po_hi_priority_t priority,
-                                      __po_hi_stack_t    stack_size,
-                                      __po_hi_int8_t       core_id,
-                                      void*              (*start_routine)(void),
-                                      void*              arg)
-{
+rtems_id __po_hi_rtems_create_thread(
+  __po_hi_priority_t priority,
+  __po_hi_stack_t stack_size,
+  __po_hi_int8_t core_id,
+  void *(*start_routine)(void),
+  void *arg) {
   rtems_id rid;
-  if (rtems_task_create (rtems_build_name( 'T', 'A', '0' + nb_tasks, ' '),
-                         priority,
-                         stack_size,
-                         RTEMS_DEFAULT_MODES,
-                         RTEMS_DEFAULT_ATTRIBUTES | RTEMS_FLOATING_POINT, &rid)
-      != RTEMS_SUCCESSFUL)
-    {
-      __DEBUGMSG ("ERROR when creating the task\n");
-      return __PO_HI_ERROR_CREATE_TASK;
-    }
+
+  if (rtems_task_create(rtems_build_name('T', 'A', '0' + nb_tasks, ' '),
+                        priority,
+                        stack_size,
+                        RTEMS_DEFAULT_MODES,
+                        RTEMS_DEFAULT_ATTRIBUTES | RTEMS_FLOATING_POINT, &rid)
+      != RTEMS_SUCCESSFUL) {
+    __DEBUGMSG("ERROR when creating the task\n");
+    return __PO_HI_ERROR_CREATE_TASK;
+  }
 
 #ifdef RTEMS412
   /* Thread affinity API for SMP systems appeared in RTEMS 4.11,
      section 25 of RTEMS Applications C User's Guide .
-  */
+   */
 
-  cpu_set_t         cpuset;
+  cpu_set_t cpuset;
 
   CPU_ZERO(&cpuset);
   CPU_SET(core_id, &cpuset);
 
-  if (rtems_task_set_affinity(rid, sizeof(cpuset), &cpuset) != RTEMS_SUCCESSFUL)
-    {
-      __DEBUGMSG ("ERROR setting thread affinity\n");
-      return __PO_HI_ERROR_CREATE_TASK;
-    }
+  if (rtems_task_set_affinity(rid, sizeof(cpuset), &cpuset) !=
+      RTEMS_SUCCESSFUL) {
+    __DEBUGMSG("ERROR setting thread affinity\n");
+    return __PO_HI_ERROR_CREATE_TASK;
+  }
 #endif
 
-  if (rtems_task_start (rid, (rtems_task_entry)start_routine, arg ) != RTEMS_SUCCESSFUL)
-    {
-      __DEBUGMSG ("ERROR when starting the task\n");
-      return __PO_HI_ERROR_CREATE_TASK;
-    }
+  if (rtems_task_start(rid, (rtems_task_entry) start_routine, arg) !=
+      RTEMS_SUCCESSFUL) {
+    __DEBUGMSG("ERROR when starting the task\n");
+    return __PO_HI_ERROR_CREATE_TASK;
+  }
 
-   return rid;
+  return rid;
 }
 #endif
 
 #ifdef XENO_NATIVE
-RT_TASK __po_hi_xenomai_create_thread (__po_hi_priority_t priority,
-                                       __po_hi_stack_t    stack_size,
-                                       void*              (*start_routine)(void),
-                                       void*              arg)
-{
-   RT_TASK newtask;
+RT_TASK __po_hi_xenomai_create_thread(
+  __po_hi_priority_t priority,
+  __po_hi_stack_t stack_size,
+  void *(*start_routine)(void),
+  void *arg) {
+  RT_TASK newtask;
 
-   /*
-    * Uses T_JOINABLE at this time, should avoid that later and put 0 instead
-    * to be able to use kernel-based threads.
-    */
+  /*
+   * Uses T_JOINABLE at this time, should avoid that later and put 0 instead
+   * to be able to use kernel-based threads.
+   */
 
-   if (rt_task_create (&newtask, NULL, stack_size, priority, T_JOINABLE))
-   {
-      __DEBUGMSG ("ERROR when creating the task\n");
-   }
-   return newtask;
+  if (rt_task_create(&newtask, NULL, stack_size, priority, T_JOINABLE)) {
+    __DEBUGMSG("ERROR when creating the task\n");
+  }
+  return newtask;
 }
 #endif
 
-int __po_hi_create_generic_task (const __po_hi_task_id      id,
-                                 const __po_hi_time_t*      period,
-                                 const __po_hi_priority_t   priority,
-                                 const __po_hi_stack_t      stack_size,
-                                 const __po_hi_int8_t       core_id,
-                                 void*                      (*start_routine)(void),
-                                 void*                      arg)
-{
+int __po_hi_create_generic_task(
+  const __po_hi_task_id id,
+  const __po_hi_time_t * period,
+  const __po_hi_priority_t priority,
+  const __po_hi_stack_t stack_size,
+  const __po_hi_int8_t core_id,
+  void *(*start_routine)(void),
+  void *arg) {
 
-  if (id == -1)
-    {
+  if(id == -1) {
+
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-      __po_hi_posix_create_thread (priority, stack_size, core_id, start_routine, arg);
-      return (__PO_HI_SUCCESS);
+    __po_hi_posix_create_thread(priority, stack_size, core_id, start_routine,
+                                arg);
+    return (__PO_HI_SUCCESS);
 #elif defined (_WIN32)
-      __po_hi_win32_create_thread (id, priority, stack_size, start_routine, arg);
-      return (__PO_HI_SUCCESS);
+    __po_hi_win32_create_thread(id, priority, stack_size, start_routine, arg);
+    return (__PO_HI_SUCCESS);
 #elif defined (XENO_NATIVE)
-      RT_TASK t;
-      (void) arg;
-      t = __po_hi_xenomai_create_thread (priority, stack_size, start_routine, arg);
-      if (rt_task_start (&(t), (void*)start_routine, NULL))
-      {
-         __DEBUGMSG ("ERROR when starting the task\n");
-      }
-      return (__PO_HI_SUCCESS);
-#elif defined (__PO_HI_RTEMS_CLASSIC_API)
-      (void) arg;
-      __po_hi_rtems_create_thread (priority, stack_size, core_id, start_routine, arg);
-      return (__PO_HI_SUCCESS);
-#else
-      return (__PO_HI_UNAVAILABLE);
-#endif
+    RT_TASK t;
+
+    (void) arg;
+    t =
+      __po_hi_xenomai_create_thread(priority, stack_size, start_routine, arg);
+    if (rt_task_start(&(t), (void *) start_routine, NULL)) {
+      __DEBUGMSG("ERROR when starting the task\n");
     }
-  else
-    {
-      __po_hi_task_t* my_task;
-      my_task         = &(tasks[id]);
-      __po_hi_time_copy (&(my_task->period), period);
-      my_task->id     = id;
+    return (__PO_HI_SUCCESS);
+#elif defined (__PO_HI_RTEMS_CLASSIC_API)
+    (void) arg;
+    __po_hi_rtems_create_thread(priority, stack_size, core_id, start_routine,
+                                arg);
+    return (__PO_HI_SUCCESS);
+#else
+    return(__PO_HI_UNAVAILABLE);
+#endif
+  } else {
+    __po_hi_task_t *my_task;
+
+    my_task = &(tasks[id]);
+    __po_hi_time_copy(&(my_task->period), period);
+    my_task->id = id;
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-      my_task->tid    = __po_hi_posix_create_thread
-        (priority, stack_size, core_id, start_routine, arg);
-      my_task->timer = ORIGIN_OF_TIME;
-      __po_hi_posix_initialize_task (my_task);
+    my_task->tid = __po_hi_posix_create_thread
+      (priority, stack_size, core_id, start_routine, arg);
+    my_task->timer = ORIGIN_OF_TIME;
+    __po_hi_posix_initialize_task(my_task);
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
-      my_task->rtems_id = __po_hi_rtems_create_thread
-        (priority, stack_size, core_id, start_routine, arg);
+    my_task->rtems_id = __po_hi_rtems_create_thread
+      (priority, stack_size, core_id, start_routine, arg);
 #elif defined (_WIN32)
-      my_task->tid = __po_hi_win32_create_thread
-        (id, priority, stack_size, start_routine, arg);
+    my_task->tid = __po_hi_win32_create_thread
+      (id, priority, stack_size, start_routine, arg);
 #elif defined (XENO_NATIVE)
-      my_task->xeno_id = __po_hi_xenomai_create_thread
-        (priority, stack_size, start_routine, arg);
+    my_task->xeno_id = __po_hi_xenomai_create_thread
+      (priority, stack_size, start_routine, arg);
 #elif defined (SIMULATOR)
-      my_task->um_id = um_thread_periodic_create(start_routine, stack_size,
-   priority, *period);
+    my_task->um_id = um_thread_periodic_create(start_routine, stack_size,
+                                               priority, *period);
 #else
-      return (__PO_HI_UNAVAILABLE);
+    return (__PO_HI_UNAVAILABLE);
 #endif
-      nb_tasks++;
-    }
+
+    nb_tasks++;
+  }
 
   return (__PO_HI_SUCCESS);
 }
 
 
-int __po_hi_create_periodic_task (const __po_hi_task_id     id,
-                                  const __po_hi_time_t*     period,
-                                  const __po_hi_priority_t  priority,
-                                  const __po_hi_stack_t     stack_size,
-                                  const __po_hi_int8_t      core_id,
-                                  void*                     (*start_routine)(void))
-{
+int __po_hi_create_periodic_task(
+  const __po_hi_task_id id,
+  const __po_hi_time_t * period,
+  const __po_hi_priority_t priority,
+  const __po_hi_stack_t stack_size,
+  const __po_hi_int8_t core_id,
+  void *(*start_routine)(void)) {
 
-  if (__po_hi_create_generic_task( id, period , priority , stack_size, core_id, start_routine, NULL) != 1)
-   {
-      __DEBUGMSG ("ERROR when creating generic task (task id=%d)\n", id);
-      return (__PO_HI_ERROR_CREATE_TASK);
-   }
+  if(__po_hi_create_generic_task
+     (id, period, priority, stack_size, core_id, start_routine, NULL) != 1) {
+    __DEBUGMSG("ERROR when creating generic task (task id=%d)\n", id);
+    return (__PO_HI_ERROR_CREATE_TASK);
+  }
 
   /*
    * Compute the next period of the task, using the
    *__po_hi_time* functions.
    */
-#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
 
+#if defined (RTEMS_POSIX) || defined (POSIX) || defined (XENO_POSIX)
   // XXX The following is (a priori) not necessary, it should be
   // reviewed for all runtimes: the body of a periodic task already
   // call __po_hi_compute_next_period() as part of its skeleton
 
   /*if (__po_hi_compute_next_period (id) != __PO_HI_SUCCESS)
-    {
-      return (__PO_HI_ERROR_CLOCK);
-    }
-  */
+     {
+     return (__PO_HI_ERROR_CLOCK);
+     }
+   */
 
 #elif defined (XENO_NATIVE)
-   int ret;
+  int ret;
 
-   ret = rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW,  (tasks[id].period.sec * 1000000000) + tasks[id].period.nsec);
-   if (ret != 0)
-   {
-      __DEBUGMSG ("ERROR when calling rt_task_set_periodic on task %d, ret=%d\n", id, ret);
-      return (__PO_HI_ERROR_CLOCK);
-   }
+  ret =
+    rt_task_set_periodic(&(tasks[id].xeno_id), TM_NOW,
+                         (tasks[id].period.sec * 1000000000) +
+                         tasks[id].period.nsec);
+  if (ret != 0) {
+    __DEBUGMSG("ERROR when calling rt_task_set_periodic on task %d, ret=%d\n",
+               id, ret);
+    return (__PO_HI_ERROR_CLOCK);
+  }
 
-   if (rt_task_start (&(tasks[id].xeno_id), (void*)start_routine, NULL))
-   {
-      __DEBUGMSG ("ERROR when starting the task\n");
-   }
+  if (rt_task_start(&(tasks[id].xeno_id), (void *) start_routine, NULL)) {
+    __DEBUGMSG("ERROR when starting the task\n");
+  }
 #endif
-   tasks[id].task_category = TASK_PERIODIC;
+
+  tasks[id].task_category = TASK_PERIODIC;
 
 
   /*
@@ -800,68 +825,75 @@ int __po_hi_create_periodic_task (const __po_hi_task_id     id,
    */
 
 #if defined (MONITORING)
-  record_event(PERIODIC, CREATION, id, invalid_port_t, invalid_port_t, invalid_local_port_t, invalid_local_port_t, NULL);
+  record_event(PERIODIC, CREATION, id, invalid_port_t, invalid_port_t,
+               invalid_local_port_t, invalid_local_port_t, NULL);
 #endif
 
-   return (__PO_HI_SUCCESS);
+  return (__PO_HI_SUCCESS);
 }
 
-void __po_hi_task_wait_offset (const __po_hi_time_t* time)
-{
+void __po_hi_task_wait_offset(
+  const __po_hi_time_t * time) {
 
   if (time->sec == 0 && time->nsec == 0)
-    return; // No need to wait, exit immediately
+    return;                     // No need to wait, exit immediately
 
   tasks[__po_hi_get_task_id()].offset = *time;
 }
 
-int __po_hi_create_sporadic_task (const __po_hi_task_id     id,
-                                  const __po_hi_time_t*     period,
-                                  const __po_hi_priority_t  priority,
-                                  const __po_hi_stack_t     stack_size,
-                                  const __po_hi_int8_t      core_id,
-                                  void*                     (*start_routine)(void) )
-{
+int __po_hi_create_sporadic_task(
+  const __po_hi_task_id id,
+  const __po_hi_time_t * period,
+  const __po_hi_priority_t priority,
+  const __po_hi_stack_t stack_size,
+  const __po_hi_int8_t core_id,
+  void *(*start_routine)(void)) {
   /*
    * Create generic task which will execute the routine given in the
    * last parameter. Typically, a sporadic thread will wait on a
    * mutex.
    */
-  if (__po_hi_create_generic_task( id, period , priority , stack_size, core_id, start_routine, NULL) != 1)
-    {
-      return (__PO_HI_ERROR_CREATE_TASK);
-    }
+  if(__po_hi_create_generic_task
+     (id, period, priority, stack_size, core_id, start_routine, NULL) != 1) {
+    return(__PO_HI_ERROR_CREATE_TASK);
+  }
 
 #if defined (XENO_NATIVE)
-   int ret;
+  int ret;
 
-   ret = rt_task_set_periodic (&(tasks[id].xeno_id), TM_NOW,  tasks[id].period.sec * 1000000000 + tasks[id].period.nsec);
-   if (ret != 0)
-   {
-      __DEBUGMSG ("ERROR when calling rt_task_set_periodic on task %d, ret=%d\n", id, ret);
-      return (__PO_HI_ERROR_CLOCK);
-   }
+  ret =
+    rt_task_set_periodic(&(tasks[id].xeno_id), TM_NOW,
+                         tasks[id].period.sec * 1000000000 +
+                         tasks[id].period.nsec);
+  if (ret != 0) {
+    __DEBUGMSG("ERROR when calling rt_task_set_periodic on task %d, ret=%d\n",
+               id, ret);
+    return (__PO_HI_ERROR_CLOCK);
+  }
 
-   if (rt_task_start (&(tasks[id].xeno_id), (void*)start_routine, NULL))
-   {
-      __DEBUGMSG ("ERROR when starting the task\n");
-   }
+  if (rt_task_start(&(tasks[id].xeno_id), (void *) start_routine, NULL)) {
+    __DEBUGMSG("ERROR when starting the task\n");
+  }
 #endif
-   tasks[id].task_category = TASK_SPORADIC;
+
+  tasks[id].task_category = TASK_SPORADIC;
 
   /*
    * Send Task type to trace manager, if there is monitoring.
    */
 
 #if defined (MONITORING)
-  record_event(SPORADIC, CREATION, id, invalid_port_t, invalid_port_t, invalid_local_port_t, invalid_local_port_t, NULL);
+  record_event(SPORADIC, CREATION, id, invalid_port_t, invalid_port_t,
+               invalid_local_port_t, invalid_local_port_t, NULL);
 #endif
 
-   return (__PO_HI_SUCCESS);
+  return (__PO_HI_SUCCESS);
 }
 
-int __po_hi_task_delay_until (__po_hi_time_t* time, __po_hi_task_id task)
-{
+int __po_hi_task_delay_until(
+  __po_hi_time_t * time,
+  __po_hi_task_id task) {
+
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
   struct timespec timer;
   int ret;
@@ -870,74 +902,73 @@ int __po_hi_task_delay_until (__po_hi_time_t* time, __po_hi_task_id task)
 
   timer.tv_nsec = time->nsec;
 
-  pthread_mutex_lock (&tasks[task].mutex);
+  pthread_mutex_lock(&tasks[task].mutex);
 
-  ret = pthread_cond_timedwait (&tasks[task].cond, &tasks[task].mutex, &timer);
+  ret = pthread_cond_timedwait(&tasks[task].cond, &tasks[task].mutex, &timer);
 
-  if ( (ret != 0) && (ret != ETIMEDOUT))
-    {
-      ret = __PO_HI_ERROR_PTHREAD_COND;
-    }
-  else
-    {
-      ret = __PO_HI_SUCCESS;
-    }
+  if ((ret != 0) && (ret != ETIMEDOUT)) {
+    ret = __PO_HI_ERROR_PTHREAD_COND;
+  } else {
+    ret = __PO_HI_SUCCESS;
+  }
 
-  pthread_mutex_unlock (&tasks[task].mutex);
+  pthread_mutex_unlock(&tasks[task].mutex);
 
   return (ret);
 #elif defined (_WIN32)
-   HANDLE hTimer = NULL;
-   LARGE_INTEGER ularge;
+  HANDLE hTimer = NULL;
+  LARGE_INTEGER ularge;
 
-   hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
-   ularge = __po_hi_unix_seconds_to_windows_tick (time->sec, time->nsec);
+  hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
+  ularge = __po_hi_unix_seconds_to_windows_tick(time->sec, time->nsec);
 
-    if (!SetWaitableTimer(hTimer, &ularge, 0, NULL, NULL, 0))
-    {
-        __PO_HI_DEBUG_CRITICAL("[DELAY UNTIL] SetWaitableTimer failed (%d)\n", GetLastError());
-        return 2;
-    }
+  if (!SetWaitableTimer(hTimer, &ularge, 0, NULL, NULL, 0)) {
+    __PO_HI_DEBUG_CRITICAL("[DELAY UNTIL] SetWaitableTimer failed (%d)\n",
+                           GetLastError());
+    return 2;
+  }
 
-    if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
-    {
-        __PO_HI_DEBUG_CRITICAL("[DELAY UNTIL] WaitForSingleObject failed (%d)\n", GetLastError());
-    }
+  if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0) {
+    __PO_HI_DEBUG_CRITICAL("[DELAY UNTIL] WaitForSingleObject failed (%d)\n",
+                           GetLastError());
+  }
 
-    if (CloseHandle(hTimer) != TRUE)
-    {
-        __PO_HI_DEBUG_CRITICAL("[DELAY UNTIL] CloseHandle failed (%d)\n", GetLastError());
-    }
+  if (CloseHandle(hTimer) != TRUE) {
+    __PO_HI_DEBUG_CRITICAL("[DELAY UNTIL] CloseHandle failed (%d)\n",
+                           GetLastError());
+  }
 
 
   return __PO_HI_SUCCESS;
 #elif defined (XENO_NATIVE)
   int ret;
-  ret =  rt_task_sleep_until (time->sec * 1000000000 + time->nsec);
-  if (ret)
-  {
-      __DEBUGMSG ("[TASK] Error in rt_task_sleep_until, ret=%d\n", ret);
-      return (__PO_HI_ERROR_PTHREAD_COND);
+
+  ret = rt_task_sleep_until(time->sec * 1000000000 + time->nsec);
+  if (ret) {
+    __DEBUGMSG("[TASK] Error in rt_task_sleep_until, ret=%d\n", ret);
+    return (__PO_HI_ERROR_PTHREAD_COND);
   }
   return (__PO_HI_SUCCESS);
 #elif defined(SIMULATOR)
-  delay_until(tasks[task].um_id, shift(time->sec,time->nsec));
+  delay_until(tasks[task].um_id, shift(time->sec, time->nsec));
   return (__PO_HI_SUCCESS);
 #endif
+
   return (__PO_HI_UNAVAILABLE);
 }
 
-void __po_hi_tasks_killall ()
-{
-   int i;
-   for (i = 0; i < __PO_HI_NB_TASKS; i++)
-    {
-       __DEBUGMSG ("Kill task %d\n", i);
+void __po_hi_tasks_killall(
+  ) {
+  int i;
+
+  for (i = 0; i < __PO_HI_NB_TASKS; i++) {
+    __DEBUGMSG("Kill task %d\n", i);
+
 #ifdef __PO_HI_RTEMS_CLASSIC_API
-      rtems_task_delete (tasks[i].rtems_id);
+    rtems_task_delete(tasks[i].rtems_id);
 #elif defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-      pthread_cancel (tasks[i].tid);
-      __DEBUGMSG ("[TASKS] Cancel thread %p\n", tasks[i].tid);
+    pthread_cancel(tasks[i].tid);
+    __DEBUGMSG("[TASKS] Cancel thread %p\n", tasks[i].tid);
 #endif
-    }
+  }
 }

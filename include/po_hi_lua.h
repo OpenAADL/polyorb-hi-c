@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2012-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2012-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 
@@ -30,12 +30,11 @@
 #include <lua/lualib.h>
 #include <lua/lauxlib.h>
 
-typedef struct
-{
-   lua_State*  state;
-   int         nb_args;
-   char        function_name[__PO_HI_LUA_FUNCTION_NAME_MAX_SIZE];
-}__po_hi_lua_context_t;
+typedef struct {
+  lua_State *state;
+  int nb_args;
+  char function_name[__PO_HI_LUA_FUNCTION_NAME_MAX_SIZE];
+} __po_hi_lua_context_t;
 
 /*!
  * \fn __po_hi_lua_load (__po_hi_lua_context_t*, const char*);
@@ -50,7 +49,9 @@ typedef struct
  *    - __po_hi_invalid: invalid lua context
  *    - __po_hi_success: successfully load the script
  */
-int __po_hi_lua_load (__po_hi_lua_context_t*, const char*);
+int __po_hi_lua_load(
+  __po_hi_lua_context_t *,
+  const char *);
 
 /*!
  * \fn __po_hi_lua_load (__po_hi_lua_context_t*, const char*);
@@ -65,7 +66,9 @@ int __po_hi_lua_load (__po_hi_lua_context_t*, const char*);
  *    - __po_hi_invalid: invalid lua context
  *    - __po_hi_success: successfully load the script
  */
-int __po_hi_lua_load_str (__po_hi_lua_context_t*, const char*);
+int __po_hi_lua_load_str(
+  __po_hi_lua_context_t *,
+  const char *);
 
 /*!
  * \fn __po_hi_lua_init_function_call (__po_hi_lua_context_t*, const char*);
@@ -79,7 +82,9 @@ int __po_hi_lua_load_str (__po_hi_lua_context_t*, const char*);
  *    - __PO_HI_INVALID: invalid LUA context or invalid function name
  *    - __PO_HI_SUCCESS: successful operation
  */
-int __po_hi_lua_init_function_call (__po_hi_lua_context_t*, const char*);
+int __po_hi_lua_init_function_call(
+  __po_hi_lua_context_t *,
+  const char *);
 
 /*!
  * \fn __po_hi_lua_perform_function_call (__po_hi_lua_context_t*);
@@ -102,7 +107,8 @@ int __po_hi_lua_init_function_call (__po_hi_lua_context_t*, const char*);
  *    - __PO_HI_SUCCESS: successful operation
  */
 
-int __po_hi_lua_perform_function_call (__po_hi_lua_context_t*);
+int __po_hi_lua_perform_function_call(
+  __po_hi_lua_context_t *);
 
 /*!
  * \fn __po_hi_lua_push_number (__po_hi_lua_context_t*, int);
@@ -117,7 +123,9 @@ int __po_hi_lua_perform_function_call (__po_hi_lua_context_t*);
  *    - __PO_HI_INVALID: invalid LUA context
  *    - __PO_HI_SUCCESS: successfully push the value on the LUA stack
  */
-int __po_hi_lua_push_number (__po_hi_lua_context_t*, int);
+int __po_hi_lua_push_number(
+  __po_hi_lua_context_t *,
+  int);
 
 /*!
  * \fn __po_hi_lua_push_boolean (__po_hi_lua_context_t*, int);
@@ -132,7 +140,9 @@ int __po_hi_lua_push_number (__po_hi_lua_context_t*, int);
  *    - __PO_HI_INVALID: invalid LUA context
  *    - __PO_HI_SUCCESS: successfully push the value on the LUA stack
  */
-int __po_hi_lua_push_boolean (__po_hi_lua_context_t*, int);
+int __po_hi_lua_push_boolean(
+  __po_hi_lua_context_t *,
+  int);
 
 /*!
  * \fn __po_hi_lua_push_string (__po_hi_lua_context_t*, char*);
@@ -148,7 +158,9 @@ int __po_hi_lua_push_boolean (__po_hi_lua_context_t*, int);
  *    - __PO_HI_SUCCESS: successfully push the value on the LUA stack
  */
 
-int __po_hi_lua_push_string (__po_hi_lua_context_t*, char*);
+int __po_hi_lua_push_string(
+  __po_hi_lua_context_t *,
+  char *);
 
 /*!
  * \fn __po_hi_lua_get_boolean (__po_hi_lua_context_t*, char*, int*);
@@ -166,7 +178,10 @@ int __po_hi_lua_push_string (__po_hi_lua_context_t*, char*);
  *    - __PO_HI_SUCCESS: successfully convert the variable from LUA to C
  *
  */
-int __po_hi_lua_get_number (__po_hi_lua_context_t*, char*, int*);
+int __po_hi_lua_get_number(
+  __po_hi_lua_context_t *,
+  char *,
+  int *);
 
 /*!
  * \fn __po_hi_lua_get_boolean (__po_hi_lua_context_t*, char*, int*);
@@ -183,7 +198,10 @@ int __po_hi_lua_get_number (__po_hi_lua_context_t*, char*, int*);
  *    - __PO_HI_SUCCESS: successfully convert the variable from LUA to C
  *
  */
-int __po_hi_lua_get_boolean (__po_hi_lua_context_t*, char*, int*);
+int __po_hi_lua_get_boolean(
+  __po_hi_lua_context_t *,
+  char *,
+  int *);
 
 /*!
  * \fn __po_hi_lua_get_string (__po_hi_lua_context_t*, char*, char*);
@@ -200,7 +218,10 @@ int __po_hi_lua_get_boolean (__po_hi_lua_context_t*, char*, int*);
  *    - __PO_HI_SUCCESS: successfully convert the variable from LUA to C
  *
  */
-int __po_hi_lua_get_string (__po_hi_lua_context_t*, char*, char*);
+int __po_hi_lua_get_string(
+  __po_hi_lua_context_t *,
+  char *,
+  char *);
 
 
 
@@ -208,5 +229,4 @@ int __po_hi_lua_get_string (__po_hi_lua_context_t*, char*, char*);
 #include <po_hi_debug.h>
 typedef int __po_hi_lua_context_t;
 #endif /* ifdef __PO_HI_USE_LUA */
-
 #endif /* __PO_HI_LUA_H__ */

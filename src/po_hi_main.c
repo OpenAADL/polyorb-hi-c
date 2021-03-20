@@ -31,6 +31,7 @@
 #if defined (MONITORING)
 #include <trace_manager.h>
 #endif
+
 /* Headers from run-time verification */
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
@@ -58,16 +59,17 @@ rtems_id __po_hi_main_initialization_barrier;
 
 #ifdef _WIN32
 CRITICAL_SECTION __po_hi_main_initialization_critical_section;
-HANDLE           __po_hi_main_initialization_event;
+HANDLE __po_hi_main_initialization_event;
 #endif
 
 #if defined (XENO_NATIVE)
 #include <native/cond.h>
 #include <native/mutex.h>
-RT_COND   cond_init;
-RT_MUTEX  mutex_init;
+RT_COND cond_init;
+RT_MUTEX mutex_init;
 
-RT_TASK*  main_task_id;
+RT_TASK *main_task_id;
+
 /*
  * If we use the XENO_NATIVE skin, then, the main task
  * is considered as non real-time and cannot lock
@@ -91,6 +93,7 @@ RT_TASK*  main_task_id;
 #endif
 
 int __po_hi_initialized_tasks = 0;
+
 /* The barrier is initialized with __PO_HI_NB_TASKS +1
  * members, because the main function must pass the barrier.
  *
@@ -100,81 +103,77 @@ int __po_hi_initialized_tasks = 0;
  */
 int __po_hi_nb_tasks_to_init = __PO_HI_NB_TASKS + 1;
 
-void __po_hi_initialize_add_task ()
-{
-      __DEBUGMSG ("[MAIN] Add a task to initialize\n");
-      __po_hi_nb_tasks_to_init++;
+void __po_hi_initialize_add_task(
+  ) {
+  __DEBUGMSG("[MAIN] Add a task to initialize\n");
+  __po_hi_nb_tasks_to_init++;
 }
 
 
-int __po_hi_initialize_early ()
-{
+int __po_hi_initialize_early(
+  ) {
 
 #if defined (XENO_POSIX) || defined (XENO_NATIVE)
-   /*
-    * Once initialization has been done, we avoid ALL
-    * potential paging operations that can introduce
-    * some indeterministic timing behavior.
-    */
+  /*
+   * Once initialization has been done, we avoid ALL
+   * potential paging operations that can introduce
+   * some indeterministic timing behavior.
+   */
 
-   #include <sys/mman.h>
-   mlockall (MCL_CURRENT|MCL_FUTURE);
+#include <sys/mman.h>
+  mlockall(MCL_CURRENT | MCL_FUTURE);
 #endif
 
 #if defined (XENO_NATIVE)
-   main_task_id = rt_task_self ();
+  main_task_id = rt_task_self();
 
-   __po_hi_nb_tasks_to_init--;
-   /*
-    * If we are using the XENO_NATIVE skin, we need
-    * to differentiate the main task (that is non real-time)
-    * from the others since the main task cannot use
-    * the services and operates on resources of real-time tasks.
-    * In addition, we decrement the amount of tasks to
-    * initialize since the main task does not wait
-    * for the initialization of the other tasks.
-    */
+  __po_hi_nb_tasks_to_init--;
+  /*
+   * If we are using the XENO_NATIVE skin, we need
+   * to differentiate the main task (that is non real-time)
+   * from the others since the main task cannot use
+   * the services and operates on resources of real-time tasks.
+   * In addition, we decrement the amount of tasks to
+   * initialize since the main task does not wait
+   * for the initialization of the other tasks.
+   */
 #endif
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   pthread_mutexattr_t mutex_attr;
-   if (pthread_mutexattr_init (&mutex_attr) != 0)
-   {
-      __DEBUGMSG ("[MAIN] Unable to init mutex attributes\n");
-   }
+  pthread_mutexattr_t mutex_attr;
+
+  if (pthread_mutexattr_init(&mutex_attr) != 0) {
+    __DEBUGMSG("[MAIN] Unable to init mutex attributes\n");
+  }
 
 #ifdef RTEMS_POSIX
-   if (pthread_mutexattr_setprioceiling (&mutex_attr, 50) != 0)
-   {
-      __DEBUGMSG ("[MAIN] Unable to set priority ceiling on mutex\n");
-   }
+  if (pthread_mutexattr_setprioceiling(&mutex_attr, 50) != 0) {
+    __DEBUGMSG("[MAIN] Unable to set priority ceiling on mutex\n");
+  }
 #endif
 
-   if (pthread_mutex_init (&mutex_init, &mutex_attr) != 0 )
-    {
-      __DEBUGMSG ("[MAIN] Unable to init pthread_mutex\n");
-      return (__PO_HI_ERROR_PTHREAD_MUTEX);
-    }
+  if (pthread_mutex_init(&mutex_init, &mutex_attr) != 0) {
+    __DEBUGMSG("[MAIN] Unable to init pthread_mutex\n");
+    return (__PO_HI_ERROR_PTHREAD_MUTEX);
+  }
 
-  __DEBUGMSG ("[MAIN] Have %d tasks to init\n", __po_hi_nb_tasks_to_init);
+  __DEBUGMSG("[MAIN] Have %d tasks to init\n", __po_hi_nb_tasks_to_init);
 
-  if (pthread_cond_init (&cond_init, NULL) != 0)
-  {
-     return (__PO_HI_ERROR_PTHREAD_COND);
+  if (pthread_cond_init(&cond_init, NULL) != 0) {
+    return (__PO_HI_ERROR_PTHREAD_COND);
   }
 #endif
 
 #if defined (XENO_NATIVE)
-   if (rt_cond_create (&cond_init, NULL))
-   {
-      __DEBUGMSG ("[MAIN] Unable to init the initialization condition variable \n");
-      return (__PO_HI_ERROR_PTHREAD_MUTEX);
-   }
+  if (rt_cond_create(&cond_init, NULL)) {
+    __DEBUGMSG
+      ("[MAIN] Unable to init the initialization condition variable \n");
+    return (__PO_HI_ERROR_PTHREAD_MUTEX);
+  }
 
-  if (rt_mutex_create (&mutex_init, NULL) != 0)
-  {
-      __DEBUGMSG ("[MAIN] Unable to init the initialization mutex variable \n");
-     return (__PO_HI_ERROR_PTHREAD_COND);
+  if (rt_mutex_create(&mutex_init, NULL) != 0) {
+    __DEBUGMSG("[MAIN] Unable to init the initialization mutex variable \n");
+    return (__PO_HI_ERROR_PTHREAD_COND);
   }
 #endif
 
@@ -183,49 +182,54 @@ int __po_hi_initialize_early ()
   rtems_status_code ret;
   rtems_time_of_day time;
 
-  time.year   = 1988;
-  time.month  = 12;
-  time.day    = 31;
-  time.hour   = 9;
+  time.year = 1988;
+  time.month = 12;
+  time.day = 31;
+  time.hour = 9;
   time.minute = 1;
   time.second = 10;
-  time.ticks  = 0;
+  time.ticks = 0;
 
-  ret = rtems_clock_set( &time );
-  if (ret != RTEMS_SUCCESSFUL)
-  {
-     __DEBUGMSG ("[MAIN] Cannot set the clock\n");
-     return __PO_HI_ERROR_CLOCK;
+  ret = rtems_clock_set(&time);
+  if (ret != RTEMS_SUCCESSFUL) {
+    __DEBUGMSG("[MAIN] Cannot set the clock\n");
+    return __PO_HI_ERROR_CLOCK;
   }
 #endif
 
 #ifdef __PO_HI_RTEMS_CLASSIC_API
-  __DEBUGMSG ("[MAIN] Create a barrier that wait for %d tasks\n", __po_hi_nb_tasks_to_init);
+  __DEBUGMSG("[MAIN] Create a barrier that wait for %d tasks\n",
+             __po_hi_nb_tasks_to_init);
 
-  ret = rtems_barrier_create (rtems_build_name ('B', 'A', 'R', 'M'), RTEMS_BARRIER_AUTOMATIC_RELEASE, __po_hi_nb_tasks_to_init, &__po_hi_main_initialization_barrier);
-  if (ret != RTEMS_SUCCESSFUL)
-  {
-     __DEBUGMSG ("[MAIN] Cannot create the main barrier, return code=%d\n", ret);
+  ret =
+    rtems_barrier_create(rtems_build_name('B', 'A', 'R', 'M'),
+                         RTEMS_BARRIER_AUTOMATIC_RELEASE,
+                         __po_hi_nb_tasks_to_init,
+                         &__po_hi_main_initialization_barrier);
+  if (ret != RTEMS_SUCCESSFUL) {
+    __DEBUGMSG("[MAIN] Cannot create the main barrier, return code=%d\n",
+               ret);
   }
 #endif
 
 #ifdef _WIN32
-   __po_hi_main_initialization_event = CreateEvent (NULL, FALSE, FALSE, NULL);
-   InitializeCriticalSection (&__po_hi_main_initialization_critical_section);
+  __po_hi_main_initialization_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+  InitializeCriticalSection(&__po_hi_main_initialization_critical_section);
 #endif
 
-  __po_hi_initialize_tasking ();
+  __po_hi_initialize_tasking();
 
   /* Initialize protected objects */
+
 #if __PO_HI_NB_PROTECTED > 0
   __po_hi_protected_init();
 #endif
 
 #if __PO_HI_MONITOR_ENABLED == 1
-  __po_hi_monitor_init ();
+  __po_hi_monitor_init();
 #endif
 
-   return (__PO_HI_SUCCESS);
+  return (__PO_HI_SUCCESS);
 }
 
 /*
@@ -233,159 +237,148 @@ int __po_hi_initialize_early ()
  * by the main thread (the one that executes the traditional
  * main() function.
  */
-int __po_hi_initialize ()
-{
+int __po_hi_initialize(
+  ) {
+
 #if (defined (XM3_RTEMS_MODE) && (__PO_HI_NB_PORTS > 0))
-   #include <deployment.h>
-   #include <po_hi_types.h>
-   #include <po_hi_transport.h>
-   #include <xm.h>
+#include <deployment.h>
+#include <po_hi_types.h>
+#include <po_hi_transport.h>
+#include <xm.h>
 
-   __po_hi_port_kind_t        pkind;
-   __po_hi_port_t             tmp;
-   __po_hi_node_t             tmpnode;
-   __po_hi_node_t             mynode;
-   int                        portno;
+  __po_hi_port_kind_t pkind;
+  __po_hi_port_t tmp;
+  __po_hi_node_t tmpnode;
+  __po_hi_node_t mynode;
+  int portno;
 
-   mynode = __po_hi_transport_get_mynode ();
+  mynode = __po_hi_transport_get_mynode();
 
-   for (tmp = 0 ; tmp < __PO_HI_NB_PORTS ; tmp++)
-   {
-      pkind = __po_hi_transport_get_port_kind (tmp);
-      tmpnode = __po_hi_transport_get_node_from_entity (__po_hi_get_entity_from_global_port (tmp));
-      if ((tmpnode == mynode) &&
-          ( (pkind ==  __PO_HI_IN_DATA_INTER_PROCESS)          ||
-            (pkind ==  __PO_HI_OUT_DATA_INTER_PROCESS)         ||
-            (pkind ==  __PO_HI_IN_EVENT_DATA_INTER_PROCESS)    ||
-            (pkind ==  __PO_HI_OUT_EVENT_DATA_INTER_PROCESS)
-          ))
-      {
-         __DEBUGMSG ("[MAIN] Should init port %d\n", tmp);
-         portno = -1;
-         switch (pkind)
-         {
-            case __PO_HI_IN_DATA_INTER_PROCESS:
-               portno = XM_create_sampling_port
-                 (__po_hi_transport_get_model_name (tmp),
-                  __po_hi_transport_get_queue_size (tmp),
-                  XM_DESTINATION_PORT);
-               break;
+  for (tmp = 0; tmp < __PO_HI_NB_PORTS; tmp++) {
+    pkind = __po_hi_transport_get_port_kind(tmp);
+    tmpnode =
+      __po_hi_transport_get_node_from_entity
+      (__po_hi_get_entity_from_global_port(tmp));
+    if ((tmpnode == mynode)
+        && ((pkind == __PO_HI_IN_DATA_INTER_PROCESS)
+            || (pkind == __PO_HI_OUT_DATA_INTER_PROCESS)
+            || (pkind == __PO_HI_IN_EVENT_DATA_INTER_PROCESS)
+            || (pkind == __PO_HI_OUT_EVENT_DATA_INTER_PROCESS)
+        )) {
+      __DEBUGMSG("[MAIN] Should init port %d\n", tmp);
+      portno = -1;
+      switch (pkind) {
+        case __PO_HI_IN_DATA_INTER_PROCESS:
+          portno = XM_create_sampling_port
+            (__po_hi_transport_get_model_name(tmp),
+             __po_hi_transport_get_queue_size(tmp), XM_DESTINATION_PORT);
+          break;
 
-            case __PO_HI_OUT_DATA_INTER_PROCESS:
-               portno = XM_create_sampling_port
-                 (__po_hi_transport_get_model_name (tmp),
-                  __po_hi_transport_get_queue_size (tmp),
-                  XM_SOURCE_PORT);
-               break;
+        case __PO_HI_OUT_DATA_INTER_PROCESS:
+          portno = XM_create_sampling_port
+            (__po_hi_transport_get_model_name(tmp),
+             __po_hi_transport_get_queue_size(tmp), XM_SOURCE_PORT);
+          break;
 
-            case __PO_HI_IN_EVENT_DATA_INTER_PROCESS:
-               portno = XM_create_queuing_port
-                 (__po_hi_transport_get_model_name (tmp),
-                  __po_hi_transport_get_queue_size (tmp),
-                  __po_hi_transport_get_data_size (tmp),
-                  XM_DESTINATION_PORT);
-               break;
+        case __PO_HI_IN_EVENT_DATA_INTER_PROCESS:
+          portno = XM_create_queuing_port
+            (__po_hi_transport_get_model_name(tmp),
+             __po_hi_transport_get_queue_size(tmp),
+             __po_hi_transport_get_data_size(tmp), XM_DESTINATION_PORT);
+          break;
 
-            case __PO_HI_OUT_EVENT_DATA_INTER_PROCESS:
-               portno = XM_create_queuing_port
-                 (__po_hi_transport_get_model_name (tmp),
-                  __po_hi_transport_get_queue_size (tmp),
-                  __po_hi_transport_get_data_size (tmp),
-                  XM_SOURCE_PORT);
-               break;
+        case __PO_HI_OUT_EVENT_DATA_INTER_PROCESS:
+          portno = XM_create_queuing_port
+            (__po_hi_transport_get_model_name(tmp),
+             __po_hi_transport_get_queue_size(tmp),
+             __po_hi_transport_get_data_size(tmp), XM_SOURCE_PORT);
+          break;
 
-            default:
-               __DEBUGMSG ("[MAIN] Port kind not handled at this time for port %d\n", tmp);
-               break;
-         }
-
-         if (portno < 0) {
-           __DEBUGMSG ("[MAIN] Cannot open port %d, name=%s, return=%d\n",
-                       tmp, __po_hi_transport_get_model_name (tmp), portno);
-         } else {
-           __po_hi_transport_xtratum_port_init (tmp, portno);
-           __DEBUGMSG ("[MAIN] Port %d (name=%s) created, identifier = %d\n",
-                       tmp, __po_hi_transport_get_model_name (tmp), portno);
-         }
-
+        default:
+          __DEBUGMSG
+            ("[MAIN] Port kind not handled at this time for port %d\n", tmp);
+          break;
       }
-   }
+
+      if (portno < 0) {
+        __DEBUGMSG("[MAIN] Cannot open port %d, name=%s, return=%d\n",
+                   tmp, __po_hi_transport_get_model_name(tmp), portno);
+      } else {
+        __po_hi_transport_xtratum_port_init(tmp, portno);
+        __DEBUGMSG("[MAIN] Port %d (name=%s) created, identifier = %d\n",
+                   tmp, __po_hi_transport_get_model_name(tmp), portno);
+      }
+
+    }
+  }
 #endif
 
 #if (defined (AIR_HYPERVISOR) && (__PO_HI_NB_PORTS > 0))
-   #include <deployment.h>
-   #include <po_hi_types.h>
-   #include <po_hi_transport.h>
+#include <deployment.h>
+#include <po_hi_types.h>
+#include <po_hi_transport.h>
 
-   #include <air.h>
-   #include <a653.h>
-   #include <imaspex.h>
+#include <air.h>
+#include <a653.h>
+#include <imaspex.h>
 
-   __po_hi_port_kind_t        pkind;
-   __po_hi_port_t             tmp, tmp2;
-   __po_hi_node_t             tmpnode;
-   __po_hi_node_t             mynode;
-   long int                   portno;
-   RETURN_CODE_TYPE rc;
+  __po_hi_port_kind_t pkind;
+  __po_hi_port_t tmp, tmp2;
+  __po_hi_node_t tmpnode;
+  __po_hi_node_t mynode;
+  long int portno;
+  RETURN_CODE_TYPE rc;
 
-   SYSTEM_TIME_TYPE PERIOD = 1000000;
-   PARTITION_ID_TYPE self_id;
+  SYSTEM_TIME_TYPE PERIOD = 1000000;
+  PARTITION_ID_TYPE self_id;
 
-   /* Initialize inter-partition communication subsystem */
-   imaspex_init();
+  /* Initialize inter-partition communication subsystem */
+  imaspex_init();
 
-   GET_PARTITION_ID(&self_id, &rc);
-   if(NO_ERROR != rc) {
-     printf("GET_PARTITION_ID error %d\n", rc);
-   }
+  GET_PARTITION_ID(&self_id, &rc);
+  if (NO_ERROR != rc) {
+    printf("GET_PARTITION_ID error %d\n", rc);
+  }
 
-   __DEBUGMSG("Initializing partition %ld...\n", self_id);
+  __DEBUGMSG("Initializing partition %ld...\n", self_id);
 
-   __po_hi_transport_air_init ();
+  __po_hi_transport_air_init();
 
-   mynode = __po_hi_transport_get_mynode ();
+  mynode = __po_hi_transport_get_mynode();
 
-   for (tmp = 0 ; tmp < __PO_HI_NB_PORTS ; tmp++)
-   {
-      pkind = __po_hi_transport_get_port_kind (tmp);
-      tmpnode = __po_hi_transport_get_node_from_entity
-        (__po_hi_get_entity_from_global_port (tmp));
+  for (tmp = 0; tmp < __PO_HI_NB_PORTS; tmp++) {
+    pkind = __po_hi_transport_get_port_kind(tmp);
+    tmpnode = __po_hi_transport_get_node_from_entity
+      (__po_hi_get_entity_from_global_port(tmp));
 
-      if ((tmpnode == mynode) &&
-          ( (pkind ==  __PO_HI_IN_DATA_INTER_PROCESS)          ||
-            (pkind ==  __PO_HI_OUT_DATA_INTER_PROCESS)         ||
-            (pkind ==  __PO_HI_IN_EVENT_DATA_INTER_PROCESS)    ||
-            (pkind ==  __PO_HI_OUT_EVENT_DATA_INTER_PROCESS)
-          )) {
+    if ((tmpnode == mynode) &&
+        ((pkind == __PO_HI_IN_DATA_INTER_PROCESS) ||
+         (pkind == __PO_HI_OUT_DATA_INTER_PROCESS) ||
+         (pkind == __PO_HI_IN_EVENT_DATA_INTER_PROCESS) ||
+         (pkind == __PO_HI_OUT_EVENT_DATA_INTER_PROCESS)
+        )) {
 
-        __DEBUGMSG ("[MAIN] Should init port %d\n", tmp);
+      __DEBUGMSG("[MAIN] Should init port %d\n", tmp);
 
-        portno = -1;
-        switch (pkind) {
+      portno = -1;
+      switch (pkind) {
 
         case __PO_HI_IN_DATA_INTER_PROCESS:
           CREATE_SAMPLING_PORT
-            (__po_hi_get_port_name (tmp),
-             __po_hi_transport_get_data_size (tmp),
-             DESTINATION,
-             PERIOD,
-             &portno,
-             &rc);
+            (__po_hi_get_port_name(tmp),
+             __po_hi_transport_get_data_size(tmp),
+             DESTINATION, PERIOD, &portno, &rc);
 
           if (rc != NO_ERROR) {
-            __PO_HI_DEBUG_CRITICAL
-              ("CREATE_SAMPLING_PORT error %d\n", rc);
+            __PO_HI_DEBUG_CRITICAL("CREATE_SAMPLING_PORT error %d\n", rc);
           }
           break;
 
         case __PO_HI_OUT_DATA_INTER_PROCESS:
           CREATE_SAMPLING_PORT
-            (__po_hi_get_port_name (tmp),
-             __po_hi_transport_get_data_size (tmp),
-             SOURCE,
-             PERIOD,
-             &portno,
-             &rc);
+            (__po_hi_get_port_name(tmp),
+             __po_hi_transport_get_data_size(tmp),
+             SOURCE, PERIOD, &portno, &rc);
 
           if (rc != NO_ERROR) {
             __PO_HI_DEBUG_CRITICAL("CREATE_SAMPLING_PORT error %d\n", rc);
@@ -394,35 +387,31 @@ int __po_hi_initialize ()
 
         case __PO_HI_IN_EVENT_DATA_INTER_PROCESS:
           CREATE_QUEUING_PORT
-                 (__po_hi_get_port_name (tmp),
-                  40 + __po_hi_transport_get_data_size (tmp),
-                  __po_hi_transport_get_queue_size (tmp),
-                  DESTINATION,
-                  FIFO,
-                  &portno,
-                  &rc);
+            (__po_hi_get_port_name(tmp),
+             40 + __po_hi_transport_get_data_size(tmp),
+             __po_hi_transport_get_queue_size(tmp),
+             DESTINATION, FIFO, &portno, &rc);
 
           if (rc != NO_ERROR) {
-            __PO_HI_DEBUG_CRITICAL("CREATE_QUEUING_PORT (IN) error %d %s size= %d\n",
-                                   rc, __po_hi_get_port_name (tmp),
-                                   40 + __po_hi_transport_get_data_size (tmp));
+            __PO_HI_DEBUG_CRITICAL
+              ("CREATE_QUEUING_PORT (IN) error %d %s size= %d\n", rc,
+               __po_hi_get_port_name(tmp),
+               40 + __po_hi_transport_get_data_size(tmp));
           }
           break;
 
         case __PO_HI_OUT_EVENT_DATA_INTER_PROCESS:
           CREATE_QUEUING_PORT
-                 (__po_hi_get_port_name (tmp),
-                  40 + __po_hi_transport_get_data_size (tmp),
-                  __po_hi_transport_get_queue_size (tmp),
-                  SOURCE,
-                  FIFO,
-                  &portno,
-                  &rc);
+            (__po_hi_get_port_name(tmp),
+             40 + __po_hi_transport_get_data_size(tmp),
+             __po_hi_transport_get_queue_size(tmp),
+             SOURCE, FIFO, &portno, &rc);
 
           if (rc != NO_ERROR) {
-            __PO_HI_DEBUG_CRITICAL("CREATE_QUEUING_PORT (IN) error %d %s size= %d\n",
-                                   rc, __po_hi_get_port_name (tmp),
-                                   40 + __po_hi_transport_get_data_size (tmp));
+            __PO_HI_DEBUG_CRITICAL
+              ("CREATE_QUEUING_PORT (IN) error %d %s size= %d\n", rc,
+               __po_hi_get_port_name(tmp),
+               40 + __po_hi_transport_get_data_size(tmp));
           }
           break;
 
@@ -430,120 +419,127 @@ int __po_hi_initialize ()
           __PO_HI_DEBUG_CRITICAL
             ("[MAIN] Port kind not handled for port %d\n", tmp);
           break;
-        }
-
-        if (portno < 0) {
-          __PO_HI_DEBUG_CRITICAL
-            ("[MAIN] Cannot open port %d, name=%s, return=%ld\n",
-             tmp, __po_hi_transport_get_model_name (tmp), portno);
-
-          // In the case of duplicate AIR port, we iterate on the list
-          // of ports already initialized and attach this existing
-          // port to this port.
-          for (tmp2 = 0; tmp2 < tmp; tmp2++) {
-            __PO_HI_DEBUG_CRITICAL ("Testing %d\n", tmp2);
-            if (!strcmp (__po_hi_transport_get_model_name (tmp2),
-                        __po_hi_transport_get_model_name (tmp))) {
-              __PO_HI_DEBUG_CRITICAL ("[MAIN] Reuse port %d, from name=%s\n",
-                           tmp2, __po_hi_transport_get_model_name (tmp2), portno);
-
-              __po_hi_transport_air_port_init (tmp, __po_hi_transport_air_get_port(tmp2));
-              break;
-            }
-          }
-        } else {
-          __po_hi_transport_air_port_init (tmp, portno);
-          __DEBUGMSG ("[MAIN] Port %d (name=%s) created, identifier = %ld\n",
-                      tmp, __po_hi_transport_get_model_name (tmp), portno);
-        }
       }
-   }
 
-   SET_PARTITION_MODE(NORMAL, &rc);
-   if (NO_ERROR != rc) {
-     __DEBUGMSG("SET_PARTITION_MODE error %d\n", rc);
-   }
+      if (portno < 0) {
+        __PO_HI_DEBUG_CRITICAL
+          ("[MAIN] Cannot open port %d, name=%s, return=%ld\n",
+           tmp, __po_hi_transport_get_model_name(tmp), portno);
+
+        // In the case of duplicate AIR port, we iterate on the list
+        // of ports already initialized and attach this existing
+        // port to this port.
+        for (tmp2 = 0; tmp2 < tmp; tmp2++) {
+          __PO_HI_DEBUG_CRITICAL("Testing %d\n", tmp2);
+          if (!strcmp(__po_hi_transport_get_model_name(tmp2),
+                      __po_hi_transport_get_model_name(tmp))) {
+            __PO_HI_DEBUG_CRITICAL("[MAIN] Reuse port %d, from name=%s\n",
+                                   tmp2,
+                                   __po_hi_transport_get_model_name(tmp2),
+                                   portno);
+
+            __po_hi_transport_air_port_init(tmp,
+                                            __po_hi_transport_air_get_port
+                                            (tmp2));
+            break;
+          }
+        }
+      } else {
+        __po_hi_transport_air_port_init(tmp, portno);
+        __DEBUGMSG("[MAIN] Port %d (name=%s) created, identifier = %ld\n",
+                   tmp, __po_hi_transport_get_model_name(tmp), portno);
+      }
+    }
+  }
+
+  SET_PARTITION_MODE(NORMAL, &rc);
+  if (NO_ERROR != rc) {
+    __DEBUGMSG("SET_PARTITION_MODE error %d\n", rc);
+  }
 #endif
 
-   /*!
-    * Initialize the monitoring trace if needed
-    */
+  /*!
+   * Initialize the monitoring trace if needed
+   */
+
 #if defined (MONITORING)
-   trace_initialize ();
+  trace_initialize();
 #endif
 
-   /*!
-    * Initialize all threads internal structures
-    */
+  /*!
+   * Initialize all threads internal structures
+   */
+
 #if __PO_HI_NB_PORTS > 0
-   extern void __po_hi_main_initialize (void);
-   __po_hi_main_initialize ();
-   __DEBUGMSG ("[MAIN] All threads gqueues have been initialized\n");
+  extern void __po_hi_main_initialize(
+  void);
+
+  __po_hi_main_initialize();
+  __DEBUGMSG("[MAIN] All threads gqueues have been initialized\n");
 #endif
 
-   return (__PO_HI_SUCCESS);
+  return (__PO_HI_SUCCESS);
 }
 
-int __po_hi_wait_initialization (void)
-{
+int __po_hi_wait_initialization(
+  void) {
+
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
-   int cstate;
-   if (pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, &cstate) != 0)
-   {
-      __DEBUGMSG ("[MAIN] Cannot modify the cancel state\n");
-   }
+  int cstate;
 
-   if (pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &cstate) != 0)
-   {
-      __DEBUGMSG ("[MAIN] Cannot modify the cancel type\n");
-   }
+  if (pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &cstate) != 0) {
+    __DEBUGMSG("[MAIN] Cannot modify the cancel state\n");
+  }
 
-  if (pthread_mutex_lock (&mutex_init) != 0)
-  {
-    __DEBUGMSG ("[MAIN] Unable to lock the mutex\n");
+  if (pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &cstate) != 0) {
+    __DEBUGMSG("[MAIN] Cannot modify the cancel type\n");
+  }
+
+  if (pthread_mutex_lock(&mutex_init) != 0) {
+    __DEBUGMSG("[MAIN] Unable to lock the mutex\n");
     return (__PO_HI_ERROR_PTHREAD_MUTEX);
   }
 
   __po_hi_initialized_tasks++;
 
-  __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
+  __DEBUGMSG("[MAIN] %d task(s) initialized (total to init =%d)\n",
+             __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
 
   if (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init) {
     while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init) {
-      pthread_cond_wait (&cond_init, &mutex_init);
+      pthread_cond_wait(&cond_init, &mutex_init);
     }
-  }
-  else {
-    __DEBUGMSG ("[MAIN] All threads initialized. Application starts\n");
-    pthread_cond_broadcast (&cond_init);
+  } else {
+    __DEBUGMSG("[MAIN] All threads initialized. Application starts\n");
+    pthread_cond_broadcast(&cond_init);
     set_epoch();
   }
 
-  pthread_mutex_unlock (&mutex_init);
+  pthread_mutex_unlock(&mutex_init);
 
 #if defined(__PO_HI_USE_VCD) && defined(__unix__)
   /* initialize parameters used to save the vcd trace */
   __PO_HI_INITIALIZE_VCD_TRACE
 #endif
 
-  return (__PO_HI_SUCCESS);
+    return (__PO_HI_SUCCESS);
 
 #elif defined (_WIN32)
-  EnterCriticalSection (&__po_hi_main_initialization_critical_section);
+  EnterCriticalSection(&__po_hi_main_initialization_critical_section);
 
   __po_hi_initialized_tasks++;
 
-  __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
+  __DEBUGMSG("[MAIN] %d task(s) initialized (total to init =%d)\n",
+             __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
 
-  while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init)
-  {
-      LeaveCriticalSection (&__po_hi_main_initialization_critical_section);
-      WaitForSingleObject (__po_hi_main_initialization_event, INFINITE);
-      EnterCriticalSection (&__po_hi_main_initialization_critical_section);
+  while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init) {
+    LeaveCriticalSection(&__po_hi_main_initialization_critical_section);
+    WaitForSingleObject(__po_hi_main_initialization_event, INFINITE);
+    EnterCriticalSection(&__po_hi_main_initialization_critical_section);
   }
 
-  SetEvent (__po_hi_main_initialization_event);
-  LeaveCriticalSection (&__po_hi_main_initialization_critical_section);
+  SetEvent(__po_hi_main_initialization_event);
+  LeaveCriticalSection(&__po_hi_main_initialization_critical_section);
   return (__PO_HI_SUCCESS);
 
 #elif defined (SIMULATOR)
@@ -552,46 +548,44 @@ int __po_hi_wait_initialization (void)
 #elif defined (__PO_HI_RTEMS_CLASSIC_API)
   rtems_status_code ret;
 
-  __DEBUGMSG ("[MAIN] Task wait for the barrier\n");
-  ret = rtems_barrier_wait (__po_hi_main_initialization_barrier, RTEMS_WAIT);
-  if (ret != RTEMS_SUCCESSFUL)
-  {
-     __DEBUGMSG ("[MAIN] Error while waiting for the barrier, return code=%d\n", ret);
-     return (__PO_HI_ERROR_UNKNOWN);
+  __DEBUGMSG("[MAIN] Task wait for the barrier\n");
+  ret = rtems_barrier_wait(__po_hi_main_initialization_barrier, RTEMS_WAIT);
+  if (ret != RTEMS_SUCCESSFUL) {
+    __DEBUGMSG("[MAIN] Error while waiting for the barrier, return code=%d\n",
+               ret);
+    return (__PO_HI_ERROR_UNKNOWN);
   }
-  __DEBUGMSG ("[MAIN] Task release the barrier\n");
+  __DEBUGMSG("[MAIN] Task release the barrier\n");
   return (__PO_HI_SUCCESS);
 #elif defined (XENO_NATIVE)
   int ret;
 
-  if (main_task_id == rt_task_self ())
-  {
-     /*
-      * Here, this function is called by the main thread (the one that executes
-      * the main() function) so that we don't wait for the initialization of the
-      * other tasks, we automatically pass through the function and immeditaly
-      * return.
-      */
-     return (__PO_HI_SUCCESS);
+  if (main_task_id == rt_task_self()) {
+    /*
+     * Here, this function is called by the main thread (the one that executes
+     * the main() function) so that we don't wait for the initialization of the
+     * other tasks, we automatically pass through the function and immeditaly
+     * return.
+     */
+    return (__PO_HI_SUCCESS);
   }
 
-  ret = rt_mutex_acquire (&mutex_init, TM_INFINITE);
-  if (ret != 0)
-  {
-   __DEBUGMSG ("[MAIN] Cannot acquire mutex (return code = %d)\n", ret);
+  ret = rt_mutex_acquire(&mutex_init, TM_INFINITE);
+  if (ret != 0) {
+    __DEBUGMSG("[MAIN] Cannot acquire mutex (return code = %d)\n", ret);
     return (__PO_HI_ERROR_PTHREAD_MUTEX);
   }
 
   __po_hi_initialized_tasks++;
 
-  __DEBUGMSG ("[MAIN] %d task(s) initialized (total to init =%d)\n", __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
+  __DEBUGMSG("[MAIN] %d task(s) initialized (total to init =%d)\n",
+             __po_hi_initialized_tasks, __po_hi_nb_tasks_to_init);
 
-  while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init)
-  {
-      rt_cond_wait (&cond_init, &mutex_init, TM_INFINITE);
+  while (__po_hi_initialized_tasks < __po_hi_nb_tasks_to_init) {
+    rt_cond_wait(&cond_init, &mutex_init, TM_INFINITE);
   }
-  rt_cond_broadcast (&cond_init);
-  rt_mutex_release (&mutex_init);
+  rt_cond_broadcast(&cond_init);
+  rt_mutex_release(&mutex_init);
   return (__PO_HI_SUCCESS);
 
 #else

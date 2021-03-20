@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2007-2009 Telecom ParisTech, 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #include <po_hi_config.h>
@@ -19,7 +19,9 @@
 
 #include <string.h>
 
-void __po_hi_copy_array (void* dst, void* src, __po_hi_uint32_t size)
-{
-   memcpy (dst, src, size);
+void __po_hi_copy_array(
+  void *dst,
+  void *src,
+  __po_hi_uint32_t size) {
+  memcpy(dst, src, size);
 }

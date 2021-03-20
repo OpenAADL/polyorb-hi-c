@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2011-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2011-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 /*
@@ -44,7 +44,7 @@
 #undef __PO_HI_MONITOR_ENABLED
 
 #if ( (__PO_HI_NB_DEVICES > 0) || (__PO_HI_NB_BUSES > 0))
-   #define __PO_HI_MONITOR_ENABLED 1
+#define __PO_HI_MONITOR_ENABLED 1
 #endif
 
 /*
@@ -53,11 +53,10 @@
  * \brief Status code for a bus/device. Indicated wether the 
  * entity is ok or not.
  */
-typedef enum
-{
-   po_hi_monitor_status_ok             = 0,        /* Working */
-   po_hi_monitor_status_ko             = 1,        /* Not working for unknown reason */
-   po_hi_monitor_status_unavailable    = 2         /* No longer available, it used to work previously */
+typedef enum {
+  po_hi_monitor_status_ok = 0,  /* Working */
+  po_hi_monitor_status_ko = 1,  /* Not working for unknown reason */
+  po_hi_monitor_status_unavailable = 2  /* No longer available, it used to work previously */
 } __po_hi_monitor_status_code_t;
 
 
@@ -68,10 +67,9 @@ typedef enum
  * a failure of a bus/device.
  */
 
-typedef enum
-{
-   po_hi_monitor_failure_unknown       = 0,        /* Unknown failure: something failed but we don't know what */
-   po_hi_monitor_failure_value         = 1         /* Bad value was sent or received */
+typedef enum {
+  po_hi_monitor_failure_unknown = 0,    /* Unknown failure: something failed but we don't know what */
+  po_hi_monitor_failure_value = 1       /* Bad value was sent or received */
 } __po_hi_monitor_failure_t;
 
 /*
@@ -80,11 +78,10 @@ typedef enum
  * \brief Structure that contains the status of an entity
  */
 
-typedef struct
-{
-   __po_hi_monitor_status_code_t         status;
-   int                           n_failures;
-   __po_hi_monitor_failure_t*             failures;
+typedef struct {
+  __po_hi_monitor_status_code_t status;
+  int n_failures;
+  __po_hi_monitor_failure_t *failures;
 } __po_hi_monitor_status_t;
 
 
@@ -96,10 +93,10 @@ typedef struct
  * This function is called by the main initialisation function of 
  * PolyORB-HI-C, __po_hi_initialize_early in __po_hi_main.c file
  */
-void __po_hi_monitor_init (void);
+void __po_hi_monitor_init(
+  void);
 
 #ifdef __PO_HI_MONITOR_ENABLED
-
 /*
  * \fn __po_hi_monitor_get_status_port 
  *
@@ -113,7 +110,9 @@ void __po_hi_monitor_init (void);
  *                                 second argument is invalid (e.g. NULL
  *                                 pointer).
  */
-int __po_hi_monitor_get_status_port (const __po_hi_port_t port, __po_hi_monitor_status_t*);
+int __po_hi_monitor_get_status_port(
+  const __po_hi_port_t port,
+  __po_hi_monitor_status_t *);
 
 /*
  * \fn __po_hi_monitor_get_status_device 
@@ -133,7 +132,9 @@ int __po_hi_monitor_get_status_port (const __po_hi_port_t port, __po_hi_monitor_
  *                                 second argument is invalid (e.g. NULL
  *                                 pointer).
  */
-int __po_hi_monitor_get_status_device (const __po_hi_device_id, __po_hi_monitor_status_t* );
+int __po_hi_monitor_get_status_device(
+  const __po_hi_device_id,
+  __po_hi_monitor_status_t *);
 
 /*
  * \fn __po_hi_monitor_get_status_bus 
@@ -153,7 +154,9 @@ int __po_hi_monitor_get_status_device (const __po_hi_device_id, __po_hi_monitor_
  *                                 second argument is invalid (e.g. NULL
  *                                 pointer).
  */
-int __po_hi_monitor_get_status_bus (const __po_hi_bus_id, __po_hi_monitor_status_t* );
+int __po_hi_monitor_get_status_bus(
+  const __po_hi_bus_id,
+  __po_hi_monitor_status_t *);
 
 /*
  * \fn __po_hi_nonitor_report_failure_port
@@ -176,7 +179,9 @@ int __po_hi_monitor_get_status_bus (const __po_hi_bus_id, __po_hi_monitor_status
  *    - __PO_HI_TOOMANY          - The max number of failures that can be
  *                                 registered was already reached.
  */
-int __po_hi_monitor_report_failure_port (const __po_hi_port_t, const __po_hi_monitor_failure_t);
+int __po_hi_monitor_report_failure_port(
+  const __po_hi_port_t,
+  const __po_hi_monitor_failure_t);
 
 /*
  * \fn __po_hi_nonitor_report_failure_device 
@@ -203,7 +208,9 @@ int __po_hi_monitor_report_failure_port (const __po_hi_port_t, const __po_hi_mon
  *    - __PO_HI_TOOMANY          - The max number of failures that can be
  *                                 registered was already reached.
  */
-int __po_hi_monitor_report_failure_device (const __po_hi_device_id, const __po_hi_monitor_failure_t);
+int __po_hi_monitor_report_failure_device(
+  const __po_hi_device_id,
+  const __po_hi_monitor_failure_t);
 
 /*
  * \fn __po_hi_nonitor_report_failure_bus 
@@ -231,7 +238,9 @@ int __po_hi_monitor_report_failure_device (const __po_hi_device_id, const __po_h
  *    - __PO_HI_TOOMANY          - The max number of failures that can be
  *                                 registered was already reached.
  */
-int __po_hi_monitor_report_failure_bus (const __po_hi_bus_id, const __po_hi_monitor_failure_t);
+int __po_hi_monitor_report_failure_bus(
+  const __po_hi_bus_id,
+  const __po_hi_monitor_failure_t);
 
 
 /*
@@ -243,7 +252,8 @@ int __po_hi_monitor_report_failure_bus (const __po_hi_bus_id, const __po_hi_moni
  *    - __PO_HI_SUCCESS          - if the operation was successful.
  *    - __PO_HI_UNAVAILABLE      - the bus (argument to be used) is invalid.
  */
-int __po_hi_monitor_recover_bus (const __po_hi_bus_id);
+int __po_hi_monitor_recover_bus(
+  const __po_hi_bus_id);
 
 /*
  * \fn __po_hi_monitor_recover_device
@@ -254,7 +264,8 @@ int __po_hi_monitor_recover_bus (const __po_hi_bus_id);
  *    - __PO_HI_SUCCESS          - if the operation was successful.
  *    - __PO_HI_UNAVAILABLE      - the device (argument to be used) is invalid.
  */
-int __po_hi_monitor_recover_device (const __po_hi_device_id);
+int __po_hi_monitor_recover_device(
+  const __po_hi_device_id);
 
 
 /*
@@ -271,8 +282,7 @@ int __po_hi_monitor_recover_device (const __po_hi_device_id);
  * if the port is not bound to any device/bus (local port, used for
  * communication on the local node only), it will also report an error.
  */
-int __po_hi_monitor_recover_port (const __po_hi_port_t);
-
+int __po_hi_monitor_recover_port(
+  const __po_hi_port_t);
 #endif
-
 #endif

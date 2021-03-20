@@ -5,11 +5,10 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #ifdef __PO_HI_USE_GPROF
-
 #include <po_hi_debug.h>
 #include <drivers/po_hi_rtems_utils.h>
 
@@ -93,10 +92,10 @@
  * the recording of calls via mcount().
  */
 struct tostruct {
-    char		*selfpc;
-    long		count;
-    unsigned short	link;
-    unsigned short	order;
+  char *selfpc;
+  long count;
+  unsigned short link;
+  unsigned short order;
 };
 
 /*
@@ -106,10 +105,10 @@ struct tostruct {
  * header for ncnt - sizeof(struct phdr) bytes.
  */
 struct phdr {
-    char	*lpc; 	/* low program counter */
-    char	*hpc; 	/* high program counter */
-    int		ncnt;	/* number of bytes of histogram counters minius
-                       sizeof(struct phdr) that follow */
+  char *lpc;                    /* low program counter */
+  char *hpc;                    /* high program counter */
+  int ncnt;                     /* number of bytes of histogram counters minius
+                                   sizeof(struct phdr) that follow */
 };
 
 /*
@@ -119,9 +118,9 @@ struct phdr {
  * counters to the end of the file.
  */
 struct rawarc {
-    unsigned long	raw_frompc;
-    unsigned long	raw_selfpc;
-    unsigned long	raw_count;
+  unsigned long raw_frompc;
+  unsigned long raw_selfpc;
+  unsigned long raw_count;
 };
 
 /*
@@ -132,8 +131,8 @@ struct rawarc {
  */
 #define GMON_MAGIC 0xbeefbabe
 struct gmon_data {
-    unsigned long type; /* constant for type of data following this struct */
-    unsigned long size; /* size in bytes of the data following this struct */
+  unsigned long type;           /* constant for type of data following this struct */
+  unsigned long size;           /* size in bytes of the data following this struct */
 };
 
 /*
@@ -153,11 +152,12 @@ struct gmon_data {
  */
 #define GMONTYPE_ARCS_ORDERS	3
 struct rawarc_order {
-    unsigned long	raw_frompc;
-    unsigned long	raw_selfpc;
-    unsigned long	raw_count;
-    unsigned long	raw_order;
+  unsigned long raw_frompc;
+  unsigned long raw_selfpc;
+  unsigned long raw_count;
+  unsigned long raw_order;
 };
+
 /*
  * The GMONTYPE_RLD_STATE gmon_data.type is for the rld_load()'ed state of the
  * program.
@@ -255,31 +255,36 @@ static char sccsid[] = "@(#)gmon.c	1.0 (E.S.A) 10/05/2010";
 #include <rtems.h>
 #include <bsp.h>
 
-void _mcount() __attribute__((weak, alias("mcount")));
+void _mcount(
+  ) __attribute__((weak, alias("mcount")));
 
 /*  These variables are defined in the linkcmd linker script and point to the
  *  start and end of the text area
  */
 extern unsigned int _endtext, text_start;
-extern int initialize_serial();
-extern void end_serial ();
-extern void write_serial(uint8_t vector[] , unsigned int dim);
+extern int initialize_serial(
+  );
+extern void end_serial(
+  );
+extern void write_serial(
+  uint8_t vector[],
+  unsigned int dim);
 
 /*
  *	froms is actually a bunch of unsigned shorts indexing tos
  */
-static int		profiling = 3;
-static long		tolimit = 0;
-static unsigned long	s_textsize = 0;
+static int profiling = 3;
+static long tolimit = 0;
+static unsigned long s_textsize = 0;
 
-static unsigned short	*froms;
-static struct tostruct	*tos = 0;
-static char		*s_lowpc = 0;
-static char		*s_highpc = 0;
+static unsigned short *froms;
+static struct tostruct *tos = 0;
+static char *s_lowpc = 0;
+static char *s_highpc = 0;
 
-static int	ssiz;
-static int	s_profil_sz = 0;
-static char	*sbuf = 0;
+static int ssiz;
+static int s_profil_sz = 0;
+static char *sbuf = 0;
 static char *s_profil = 0;
 
 #define	MSG "No space for profiling buffer(s)\n"
@@ -289,298 +294,298 @@ static char *s_profil = 0;
         asm volatile( "mov %%l1, %0" : "=r" (_pc_) : "0" (_pc_) );    \
     }while(0)
 
-static void moncontrol( int mode );
-static rtems_isr profile_clock_isr(rtems_vector_number vector);
+static void moncontrol(
+  int mode);
+static rtems_isr profile_clock_isr(
+  rtems_vector_number vector);
 
-static void moncontrol( int mode )
-{
-    if (mode) {
-        /* start */
-        s_profil = sbuf + sizeof(struct phdr);
-        s_profil_sz = ssiz - sizeof(struct phdr);
-        profiling = 0;
-    } else {
-        /* stop */
-        s_profil = 0;
-        s_profil_sz = 0;
-        profiling = 3;
-    }
+static void moncontrol(
+  int mode) {
+  if (mode) {
+    /* start */
+    s_profil = sbuf + sizeof(struct phdr);
+    s_profil_sz = ssiz - sizeof(struct phdr);
+    profiling = 0;
+  } else {
+    /* stop */
+    s_profil = 0;
+    s_profil_sz = 0;
+    profiling = 3;
+  }
 }
 
-static void _mcleanup()
-{
-    int			fromindex;
-    int			endfrom;
-    char		*frompc;
-    int			toindex;
-    struct rawarc	rawarc;
-    int ret = -1;
+static void _mcleanup(
+  ) {
+  int fromindex;
+  int endfrom;
+  char *frompc;
+  int toindex;
+  struct rawarc rawarc;
+  int ret = -1;
 
-    moncontrol(0);
+  moncontrol(0);
+
 #if (CONFIG_OS_PROFILE_OVER_SERIAL == 1)
-    ret = initialize_serial();
-    if( ret >= 0 )
-    {
-        write_serial( (uint8_t*)sbuf , (unsigned int)ssiz );
-    }
+  ret = initialize_serial();
+  if (ret >= 0) {
+    write_serial((uint8_t *) sbuf, (unsigned int) ssiz);
+  }
 #endif
 
 //    fprintf( stderr , "[mcleanup] sbuf 0x%x ssiz %d\n" , (unsigned int)sbuf , (unsigned int)ssiz );
-    endfrom = s_textsize / (HASHFRACTION * sizeof(*froms));
-    for ( fromindex = 0 ; fromindex < endfrom ; fromindex++ ) {
-        if ( froms[fromindex] == 0 ) {
-            continue;
-        }
-        frompc = s_lowpc + (fromindex * HASHFRACTION * sizeof(*froms));
-        for (toindex=froms[fromindex]; toindex!=0; toindex=tos[toindex].link) 
-        {
-           /*
-            fprintf( stderr ,
-                    "[mcleanup] frompc 0x%x selfpc 0x%x count %d\n" ,
-                    (unsigned int)frompc , 
-                    (unsigned int)tos[toindex].selfpc , 
-                    (unsigned int)tos[toindex].count );
-                    */
-            rawarc.raw_frompc = (unsigned long) frompc;
-            rawarc.raw_selfpc = (unsigned long) tos[toindex].selfpc;
-            rawarc.raw_count = tos[toindex].count;
-            if( ret >= 0 )
-            {
-#if (CONFIG_OS_PROFILE_OVER_SERIAL == 1)
-            write_serial( (uint8_t*)&rawarc , (unsigned int)sizeof(rawarc));
-#endif
-            }
-        }
+  endfrom = s_textsize / (HASHFRACTION * sizeof(*froms));
+  for (fromindex = 0; fromindex < endfrom; fromindex++) {
+    if (froms[fromindex] == 0) {
+      continue;
     }
+    frompc = s_lowpc + (fromindex * HASHFRACTION * sizeof(*froms));
+    for (toindex = froms[fromindex]; toindex != 0;
+         toindex = tos[toindex].link) {
+      /*
+         fprintf( stderr ,
+         "[mcleanup] frompc 0x%x selfpc 0x%x count %d\n" ,
+         (unsigned int)frompc , 
+         (unsigned int)tos[toindex].selfpc , 
+         (unsigned int)tos[toindex].count );
+       */
+      rawarc.raw_frompc = (unsigned long) frompc;
+      rawarc.raw_selfpc = (unsigned long) tos[toindex].selfpc;
+      rawarc.raw_count = tos[toindex].count;
+      if (ret >= 0) {
+
 #if (CONFIG_OS_PROFILE_OVER_SERIAL == 1)
-    end_serial ();
+        write_serial((uint8_t *) & rawarc, (unsigned int) sizeof(rawarc));
+#endif
+      }
+    }
+  }
+
+#if (CONFIG_OS_PROFILE_OVER_SERIAL == 1)
+  end_serial();
 #endif
 
 }
 
-void monstartup(char *lowpc, char *highpc)
-{
-    int			monsize;
-    char		*buffer;
+void monstartup(
+  char *lowpc,
+  char *highpc) {
+  int monsize;
+  char *buffer;
 
-    printf("%s\n", sccsid);
-    /*
-     *	round lowpc and highpc to multiples of the density we're using
-     *	so the rest of the scaling (here and in gprof) stays in ints.
-     */
-    lowpc = (char *)
-        ROUNDDOWN((unsigned) lowpc, HISTFRACTION*sizeof(HISTCOUNTER));
-    s_lowpc = lowpc;
-    highpc = (char *)
-        ROUNDUP((unsigned) highpc, HISTFRACTION*sizeof(HISTCOUNTER));
-    s_highpc = highpc;
-    s_textsize = highpc - lowpc;
-    monsize = (s_textsize / HISTFRACTION) + sizeof(struct phdr);
-    buffer = (char*)malloc( monsize );
-    if ( buffer == (char *) -1 ) 
-    {
-        printf("%s\n", MSG);
-        return;
-    }
-    froms = (unsigned short *) malloc( s_textsize / HASHFRACTION );
-    if ( froms == (unsigned short *) -1 ) 
-    {
-        printf("%s\n", MSG);
-        froms = 0;
-        return;
-    }
-    tolimit = s_textsize * ARCDENSITY / 100;
-    if ( tolimit < MINARCS ) {
-        tolimit = MINARCS;
-    } else if ( tolimit > 65534 ) {
-        tolimit = 65534;
-    }
-    tos = (struct tostruct *) malloc( tolimit * sizeof( struct tostruct ) );
-    if ( tos == (struct tostruct *) -1 ) 
-    {
-        printf("%s\n", MSG);
-        froms = 0;
-        tos = 0;
-        return;
-    }
-    tos[0].link = 0;
-    sbuf = buffer;
-    bzero( buffer, sizeof(buffer) );
-    ssiz = monsize;
-    ( (struct phdr *) sbuf ) -> lpc = lowpc;
-    ( (struct phdr *) sbuf ) -> hpc = highpc;
-    ( (struct phdr *) sbuf ) -> ncnt = ssiz;
-    monsize -= sizeof(struct phdr);
-    if ( monsize <= 0 )
-        return;
+  printf("%s\n", sccsid);
+  /*
+   *  round lowpc and highpc to multiples of the density we're using
+   *  so the rest of the scaling (here and in gprof) stays in ints.
+   */
+  lowpc = (char *)
+    ROUNDDOWN((unsigned) lowpc, HISTFRACTION * sizeof(HISTCOUNTER));
+  s_lowpc = lowpc;
+  highpc = (char *)
+    ROUNDUP((unsigned) highpc, HISTFRACTION * sizeof(HISTCOUNTER));
+  s_highpc = highpc;
+  s_textsize = highpc - lowpc;
+  monsize = (s_textsize / HISTFRACTION) + sizeof(struct phdr);
+  buffer = (char *) malloc(monsize);
+  if (buffer == (char *) -1) {
+    printf("%s\n", MSG);
+    return;
+  }
+  froms = (unsigned short *) malloc(s_textsize / HASHFRACTION);
+  if (froms == (unsigned short *) -1) {
+    printf("%s\n", MSG);
+    froms = 0;
+    return;
+  }
+  tolimit = s_textsize * ARCDENSITY / 100;
+  if (tolimit < MINARCS) {
+    tolimit = MINARCS;
+  } else if (tolimit > 65534) {
+    tolimit = 65534;
+  }
+  tos = (struct tostruct *) malloc(tolimit * sizeof(struct tostruct));
+  if (tos == (struct tostruct *) -1) {
+    printf("%s\n", MSG);
+    froms = 0;
+    tos = 0;
+    return;
+  }
+  tos[0].link = 0;
+  sbuf = buffer;
+  bzero(buffer, sizeof(buffer));
+  ssiz = monsize;
+  ((struct phdr *) sbuf)->lpc = lowpc;
+  ((struct phdr *) sbuf)->hpc = highpc;
+  ((struct phdr *) sbuf)->ncnt = ssiz;
+  monsize -= sizeof(struct phdr);
+  if (monsize <= 0)
+    return;
 
-    printf("PC histrogram scale = %d\n", HISTFRACTION);
+  printf("PC histrogram scale = %d\n", HISTFRACTION);
 
-    /*  Register the new clock driver   */
-    set_vector( profile_clock_isr, 0x18, 1 );
-    atexit( _mcleanup );
-    moncontrol(1);
+  /*  Register the new clock driver   */
+  set_vector(profile_clock_isr, 0x18, 1);
+  atexit(_mcleanup);
+  moncontrol(1);
 }
 
-void mcount()
-{
-    register char			*selfpc;
-    register unsigned short		*frompcindex;
-    register struct tostruct	*top;
-    register struct tostruct	*prevtop;
-    register long			toindex;
-    static int first_call = 1;
+void mcount(
+  ) {
+  register char *selfpc;
+  register unsigned short *frompcindex;
+  register struct tostruct *top;
+  register struct tostruct *prevtop;
+  register long toindex;
+  static int first_call = 1;
 
-    if( first_call )
-    {
-        monstartup((char*)&text_start, (char*)&_endtext);
-        first_call = 0;
-    }
+  if (first_call) {
+    monstartup((char *) &text_start, (char *) &_endtext);
+    first_call = 0;
+  }
 
+  /*
+   *     find the return address for mcount,
+   *     and the return address for mcount's caller.
+   */
+
+  /* selfpc = pc pushed by mcount call.
+     This identifies the function that was just entered.  */
+  selfpc = (void *) __builtin_return_address(0);
+  /* frompcindex = pc in preceding frame.
+     This identifies the caller of the function just entered.  */
+  frompcindex = (void *) __builtin_return_address(1);
+
+  /*
+   *  check that we are profiling
+   *  and that we aren't recursively invoked.
+   */
+  if (profiling) {
+    goto out;
+  }
+  profiling++;
+  /*
+   *  check that frompcindex is a reasonable pc value.
+   *  for example:    signal catchers get called from the stack,
+   *                  not from text space.  too bad.
+   */
+  frompcindex = (unsigned short *) ((long) frompcindex - (long) s_lowpc);
+  if ((unsigned long) frompcindex > s_textsize) {
+    goto done;
+  }
+  frompcindex =
+    &froms[((long) frompcindex) / (HASHFRACTION * sizeof(*froms))];
+  toindex = *frompcindex;
+  if (toindex == 0) {
     /*
-     *	find the return address for mcount,
-     *	and the return address for mcount's caller.
+     *      first time traversing this arc
      */
-
-    /* selfpc = pc pushed by mcount call.
-       This identifies the function that was just entered.  */
-    selfpc = (void *) __builtin_return_address (0);
-    /* frompcindex = pc in preceding frame.
-       This identifies the caller of the function just entered.  */
-    frompcindex = (void *) __builtin_return_address (1);
-
-    /*
-     *	check that we are profiling
-     *	and that we aren't recursively invoked.
-     */
-    if (profiling) {
-        goto out;
+    toindex = ++tos[0].link;
+    if (toindex >= tolimit) {
+      goto overflow;
     }
-    profiling++;
-    /*
-     *	check that frompcindex is a reasonable pc value.
-     *	for example:	signal catchers get called from the stack,
-     *			not from text space.  too bad.
-     */
-    frompcindex = (unsigned short *) ((long) frompcindex - (long) s_lowpc);
-    if ((unsigned long) frompcindex > s_textsize) {
-        goto done;
-    }
-    frompcindex =
-        &froms[((long) frompcindex) / (HASHFRACTION * sizeof(*froms))];
-    toindex = *frompcindex;
-    if (toindex == 0) {
-        /*
-         *	first time traversing this arc
-         */
-        toindex = ++tos[0].link;
-        if (toindex >= tolimit) {
-            goto overflow;
-        }
-        *frompcindex = toindex;
-        top = &tos[toindex];
-        top->selfpc = selfpc;
-        top->count = 1;
-        top->link = 0;
-        goto done;
-    }
+    *frompcindex = toindex;
     top = &tos[toindex];
-    if (top->selfpc == selfpc) {
-        /*
-         *	arc at front of chain; usual case.
-         */
-        top->count++;
-        goto done;
+    top->selfpc = selfpc;
+    top->count = 1;
+    top->link = 0;
+    goto done;
+  }
+  top = &tos[toindex];
+  if (top->selfpc == selfpc) {
+    /*
+     *      arc at front of chain; usual case.
+     */
+    top->count++;
+    goto done;
+  }
+  /*
+   *  have to go looking down chain for it.
+   *  top points to what we are looking at,
+   *  prevtop points to previous top.
+   *  we know it is not at the head of the chain.
+   */
+  for (; /* goto done */ ;) {
+    if (top->link == 0) {
+      /*
+       *  top is end of the chain and none of the chain
+       *  had top->selfpc == selfpc.
+       *  so we allocate a new tostruct
+       *  and link it to the head of the chain.
+       */
+      toindex = ++tos[0].link;
+      if (toindex >= tolimit) {
+        goto overflow;
+      }
+      top = &tos[toindex];
+      top->selfpc = selfpc;
+      top->count = 1;
+      top->link = *frompcindex;
+      *frompcindex = toindex;
+      goto done;
     }
     /*
-     *	have to go looking down chain for it.
-     *	top points to what we are looking at,
-     *	prevtop points to previous top.
-     *	we know it is not at the head of the chain.
+     *      otherwise, check the next arc on the chain.
      */
-    for (; /* goto done */; ) {
-        if (top->link == 0) {
-            /*
-             *	top is end of the chain and none of the chain
-             *	had top->selfpc == selfpc.
-             *	so we allocate a new tostruct
-             *	and link it to the head of the chain.
-             */
-            toindex = ++tos[0].link;
-            if (toindex >= tolimit) {
-                goto overflow;
-            }
-            top = &tos[toindex];
-            top->selfpc = selfpc;
-            top->count = 1;
-            top->link = *frompcindex;
-            *frompcindex = toindex;
-            goto done;
-        }
-        /*
-         *	otherwise, check the next arc on the chain.
-         */
-        prevtop = top;
-        top = &tos[top->link];
-        if (top->selfpc == selfpc) {
-            /*
-             *	there it is.
-             *	increment its count
-             *	move it to the head of the chain.
-             */
-            top->count++;
-            toindex = prevtop->link;
-            prevtop->link = top->link;
-            top->link = *frompcindex;
-            *frompcindex = toindex;
-            goto done;
-        }
-
+    prevtop = top;
+    top = &tos[top->link];
+    if (top->selfpc == selfpc) {
+      /*
+       *  there it is.
+       *  increment its count
+       *  move it to the head of the chain.
+       */
+      top->count++;
+      toindex = prevtop->link;
+      prevtop->link = top->link;
+      top->link = *frompcindex;
+      *frompcindex = toindex;
+      goto done;
     }
+
+  }
 done:
-    profiling--;
-    /* and fall through */
+  profiling--;
+  /* and fall through */
 out:
-    return;		/* normal return restores saved registers */
+  return;                       /* normal return restores saved registers */
 
 overflow:
-    profiling++; /* halt further profiling */
-    fprintf( stderr, "%s: tos overflow", __func__ );
-    goto out;
+  profiling++;                  /* halt further profiling */
+  fprintf(stderr, "%s: tos overflow", __func__);
+  goto out;
 }
 
-extern rtems_status_code __real_Clock_isr();
-extern rtems_status_code Clock_isr();
+extern rtems_status_code __real_Clock_isr(
+  );
+extern rtems_status_code Clock_isr(
+  );
 
 static uint32_t pc = 0;
-rtems_isr __wrap_Clock_isr()
-{
-    if( s_profil && s_profil_sz )
-    {
-       /*   This identifies the function that was just entered.  */
+rtems_isr __wrap_Clock_isr(
+  ) {
+  if (s_profil && s_profil_sz) {
+    /*   This identifies the function that was just entered.  */
 //        SAVE_L1(pc);
-        if( pc )
-        {
-            pc -= (int)s_lowpc;
-            pc = (pc >> HISTFRACTION_LOG2);
-            if( pc < s_profil_sz )  s_profil[pc]++;
-        }
+    if (pc) {
+      pc -= (int) s_lowpc;
+      pc = (pc >> HISTFRACTION_LOG2);
+      if (pc < s_profil_sz)
+        s_profil[pc]++;
     }
-    pc = 0;
+  }
+  pc = 0;
 
-    __real_Clock_isr();
-    
+  __real_Clock_isr();
+
 }
 
-static rtems_isr profile_clock_isr(rtems_vector_number vector)
-{
-    SAVE_L1(pc);
-    Clock_isr(vector);
-    
+static rtems_isr profile_clock_isr(
+  rtems_vector_number vector) {
+  SAVE_L1(pc);
+  Clock_isr(vector);
+
 }
 
 #if (CONFIG_OS_PROFILE_OVER_SERIAL == 1)
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -606,71 +611,69 @@ static int serialFD = -1;
  *            Function implementation
  ******************************************************/
 
-int initialize_serial()
-{
-   __DEBUGMSG ("[RASTA SERIAL] Init\n");
-   init_pci();
-   __DEBUGMSG ("[RASTA SERIAL] Initializing RASTA ...\n");
-  if  ( rasta_register() ){
+int initialize_serial(
+  ) {
+  __DEBUGMSG("[RASTA SERIAL] Init\n");
+  init_pci();
+  __DEBUGMSG("[RASTA SERIAL] Initializing RASTA ...\n");
+  if (rasta_register()) {
     __DEBUGMSG(" ERROR !\n");
     return -1;
   }
-   __DEBUGMSG(" OK !\n");
+  __DEBUGMSG(" OK !\n");
 
 
 
-  serialFD = open( "/dev/apburasta0" , O_RDWR);
-  if( serialFD < 0 )
-  {
+  serialFD = open("/dev/apburasta0", O_RDWR);
+  if (serialFD < 0) {
+
 #if(SERIAL_VERBOSE_MODE == 1)
-    printk("can't open new device! error = %d\n" , serialFD);
+    printk("can't open new device! error = %d\n", serialFD);
 #endif
+
     return -1;
   }
-  
-  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_BAUDRATE, 38400); /* stream mode */
-  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_BLOCKING, APBUART_BLK_RX | APBUART_BLK_TX | APBUART_BLK_FLUSH);
-  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_TXFIFO_LEN, 64);  /* Transmitt buffer 64 chars */
-  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_RXFIFO_LEN, 256); /* Receive buffer 256 chars */
-  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_ASCII_MODE, 0); /* Make \n go \n\r or \r\n */
+
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_BAUDRATE, 38400);     /* stream mode */
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_BLOCKING,
+                                    APBUART_BLK_RX | APBUART_BLK_TX |
+                                    APBUART_BLK_FLUSH);
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_TXFIFO_LEN, 64);      /* Transmitt buffer 64 chars */
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_RXFIFO_LEN, 256);     /* Receive buffer 256 chars */
+  __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_SET_ASCII_MODE, 0);       /* Make \n go \n\r or \r\n */
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_CLR_STATS, 0);
   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(serialFD, APBUART_START, 0);
-  if (tcflush (serialFD, TCIOFLUSH) != 0)
-  {
-     __DEBUGMSG("[GPROF] Error when trying to flush\n");
+  if (tcflush(serialFD, TCIOFLUSH) != 0) {
+    __DEBUGMSG("[GPROF] Error when trying to flush\n");
   }
 
 
 #if(SERIAL_VERBOSE_MODE == 1)
-    printk("Serial init done (using file descriptor %d)\n" , serialFD);
+  printk("Serial init done (using file descriptor %d)\n", serialFD);
 #endif
-  
+
   return 0;
 }
 
-void write_serial(uint8_t vector[] , unsigned int dim)
-{
-   write(serialFD , vector , dim);
-   /*
-   for (i = 0 ; i < dim ; i++)
-   {
-      write(serialFD , &vector[i] , 1);
-   }
+void write_serial(
+  uint8_t vector[],
+  unsigned int dim) {
+  write(serialFD, vector, dim);
+  /*
+     for (i = 0 ; i < dim ; i++)
+     {
+     write(serialFD , &vector[i] , 1);
+     }
    */
 
-   if (tcflush (serialFD, TCIOFLUSH) != 0)
-   {
-      __DEBUGMSG("[GPROF] Error when trying to flush serial port\n");
-   }
+  if (tcflush(serialFD, TCIOFLUSH) != 0) {
+    __DEBUGMSG("[GPROF] Error when trying to flush serial port\n");
+  }
 }
 
-void end_serial ()
-{
-      __DEBUGMSG("[GPROF] Analysis results sent\n");
+void end_serial(
+  ) {
+  __DEBUGMSG("[GPROF] Analysis results sent\n");
 }
-
 #endif /* TIMELINE_USE_SERIAL_CABLE */
-
-
-
 #endif
