@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #include <deployment.h>
@@ -54,7 +54,7 @@
 
 /******************************************************************************/
 /*
- * This file (po_hi_sockets.c) provides function to handle
+ * This file (po_hi_driver_sockets.c) provides function to handle
  * communication between nodes in PolyORB-HI-C.  We don't use a
  * protocol to send data. For each data sent, we send before the
  * entity number provided by the generated file deployment.h, then, we
@@ -82,9 +82,6 @@ int                  __po_hi_c_sockets_listen_socket;
 
 int                  __po_hi_c_sockets_read_sockets[__PO_HI_NB_DEVICES];
 /* Socket we read from, used by the __po_hi_sockets_poller task */
-
-__po_hi_request_t    __po_hi_c_sockets_poller_received_request;
-/* Request, heap allocated, used by the __po_hi_sockets_poller task */
 
 __po_hi_msg_t        __po_hi_c_sockets_poller_msg;
 /* Message, heap allocated, used by the __po_hi_sockets_poller task */
@@ -154,7 +151,7 @@ int __po_hi_driver_sockets_send (__po_hi_task_id task_id,
    }
 
    /*
-    * After sending the entity identifier, we send the message which
+    * After sending the entity identifier, we send the message that
     * contains the request.
     */
 
@@ -299,6 +296,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
    int                        ret;
    __po_hi_device_id          dev_id;
    __po_hi_int32_t            n_connected;
+   __po_hi_request_t          *__po_hi_c_sockets_poller_received_request;
 
    socklen = sizeof (struct sockaddr);
 
@@ -396,13 +394,10 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 
       if (select (max_socket + 1, &selector, NULL, NULL, NULL) == -1 )
       {
-#ifdef __PO_HI_DEBUG
          __DEBUGMSG ("[DRIVER SOCKETS] Error on select for node %d\n", __po_hi_mynode);
-#endif
       }
-#ifdef __PO_HI_DEBUG
+
       __DEBUGMSG ("[DRIVER SOCKETS] Receive message\n");
-#endif
 
       for (dev = 0; dev < __PO_HI_NB_DEVICES ; dev++)
       {
@@ -412,9 +407,9 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
               FD_ISSET(__po_hi_c_sockets_read_sockets[dev], &selector))
          {
             __DEBUGMSG ("[DRIVER SOCKETS] Receive message from dev %d\n", dev);
+
 #ifdef __PO_HI_USE_PROTOCOL_MYPROTOCOL_I
             {
-
                protocol_conf = __po_hi_transport_get_protocol_configuration
                  (virtual_bus_myprotocol_i);
 
@@ -428,7 +423,8 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
                   __po_hi_c_sockets_read_sockets[dev] = -1;
                   continue;
                }
-               protocol_conf->unmarshaller (&__po_hi_c_sockets_poller_received_request, &datareceived, len);
+               __po_hi_c_sockets_poller_received_request = __po_hi_get_request();
+               protocol_conf->unmarshaller (__po_hi_c_sockets_poller_received_request, &datareceived, len);
                __po_hi_c_sockets_poller_received_request.port = 1;
             }
 
@@ -438,8 +434,8 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
 #ifdef _WIN32
             len = recv (__po_hi_c_sockets_read_sockets[dev],
                         __po_hi_c_sockets_poller_msg.content, __PO_HI_MESSAGES_MAX_SIZE, 0);
-#else
 
+#else
             /* In the following, we first retrieve the size of the
                payload, then the payload itself */
 
@@ -455,7 +451,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
             __DEBUGMSG ("[DRIVER SOCKETS] Message received len=%d\n",(int)len);
 
 #ifdef __PO_HI_DEBUG
-   __po_hi_messages_debug (&__po_hi_c_sockets_poller_msg);
+            __po_hi_messages_debug (&__po_hi_c_sockets_poller_msg);
 #endif
 
             if (len <= 0)
@@ -465,10 +461,11 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
                continue;
             }
 
-            __po_hi_unmarshall_request (&__po_hi_c_sockets_poller_received_request, &__po_hi_c_sockets_poller_msg);
+             __po_hi_c_sockets_poller_received_request = __po_hi_get_request();
+            __po_hi_unmarshall_request (__po_hi_c_sockets_poller_received_request, &__po_hi_c_sockets_poller_msg);
 #endif
-            __DEBUGMSG ("[DRIVER SOCKETS] Delivering message to %d\n",__po_hi_c_sockets_poller_received_request.port );
-            __po_hi_main_deliver (&__po_hi_c_sockets_poller_received_request);
+            __DEBUGMSG ("[DRIVER SOCKETS] Delivering message to %d\n", (*__po_hi_c_sockets_poller_received_request).port );
+            __po_hi_main_deliver (__po_hi_c_sockets_poller_received_request);
          }
       }
    }

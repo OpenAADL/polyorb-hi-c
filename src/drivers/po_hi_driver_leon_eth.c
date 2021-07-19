@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2011-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2011-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #include <deployment.h>
@@ -180,7 +180,6 @@ struct rtems_bsdnet_config rtems_bsdnet_config = {
 };
 
 /******************************************************************************/
-__po_hi_request_t          __po_hi_c_driver_eth_leon_poller_received_request;
 __po_hi_msg_t              __po_hi_c_driver_eth_leon_poller_msg;
 __po_hi_mutex_t            __po_hi_c_leon_eth_send_mutex;
 
@@ -200,7 +199,7 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
    __po_hi_node_t             dev_init;
    int                        established = 0;
    __po_hi_protocol_conf_t*   protocol_conf;
-
+   __po_hi_request_t          *__po_hi_c_driver_eth_leon_poller_received_request;
    max_socket = 0; /* Used to compute the max socket number, useful for listen() call */
 
    /*
@@ -316,6 +315,7 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
                   rnodes[dev].socket = -1;
                   continue;
                }
+               __po_hi_c_driver_eth_leon_poller_received_request = __po_hi_get_request();
                protocol_conf->unmarshaller (& __po_hi_c_driver_eth_leon_poller_received_request, &datareceived, len);
                 __po_hi_c_driver_eth_leon_poller_received_request.port = 1;
             }
@@ -347,12 +347,13 @@ void __po_hi_c_driver_eth_leon_poller (const __po_hi_device_id dev_id)
               continue;
             }
 
+            __po_hi_c_driver_eth_leon_poller_received_request = __po_hi_get_request();
             __po_hi_unmarshall_request
-              (& __po_hi_c_driver_eth_leon_poller_received_request,
+              (__po_hi_c_driver_eth_leon_poller_received_request,
                &__po_hi_c_driver_eth_leon_poller_msg);
 #endif
 
-            __po_hi_main_deliver (& __po_hi_c_driver_eth_leon_poller_received_request);
+            __po_hi_main_deliver (__po_hi_c_driver_eth_leon_poller_received_request);
          }
       }
    }

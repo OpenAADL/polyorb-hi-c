@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2018-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2018-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #include <stdio.h>
@@ -173,13 +173,13 @@ struct ethernet_config interface_configs[] =
 
 
 /******************************************************************************/
-__po_hi_request_t          __po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request;
 __po_hi_msg_t              __po_hi_c_driver_rtems_drvmgr_ethernet_poller_msg;
 __po_hi_mutex_t            __po_hi_c_rtems_ethernet_send_mutex;
 
 void __po_hi_c_driver_rtems_drvmgr_ethernet_poller (const __po_hi_device_id dev_id)
 {
    (void)                     dev_id;
+   __po_hi_request_t          *__po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request;
    __DEBUGMSG ("Poller launched, device-id=%d\n", leon_eth_device_id);
    socklen_t                  socklen = sizeof (struct sockaddr);
    /* See ACCEPT (2) for details on initial value of socklen */
@@ -309,8 +309,10 @@ void __po_hi_c_driver_rtems_drvmgr_ethernet_poller (const __po_hi_device_id dev_
                   rnodes[dev].socket = -1;
                   continue;
                }
-               protocol_conf->unmarshaller (& __po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request, &datareceived, len);
-                __po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request.port = 1;
+
+               ___po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request = __po_hi_get_request();
+               protocol_conf->unmarshaller (__po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request, &datareceived, len);
+                (*__po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request).port = 1;
             }
 
 #else
@@ -340,12 +342,13 @@ void __po_hi_c_driver_rtems_drvmgr_ethernet_poller (const __po_hi_device_id dev_
               continue;
             }
 
+            __po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request = __po_hi_get_request();
             __po_hi_unmarshall_request
-              (& __po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request,
+              (__po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request,
                &__po_hi_c_driver_rtems_drvmgr_ethernet_poller_msg);
 #endif
 
-            __po_hi_main_deliver (& __po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request);
+            __po_hi_main_deliver (__po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request);
          }
       }
    }

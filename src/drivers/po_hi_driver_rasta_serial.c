@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 /*! \file po_hi_driver_rasta_serial.c
@@ -55,7 +55,6 @@
 int po_hi_c_driver_rasta_serial_fd_read[__PO_HI_NB_DEVICES];
 int po_hi_c_driver_rasta_serial_fd_write[__PO_HI_NB_DEVICES];
 
-__po_hi_request_t    __po_hi_c_driver_serial_rasta_request;
 __po_hi_msg_t        __po_hi_c_driver_serial_rasta_poller_msg;
 __po_hi_mutex_t      __po_hi_c_rasta_serial_send_mutex;
 
@@ -75,7 +74,7 @@ void __po_hi_c_driver_serial_rasta_poller (const __po_hi_device_id dev_id)
    int                  n;
    int                  ts;
    uint8_t*             ptr;
-
+   __po_hi_request_t    *__po_hi_c_driver_serial_rasta_request;
    ts = __PO_HI_MESSAGES_MAX_SIZE;
    ptr = &(__po_hi_c_driver_serial_rasta_poller_msg.content[0]);
    __po_hi_msg_reallocate (&__po_hi_c_driver_serial_rasta_poller_msg);
@@ -98,15 +97,18 @@ void __po_hi_c_driver_serial_rasta_poller (const __po_hi_device_id dev_id)
    }
 
    __po_hi_c_driver_serial_rasta_poller_msg.length = __PO_HI_MESSAGES_MAX_SIZE;
-
-   __po_hi_unmarshall_request (&__po_hi_c_driver_serial_rasta_request,
+   __po_hi_c_driver_serial_rasta_request =__po_hi_get_request();
+   __po_hi_unmarshall_request (__po_hi_c_driver_serial_rasta_request,
                                &__po_hi_c_driver_serial_rasta_poller_msg);
 
-   if (__po_hi_c_driver_serial_rasta_request.port > __PO_HI_NB_PORTS)
+   if ((*__po_hi_c_driver_serial_rasta_request).port > __PO_HI_NB_PORTS)
    {
-      __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Invalid port number (%d), will not deliver", __po_hi_c_driver_serial_rasta_request.port);
+      __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Invalid port number (%d), will not deliver", (*__po_hi_c_driver_serial_rasta_request).port);
+   } 
+   else
+   {
+      __po_hi_main_deliver (__po_hi_c_driver_serial_rasta_request);
    }
-   __po_hi_main_deliver (&__po_hi_c_driver_serial_rasta_request);
 }
 #ifdef RTEMS48
 extern amba_confarea_type* __po_hi_driver_rasta_common_get_bus ();

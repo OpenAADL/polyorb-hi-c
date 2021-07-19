@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2018-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2018-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #include <deployment.h>
@@ -36,7 +36,6 @@
 
 #include <grspw_api.h>
 
-__po_hi_request_t    __po_hi_c_driver_drvmgr_grspw_request;
 __po_hi_msg_t        __po_hi_c_driver_drvmgr_grspw_poller_msg;
 int                  po_hi_c_driver_drvmgr_grspw_fd[__PO_HI_NB_DEVICES];
 char                 __po_hi_c_driver_drvmgr_grspw_sndbuf[__PO_HI_MESSAGES_MAX_SIZE + 1];
@@ -47,6 +46,7 @@ char                 __po_hi_c_driver_drvmgr_grspw_sndbuf[__PO_HI_MESSAGES_MAX_S
 void __po_hi_c_driver_drvmgr_grspw_poller (const __po_hi_device_id dev_id) {
   int len;
   int ts;
+  __po_hi_request_t    *__po_hi_c_driver_drvmgr_grspw_request;
 
   while (true) {
     __PO_HI_DEBUG_DEBUG ("[GRSPW SPACEWIRE] Poller task activated \n");
@@ -81,13 +81,14 @@ void __po_hi_c_driver_drvmgr_grspw_poller (const __po_hi_device_id dev_id) {
       /* Unmarshall request and do the upcall to the receiving thread */
 
       __po_hi_c_driver_drvmgr_grspw_poller_msg.length = __PO_HI_MESSAGES_MAX_SIZE;
-      __po_hi_unmarshall_request (&__po_hi_c_driver_drvmgr_grspw_request,
+      __po_hi_c_driver_drvmgr_grspw_request = __po_hi_get_request();
+      __po_hi_unmarshall_request (__po_hi_c_driver_drvmgr_grspw_request,
                                   &__po_hi_c_driver_drvmgr_grspw_poller_msg);
 
       __PO_HI_DEBUG_DEBUG ("[GRSPW SPACEWIRE] Destination port: %d\n",
-                           __po_hi_c_driver_drvmgr_grspw_request.port);
+                           (*__po_hi_c_driver_drvmgr_grspw_request).port);
 
-      __po_hi_main_deliver (&__po_hi_c_driver_drvmgr_grspw_request);
+      __po_hi_main_deliver (__po_hi_c_driver_drvmgr_grspw_request);
     }
   }
 }

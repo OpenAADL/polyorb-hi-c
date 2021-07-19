@@ -32,6 +32,9 @@ int sent_lvl;
 int level = MACRO_TEST_SECOND;
 int sent_level;
 
+ void period(__po_hi_task_id self);
+ void sporad(__po_hi_task_id self);
+
 void test_sporad_1(__po_hi_task_id self);
 void test_sporad_2(__po_hi_task_id self);
 void test_sporad_3(__po_hi_task_id self);
@@ -107,8 +110,8 @@ void period(__po_hi_task_id self) {
     number++;
   }
 
-  __po_hi_request_t r1;
-  __po_hi_request_t r2;
+  __po_hi_request_t *r1 = __po_hi_get_request();
+  __po_hi_request_t *r2 = __po_hi_get_request();
 
 /*****************************************************************************/
   /* *** SENDING FOR TEST SPORADIC 1 to 4 *** */
@@ -117,8 +120,8 @@ void period(__po_hi_task_id self) {
   if (number < 2){
     /* Message sent on Period Port 1 to Sporad port 2 */
     sent_lvl = lvl;
-    r1.port = REQUEST_PORT (per_thread, p1);
-    r1.PORT_VARIABLE (per_thread,p1) = lvl;
+    r1->port = REQUEST_PORT (per_thread, p1);
+    r1->PORT_VARIABLE (per_thread,p1) = lvl;
     lvl++;
 
 #if defined (TEST_VERBOSE)
@@ -128,12 +131,12 @@ void period(__po_hi_task_id self) {
     __po_hi_gqueue_store_out
       (self,
        LOCAL_PORT (per_thread, p1),
-       &r1);
+       r1);
 
     /* Message sent on Period Port 2 to Sporad Port 1 */
     sent_level = level;
-    r2.port = REQUEST_PORT (per_thread, p2);
-    r2.PORT_VARIABLE (per_thread,p2) = level;
+    r2->port = REQUEST_PORT (per_thread, p2);
+    r2->PORT_VARIABLE (per_thread,p2) = level;
     level++;
 #if defined (TEST_VERBOSE)
     printf("\n Storeout Period P2 to Sporad P1, task id = %d, from port id = %d\n",
@@ -142,7 +145,7 @@ void period(__po_hi_task_id self) {
     __po_hi_gqueue_store_out
       (self,
        LOCAL_PORT (per_thread, p2),
-       &r2);
+       r2);
   }
 
 /*****************************************************************************/
@@ -157,8 +160,10 @@ void period(__po_hi_task_id self) {
     assert (count_p4 == 0);
     for (i = 1; i <= number ; i++){
       sent_lvl = lvl;
-      r1.port = REQUEST_PORT (per_thread, p3);
-      r1.PORT_VARIABLE (per_thread,p3) = lvl;
+
+      r1 = __po_hi_get_request();
+      r1->port = REQUEST_PORT (per_thread, p3);
+      r1->PORT_VARIABLE (per_thread,p3) = lvl;
       lvl++;
 #if defined (TEST_VERBOSE)
       printf("\n Storeout Period P3 to Period P4, task id = %d, from port id = %d", self, LOCAL_PORT (per_thread, p3));
@@ -166,7 +171,7 @@ void period(__po_hi_task_id self) {
       __po_hi_gqueue_store_out
         (self,
          LOCAL_PORT (per_thread, p3),
-         &r1);
+         r1);
       __po_hi_send_output (self,REQUEST_PORT(per_thread, p3));
     }
     assert (count_p4 == 0);
@@ -176,12 +181,12 @@ void period(__po_hi_task_id self) {
 
   count_p4 = __po_hi_gqueue_get_count(self, port_p4);
   if ((number == 2)&&(count_p4 == number )){
-    __po_hi_request_t request;
+    __po_hi_request_t *request;
     int reception;
     count_p4 = __po_hi_gqueue_get_count(self, port_p4);
     for (j = 0; j < count_p4; j++) {
     __po_hi_gqueue_get_value(self,port_p4,&(request));
-    reception = request.PORT_VARIABLE(per_thread,p4);
+    reception = request->PORT_VARIABLE(per_thread,p4);
 #if defined (TEST_VERBOSE)
     printf("\nfirst request = %d", MACRO_TEST);
     printf("\nsent_lvl = %d", sent_lvl);
@@ -210,8 +215,9 @@ void period(__po_hi_task_id self) {
    assert (count_p6 == 0);
    for (i = 1; i < number ; i++){
       sent_lvl = lvl;
-      r1.port = REQUEST_PORT (per_thread, p5);
-      r1.PORT_VARIABLE (per_thread,p5) = lvl;
+      r1 = __po_hi_get_request();
+      r1->port = REQUEST_PORT (per_thread, p5);
+      r1->PORT_VARIABLE (per_thread,p5) = lvl;
       lvl++;
 #if defined (TEST_VERBOSE)
       printf("\n Storeout Period P5 to Period P6, task id = %d, from port id = %d", self, LOCAL_PORT (per_thread, p5));
@@ -219,7 +225,7 @@ void period(__po_hi_task_id self) {
       __po_hi_gqueue_store_out
         (self,
          LOCAL_PORT (per_thread, p5),
-         &r1);
+         r1);
       __po_hi_send_output (self,REQUEST_PORT(per_thread, p5));
     }
   }
@@ -231,12 +237,12 @@ void period(__po_hi_task_id self) {
 
   /* One message only must have been received */
    assert (count_p6 == 1);
-   __po_hi_request_t request;
+   __po_hi_request_t *request;
    int reception;
 
   /* Verifying the only message stored is the one send in the first place */
    __po_hi_gqueue_get_value(self,port_p6,&(request));
-   reception = request.PORT_VARIABLE(per_thread,p6);
+   reception = request->PORT_VARIABLE(per_thread,p6);
    assert(reception == sent_lvl - 1);
 
    /* The transport send function blocks the sending of the second message to the FULL port.
@@ -245,12 +251,12 @@ void period(__po_hi_task_id self) {
 
    /* When forcing the store_in of a random value on a FULL port, 
     * An error message must be sent by the store_in function */
-    __po_hi_gqueue_store_in(self, port_p6, &r1);
+    __po_hi_gqueue_store_in(self, port_p6, r1);
     printf ("*** A second message from GQUEUE should appear *** \n");
 
    /* Verifying the previous store_in has failed and not overwritten the value */
    __po_hi_gqueue_get_value(self,port_p6,&(request));
-   reception = request.PORT_VARIABLE(per_thread,p6);
+   reception = request->PORT_VARIABLE(per_thread,p6);
    assert(reception == sent_lvl - 1);
 
     count_p6 = __po_hi_gqueue_get_count(self, port_p6);
@@ -286,8 +292,9 @@ void period(__po_hi_task_id self) {
 
     /* Transmission towards the fifo indata port */
     sent_lvl = lvl;
-    r1.port = REQUEST_PORT (per_thread, p7);
-    r1.PORT_VARIABLE (per_thread,p7) = lvl;
+    r1 = __po_hi_get_request();
+    r1->port = REQUEST_PORT (per_thread, p7);
+    r1->PORT_VARIABLE (per_thread,p7) = lvl;
     lvl++;
 
 #if defined (TEST_VERBOSE)
@@ -297,7 +304,7 @@ void period(__po_hi_task_id self) {
     __po_hi_gqueue_store_out
       (self,
        LOCAL_PORT (per_thread, p7),
-       &r1);  
+       r1);  
 
     /* Adding a send output through P2 "just" to awaken the sporadic task
        to process incoming data on its data port */
@@ -305,13 +312,13 @@ void period(__po_hi_task_id self) {
 #if defined (TEST_VERBOSE)
     printf("\n Storeout Period P2 to Sporad P1, task id = %d, from port id = %d", self, LOCAL_PORT (per_thread, p1));
 #endif
-
-    r1.port = REQUEST_PORT (per_thread, p2);
-    r1.PORT_VARIABLE (per_thread,p2) = lvl;
+    r1 = __po_hi_get_request();
+    r1->port = REQUEST_PORT (per_thread, p2);
+    r1->PORT_VARIABLE (per_thread,p2) = lvl;
     __po_hi_gqueue_store_out
       (self,
        LOCAL_PORT (per_thread, p2),
-       &r1);
+       r1);
   }
 
 /*****************************************************************************/
@@ -365,7 +372,7 @@ void test_sporad_1(__po_hi_task_id self) {
 /*****************************************************************************/
 void test_sporad_2(__po_hi_task_id self) {
   int i, reception;
-  __po_hi_request_t request;
+  __po_hi_request_t *request;
   __po_hi_local_port_t tryport;
   printf ("\n*** TEST SPORADIC 2 ***\n");
   count_p1 = __po_hi_gqueue_get_count(self, port_p1);
@@ -382,19 +389,20 @@ void test_sporad_2(__po_hi_task_id self) {
     }
     __po_hi_gqueue_get_value(self,tryport,&(request));
     if (tryport == port_p1){
-      reception = request.PORT_VARIABLE(spo_thread,p1);
+      reception = request->PORT_VARIABLE(spo_thread,p1);
       assert (reception == sent_level);
       printf ("get_value first test passed \n");
     }
     if (tryport == port_p2){
-      reception = request.PORT_VARIABLE(spo_thread,p2);
+      reception = request->PORT_VARIABLE(spo_thread,p2);
       assert (reception == sent_lvl);
       printf ("get_value first test passed \n");
     }
+    __po_hi_free_request (request);
     __po_hi_gqueue_next_value (self, tryport);
   }
   /* The ports are supposedly all empty */
-  count_p1 = __po_hi_gqueue_get_count(self, port_p1);
+  count_p1 = __po_hi_gqueue_get_count(self, port_p1); // XXX wrong semantics, get_count is constant
   count_p2 = __po_hi_gqueue_get_count(self, port_p2);
   assert (count_p1 == 0);
   assert (count_p2 == 0);
@@ -404,7 +412,7 @@ void test_sporad_2(__po_hi_task_id self) {
 /*****************************************************************************/
 void test_sporad_3(__po_hi_task_id self) {
   printf ("\n*** TEST SPORADIC 3 ***\n");
-  __po_hi_request_t request;
+  __po_hi_request_t *request;
 
   /* Test of Get_value on an empty port: */
   /* The function supposedly blocks the thread until something is received: */
@@ -415,12 +423,13 @@ void test_sporad_3(__po_hi_task_id self) {
   count_p2 = __po_hi_gqueue_get_count(self, port_p2);
   assert (count_p1 == 1);
   assert (count_p2 == 1);
+  __po_hi_free_request (request);
   printf ("get_value second test passed \n");
 }
 /*****************************************************************************/
 void test_sporad_4(__po_hi_task_id self) {
   int reception;
-  __po_hi_request_t request;
+  __po_hi_request_t *request;
 
   printf ("\n*** TEST SPORADIC 4 ***\n");
   count_p1 = __po_hi_gqueue_get_count(self, port_p1);
@@ -448,10 +457,11 @@ void test_sporad_4(__po_hi_task_id self) {
   assert (count_p1 == 2);
   assert (count_p2 == 1);
   /* We have attained optimal configuration */
-
+printf ("%p\n",request);
   /* No issue on port P2 */
   __po_hi_gqueue_get_value(self,port_p2,&(request));
-  reception = request.PORT_VARIABLE(spo_thread,p2);
+  printf ("%p\n",request);
+  reception = request->PORT_VARIABLE(spo_thread,p2);
 
 #if defined (TEST_VERBOSE)
   printf("\nfirst request = %d", MACRO_TEST);
@@ -463,7 +473,7 @@ void test_sporad_4(__po_hi_task_id self) {
   /* On port P1 : Due to the FIFO aspect of the gqueue, the value
      received is not the one just sent, but the previous one */
   __po_hi_gqueue_get_value(self,port_p1,&(request));
-  reception = request.PORT_VARIABLE(spo_thread,p1);
+  reception = request->PORT_VARIABLE(spo_thread,p1);
 
 #if defined (TEST_VERBOSE)
   printf("\nfirst request = %d", MACRO_TEST_SECOND);
@@ -475,6 +485,7 @@ void test_sporad_4(__po_hi_task_id self) {
   assert (reception == sent_level - 1);
 
   /* We ensure to have only one value on each port */
+  __po_hi_free_request (request);
   __po_hi_gqueue_next_value (self,port_p1);
 
   count_p1 = __po_hi_gqueue_get_count(self, port_p1);
@@ -490,7 +501,7 @@ void test_sporad_4(__po_hi_task_id self) {
 void test_sporad_5(__po_hi_task_id self) {
 
   int i, j, reception;
-  __po_hi_request_t request;
+  __po_hi_request_t *request;
 
   printf ("\n*** TEST SPORADIC 5 ****\n");
   count_p1 = __po_hi_gqueue_get_count(self, port_p1);
@@ -518,7 +529,8 @@ void test_sporad_5(__po_hi_task_id self) {
   /* On port p2 : Due to the FIFO aspect of the gqueue, the value
      received is not the one just sent, but the previous one */
   __po_hi_gqueue_get_value(self,port_p2,&(request));
-  reception = request.PORT_VARIABLE(spo_thread,p2);
+  reception = request->PORT_VARIABLE(spo_thread,p2);
+  __po_hi_free_request (request);
 
 #if defined (TEST_VERBOSE)
   printf("\nfirst request = %d", MACRO_TEST);
@@ -531,7 +543,7 @@ void test_sporad_5(__po_hi_task_id self) {
 
   /* No issue on port P1 */
   __po_hi_gqueue_get_value(self,port_p1,&(request));
-  reception = request.PORT_VARIABLE(spo_thread,p1);
+  reception = request->PORT_VARIABLE(spo_thread,p1);
 
 #if defined (TEST_VERBOSE)
   printf("\nfirst request = %d", MACRO_TEST_SECOND);
@@ -540,6 +552,7 @@ void test_sporad_5(__po_hi_task_id self) {
 #endif
 
   assert (reception == sent_level);
+
   __po_hi_gqueue_next_value (self,port_p2);
 
   count_p1 = __po_hi_gqueue_get_count(self, port_p1);
@@ -565,13 +578,13 @@ void test_sporad_5(__po_hi_task_id self) {
 /*****************************************************************************/
 
 void test_sporad_6(__po_hi_task_id self) {
-  __po_hi_request_t request;
+  __po_hi_request_t *request;
   int reception;
   printf ("\n*** TEST SPORADIC 6 ****\n");
   printf ("*** A warning message from GQUEUE (store_in) should have appeared *** \n");
   /* Verifying that the reception has been done well */
   __po_hi_gqueue_get_value(self,port_p3,&(request));
-   reception = request.PORT_VARIABLE(spo_thread,p3);
+   reception = request->PORT_VARIABLE(spo_thread,p3);
    assert(reception == sent_lvl);
 
   /* Asserting the used_size is always of 0 for indata port */
@@ -592,4 +605,3 @@ void test_sporad_6(__po_hi_task_id self) {
   assert (a == 1);
   printf ("\n*** If so, FIFO INDATA test passed *** ");
 }
-

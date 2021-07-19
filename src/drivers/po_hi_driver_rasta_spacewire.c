@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #include <deployment.h>
@@ -57,7 +57,6 @@
 
 /* Rasta includes from GAISLER drivers */
 
-__po_hi_request_t    __po_hi_c_driver_spacewire_rasta_request;
 __po_hi_msg_t        __po_hi_c_driver_spacewire_rasta_poller_msg;
 int                  po_hi_c_driver_rasta_spacewire_fd[__PO_HI_NB_DEVICES];
 char                 __po_hi_c_driver_rasta_spacewire_sndbuf[__PO_HI_MESSAGES_MAX_SIZE + 1];
@@ -66,7 +65,7 @@ void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
 {
    int len;
    int ts;
-
+   __po_hi_request_t  *__po_hi_c_driver_spacewire_rasta_request;
    __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Hello, i'm the spacewire poller !\n");
 
    __po_hi_msg_reallocate (&__po_hi_c_driver_spacewire_rasta_poller_msg);
@@ -91,10 +90,12 @@ void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
       __PO_HI_DEBUG_DEBUG ("|\n");
 
       __po_hi_c_driver_spacewire_rasta_poller_msg.length = __PO_HI_MESSAGES_MAX_SIZE;
-      __po_hi_unmarshall_request (&__po_hi_c_driver_spacewire_rasta_request, &__po_hi_c_driver_spacewire_rasta_poller_msg);
+      
+      __po_hi_c_driver_spacewire_rasta_request = __po_hi_get_request();
+      __po_hi_unmarshall_request (__po_hi_c_driver_spacewire_rasta_request, &__po_hi_c_driver_spacewire_rasta_poller_msg);
 
-      __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Destination port: %d\n",__po_hi_c_driver_spacewire_rasta_request.port);
-      __po_hi_main_deliver (&__po_hi_c_driver_spacewire_rasta_request);
+      __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Destination port: %d\n", (*__po_hi_c_driver_spacewire_rasta_request).port);
+      __po_hi_main_deliver (__po_hi_c_driver_spacewire_rasta_request);
    }
 }
 

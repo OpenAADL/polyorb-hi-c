@@ -28,11 +28,9 @@
 #include <po_hi_returns.h>
 
 #if __PO_HI_MONITOR_ENABLED == 1
-__po_hi_monitor_failure_t
-  __po_hi_monitor_failures_devices[__PO_HI_NB_DEVICES]
+__po_hi_monitor_failure_t __po_hi_monitor_failures_devices[__PO_HI_NB_DEVICES]
   [__PO_HI_MONITOR_NB_FAILURES];
-__po_hi_monitor_failure_t
-  __po_hi_monitor_failures_buses[__PO_HI_NB_BUSES]
+__po_hi_monitor_failure_t __po_hi_monitor_failures_buses[__PO_HI_NB_BUSES]
   [__PO_HI_MONITOR_NB_FAILURES];
 
 int __po_hi_monitor_n_failures_devices[__PO_HI_NB_DEVICES];

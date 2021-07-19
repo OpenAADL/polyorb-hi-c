@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2011-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2011-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #include <deployment.h>
@@ -42,8 +42,6 @@ int po_hi_c_driver_leon_serial_fd_write;
 #if defined (__PO_HI_NEED_DRIVER_SERIAL_LEON) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LEON_RECEIVER)
 
-
- __po_hi_request_t  po_hi_c_driver_leon_serial_request;
  __po_hi_msg_t      po_hi_c_driver_leon_serial_poller_msg;
  __po_hi_mutex_t    __po_hi_c_leon_serial_send_mutex;
 
@@ -52,9 +50,9 @@ void __po_hi_c_driver_serial_leon_poller (const __po_hi_device_id dev_id)
    int n;
    int ts;
    int tr;
-
+   __po_hi_request_t  *po_hi_c_driver_leon_serial_request;
+   
    (void) dev_id;
-
 
    __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] Hello, i'm the serial poller , must read %d bytes on %d !\n", __PO_HI_MESSAGES_MAX_SIZE, po_hi_c_driver_leon_serial_fd_read);
 
@@ -80,7 +78,8 @@ void __po_hi_c_driver_serial_leon_poller (const __po_hi_device_id dev_id)
    __PO_HI_DEBUG_DEBUG ("\n");
 #endif
 
-   __po_hi_unmarshall_request (& po_hi_c_driver_leon_serial_request, &po_hi_c_driver_leon_serial_poller_msg);
+   po_hi_c_driver_leon_serial_request = __po_hi_get_request();
+   __po_hi_unmarshall_request (po_hi_c_driver_leon_serial_request, &po_hi_c_driver_leon_serial_poller_msg);
 
    if ( po_hi_c_driver_leon_serial_request.port > __PO_HI_NB_PORTS)
    {
@@ -89,7 +88,7 @@ void __po_hi_c_driver_serial_leon_poller (const __po_hi_device_id dev_id)
    }
 
    __PO_HI_DEBUG_INFO ("[LEON SERIAL] Destination port: %d\n",  po_hi_c_driver_leon_serial_request.port);
-   __po_hi_main_deliver (& po_hi_c_driver_leon_serial_request);
+   __po_hi_main_deliver (po_hi_c_driver_leon_serial_request);
 }
 #endif
 

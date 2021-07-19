@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 #include <drivers/po_hi_driver_linux_serial.h>
@@ -46,7 +46,6 @@ uint32_t po_hi_c_driver_serial_sending_wait;
 #if defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX) || \
     defined (__PO_HI_NEED_DRIVER_SERIAL_LINUX_RECEIVER)
 
-__po_hi_request_t __po_hi_c_driver_serial_linux_request;
 __po_hi_msg_t     __po_hi_c_driver_serial_linux_poller_msg;
 __po_hi_mutex_t   __po_hi_c_linux_serial_send_mutex;
 
@@ -55,7 +54,7 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
    (void) dev_id;
    int n;
    int ts;
-
+   __po_hi_request_t *__po_hi_c_driver_serial_linux_request;
    unsigned long* swap_pointer;
    unsigned long swap_value;
 
@@ -103,7 +102,8 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Received: %s\n", __po_hi_c_driver_serial_linux_poller_msg.content);
 
-   __po_hi_unmarshall_request (&__po_hi_c_driver_serial_linux_request, &__po_hi_c_driver_serial_linux_poller_msg);
+   __po_hi_c_driver_serial_linux_request = __po_hi_get_request();
+   __po_hi_unmarshall_request (__po_hi_c_driver_serial_linux_request, &__po_hi_c_driver_serial_linux_poller_msg);
 
    if (__po_hi_c_driver_serial_linux_request.port > __PO_HI_NB_PORTS)
    {
@@ -113,7 +113,7 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
    }
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Destination port: %d\n", __po_hi_c_driver_serial_linux_request.port);
-   __po_hi_main_deliver (&__po_hi_c_driver_serial_linux_request);
+   __po_hi_main_deliver (__po_hi_c_driver_serial_linux_request);
 }
 #endif
 

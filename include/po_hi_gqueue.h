@@ -22,6 +22,7 @@
 #include <deployment.h>
 #include <request.h>
 #include <po_hi_types.h>
+#include <po_hi_utils.h>
 
 /**
  * \brief Initialize a global queue.
@@ -49,7 +50,7 @@
 void __po_hi_gqueue_init(
   __po_hi_task_id id,
   __po_hi_port_id_t nb_ports,
-  __po_hi_request_t queue[],
+  __po_hi_request_t * queue[],
   __po_hi_port_id_t sizes[],
   __po_hi_port_id_t first[],
   __po_hi_port_id_t offsets[],
@@ -58,11 +59,9 @@ void __po_hi_gqueue_init(
   __po_hi_port_t * destinations[],
   __po_hi_port_id_t used_size[],
   __po_hi_local_port_t history[],
-  __po_hi_request_t recent[],
+  __po_hi_request_t * recent[],
   __po_hi_port_id_t empties[],
   __po_hi_uint32_t total_fifo_size);
-
-
 
 /**
  * \brief Store a value for an OUT port.
@@ -75,8 +74,6 @@ void __po_hi_gqueue_store_out(
   __po_hi_task_id id,
   __po_hi_local_port_t port,
   __po_hi_request_t * request);
-
-
 
 /*
  * \brief Send a value for an out port.
@@ -108,7 +105,7 @@ int __po_hi_gqueue_send_output (__po_hi_task_id id,
 int __po_hi_gqueue_get_value(
   __po_hi_task_id id,
   __po_hi_local_port_t port,
-  __po_hi_request_t * request);
+  __po_hi_request_t ** request);
 
 /**
  * \brief Dequeue the value on a port.
@@ -172,7 +169,6 @@ void __po_hi_gqueue_wait_for_specific_incoming_events(
   __po_hi_ba_automata_state_t * next_complete_state,
   __po_hi_int32_t * index_transition_to_execute);
 
-
 /**
  * \brief Wait until an event is received on any port for a given thread.
  * 
@@ -216,6 +212,11 @@ __po_hi_request_t *__po_hi_gqueue_get_most_recent_value(
   const __po_hi_task_id task_id,
   const __po_hi_local_port_t local_port);
 
+void __po_hi_gqueue_set_most_recent_value(
+    __po_hi_task_id task_id,
+    __po_hi_local_port_t local_port,
+    __po_hi_request_t *request);
+
 /**
  * \brief Access the destination port thanks to the destination number.
  *  
@@ -244,7 +245,6 @@ __po_hi_port_t __po_hi_gqueue_get_destination(
 __po_hi_port_id_t __po_hi_gqueue_get_destinations_number(
   const __po_hi_task_id task_id,
   const __po_hi_local_port_t local_port);
-
 
 /**
  * \brief Access the size of a port. 
@@ -279,3 +279,15 @@ __po_hi_port_id_t __po_hi_gqueue_used_size(
 __po_hi_port_id_t po_hi_gqueues_queue_is_empty(
   __po_hi_task_id id);
 #endif /* __PO_HI_GQUEUE_H__ */
+
+/**
+ * \brief Allocate a request
+ */
+__po_hi_request_t *__po_hi_get_request(void);
+
+/**
+ * \brief Free a request
+ */
+bool __po_hi_free_request (__po_hi_request_t * OBJq);
+void __po_hi_request_valid (__po_hi_request_t * OBJ);
+void __po_hi_gqueue_init_global(void);

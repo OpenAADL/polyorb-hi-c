@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2010-2019 ESA & ISAE, 2019-2020 OpenAADL
+ * Copyright (C) 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
 
@@ -42,7 +42,6 @@
 #define __PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT 4
 
 __po_hi_c_driver_rasta_1553_brm_t         po_hi_c_driver_1553_rasta_fd;
-__po_hi_request_t                         po_hi_c_driver_1553_rasta_request;
 __po_hi_msg_t                             __po_hi_c_driver_1553_rasta_terminal_poller_msg;
 
 void __po_hi_c_driver_1553_rasta_terminal_poller (void)
@@ -50,7 +49,7 @@ void __po_hi_c_driver_1553_rasta_terminal_poller (void)
    int            ret;
    int            msglen;
    struct rt_msg  msgs[__PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT];
-
+   __po_hi_request_t *po_hi_c_driver_1553_rasta_request;
    __DEBUGMSG ("[RASTA 1553] Hello, i'm the poller !\n");
 
    __po_hi_c_driver_1553_rasta_brmlib_set_block(po_hi_c_driver_1553_rasta_fd,1,0);
@@ -96,12 +95,12 @@ void __po_hi_c_driver_1553_rasta_terminal_poller (void)
    printf("\n");
    }
 
+   po_hi_c_driver_1553_rasta_request = __po_hi_get_request();
+   __po_hi_unmarshall_request (po_hi_c_driver_1553_rasta_request, &__po_hi_c_driver_1553_rasta_terminal_poller_msg);
 
-   __po_hi_unmarshall_request (&po_hi_c_driver_1553_rasta_request, &__po_hi_c_driver_1553_rasta_terminal_poller_msg);
+   __DEBUGMSG ("[RASTA 1553] Destination port: %d\n", (*po_hi_c_driver_1553_rasta_request).port);
 
-   __DEBUGMSG ("[RASTA 1553] Destination port: %d\n", po_hi_c_driver_1553_rasta_request.port);
-
-   __po_hi_main_deliver (&po_hi_c_driver_1553_rasta_request);
+   __po_hi_main_deliver (po_hi_c_driver_1553_rasta_request);
 }
 
 

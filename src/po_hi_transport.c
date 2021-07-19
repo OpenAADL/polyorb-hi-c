@@ -39,7 +39,7 @@ extern __po_hi_node_t __po_hi_entity_table[__PO_HI_NB_ENTITIES];
 extern __po_hi_entity_t __po_hi_port_global_to_entity[__PO_HI_NB_PORTS];
 extern __po_hi_local_port_t __po_hi_port_global_to_local[__PO_HI_NB_PORTS];
 extern __po_hi_request_t
-  *__po_hi_gqueues_most_recent_values[__PO_HI_NB_TASKS];
+  * __po_hi_gqueues_most_recent_values[__PO_HI_NB_TASKS];
 extern char *__po_hi_port_global_model_names[__PO_HI_NB_PORTS];
 extern char *__po_hi_port_global_names[__PO_HI_NB_PORTS];
 extern __po_hi_uint8_t __po_hi_deployment_endiannesses[__PO_HI_NB_NODES];
@@ -53,7 +53,7 @@ extern __po_hi_port_t __po_hi_devices_to_nodes[__PO_HI_NB_DEVICES];
 extern __po_hi_device_id __po_hi_port_to_device[__PO_HI_NB_PORTS];
 extern char *__po_hi_devices_naming[__PO_HI_NB_DEVICES];
 extern __po_hi_uint32_t
-  *__po_hi_devices_configuration_values[__PO_HI_NB_DEVICES];
+  * __po_hi_devices_configuration_values[__PO_HI_NB_DEVICES];
 extern __po_hi_uint32_t __po_hi_devices_nb_accessed_buses[__PO_HI_NB_DEVICES];
 extern __po_hi_bus_id *__po_hi_devices_accessed_buses[__PO_HI_NB_DEVICES];
 #endif
@@ -92,7 +92,6 @@ __po_hi_mutex_t __po_hi_c_send_mutex;
 int __po_hi_xtratum_port[__PO_HI_NB_PORTS];
 #endif
 
-
 int __po_hi_transport_send(
   __po_hi_task_id id,
   __po_hi_port_t port) {
@@ -107,8 +106,9 @@ int __po_hi_transport_send(
 
   local_port = __po_hi_get_local_port_from_global_port(port);
   request = __po_hi_gqueue_get_most_recent_value(id, local_port);
+  __po_hi_request_valid (request);
 
-  if (request->port == -1) {
+  if (request == NULL) {
     __PO_HI_DEBUG_DEBUG
       ("Send output task %d, global port %d : no value to send\n", id, port);
     return __PO_HI_SUCCESS;
@@ -138,7 +138,12 @@ int __po_hi_transport_send(
   __DEBUGMSG("|\n");
 #endif
 
+  // XXX need to copy request if more than 1 destination
+
   for (i = 0; i < __po_hi_gqueue_get_destinations_number(id, local_port); i++) {
+    if (__po_hi_gqueue_get_destinations_number(id, local_port) > 1)
+    assert (false); // revisit for d3.3.1 example ...
+
     destination_port = __po_hi_gqueue_get_destination(id, local_port, i);
     destination_port_local =
       __po_hi_get_local_port_from_global_port(destination_port);
@@ -149,14 +154,17 @@ int __po_hi_transport_send(
       ("Destination number %d, global port \t%d, local port %d, (entity=%d)",
        i, destination_port, destination_port_local, destination_entity);
     if ((__po_hi_gqueue_used_size(id, destination_port_local) ==
-         __po_hi_gqueue_get_port_size(id, destination_port_local))
-        && (__po_hi_gqueue_get_port_size(id, destination_port_local) !=
+         __po_hi_gqueue_get_port_size(id /* destination_entity */, destination_port_local))
+        && (__po_hi_gqueue_get_port_size(id /* destination_entity */, destination_port_local) !=
             __PO_HI_GQUEUE_FIFO_INDATA)) {
       /* The gqueue on the destination port is full, error message transmitted */
       __PO_HI_DEBUG_CRITICAL
-        ("[TRANSPORT] QUEUE FULL ON THE DESTINATION PORT, NOT TRANSMITTED, task-id=%d, port=%d",
-         id, destination_port_local);
-      return __PO_HI_ERROR_QUEUE_FULL;
+        ("[TRANSPORT] QUEUE FULL ON THE DESTINATION PORT, NOT TRANSMITTED, task-id=%d, port=%d, size %d / %d\n",
+         destination_entity, destination_port_local, 
+         __po_hi_gqueue_used_size(destination_entity, destination_port_local),
+         __po_hi_gqueue_get_port_size(destination_entity, destination_port_local));
+
+       return __PO_HI_ERROR_QUEUE_FULL;
     }
 
     request->port = destination_port;
@@ -177,10 +185,11 @@ int __po_hi_transport_send(
         __po_hi_main_deliver(request);
       }
 #else
-      __PO_HI_DEBUG_DEBUG(" [deliver locally]\n");
+      __PO_HI_DEBUG_DEBUG (" [deliver locally] %p\n",request);
       __po_hi_main_deliver(request);
 #endif
-
+    __po_hi_gqueue_set_most_recent_value(id, local_port, NULL);
+    //request->port = __PO_HI_GQUEUE_INVALID_PORT;  // XXX questionnable
     }
 
 #ifdef XM3_RTEMS_MODE           /* for XTratuM */
@@ -247,6 +256,10 @@ int __po_hi_transport_send(
     else {
       __PO_HI_DEBUG_DEBUG(" [deliver remotely]\n");
       __po_hi_transport_call_sending_func_by_port(id, port);
+
+      /* The request has been sent to a remote node, it can now be freed */
+      __po_hi_free_request (request);
+
     }
 #endif
 
@@ -258,8 +271,6 @@ int __po_hi_transport_send(
        __po_hi_get_local_port_from_global_port(destination_port), request);
 #endif
   }
-
-  request->port = __PO_HI_GQUEUE_INVALID_PORT;  // XXX questionnable
 
 #ifdef __PO_HI_DEBUG
   __PO_HI_DEBUG_DEBUG("\n");

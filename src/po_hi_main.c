@@ -8,10 +8,7 @@
  * Copyright (C) 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
 
-#ifndef AIR_HYPERVISOR
-// AIR has its own variant of memset defined in a different header
 #include <string.h>
-#endif
 
 #include <deployment.h>
 /* included files from the generated code */
@@ -26,6 +23,9 @@
 #include <po_hi_debug.h>
 #include <po_hi_protected.h>
 #include <po_hi_utils.h>
+#if  __PO_HI_NB_PORTS > 0
+#include <po_hi_gqueue.h>
+#endif
 /* included files from PolyORB-HI-C */
 
 #if defined (MONITORING)
@@ -177,7 +177,6 @@ int __po_hi_initialize_early(
   }
 #endif
 
-
 #if defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API)
   rtems_status_code ret;
   rtems_time_of_day time;
@@ -227,6 +226,10 @@ int __po_hi_initialize_early(
 
 #if __PO_HI_MONITOR_ENABLED == 1
   __po_hi_monitor_init();
+#endif
+
+#if  __PO_HI_NB_PORTS > 0
+  __po_hi_gqueue_init_global();
 #endif
 
   return (__PO_HI_SUCCESS);
