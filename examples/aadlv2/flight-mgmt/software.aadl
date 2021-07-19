@@ -60,10 +60,10 @@ end Operator_T;
 
 thread implementation Sensor_Sim_T.RS
 properties
-  Period             => 20 Ms;
+  Period             => 20 ms;
   Compute_Entrypoint_Source_Text => "On_Sensor_Sim";
   Dispatch_Protocol  => Periodic;
-  Deadline           => 15 Ms;
+  Deadline           => 15 ms;
   source_text        => ("flight-mgmt.c");
 end Sensor_Sim_T.RS;
 
@@ -71,26 +71,26 @@ thread implementation Stall_Monitor_T.RS
 properties
   Compute_Entrypoint_Source_Text => "On_Stall_Monitor";
   Dispatch_Protocol  => Periodic;
-  Period             => 20 Ms;
+  Period             => 20 ms;
   source_text        => ("flight-mgmt.c");
 end Stall_Monitor_T.RS;
 
 thread implementation HCI_T.RS
 properties
   Dispatch_Protocol => Sporadic;
-  Period            => 10 Ms;
+  Period            => 10 ms;
 end HCI_T.RS;
 
 thread implementation Landing_Gear_T.RS
 properties
   Dispatch_Protocol => Sporadic;
-  Period            => 3000 Ms;
+  Period            => 3000 ms;
 end Landing_Gear_T.RS;
 
 thread implementation Operator_T.RS
 properties
   Dispatch_Protocol  => Periodic;
-  Period             => 10 Sec;
+  Period             => 10 sec;
   Compute_Entrypoint_Source_Text => "On_Operator";
   source_text        => ("flight-mgmt.c");
 end Operator_T.RS;
