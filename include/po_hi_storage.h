@@ -70,8 +70,7 @@ typedef struct {
   int dir_id;
   int nb_files;
   char dirname[__PO_HI_STORAGE_FILENAME_MAXLENGTH];
-  char
-    filename[__PO_HI_STORAGE_DIRECTORY_MAXFILES]
+  char filename[__PO_HI_STORAGE_DIRECTORY_MAXFILES]
     [__PO_HI_STORAGE_FILENAME_MAXLENGTH];
 } __po_hi_storage_dir_t;
 
