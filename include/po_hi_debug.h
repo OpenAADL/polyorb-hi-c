@@ -9,9 +9,9 @@
  */
 
 #ifndef __PO_HI_DEBUG_H__
+#include <assert.h>
 #include <po_hi_config.h>
 #include <po_hi_time.h>
-
 
 #define __PO_HI_DEBUG_LEVEL_INFO     12
 #define __PO_HI_DEBUG_LEVEL_DEBUG    10
@@ -41,6 +41,8 @@
 #else
 #define __PO_HI_DEBUG_CRITICAL(s, args...)
 #endif
+
+#define __PO_HI_ASSERT(A, s, ...) if(!(A)) {__PO_HI_DEBUG_CRITICAL(s, ##__VA_ARGS__); assert(A); }
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_WARNING
 #define __PO_HI_DEBUG_WARNING(s, args...) __PO_HI_PRINTF(s, ##args)
