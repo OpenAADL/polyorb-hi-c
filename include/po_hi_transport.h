@@ -24,12 +24,12 @@
 
 typedef struct {
   void (
-  *marshaller)(
+  *marshaller) (
   void *,
   void *,
   int *);
   void (
-  *unmarshaller)(
+  *unmarshaller) (
   void *,
   void *,
   int);
@@ -38,7 +38,7 @@ typedef struct {
 
 #if __PO_HI_NB_PORTS > 0
 typedef int (
-  *__po_hi_transport_sending_func)(
+  *__po_hi_transport_sending_func) (
   __po_hi_task_id,
   __po_hi_port_t);
 
