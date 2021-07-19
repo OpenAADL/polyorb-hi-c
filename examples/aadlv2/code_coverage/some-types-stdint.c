@@ -30,9 +30,10 @@ char char_type_var = 'A';
 /* Integer */
 
 #define EMIT_TYPE_INT(TYPE, VAR, FORMAT)	\
+  void user_emit_##TYPE (VAR * type);           \
   void user_emit_##TYPE (VAR * type)	\
   {\
-    TYPE##_type_var++;  	\
+    TYPE##_type_var++;          \
       *type = TYPE##_type_var;\
       printf("Emetting integer : ");\
       printf(FORMAT, *type);\
@@ -41,7 +42,8 @@ char char_type_var = 'A';
   }
 
 #define RECEIVE_TYPE_INT(TYPE, VAR, FORMAT)		\
-  void user_receive_##TYPE (VAR type)\
+  void user_receive_##TYPE (VAR type);\
+  void user_receive_##TYPE (VAR type) \
   {\
     printf("Receiving integer : ");\
     printf(FORMAT, type);\
@@ -52,7 +54,8 @@ char char_type_var = 'A';
 /* Float */
 
 #define EMIT_TYPE_FLOAT(TYPE, VAR, FORMAT)	\
-  void user_emit_##TYPE (VAR * type)	\
+  void user_emit_##TYPE (VAR * type);           \
+  void user_emit_##TYPE (VAR * type)            \
   {\
     TYPE##_type_var++;	\
       *type = TYPE##_type_var;\
@@ -63,7 +66,8 @@ char char_type_var = 'A';
   }
 
 #define RECEIVE_TYPE_FLOAT(TYPE, VAR, FORMAT)	\
-  void user_receive_##TYPE (VAR type)\
+  void user_receive_##TYPE (VAR type);          \
+  void user_receive_##TYPE (VAR type)         \
   {\
   printf("Receiving float : ");\
     printf(FORMAT, type);\
@@ -73,6 +77,7 @@ char char_type_var = 'A';
 
 
 /* Boolean sub case */
+void user_emit_boolean(int16_t* boolean);
 void user_emit_boolean(int16_t* boolean)
 {
   if (boolean_type_var == 1)
@@ -88,6 +93,7 @@ void user_emit_boolean(int16_t* boolean)
   fflush (stdout);
 }
 
+void user_receive_boolean (int16_t boolean);
 void user_receive_boolean (int16_t boolean)
 {
   printf ("Receiving boolean : %d\n", boolean);
@@ -97,6 +103,7 @@ void user_receive_boolean (int16_t boolean)
 
 /* Char sub case */
 
+void user_emit_char (char* character);
 void user_emit_char (char* character)
 {
 
@@ -107,6 +114,7 @@ void user_emit_char (char* character)
   fflush (stdout);
 }
 
+void user_receive_char (char character);
 void user_receive_char (char character)
 {
   printf ("Receiving char : %c\n", character);
@@ -115,6 +123,7 @@ void user_receive_char (char character)
 
 /* Array sub case */
 
+void user_emit_array (software__array_type* data);
 void user_emit_array (software__array_type* data)
 {
   int i;
@@ -124,6 +133,7 @@ void user_emit_array (software__array_type* data)
   fflush (stdout);
 }
 
+void user_receive_array (software__array_type data);
 void user_receive_array (software__array_type data)
 {
   int i;
