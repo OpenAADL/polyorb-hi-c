@@ -74,7 +74,8 @@
 /* Header files from generated code */
 
 typedef enum __po_hi_task_category_t { TASK_PERIODIC, TASK_SPORADIC,
-    TASK_BACKGROUND }
+  TASK_BACKGROUND
+}
 __po_hi_task_category;
 
 
@@ -360,8 +361,7 @@ int __po_hi_wait_for_next_period(
   rtems_status_code ret;
 
   ret =
-    rtems_rate_monotonic_period(tasks[task].ratemon_period,
-                                (rtems_interval)
+    rtems_rate_monotonic_period(tasks[task].ratemon_period, (rtems_interval)
                                 __PO_HI_TIME_TO_US(tasks[task].period) /
                                 rtems_configuration_get_microseconds_per_tick
                                 ());
@@ -707,7 +707,7 @@ int __po_hi_create_generic_task(
   void *(*start_routine)(void),
   void *arg) {
 
-  if(id == -1) {
+  if (id == -1) {
 
 #if defined (POSIX) || defined (RTEMS_POSIX) || defined (XENO_POSIX)
     __po_hi_posix_create_thread(priority, stack_size, core_id, start_routine,
@@ -732,7 +732,7 @@ int __po_hi_create_generic_task(
                                 arg);
     return (__PO_HI_SUCCESS);
 #else
-    return(__PO_HI_UNAVAILABLE);
+    return (__PO_HI_UNAVAILABLE);
 #endif
   } else {
     __po_hi_task_t *my_task;
@@ -777,8 +777,8 @@ int __po_hi_create_periodic_task(
   const __po_hi_int8_t core_id,
   void *(*start_routine)(void)) {
 
-  if(__po_hi_create_generic_task
-     (id, period, priority, stack_size, core_id, start_routine, NULL) != 1) {
+  if (__po_hi_create_generic_task
+      (id, period, priority, stack_size, core_id, start_routine, NULL) != 1) {
     __DEBUGMSG("ERROR when creating generic task (task id=%d)\n", id);
     return (__PO_HI_ERROR_CREATE_TASK);
   }
@@ -853,9 +853,9 @@ int __po_hi_create_sporadic_task(
    * last parameter. Typically, a sporadic thread will wait on a
    * mutex.
    */
-  if(__po_hi_create_generic_task
-     (id, period, priority, stack_size, core_id, start_routine, NULL) != 1) {
-    return(__PO_HI_ERROR_CREATE_TASK);
+  if (__po_hi_create_generic_task
+      (id, period, priority, stack_size, core_id, start_routine, NULL) != 1) {
+    return (__PO_HI_ERROR_CREATE_TASK);
   }
 
 #if defined (XENO_NATIVE)
