@@ -7,8 +7,9 @@
  *
  * Copyright (C) 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
  */
-
+#ifndef AIR_HYPERVISOR
 #include <string.h>
+#endif
 
 #include <deployment.h>
 /* included files from the generated code */

@@ -258,6 +258,7 @@ int __po_hi_transport_send(
       __po_hi_transport_call_sending_func_by_port(id, port);
 
       /* The request has been sent to a remote node, it can now be freed */
+      __po_hi_gqueue_set_most_recent_value(id, local_port, NULL);
       __po_hi_free_request (request);
 
     }
@@ -346,7 +347,6 @@ int __po_hi_transport_call_sending_func_by_device(
   }
   return send_func(task_id, port);
 }
-
 
 __po_hi_transport_sending_func __po_hi_transport_get_sending_func(
   const __po_hi_device_id device) {
