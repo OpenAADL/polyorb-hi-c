@@ -305,7 +305,7 @@ bool objpool_request_t_free(
   {
     if (Iter == I)
     {
-      __PO_HI_DEBUG_CRITICAL ("[PO-HI/C] double free %p\n", I);
+      __PO_HI_DEBUG_INFO ("[PO-HI/C] double free %p\n", I);
       __po_hi_mutex_unlock(&(P->lock)); 
       return true;
     }
@@ -1008,7 +1008,8 @@ int __po_hi_gqueue_next_value(
                       __po_hi_gqueues_sizes[id][port], __po_hi_gqueues_total_fifo_size[id],
                       __po_hi_gqueues[id]);
 
-// XXXX is this sufficient to remove data, wait and see ;-)
+  // XXXX is this sufficient to remove data, wait and see ;-)
+
   *(__po_hi_gqueues[id] + __po_hi_gqueues_first[id][port] +
       __po_hi_gqueues_offsets[id][port]) = NULL;
 
