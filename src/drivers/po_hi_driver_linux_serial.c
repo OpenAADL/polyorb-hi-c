@@ -105,14 +105,14 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
    __po_hi_c_driver_serial_linux_request = __po_hi_get_request();
    __po_hi_unmarshall_request (__po_hi_c_driver_serial_linux_request, &__po_hi_c_driver_serial_linux_poller_msg);
 
-   if (__po_hi_c_driver_serial_linux_request.port > __PO_HI_NB_PORTS)
+   if (__po_hi_c_driver_serial_linux_request->port > __PO_HI_NB_PORTS)
    {
       __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Invalid port number %d !\n",
-                           __po_hi_c_driver_serial_linux_request.port);
+                           __po_hi_c_driver_serial_linux_request->port);
       return;
    }
 
-   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Destination port: %d\n", __po_hi_c_driver_serial_linux_request.port);
+   __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Destination port: %d\n", __po_hi_c_driver_serial_linux_request->port);
    __po_hi_main_deliver (__po_hi_c_driver_serial_linux_request);
 }
 #endif
