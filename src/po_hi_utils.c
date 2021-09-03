@@ -25,6 +25,26 @@
 
 #include <stdlib.h>
 
+/* __po_hi_vcd_trace_max_nb_events used to reallocate the array
+ * of the vcd trace */
+__po_hi_int32_t __po_hi_vcd_trace_max_nb_events;
+
+/* __po_hi_vcd_trace_array an array containing the vcd trace
+ * as elements with type __po_hi_vcd_trace_element_t  */
+__po_hi_vcd_trace_element_t *__po_hi_vcd_trace_array;
+
+/* __po_hi_vcd_trace_array_index is the index of __po_hi_vcd_trace_array
+ * it should be protected as it is shared between tasks used to
+ * save a new element in the array*/
+__po_hi_int32_t __po_hi_vcd_trace_array_index;
+
+/* mutex used to protect the index __po_hi_vcd_trace_array_index */
+pthread_mutex_t __po_hi_vcd_trace_mutex;
+
+/* __po_hi_vcd_start_t is the start time and it is
+ * set in the procedure __po_hi_initialize_vcd_trace */
+__po_hi_time_t __po_hi_vcd_start_t;
+
 int __po_hi_compute_miss(
   __po_hi_uint8_t rate) {
   int v;
@@ -116,7 +136,7 @@ void __po_hi_save_event_in_vcd_trace(
    * the vcd trace array and then increment it*/
   pthread_mutex_lock(&__po_hi_vcd_trace_mutex);
   current_index = __po_hi_vcd_trace_array_index;
-  /* if the vcd trace array reach the maximum allocated size 
+  /* if the vcd trace array reach the maximum allocated size
    * we increase its size*/
   if (current_index == __po_hi_vcd_trace_max_nb_events)
     __po_hi_get_larger_array_for_vcd_trace();

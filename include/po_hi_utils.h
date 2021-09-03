@@ -38,21 +38,21 @@ typedef struct {
 
 } __po_hi_vcd_trace_element_t;
 
-/* __po_hi_vcd_trace_max_nb_events used to reallocate the array 
+/* __po_hi_vcd_trace_max_nb_events used to reallocate the array
  * of the vcd trace */
-__po_hi_int32_t __po_hi_vcd_trace_max_nb_events;
+extern __po_hi_int32_t __po_hi_vcd_trace_max_nb_events;
 
 /* __po_hi_vcd_trace_array an array containing the vcd trace
  * as elements with type __po_hi_vcd_trace_element_t  */
-__po_hi_vcd_trace_element_t *__po_hi_vcd_trace_array;
+extern __po_hi_vcd_trace_element_t *__po_hi_vcd_trace_array;
 
 /* __po_hi_vcd_trace_array_index is the index of __po_hi_vcd_trace_array
  * it should be protected as it is shared between tasks used to
  * save a new element in the array*/
-__po_hi_int32_t __po_hi_vcd_trace_array_index;
+extern __po_hi_int32_t __po_hi_vcd_trace_array_index;
 
 /* mutex used to protect the index __po_hi_vcd_trace_array_index */
-pthread_mutex_t __po_hi_vcd_trace_mutex;
+extern pthread_mutex_t __po_hi_vcd_trace_mutex;
 
 /* __po_hi_get_larger_array_for_vcd_trace allows to reallocate a larger
  * array to save the vcd trace */
@@ -76,7 +76,7 @@ uint64_t __po_hi_compute_timestamp(
 
 /* __po_hi_vcd_start_t is the start time and it is
  * set in the procedure __po_hi_initialize_vcd_trace */
-__po_hi_time_t __po_hi_vcd_start_t;
+extern __po_hi_time_t __po_hi_vcd_start_t;
 
 /* __po_hi_signalHandler is a SIGINT signal handler : it is invoked when
  * Ctrl-c is pressed in the keyboard to interrupt the execution
