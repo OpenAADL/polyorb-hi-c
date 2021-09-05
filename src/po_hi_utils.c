@@ -25,6 +25,8 @@
 
 #include <stdlib.h>
 
+#if defined(__PO_HI_USE_VCD) && defined(__unix__)
+
 /* __po_hi_vcd_trace_max_nb_events used to reallocate the array
  * of the vcd trace */
 __po_hi_int32_t __po_hi_vcd_trace_max_nb_events;
@@ -44,6 +46,7 @@ pthread_mutex_t __po_hi_vcd_trace_mutex;
 /* __po_hi_vcd_start_t is the start time and it is
  * set in the procedure __po_hi_initialize_vcd_trace */
 __po_hi_time_t __po_hi_vcd_start_t;
+#endif
 
 int __po_hi_compute_miss(
   __po_hi_uint8_t rate) {
