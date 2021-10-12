@@ -510,6 +510,7 @@ pthread_t __po_hi_posix_create_thread(
   /* Create attributes to store all configuration parameters */
 
   if (pthread_attr_init(&attr) != 0) {
+    __PO_HI_DEBUG_CRITICAL("Thread creation error in call to pthread_attr_init\n");
     return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
   }
 
@@ -529,7 +530,7 @@ pthread_t __po_hi_posix_create_thread(
   CPU_SET(core_id, &cpuset);
 
   if (pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) != 0) {
-    __DEBUGMSG("CANNOT SET AFFINTY\n");
+    __PO_HI_DEBUG_CRITICAL("This platform does not support CPU affinity setting\n");
     return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
   }
 #else
@@ -546,16 +547,19 @@ pthread_t __po_hi_posix_create_thread(
 
 #if defined (POSIX) || defined (XENO_POSIX)
   if (pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM) != 0) {
+    __PO_HI_DEBUG_CRITICAL ("Thread creation failed - in call to pthread_attr_setscope\n");
     return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
   }
 #elif defined (RTEMS_POSIX)
   if (pthread_attr_setscope(&attr, PTHREAD_SCOPE_PROCESS) != 0) {
+    __PO_HI_DEBUG_CRITICAL ("Thread creation failed - in call to pthread_attr_setscope\n");
     return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
   }
 #endif
 
   if (stack_size != 0) {
     if (pthread_attr_setstacksize(&attr, stack_size) != 0) {
+      __PO_HI_DEBUG_CRITICAL ("Thread creation failed - in call to pthread_attr_setscope\n");
       return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
     }
   }
