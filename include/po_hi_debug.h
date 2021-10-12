@@ -31,13 +31,13 @@
 /* Some OS do not define stderr, print directly on stdout */
 
 #ifdef AIR_HYPERVISOR
-#define __PO_HI_PRINTF(s, args...) printf(s, ##args)
+#define __PO_HI_PRINTF(s, args...)  do { printf(s, ##args); fflush(stdout); exit(1); } while(0);
 #else
-#define __PO_HI_PRINTF(s, args...) fprintf(stderr, s, ##args); fflush(stdout)
+#define __PO_HI_PRINTF(s, args...) do { fprintf(stderr, s, ##args); fflush(stdout); exit(1); } while(0);
 #endif
 
 #if __PO_HI_DEBUG_LEVEL >= __PO_HI_DEBUG_LEVEL_CRITICAL
-#define __PO_HI_DEBUG_CRITICAL(s, args...) __PO_HI_PRINTF(s, ##args)
+#define __PO_HI_DEBUG_CRITICAL(s, args...) __PO_HI_PRINTF("## FATAL ERROR ## " s, ##args)
 #else
 #define __PO_HI_DEBUG_CRITICAL(s, args...)
 #endif
