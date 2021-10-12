@@ -43,6 +43,11 @@ pthread_cond_t cond_init;
 pthread_mutex_t mutex_init;
 #endif
 
+#if defined (__unix__)
+/* Add signal handling to enable proper termination, e.g. to dump gcov info */
+#include <signal.h>
+#endif
+
 #if defined (RTEMS_POSIX) || defined (__PO_HI_RTEMS_CLASSIC_API)
 #include <rtems.h>
 #include <rtems/rtems/clock.h>
@@ -91,6 +96,15 @@ RT_TASK *main_task_id;
  * Only generated/created tasks wait for their mutual
  * initialization.
  */
+#endif
+
+#if defined (__unix__)
+/* Signal handler attached to SIGINT */
+void ctrl_c_handler(void);
+void ctrl_c_handler(void)
+{
+    exit(0);
+}
 #endif
 
 int __po_hi_initialized_tasks = 0;
@@ -243,6 +257,11 @@ int __po_hi_initialize_early(
  */
 int __po_hi_initialize(
   ) {
+
+#if defined (__unix__)
+   /* Intercept Ctrl-C to allow code coverage dump by gcov */
+   (void) signal (SIGINT, (void(*))ctrl_c_handler);
+#endif
 
 #if (defined (XM3_RTEMS_MODE) && (__PO_HI_NB_PORTS > 0))
 #include <deployment.h>
