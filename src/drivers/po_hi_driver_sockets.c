@@ -710,7 +710,7 @@ void __po_hi_driver_sockets_init (__po_hi_device_id dev_id)
          __po_hi_get_time (&current_time);
          __po_hi_milliseconds (&tmptime, 500);
          __po_hi_add_times (&mytime, &current_time, &tmptime);
-         __PO_HI_DEBUG_CRITICAL ("[DRIVER SOCKETS] Cannot connect on device %d, wait 500ms\n", dev);
+         __PO_HI_DEBUG_WARNING ("[DRIVER SOCKETS] Cannot connect on device %d, wait 500ms\n", dev);
          __po_hi_delay_until (&mytime);
       }
    }
