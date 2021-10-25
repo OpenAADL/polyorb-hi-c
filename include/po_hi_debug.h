@@ -10,6 +10,8 @@
 
 #ifndef __PO_HI_DEBUG_H__
 #include <assert.h>
+#include <stdlib.h>
+
 #include <po_hi_config.h>
 #include <po_hi_time.h>
 
@@ -22,7 +24,6 @@
 #ifndef __PO_HI_DEBUG_LEVEL
 #define __PO_HI_DEBUG_LEVEL __PO_HI_DEBUG_LEVEL_CRITICAL
 #endif
-
 
 #if __PO_HI_DEBUG_LEVEL > __PO_HI_DEBUG_LEVEL_NONE
 #include <stdio.h>
