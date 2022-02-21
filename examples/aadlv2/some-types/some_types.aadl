@@ -131,6 +131,11 @@ public
     Actual_Processor_Binding => (reference (CPU_A)) applies to sometypes;
   end Some_Types.local;
 
+  system implementation Some_Types.Dyn extends Some_Types.local
+  properties
+    Deployment::USER_CFLAGS => "-D__PO_HI_DYN_REQ" applies to CPU_A;
+  end Some_Types.Dyn;
+
   system implementation Some_Types.Xenomai extends Some_Types.local
   properties
     Deployment::Execution_Platform => linux32_xenomai_native applies to CPU_A;
