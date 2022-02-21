@@ -423,7 +423,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
                   __po_hi_c_sockets_read_sockets[dev] = -1;
                   continue;
                }
-               __po_hi_c_sockets_poller_received_request = __po_hi_get_request();
+               __po_hi_c_sockets_poller_received_request = __po_hi_get_request(invalid_port_t);
                protocol_conf->unmarshaller (__po_hi_c_sockets_poller_received_request, &datareceived, len);
                __po_hi_c_sockets_poller_received_request.port = 1;
             }
@@ -461,7 +461,7 @@ void* __po_hi_sockets_poller (__po_hi_device_id* dev_id_addr)
                continue;
             }
 
-             __po_hi_c_sockets_poller_received_request = __po_hi_get_request();
+             __po_hi_c_sockets_poller_received_request = __po_hi_get_request(invalid_port_t);
             __po_hi_unmarshall_request (__po_hi_c_sockets_poller_received_request, &__po_hi_c_sockets_poller_msg);
 #endif
             __DEBUGMSG ("[DRIVER SOCKETS] Delivering message to %d\n", (*__po_hi_c_sockets_poller_received_request).port );

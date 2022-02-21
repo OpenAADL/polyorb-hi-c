@@ -306,7 +306,7 @@ bool objpool_request_t_free(
     if (Iter == I)
     {
       __PO_HI_DEBUG_INFO ("[PO-HI/C] double free %p\n", I);
-      __po_hi_mutex_unlock(&(P->lock)); 
+      __po_hi_mutex_unlock(&(P->lock));
       return true;
     }
     else
@@ -325,30 +325,47 @@ bool objpool_request_t_free(
 objpool_request_t *request_pool;
 
 /******************************************************************************/
-__po_hi_request_t *__po_hi_get_request(void)
+__po_hi_request_t *__po_hi_get_request(__po_hi_port_t port)
 {
-  __po_hi_request_t *req = objpool_request_t_get(request_pool);
+#ifdef __PO_HI_DYN_REQ
+  __po_hi_request_t *req = __po_hi_new_request_payload (port);
+#else
+ __po_hi_request_t *req = objpool_request_t_get(request_pool);
+#endif
   return req;
 }
 
 /******************************************************************************/
 bool __po_hi_free_request(__po_hi_request_t *OBJ)
 {
+#ifdef __PO_HI_DYN_REQ
+  free (OBJ);
+  return true;
+#else
   return objpool_request_t_free(OBJ, request_pool);
+#endif
 }
 
 /******************************************************************************/
 void __po_hi_request_valid(__po_hi_request_t *OBJ)
 {
+#ifdef __PO_HI_DYN_REQ
+// Nothing to do here
+#else
   objpool_request_t_is_request_valid (OBJ, request_pool);
+#endif
 }
 
 /******************************************************************************/
 void __po_hi_gqueue_init_global(
     void)
 {
+#ifdef __PO_HI_DYN_REQ
+  printf("Dynamic allocator for requests used\n");
+#else
   request_pool = objpool_request_t_create(2 * __PO_HI_NB_PORTS); // XXX
   __PO_HI_DEBUG_DEBUG("Initialized request pool with %d reqs\n", 2 * __PO_HI_NB_PORTS);
+#endif
 }
 
 /******************************************************************************/
@@ -374,13 +391,13 @@ void __po_hi_gqueue_init(
   {
     __PO_HI_DEBUG_DEBUG("\t");
     if (sizes[j] == __PO_HI_GQUEUE_FIFO_INDATA) {
-      __PO_HI_DEBUG_DEBUG("in data port"); 
+      __PO_HI_DEBUG_DEBUG("in data port");
     }
     else if (sizes[j] == __PO_HI_GQUEUE_FIFO_OUT) {
-      __PO_HI_DEBUG_DEBUG("out port"); 
+      __PO_HI_DEBUG_DEBUG("out port");
     }
     else {
-      __PO_HI_DEBUG_DEBUG("in event (data) port, size = %d", sizes[j]); 
+      __PO_HI_DEBUG_DEBUG("in event (data) port, size = %d", sizes[j]);
     }
     __PO_HI_DEBUG_DEBUG("\n");
   }

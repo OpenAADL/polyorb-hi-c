@@ -11,6 +11,8 @@
 #ifndef __PO_HI_TYPES_H_
 #define __PO_HI_TYPES_H_
 
+#include <stdlib.h>
+
 #include"po_hi_config.h"
 
 #ifdef HAVE_STDINT_H
@@ -33,6 +35,8 @@ typedef bool __po_hi_bool_t;
 #else
 #error This configuration is not supported, PolyORB-HI/C requires a C compiler supporting the "bool" type.
 #endif
+
+typedef void __po_hi_void;
 
 typedef float __po_hi_float32_t;
 typedef double __po_hi_float64_t;
