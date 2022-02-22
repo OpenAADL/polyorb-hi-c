@@ -330,6 +330,7 @@ __po_hi_request_t *__po_hi_get_request(__po_hi_port_t port)
 #ifdef __PO_HI_DYN_REQ
   __po_hi_request_t *req = __po_hi_new_request_payload (port);
 #else
+ (void) port;
  __po_hi_request_t *req = objpool_request_t_get(request_pool);
 #endif
   return req;

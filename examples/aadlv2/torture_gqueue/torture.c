@@ -110,8 +110,8 @@ void period(__po_hi_task_id self) {
     number++;
   }
 
-  __po_hi_request_t *r1 = __po_hi_get_request();
-  __po_hi_request_t *r2 = __po_hi_get_request();
+  __po_hi_request_t *r1 = __po_hi_get_request(invalid_port_t);
+  __po_hi_request_t *r2 = __po_hi_get_request(invalid_port_t);
 
 /*****************************************************************************/
   /* *** SENDING FOR TEST SPORADIC 1 to 4 *** */
@@ -161,7 +161,7 @@ void period(__po_hi_task_id self) {
     for (i = 1; i <= number ; i++){
       sent_lvl = lvl;
 
-      r1 = __po_hi_get_request();
+      r1 = __po_hi_get_request(invalid_port_t);
       r1->port = REQUEST_PORT (per_thread, p3);
       r1->PORT_VARIABLE (per_thread,p3) = lvl;
       lvl++;
@@ -215,7 +215,7 @@ void period(__po_hi_task_id self) {
    assert (count_p6 == 0);
    for (i = 1; i < number ; i++){
       sent_lvl = lvl;
-      r1 = __po_hi_get_request();
+      r1 = __po_hi_get_request(invalid_port_t);
       r1->port = REQUEST_PORT (per_thread, p5);
       r1->PORT_VARIABLE (per_thread,p5) = lvl;
       lvl++;
@@ -249,7 +249,7 @@ void period(__po_hi_task_id self) {
     * An error message should appear */
    printf ("\n*** An error message from TRANSPORT should appear *** \n");
 
-   /* When forcing the store_in of a random value on a FULL port, 
+   /* When forcing the store_in of a random value on a FULL port,
     * An error message must be sent by the store_in function */
     __po_hi_gqueue_store_in(self, port_p6, r1);
     printf ("*** A second message from GQUEUE should appear *** \n");
@@ -265,13 +265,13 @@ void period(__po_hi_task_id self) {
     }
     /* The port is cleaned and at the end of the function, as all ports are flushed, the message will be sent */
      printf ("*** If so, 'error message on full queue' test passed *** \n");
-   
+
    /* Trying to reach something on the output port of the case */
    int err = __po_hi_gqueue_get_value(self,port_output,&(request));
    assert (err == __PO_HI_INVALID);
    printf ("*** An error message from GQUEUE should appear *** \n");
    printf ("*** If so, 'get value on output port' test passed *** \n");
-  
+
    /* Necessary to launch new tests, otherwise triggered by sporadic if it is involved */
    first_iteration = true;
    sem_post(semaphore);
@@ -283,7 +283,7 @@ void period(__po_hi_task_id self) {
 
   if (number == 4){
 
-    /* Dequeuing the message arrived at the new iteration of the function. 
+    /* Dequeuing the message arrived at the new iteration of the function.
      * The message couldn't be sent previously because the port was full (cf test periodic 2).
      * The line is only present to reset the port to an empty state */
     __po_hi_gqueue_next_value (self,port_p6);
@@ -292,7 +292,7 @@ void period(__po_hi_task_id self) {
 
     /* Transmission towards the fifo indata port */
     sent_lvl = lvl;
-    r1 = __po_hi_get_request();
+    r1 = __po_hi_get_request(invalid_port_t);
     r1->port = REQUEST_PORT (per_thread, p7);
     r1->PORT_VARIABLE (per_thread,p7) = lvl;
     lvl++;
@@ -304,7 +304,7 @@ void period(__po_hi_task_id self) {
     __po_hi_gqueue_store_out
       (self,
        LOCAL_PORT (per_thread, p7),
-       r1);  
+       r1);
 
     /* Adding a send output through P2 "just" to awaken the sporadic task
        to process incoming data on its data port */
@@ -312,7 +312,7 @@ void period(__po_hi_task_id self) {
 #if defined (TEST_VERBOSE)
     printf("\n Storeout Period P2 to Sporad P1, task id = %d, from port id = %d", self, LOCAL_PORT (per_thread, p1));
 #endif
-    r1 = __po_hi_get_request();
+    r1 = __po_hi_get_request(invalid_port_t);
     r1->port = REQUEST_PORT (per_thread, p2);
     r1->PORT_VARIABLE (per_thread,p2) = lvl;
     __po_hi_gqueue_store_out
@@ -348,7 +348,7 @@ void sporad(__po_hi_task_id self) {
     /* FIFO test on reception port P2 */
     test_sporad_5 (self);
   }
-  
+
   if (number == 4){
     test_sporad_6 (self);
   }
