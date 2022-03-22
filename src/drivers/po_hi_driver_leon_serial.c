@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2011-2019 ESA & ISAE, 2019-2021 OpenAADL
+ * Copyright (C) 2011-2019 ESA & ISAE, 2019-2022 OpenAADL
  */
 
 #include <deployment.h>
@@ -51,7 +51,7 @@ void __po_hi_c_driver_serial_leon_poller (const __po_hi_device_id dev_id)
    int ts;
    int tr;
    __po_hi_request_t  *po_hi_c_driver_leon_serial_request;
-   
+
    (void) dev_id;
 
    __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] Hello, i'm the serial poller , must read %d bytes on %d !\n", __PO_HI_MESSAGES_MAX_SIZE, po_hi_c_driver_leon_serial_fd_read);
@@ -78,7 +78,7 @@ void __po_hi_c_driver_serial_leon_poller (const __po_hi_device_id dev_id)
    __PO_HI_DEBUG_DEBUG ("\n");
 #endif
 
-   po_hi_c_driver_leon_serial_request = __po_hi_get_request();
+   po_hi_c_driver_leon_serial_request = __po_hi_get_request(invalid_port_t);
    __po_hi_unmarshall_request (po_hi_c_driver_leon_serial_request, &po_hi_c_driver_leon_serial_poller_msg);
 
    if ( po_hi_c_driver_leon_serial_request.port > __PO_HI_NB_PORTS)
@@ -128,9 +128,9 @@ void __po_hi_c_driver_serial_leon_init_sender (__po_hi_device_id id)
    {
       __PO_HI_DEBUG_DEBUG ("[LEON SERIAL] Device %s successfully opened for writing, fd=%d\n", serialconf->devname, po_hi_c_driver_leon_serial_fd_write);
    }
-   tcgetattr (po_hi_c_driver_leon_serial_fd_write, &oldtio); 
-   memset (&newtio, '\0', sizeof(newtio));                
-        
+   tcgetattr (po_hi_c_driver_leon_serial_fd_write, &oldtio);
+   memset (&newtio, '\0', sizeof(newtio));
+
    newtio.c_cflag |= CREAD ;
    newtio.c_iflag = IGNPAR | IGNBRK;
    newtio.c_lflag |= ICANON;
@@ -214,7 +214,7 @@ void __po_hi_c_driver_serial_leon_init_receiver (__po_hi_device_id id)
 
    newtio.c_cflag |= B38400;
 
-   /* 
+   /*
     * clean the serial line and activate the settings for the port
     */
    if (tcflush (po_hi_c_driver_leon_serial_fd_read, TCIOFLUSH) == -1)

@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2018-2019 ESA & ISAE, 2019-2021 OpenAADL
+ * Copyright (C) 2018-2019 ESA & ISAE, 2019-2022 OpenAADL
  */
 
 #include <deployment.h>
@@ -61,7 +61,7 @@ void __po_hi_c_driver_rtems_drvmgr_serial_poller (const __po_hi_device_id dev_id
    int                  ts;
    uint8_t*             ptr;
   __po_hi_request_t     *__po_hi_c_driver_rtems_drvmgr_serial_request;
-  
+
    ts = __PO_HI_MESSAGES_MAX_SIZE;
    ptr = &(__po_hi_c_driver_rtems_drvmgr_serial_poller_msg.content[0]);
    __po_hi_msg_reallocate (&__po_hi_c_driver_rtems_drvmgr_serial_poller_msg);
@@ -82,7 +82,7 @@ void __po_hi_c_driver_rtems_drvmgr_serial_poller (const __po_hi_device_id dev_id
    }
 
    __po_hi_c_driver_rtems_drvmgr_serial_poller_msg.length = __PO_HI_MESSAGES_MAX_SIZE;
-   __po_hi_c_driver_rtems_drvmgr_serial_request = __po_hi_get_request();
+   __po_hi_c_driver_rtems_drvmgr_serial_request = __po_hi_get_request(invalid_port_t);
    __po_hi_unmarshall_request (__po_hi_c_driver_rtems_drvmgr_serial_request,
                                &__po_hi_c_driver_rtems_drvmgr_serial_poller_msg);
 

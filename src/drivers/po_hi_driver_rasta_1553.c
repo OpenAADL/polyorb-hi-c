@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
+ * Copyright (C) 2010-2019 ESA & ISAE, 2019-2022 OpenAADL
  */
 
 
@@ -58,11 +58,11 @@ void __po_hi_c_driver_1553_rasta_terminal_poller (void)
 
    if ( ret <= 0 )
    {
-      __DEBUGMSG ("[RASTA 1553] Error when receive, return code=%d\n",ret); 
+      __DEBUGMSG ("[RASTA 1553] Error when receive, return code=%d\n",ret);
       return;
    }
 
-   __DEBUGMSG ("[RASTA 1553] Poller received %d messages\n",ret); 
+   __DEBUGMSG ("[RASTA 1553] Poller received %d messages\n",ret);
 
    if ( msgs[0].desc >= 32 )
    {
@@ -95,7 +95,7 @@ void __po_hi_c_driver_1553_rasta_terminal_poller (void)
    printf("\n");
    }
 
-   po_hi_c_driver_1553_rasta_request = __po_hi_get_request();
+   po_hi_c_driver_1553_rasta_request = __po_hi_get_request(invalid_port_t);
    __po_hi_unmarshall_request (po_hi_c_driver_1553_rasta_request, &__po_hi_c_driver_1553_rasta_terminal_poller_msg);
 
    __DEBUGMSG ("[RASTA 1553] Destination port: %d\n", (*po_hi_c_driver_1553_rasta_request).port);
@@ -202,7 +202,7 @@ int __po_hi_c_driver_1553_rasta_sender_controller (const __po_hi_task_id task_id
    printf("\n");
    }
    */
-   
+
    __po_hi_c_driver_1553_rasta_brmlib_set_block (po_hi_c_driver_1553_rasta_fd, 1, 0);
 
    if ( __po_hi_c_driver_1553_rasta_proccess_list(po_hi_c_driver_1553_rasta_fd,msgs,0) )
@@ -227,14 +227,14 @@ int __po_hi_c_driver_1553_rasta_proccess_list (__po_hi_c_driver_rasta_1553_brm_t
    }
 
    /* Blocks until done */
-   __DEBUGMSG("[RASTA 1553] Waiting until list processed\n"); 
+   __DEBUGMSG("[RASTA 1553] Waiting until list processed\n");
    if ( (ret=__po_hi_c_driver_1553_rasta_brmlib_bc_dolist_wait(chan)) < 0 )
    {
       __DEBUGMSG("[RASTA 1553] LIST EXECUTION DONE FAILED\n");
       return -1;
    }
 
-   if ( ret != 1 ) 
+   if ( ret != 1 )
    {
       /* not done */
       __DEBUGMSG("[RASTA 1553] LIST NOT PROCESSED\n");
@@ -244,7 +244,7 @@ int __po_hi_c_driver_1553_rasta_proccess_list (__po_hi_c_driver_rasta_1553_brm_t
    /* done */
    __DEBUGMSG("[RASTA 1553] List processed.\n");
 
-   for (j = 1; j <= __PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT; j++) 
+   for (j = 1; j <= __PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT; j++)
    {
       if (list[j-1].ctrl & BC_BAME)
       {
@@ -270,14 +270,14 @@ void __po_hi_c_driver_1553_rasta_controller ()
 
 
    /* total blocking mode */
-   __DEBUGMSG("[RASTA 1553] Task1: Setting TX/RX blocking mode\n"); 
+   __DEBUGMSG("[RASTA 1553] Task1: Setting TX/RX blocking mode\n");
    __po_hi_c_driver_1553_rasta_brmlib_set_block(po_hi_c_driver_1553_rasta_fd,1,1);
 
    __DEBUGMSG("[RASTA 1553] Setting up command list.\n");
 
 
    /* Set up messages to RT receive subaddresses */
-   for (j = 1; j <= __PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT; j++) 
+   for (j = 1; j <= __PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT; j++)
    {
       cmd_list[j-1].rtaddr[0]  = 1;
       cmd_list[j-1].subaddr[0] = j;
@@ -299,12 +299,12 @@ void __po_hi_c_driver_1553_rasta_controller ()
    cmd_list[__PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT].ctrl |= BC_EOL;   /* end of list */
 
    /* Set up RT transmit sub addresses (request RTs to send answer) */
-   for (j = 1; j <= __PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT; j++) 
+   for (j = 1; j <= __PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT; j++)
    {
       result_list[j-1].rtaddr[0]  = 1;
       result_list[j-1].subaddr[0] = j;
       result_list[j-1].wc         = 8;
-      result_list[j-1].ctrl       = BC_BUSA | BC_TR; /* RT transmit on bus a */		
+      result_list[j-1].ctrl       = BC_BUSA | BC_TR; /* RT transmit on bus a */
       /* clear data */
       for (k = 0; k < 9; k++)
       {
@@ -317,17 +317,17 @@ void __po_hi_c_driver_1553_rasta_controller ()
 
 //   __DEBUGMSG("[RASTA 1553] -------------  BC: START LIST EXECUTION -------------\n");
 
-//   __DEBUGMSG("[RASTA 1553] Start CMD list processing.\n"); 
+//   __DEBUGMSG("[RASTA 1553] Start CMD list processing.\n");
    if ( __po_hi_c_driver_1553_rasta_proccess_list(po_hi_c_driver_1553_rasta_fd,cmd_list,0) )
    {
       return;
    }
 
    __DEBUGMSG("[RASTA 1553] -------------  BC: START LIST EXECUTION -------------\n");
-   __DEBUGMSG("[RASTA 1553] Start RESULT list processing.\n"); 
+   __DEBUGMSG("[RASTA 1553] Start RESULT list processing.\n");
 
    /* Clear data that input will overwrite */
-   for (j = 1; j <= __PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT; j++) 
+   for (j = 1; j <= __PO_HI_NEED_DRIVER_1553_RASTA_MSG_CNT; j++)
    {
       /* clear data */
       for (k = 0; k < 8; k++)
@@ -359,7 +359,7 @@ void __po_hi_c_driver_1553_rasta_controller ()
          }
       }
       __DEBUGMSG("\n");
-      
+
       j++;
    }
    */

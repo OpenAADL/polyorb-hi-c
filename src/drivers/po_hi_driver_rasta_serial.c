@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
+ * Copyright (C) 2010-2019 ESA & ISAE, 2019-2022 OpenAADL
  */
 
 /*! \file po_hi_driver_rasta_serial.c
@@ -81,7 +81,7 @@ void __po_hi_c_driver_serial_rasta_poller (const __po_hi_device_id dev_id)
    while (ts > 0)
    {
       __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Poller waits for incoming message (%d bytes are required)!\n", ts);
-      n = read (po_hi_c_driver_rasta_serial_fd_read[dev_id], ptr, ts); 
+      n = read (po_hi_c_driver_rasta_serial_fd_read[dev_id], ptr, ts);
 
       __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] read() %d returns %d!\n", po_hi_c_driver_rasta_serial_fd_read[dev_id], n);
       if (n == -1)
@@ -97,14 +97,14 @@ void __po_hi_c_driver_serial_rasta_poller (const __po_hi_device_id dev_id)
    }
 
    __po_hi_c_driver_serial_rasta_poller_msg.length = __PO_HI_MESSAGES_MAX_SIZE;
-   __po_hi_c_driver_serial_rasta_request =__po_hi_get_request();
+   __po_hi_c_driver_serial_rasta_request =__po_hi_get_request(invalid_port_t);
    __po_hi_unmarshall_request (__po_hi_c_driver_serial_rasta_request,
                                &__po_hi_c_driver_serial_rasta_poller_msg);
 
    if ((*__po_hi_c_driver_serial_rasta_request).port > __PO_HI_NB_PORTS)
    {
       __PO_HI_DEBUG_DEBUG ("[RASTA SERIAL] Invalid port number (%d), will not deliver", (*__po_hi_c_driver_serial_rasta_request).port);
-   } 
+   }
    else
    {
       __po_hi_main_deliver (__po_hi_c_driver_serial_rasta_request);
@@ -126,7 +126,7 @@ void __po_hi_rasta_interrrupt_register(void *handler, int irqno, void *arg);
  *
  * This function  is used to initialize the device driver connected to the
  * serial interface to a RASTA board. It uses the configuration properties
- * from its associated configuration parameters (using the 
+ * from its associated configuration parameters (using the
  * __po_hi_get_device_configuration function).
  */
 
@@ -154,7 +154,7 @@ void __po_hi_c_driver_serial_rasta_init (__po_hi_device_id id)
 
    __PO_HI_DEBUG_INFO ("[RASTA SERIAL] Initialization starts !\n");
 
-   po_hi_c_driver_rasta_serial_fd_write[id] = 
+   po_hi_c_driver_rasta_serial_fd_write[id] =
    po_hi_c_driver_rasta_serial_fd_read[id] = open (serialconf->devname, O_RDWR);
    /*
    po_hi_c_driver_rasta_serial_fd_write = open (serialconf->devname, O_WRONLY);
@@ -237,7 +237,7 @@ __po_hi_msg_t           __po_hi_c_driver_serial_rasta_sender_msg;
  * \brief Function related to the RASTA serial driver - sender function.
  *
  * This function implements the sender function to send bytes through the serial line using
- * the RASTA device. 
+ * the RASTA device.
  * There are the description of the arguments used by the function:
  *   - task_id: task that actually sends the data (emitter/producer task)
  *   - port   : (global) port that contains the data

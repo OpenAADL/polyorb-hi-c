@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
+ * Copyright (C) 2010-2019 ESA & ISAE, 2019-2022 OpenAADL
  */
 
 #include <deployment.h>
@@ -90,8 +90,8 @@ void __po_hi_c_driver_spacewire_rasta_poller (const __po_hi_device_id dev_id)
       __PO_HI_DEBUG_DEBUG ("|\n");
 
       __po_hi_c_driver_spacewire_rasta_poller_msg.length = __PO_HI_MESSAGES_MAX_SIZE;
-      
-      __po_hi_c_driver_spacewire_rasta_request = __po_hi_get_request();
+
+      __po_hi_c_driver_spacewire_rasta_request = __po_hi_get_request(invalid_port_t);
       __po_hi_unmarshall_request (__po_hi_c_driver_spacewire_rasta_request, &__po_hi_c_driver_spacewire_rasta_poller_msg);
 
       __PO_HI_DEBUG_DEBUG ("[RASTA SPACEWIRE] Destination port: %d\n", (*__po_hi_c_driver_spacewire_rasta_request).port);
@@ -163,7 +163,7 @@ void __po_hi_c_driver_spacewire_rasta_init (__po_hi_device_id id)
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_RXBLOCK,1);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_TXBLOCK,1);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_NODEADDR, (unsigned char)node_addr); //
-   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_PROMISCUOUS,1); // 
+   __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_PROMISCUOUS,1); //
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_CLKDIV, 0);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_TXBLOCK_ON_FULL,1);
    __PO_HI_DRIVERS_RTEMS_UTILS_IOCTL(po_hi_c_driver_rasta_spacewire_fd[id],SPACEWIRE_IOCTRL_SET_RM_PROT_ID,0);

@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2010-2019 ESA & ISAE, 2019-2021 OpenAADL
+ * Copyright (C) 2010-2019 ESA & ISAE, 2019-2022 OpenAADL
  */
 
 #include <drivers/po_hi_driver_linux_serial.h>
@@ -102,7 +102,7 @@ void __po_hi_c_driver_serial_linux_poller (const __po_hi_device_id dev_id)
 
    __PO_HI_DEBUG_DEBUG ("[LINUX SERIAL] Received: %s\n", __po_hi_c_driver_serial_linux_poller_msg.content);
 
-   __po_hi_c_driver_serial_linux_request = __po_hi_get_request();
+   __po_hi_c_driver_serial_linux_request = __po_hi_get_request(invalid_port_t);
    __po_hi_unmarshall_request (__po_hi_c_driver_serial_linux_request, &__po_hi_c_driver_serial_linux_poller_msg);
 
    if (__po_hi_c_driver_serial_linux_request->port > __PO_HI_NB_PORTS)

@@ -5,7 +5,7 @@
  *
  * For more informations, please visit http://www.openaadl.org
  *
- * Copyright (C) 2018-2019 ESA & ISAE, 2019-2021 OpenAADL
+ * Copyright (C) 2018-2019 ESA & ISAE, 2019-2022 OpenAADL
  */
 
 #include <stdio.h>
@@ -310,7 +310,7 @@ void __po_hi_c_driver_rtems_drvmgr_ethernet_poller (const __po_hi_device_id dev_
                   continue;
                }
 
-               ___po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request = __po_hi_get_request();
+               ___po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request = __po_hi_get_request(invalid_port_t);
                protocol_conf->unmarshaller (__po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request, &datareceived, len);
                 (*__po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request).port = 1;
             }
@@ -342,7 +342,7 @@ void __po_hi_c_driver_rtems_drvmgr_ethernet_poller (const __po_hi_device_id dev_
               continue;
             }
 
-            __po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request = __po_hi_get_request();
+            __po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request = __po_hi_get_request(invalid_port_t);
             __po_hi_unmarshall_request
               (__po_hi_c_driver_rtems_drvmgr_ethernet_poller_received_request,
                &__po_hi_c_driver_rtems_drvmgr_ethernet_poller_msg);
