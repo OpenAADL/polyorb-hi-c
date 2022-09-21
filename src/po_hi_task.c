@@ -559,7 +559,7 @@ pthread_t __po_hi_posix_create_thread(
 
   if (stack_size != 0) {
     if (pthread_attr_setstacksize(&attr, stack_size) != 0) {
-      __PO_HI_DEBUG_CRITICAL ("Thread creation failed - in call to pthread_attr_setscope\n");
+      __PO_HI_DEBUG_CRITICAL ("Thread creation failed - in call to pthread_attr_setstacksize\n");
       return ((pthread_t) __PO_HI_ERROR_PTHREAD_ATTR);
     }
   }
